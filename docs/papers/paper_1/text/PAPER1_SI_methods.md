@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_37.odt — do not edit. source-sha256=75f4aeb7f4427c23 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_38.odt — do not edit. source-sha256=00c4ff384fffb234 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -44,7 +44,7 @@ The manuscript quotes the well basis. Each of the following is the delete-one es
   S10. Water-table-fluctuation apparent storage coefficient (Sₐ)   15
   S11. Mean water-table surface and the Darcy flow field           17
   S12. Coastal-retreat gradient regression                         18
-  S13. Forest-interception drawdown reach (Figure 18)              20
+  S13. Forest-interception drawdown reach (Figure 17)              20
   S14. Software, parameters and reproducibility                    21
   S15. Supplementary references                                    22[]{#contents}
   ---------------------------------------------------------------- -----------------
@@ -112,7 +112,7 @@ All values that are constant across the pipeline are defined in a single central
   Hydraulic conductivity *K*   6 m day⁻¹    Betson et al. (2002) tracer test
   ---------------------------- ------------ ------------------------------------------
 
-The 24% Corsican pine canopy-interception fraction is from Freeman (2008). It is the most spatially proximate canopy-interception measurement available for the Newborough plantation. *K* = 6 m day⁻¹ is from the single tracer test reported in the contemporaneous CCW groundwater-modelling study. It is required only in the Figure 18 forest-drawdown reach calculation (Section S13) and does not enter any other framework output.
+The 24% Corsican pine canopy-interception fraction is from Freeman (2008). It is the most spatially proximate canopy-interception measurement available for the Newborough plantation. *K* = 6 m day⁻¹ is from the single tracer test reported in the contemporaneous CCW groundwater-modelling study. It is required only in the Figure 17 forest-drawdown reach calculation (Section S13) and does not enter any other framework output.
 
 ### []{#anchor-1}S2.2 Canonical pipeline parameters file
 
@@ -418,7 +418,7 @@ For the forested clusters (C4, C5) an interception-corrected variant is also rep
 
 Monthly resolution prevents isolation of individual storm events. The WTF estimates therefore conflate true gravity drainage with capillary-fringe release. They should be read as upper bounds on the storage coefficient Sₐ, not as point estimates of the gravity Sy alone (Healy and Cook, 2002; Scanlon et al., 2002). Slug tests or pumping tests at representative wells per cluster remain the gold-standard alternative, and would be the priority future field measurement. As with the SSM coefficients (Section S6.3), the robust and used quantity is the cross-cluster ordering, not the absolute magnitude.
 
-The three estimators converge closely at C3 Western Residual (0.35, 0.32, 0.31 for Approaches A, B, C). This is the value that anchors the Figure 18 forest-drawdown reach. Approaches B and C agree that C1 Lake Edge is the low-storage end (0.21 and 0.19). The higher winter-OLS estimate there (0.34) is consistent with the β₃ drainage correction over-correcting in the lake-buffered setting. Where an absolute Sₐ nonetheless enters a downstream quantity, namely the Figure 18 reach λ = √(Kb⁄(Sₐ·β₃)), it is used as an order-of-magnitude input and reported accordingly (Section S13). The one genuinely method-dependent feature is the top of the ranking. The uncorrected winter-OLS fit places C5 highest. The interception-corrected rapid-event estimate places C3 highest. The interception-corrected event estimate places C5 marginally above C3 (0.330 against 0.325).
+The three estimators converge closely at C3 Western Residual (0.35, 0.32, 0.31 for Approaches A, B, C). This is the value that anchors the Figure 17 forest-drawdown reach. Approaches B and C agree that C1 Lake Edge is the low-storage end (0.21 and 0.19). The higher winter-OLS estimate there (0.34) is consistent with the β₃ drainage correction over-correcting in the lake-buffered setting. Where an absolute Sₐ nonetheless enters a downstream quantity, namely the Figure 17 reach λ = √(Kb⁄(Sₐ·β₃)), it is used as an order-of-magnitude input and reported accordingly (Section S13). The one genuinely method-dependent feature is the top of the ranking. The uncorrected winter-OLS fit places C5 highest. The interception-corrected rapid-event estimate places C3 highest. The interception-corrected event estimate places C5 marginally above C3 (0.330 against 0.325).
 
 ## **S10.4 Spatial Sₐ surface**
 
@@ -511,7 +511,7 @@ The panel's climate covariate is an undecayed cumulative water balance, and it i
 
 The C5 Coastal Forest well NW9 lies 419 m from the eroding shoreline. It shows a decline of −32.7 mm yr⁻¹ (p = 0.002, R² = 0.41, n = 20 years, from *25_02_per_well_summer_min_slopes.csv*). NW9 is under canopy and is excluded from the forest-free regression. It therefore functions as an out-of-sample sentinel: it tests the fitted gradient at a near-coast position without contributing to it. Under the headline linear-capped fit, the gradient at 419 m predicts a coastal-retreat contribution of −16.87 mm yr⁻¹. That leaves −15.85 mm yr⁻¹ of the observed decline unaccounted for by distance to the shoreline. No climate background closes that gap. The two cluster-independent terms are the trend contribution carried by the cumulative water-balance covariate, +2.95 mm yr⁻¹, and the fitted far-field asymptote c_far, −0.30 mm yr⁻¹. Their sum is positive, so the remainder unexplained at this well is larger still, at −18.50 mm yr⁻¹. The substrate-position amplification developed in Section 5.2 of the manuscript addresses that remainder.
 
-## []{#anchor-30}S13. Forest-interception drawdown reach (Figure 18)
+## []{#anchor-30}S13. Forest-interception drawdown reach (Figure 17)
 
 Section 4.11 of the main manuscript renders the inland reach of forest-interception drawdown as a physical decay length (20_spatial_figures.py for the figure). This reach is the distance over which interception-driven recharge suppression at the plantation boundary persists in the down-gradient open dune. The calculation is a Dupuit-style drainage length:
 
@@ -519,13 +519,13 @@ Section 4.11 of the main manuscript renders the inland reach of forest-intercept
 
 where λ is the inland decay length, *K* the hydraulic conductivity, *b* the saturated thickness, *Sₐ* the apparent storage coefficient and β₃ the drainage coefficient (in daily units). The expression is the characteristic length over which a head perturbation at the source decays in a homogeneous, fixed-base unconfined aquifer.
 
-The parameters used in Figure 18 are taken from C3 Western Residual, the open-dune cluster immediately down-gradient of the plantation boundary. They are: *Sₐ = 0.298 (C3 per-well median of the Approach B event estimates, 18_wtf_01_well_sy_estimates.csv, Section S10.4); β₃ = 0.0616 month⁻¹ ≈ 2.02 × 10⁻³ day⁻¹* (C3 cluster-mean, Section S6.2); *K* = 6 m day⁻¹ (Betson et al., 2002, Section S2.1); and *b* = 5 m (nominal saturated thickness). The saturated thickness is uncertain by a factor of two or more, given the absence of cored aquifer-thickness data. The geophysics of Bristow, 2002, indicates 12--27 m in the forest interior, but the open-dune thickness immediately south of the plantation boundary may be lower.
+The parameters used in Figure 17 are taken from C3 Western Residual, the open-dune cluster immediately down-gradient of the plantation boundary. They are: *Sₐ = 0.298 (C3 per-well median of the Approach B event estimates, 18_wtf_01_well_sy_estimates.csv, Section S10.4); β₃ = 0.0616 month⁻¹ ≈ 2.02 × 10⁻³ day⁻¹* (C3 cluster-mean, Section S6.2); *K* = 6 m day⁻¹ (Betson et al., 2002, Section S2.1); and *b* = 5 m (nominal saturated thickness). The saturated thickness is uncertain by a factor of two or more, given the absence of cored aquifer-thickness data. The geophysics of Bristow, 2002, indicates 12--27 m in the forest interior, but the open-dune thickness immediately south of the plantation boundary may be lower.
 
-With these inputs, λ ≈ 220 m (drawdown_lambda in 20_report_numbers.csv, quoted to the nearest 10 m). The contours on Figure 18 should be read as an order-of-magnitude diagnostic of the inland reach, not as a calibrated prediction. λ scales as √(Kb). Across the conductivity range reported for dune sand (2--20 m day⁻¹) it spans roughly 130--410 m. Across a saturated thickness of 3--8 m it spans 170--280 m. The order-of-magnitude conclusion holds across that range: forest-interception drawdown reaches of order 200 m beyond the plantation boundary, not across the whole site. The calculation carries canopy interception alone. It is therefore an upper bound on the reach of the forest effect beyond the canopy, and a lower bound on its magnitude.
+With these inputs, λ ≈ 170 m (drawdown_lambda in 20_report_numbers.csv, quoted to the nearest 10 m). The contours on Figure 17 should be read as an order-of-magnitude diagnostic of the inland reach, not as a calibrated prediction. λ scales as √(Kb). Across the conductivity range reported for dune sand (2--20 m day⁻¹) it spans roughly 100--310 m. Across a saturated thickness of 3--8 m it spans 130--220 m. The order-of-magnitude conclusion holds across that range: forest-interception drawdown reaches of order 200 m beyond the plantation boundary, not across the whole site. The calculation carries canopy interception alone. It is therefore an upper bound on the reach of the forest effect beyond the canopy, and a lower bound on its magnitude.
 
-This is the only output of the framework that depends on *K*. Every other coefficient surface, residual field, water-balance partition, *Sₐ* estimate, coastal-retreat gradient and diagnostic synthesis presented in the manuscript is derived without a *K* estimate (Section 5.6 of the main manuscript). A measured *K* would tighten only the Figure 18 reach calculation. It would come from slug tests at representative wells per cluster, the priority future field measurement.
+This is the only output of the framework that depends on *K*. Every other coefficient surface, residual field, water-balance partition, *Sₐ* estimate, coastal-retreat gradient and diagnostic synthesis presented in the manuscript is derived without a *K* estimate (Section 5.6 of the main manuscript). A measured *K* would tighten only the Figure 17 reach calculation. It would come from slug tests at representative wells per cluster, the priority future field measurement.
 
-The empirically fitted coastal-retreat reach (Figure 19 of the manuscript) is *not* an analogue of the Figure 18 reach in this sense. The coastal-reach length *L_cg* is fitted directly from the panel regression (Section S12), and *K* and *b* do not enter its derivation. The forest and coastal reaches are therefore methodologically distinct. Figure 18 is a forward calculation from independent SSM and literature parameters. Figure 19 is a back-calculation from observed water-table trends. Section 5.6 of the main manuscript discusses the implications.
+The empirically fitted coastal-retreat reach (mapped in the companion coastal-retreat paper) is *not* an analogue of the Figure 17 reach in this sense. The coastal-reach length *L_cg* is fitted directly from the panel regression (Section S12), and *K* and *b* do not enter its derivation. The forest and coastal reaches are therefore methodologically distinct. Figure 17 is a forward calculation from independent SSM and literature parameters. The coastal reach is a back-calculation from observed water-table trends. Section 5.6 of the main manuscript discusses the implications.
 
 ## []{#anchor-31}S14. Software, parameters and reproducibility
 

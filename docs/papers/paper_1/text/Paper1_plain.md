@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_5.odt — do not edit. source-sha256=546e31666287719a pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_6.odt — do not edit. source-sha256=2a1a9b1a7648995c pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -107,7 +107,7 @@ Mapped across the site, apparent storage changes smoothly, with no step at the e
 
 The three numbers give a monthly budget for each group: rain in, evaporation and drainage out. Over the record the two sides agree to within 1.7% at every group, with no hidden extra source needed. The paper notes that this is partly built in, since a model fitted to water levels can be expected to balance on average; what it shows is that three terms are enough.
 
-At individual wells the leftover (the **water-balance residual**) is small and shows no pattern across the site. Tests for water seeping in from the ridge, and for missing summer evaporation, found nothing. But monthly readings are too coarse to catch quick seepage through cracked rock, so the ridge test limits what this record can see rather than ruling it out. The leftover does have a seasonal rhythm, highest in winter and spring, which the paper leaves unexplained.
+At individual wells the leftover (the **water-balance residual**) is small. Its size shows no pattern across the site, though its sign leans slightly towards the negative in the east, and no Main Forest well has a positive one. Tests for water seeping in from the ridge, and for missing summer evaporation, found nothing. But monthly readings are too coarse to catch quick seepage through cracked rock, so the ridge test limits what this record can see rather than ruling it out. The leftover does have a seasonal rhythm, highest in winter and spring, which the paper leaves unexplained.
 
 ## []{#anchor-1}Drainage or evaporation?
 
@@ -115,9 +115,9 @@ The model puts drainage at 38% of the water lost at the Lake Edge, 45% in the Du
 
 ## []{#anchor-1}How quickly does it recover?
 
-How quickly the water table settles back after a wet or dry spell is its **mean-reversion time**: the time a departure takes to shrink to about a third of its size. The model (Model B in the sister paper) gives 2.1 months at a typical Lake Edge well, 4.4 in the Dune, 7.4 in the Western Residual and 13.3 in the Coastal Forest; in the Main Forest it cannot say.
+How quickly the water table settles back after a wet or dry spell is its **mean-reversion time**: the time a departure takes to shrink to about a third of its size. The model (Model B in the sister paper) gives 2.1 months for the Lake Edge group, 4.4 for the Dune and 7.4 for the Western Residual; in the Main Forest it cannot say.
 
-Measured straight from the readings, with no model, the same times are 2.0, 4.1, 6.3 and 12.0 months, and 15.6 in the Main Forest. The model and the readings agree group by group, so the drainage coefficient measures how fast the water table recovers, not drainage to a real floor (Hollingham, 2026c).
+The sister paper (Hollingham, 2026c) shows that the readings give the same times with no model at all, so the drainage coefficient measures how fast the water table recovers, not drainage to a real floor.
 
 # []{#anchor-2}7. How well does it forecast?
 
@@ -135,13 +135,11 @@ The western shore, along Caernarfon Bay, is eroding. The sea edge is where the g
 
 ## []{#anchor-2}What the record shows
 
-The paper compared each open-dune well's long-term trend in its summer low with its distance from the shore. At 150 m from the shore the summer low has been falling by roughly 26 mm a year more than far inland, and the effect fades to nothing over about 900 m (at most about 1 km under other assumptions). The result is the same whether forest wells are included, left out or allowed for, so it is not the plantation's doing.
-
-A check needing no model points the same way. Between a well near the shore and one beyond the reach, the difference in spring level has grown by 27.8 mm a year, close to the modelled figure. A gap that widens over time is what a moving shore produces, rather than a fixed difference in the ground or a swing in the weather.
+A companion paper on the coast (Hollingham, 2026f) compares each well's long-term trend in its summer low with its distance from the shore. At 150 m from the shore the summer low has been falling by roughly 26 mm a year more than far inland, and the effect fades to nothing over about 900 m. The paper uses that result to divide each group's decline between the coast and everything else.
 
 ## []{#anchor-2}Which groups does it touch?
 
-The coast accounts for about half of the summer decline in the Coastal Forest, the group nearest the shore and falling more than twice as fast as any other. It accounts for most of the smaller decline in the Western Residual, half of whose wells lie within the reach. In the Main Forest, three of whose four wells lie within the reach, it accounts for about three-quarters of a small decline that the record does not measure firmly. It touches the Lake Edge negligibly and the Dune not at all.
+The coast accounts for about half of the summer decline in the Coastal Forest, the group nearest the shore and falling more than twice as fast as any other. It accounts for most of the smaller decline in the Western Residual, eleven of whose wells lie within the reach. In the Main Forest it accounts for about three-quarters of a small decline that the record does not measure firmly. It touches the Lake Edge negligibly and the Dune not at all.
 
 The Coastal Forest share is an indication, not a measured fraction: few wells lie near the shore, and the share shifts with which wells the group contains. The maturing canopy may also contribute there; the record cannot separate it, and the paper leaves that open.
 
@@ -149,7 +147,7 @@ The Coastal Forest share is an indication, not a measured fraction: few wells li
 
 Removing the coastal effect does not leave a clean climate figure: the part of the trend common to the whole site shifts a lot with the years chosen, so the paper gives no climate rate. But the coastal effect must be taken out first, or it will be mistaken for a site-wide decline. At the Lake Edge and in the Dune, beyond the coast's reach, the model leaves the whole of the summer decline unexplained, and climate is the leading candidate for it. Warmer summers raising evaporative demand and a change in how rain falls within the month are both possible routes; the paper does not settle which dominates.
 
-Two further points. Rising sea level, about 4 mm a year, pushes the water table near the coast the other way, so the coastal figure is the net of the two and a cautious estimate of the erosion effect. And against Ranwell's readings, the open slacks beyond the coastal reach stand today within about a decimetre of their mid-century level once the weather of the two periods is allowed for: a dip within a near-steady century, not part of a long fall.
+One further point. Against Ranwell's readings, the open slacks beyond the coastal reach stand today within about a decimetre of their mid-century level once the weather of the two periods is allowed for: a dip within a near-steady century, not part of a long fall.
 
 # []{#anchor-2}9. What the method cannot tell
 
@@ -223,6 +221,8 @@ Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizi
 Hollingham, M. (2026b) Companion paper on the dune scraping and partial clearfell at Newborough Warren. In preparation.
 
 Hollingham, M. (2026c) One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it. In preparation.
+
+Hollingham, M. (2026f) Coastal retreat draws down a dune aquifer: separating shoreline erosion from climate in a 21-year dipwell record. In preparation.
 
 Ranwell, D.S. (1959) Newborough Warren, Anglesey. *Journal of Ecology*.
 

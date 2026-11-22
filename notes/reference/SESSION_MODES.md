@@ -243,6 +243,32 @@ the environment being the recorded one**, not a measured verdict. The measured r
 table; the capability claims are the inference. Before shipping from this mode, run
 `env_audit` and quote it.
 
+**Now measured (2026-11-22, chat "Paper M proofread", shipping Paper M v1_49 from this mode).
+`env_audit` was run as that paragraph asks, both ways, and the answer is that THE INTERPRETER
+DECIDES — the mode passes only with the pinned venv on PATH:**
+
+    ./venv/bin/python tools/env_audit.py   # PASSES: "john@john-ThinkPad-L14 - the recorded
+                                           # machine. every recorded version matches."
+                                           # python 3.12.3, pandoc 3.1.3, pdftotext 24.02.0,
+                                           # soffice 24.2.7.2, git 2.43.0
+    python3 tools/env_audit.py             # FAILS on /usr/bin/python3
+
+The OS interpreter is **not** the recorded environment: pandas 2.1.4 against a recorded 3.0.3,
+scipy 1.11.4 against 1.17.1, `cairosvg` / `pastas` / `reportlab` **not importable**, and none of
+the BLAS pins set. `env_audit`'s own verdict on it is "Nothing in this run that touches an output
+can be trusted from this environment."
+
+So, in this mode: **`export PATH="$PWD/venv/bin:$PATH"` before the gates, the pipeline, a ship or
+anything that writes an output.** `session_handover.py` reports the host interpreter (`python
+3.12.3 at /usr/bin/python3`), which reads like a pass and is not one. The chat that found this had
+already run a full `check_all` under the OS python before measuring; it re-ran the gates under the
+venv, and `refresh_mirrors.py --verify` then confirmed the mirrors it had produced reproduced byte
+for byte, so nothing was lost — but the verdict of that first run was not trustworthy.
+
+With the venv on PATH the inferred capabilities in the paragraph above are now measured for the
+pipeline half: that ship ran `check_all` green, rebuilt every published PDF, pushed both
+repositories and archived to Drive from this mode.
+
 **The tell is where the session RUNS, not which app started it.** The section above is right
 that a desktop-app session can be a cloud session; what it could not know is that the app
 also starts sessions natively, and those are a different thing entirely. `hostname` and

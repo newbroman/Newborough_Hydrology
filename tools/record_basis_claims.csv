@@ -20,6 +20,7 @@ RB-13,report8,Network-Scale Coastal-Retreat,a non-linear panel regression was fi
 RB-13,report8,Network-Scale Coastal-Retreat,Three nested specifications were fitted to test robustness to forest-cover inclusion: the full network (67 wells,25_01_panel_fit_parameters n_wells
 RB-14,report9,The 1989–96 record,"uses each well's own coefficients from the modern per-well fit, driven by the RAF Valley climate record for 1989–96, with no refitting",
 RB-15,none,,,Script 39's full-record climate-only series (open-ground panel) is not presented in any document; nothing to state until it is
+RB-15p,MS,S.10 Script 15,"The script uses the comparison window, January 2018 to February 2026",renumbered from a duplicate RB-15 (2026-11-22f); the D-280 depth-dependent PET basis
 RB-44,report9,The 1951–53 record,"each paired well's own coefficients from the modern fit are driven by the RAF Valley record from 1930, with no refitting",
 RB-44b,report9,The 1951–53 record,0.46 m above the record mean,T-71 (D-208): the inland baseline is the open-dune wells at or beyond the coastal reach; Script 44 Q4
 RB-44c,report9,The 1951–53 record,own fitted responses driven by the RAF Valley record put the water table of 1953–1960 within 0.1 m of its level over the modern record,"T-72 (D-209): Script 44 Q5, the forest floors against the pre-planting hindcast; 44_10"

@@ -9,16 +9,16 @@
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_40.odt` | 2026-11-22T10:32:32Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_40.odt` | 2026-11-22T10:38:58Z | current |
 | `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_31.odt` | 2026-11-05T13:51:32Z | current |
-| `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_38.odt` | 2026-11-22T10:32:36Z | current |
-| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_97.odt` | 2026-11-22T10:32:35Z | current |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v50.odt` | 2026-11-22T10:32:36Z | current |
+| `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_38.odt` | 2026-11-22T10:39:03Z | current |
+| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_97.odt` | 2026-11-22T10:39:02Z | current |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v50.odt` | 2026-11-22T10:39:02Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-10T16:14:45Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-10T16:14:44Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-10T16:14:45Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_136.odt` | 2026-11-22T10:32:28Z | current |
-| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_65.odt` | 2026-11-22T10:32:30Z | current |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_136.odt` | 2026-11-22T10:38:54Z | current |
+| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_65.odt` | 2026-11-22T10:38:56Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-10-04T11:43:41Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-10-04T11:43:42Z | unversioned |
 

@@ -77,4 +77,4 @@ RB-55c,MS,S.23j Script 55,"fitted on one side of the split date with the specifi
 RB-55d,MS,S.23j Script 55,"hindcast applies the full-record law forward over the committed climate record from its first month, excluding readings held at the pipe base",D-303
 RB-55e,MS,S.23j Script 55,The dry-month law is fitted on the dry subsets only,"D9, D-303"
 RB-55f,MS,S.23j Script 55,the winter joint fit on below-ground winter months with no external specific yield at all,"D11, D-306"
-RB-50x,none,,,"J-23 (T-173 under Model B, Martin 2026-11-20): not yet in any document; the Paper M section 4.5 text follows once the v1_49 proofread has landed, and states the basis there"
+RB-50x,PaperM,Neighbouring wells,fitted before 2018 with the intercept borrowed with them,"J-23 (T-173 under Model B, Martin 2026-11-20); written into Paper M v1_50 section 4.5 by J-27, which states the basis: pre-2018 fit, intercept borrowed with the betas, scored after 2018"

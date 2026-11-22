@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_10.odt — do not edit. source-sha256=8f7a7d6cd323c9c7 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_11.odt — do not edit. source-sha256=b73f6a72a590d2d3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -57,7 +57,7 @@ The study uses a reference network of 66 wells: those with at least 100 months o
 
 The wells fall into five groups that rise and fall together, found from the shape of their records before any model was fitted. Three groups are open dune (the Lake Edge, the Dune and the Western Residual) and two are under pine (the Main Forest and the Coastal Forest). The groups are stable when wells or months are left out at random, but groups built separately from two halves of the record agree only moderately (a score of 0.53 where 1 is identical). So they are a useful way of dividing one continuous aquifer, not sharply bounded units.
 
-The numbers a study reports belong to the stretch of record they were fitted on, so the paper says which applies to every result. One basis is the average hydrograph of each group, fitted on every month available. The other is each well on its own, on its full record or on a common window, the most recent 100 months at every well, so that wells are compared under the same weather. The tests that split the record fit each well on the years before January 2018 and test it on the years after.
+The numbers a study reports belong to the stretch of record they were fitted on, so the paper says which applies to every result. One basis is the average hydrograph of each group, fitted on every month available. The other is each well on its own, on its full record or on a common window, the same 100 months at every well, ending in February 2026, so that wells are compared under the same weather. A month when a well was dry still counts, as a level too low for the pipe to read. The tests that split the record fit each well on the years before January 2018 and test it on the years after.
 
 # []{#anchor}4. How the model does
 

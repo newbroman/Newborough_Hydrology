@@ -45,7 +45,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.42.0"  # Hollingham (2026) — 2026-11-22 (J-27). 50_36_pet_comparison.csv registered, keyed
+__version__ = "1.42.1"  # Hollingham (2026) — 2026-11-22 (2026-11-22f). 03_06_leave_one_out.csv registered, keyed (Cluster_Label, Excluded_Well)
 #   (basis, pet, quantity), so Paper M §3 can bind the year Penman–Monteith inputs begin (first_year, 1957) as a
 #   field (Martin 2026-11-21: "all dates should be fields!"; a year is a number).
 __version_prev2__ = "1.41.0"  # Hollingham (2026) — 2026-11-17 (D-334, T-213). 16_water_bal_table.csv registers Model B's
@@ -548,6 +548,10 @@ EXTRA_VALUE_TABLES = [
     # all / first_year (the first year Penman–Monteith can be computed) as a field.
     ("outputs/50_record_length/50_36_pet_comparison.csv", ("basis", "pet", "quantity"),
      ["value"]),
+    # 2026-11-22f (1.42.1): Script 03's leave-one-out sweep, one row per (cluster, excluded well); the MS
+    # quotes the C4 R² recoveries and the per-cluster beta_1 widths from it
+    ("outputs/03_state_space_model/03_06_leave_one_out.csv", ("Cluster_Label", "Excluded_Well"),
+     ["beta_1_recharge", "R2"]),
     # --- registration pass batch 1 (2026-09-20): tables the report quotes cell by cell
     ("outputs/00_climate_summary/00_01_annual_climate_summary.csv", "Year",            # report9 §4.1.1 wettest/driest years
      ["Annual_P_mm", "Annual_PET_mm", "P_PET_ratio", "Months_complete"]),

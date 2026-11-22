@@ -54,7 +54,7 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-22. A "when"/"unless" column's "else" may be a column spec, rendered
+__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-22 (2026-11-22f). A "{x:,.1f}" template no longer fails the negative-zero test on its thousands separator
 #   for the excluded rows (Paper 1 Tables 2-3 print C4's drainage by difference, marked; Martin). A string "else" is unchanged.
 __version_prev__ = "1.13.0"  # Hollingham (2026) — 2026-10-12 (D-259). A "params" entry may carry "where":
 #   {column: template} to pick a report number qualified by more than its Parameter (03's partition rows are
@@ -234,7 +234,7 @@ class _Field(str):
     def __format__(self, spec):
         if spec and _is_num(self):
             out = format(_num(self), spec)
-            if out.startswith("-") and float(out) == 0:   # 1.13.0: a value that rounds to zero has no sign
+            if out.startswith("-") and float(out.replace(",", "")) == 0:   # 1.13.0: a value that rounds to zero has no sign; 1.14.1: "," spec
                 out = out[1:]
             return out.replace("-", MINUS)
         return format(str(self), spec)

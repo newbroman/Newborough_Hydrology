@@ -79,7 +79,10 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-17 (T-213 review Q3; Martin: "Fix Script 16"). The SSM is fitted on
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-11-22. Drainage by difference (recharge - atmospheric draw) beside
+#   Model B's beta_3 drainage: 16_water_bal_table Drainage_bydiff_B_*, 16_water_bal_vol_table Bydiff_* / *_bydiff_mm_yr.
+#   Paper 1 Tables 2-3 print C4 from these, marked, because Model B does not identify C4's beta_3 (Martin).
+__version_prev__ = "1.15.0"  # Hollingham (2026) - 2026-11-17 (T-213 review Q3; Martin: "Fix Script 16"). The SSM is fitted on
 #   gross rainfall and above-canopy PET, so beta_2*PET already carries the canopy's interception loss. The volumetric
 #   split now applies to GROSS rainfall: Drain = P*df, ET_total = P*(1-df) with interception inside it, ET (after
 #   interception) = ET_total - I. Until 1.14.0 the split was applied to P_net and I added on top, counting the canopy
@@ -480,6 +483,11 @@ def save_headspace_table(summary, path):
             "Drainage_B_pct": s["drain_pct_B"],
             "ET_B_pct": s["et_pct_B"],
             "LCSC_B_pct": s["lcsc_B"],                   # 1.14.0: Script 03's headline (Model B) LCSC
+            # 1.16.0: drainage BY DIFFERENCE (recharge less atmospheric draw, the balance closed), for a cluster
+            # whose beta_3 Model B does not identify (C4, p = 0.45): Paper 1 Tables 2-3 print it, marked (Martin).
+            "Drainage_bydiff_B_m_month": s["recharge_B"] - s["et_draw_B"],
+            "Drainage_bydiff_B_pct": 100.0 * (s["recharge_B"] - s["et_draw_B"]) / s["recharge_B"],
+            "ET_bydiff_B_pct": 100.0 * s["et_draw_B"] / s["recharge_B"],
         })
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.6f")
     saved(f"{path.name}")
@@ -590,6 +598,12 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=No
             "DDP_ET_frac": 1.0 - (ddp or {}).get(cid, np.nan),
             "DDP_drain_mm_yr": Pg * (ddp or {}).get(cid, np.nan),
             "DDP_ET_mm_yr": Pg * (1.0 - (ddp or {}).get(cid, np.nan)),
+            # 1.16.0: the split by difference (drainage = recharge - atmospheric draw, as a share of recharge),
+            # for the cluster whose beta_3 Model B does not identify; same Pg convention as the mid columns
+            "Bydiff_drain_frac": (s["recharge_B"] - s["et_draw_B"]) / s["recharge_B"],
+            "Drain_bydiff_mm_yr": Pg * (s["recharge_B"] - s["et_draw_B"]) / s["recharge_B"],
+            "ET_bydiff_mm_yr": Pg * s["et_draw_B"] / s["recharge_B"] - I_val,
+            "ET_total_bydiff_mm_yr": Pg * s["et_draw_B"] / s["recharge_B"],
         })
 
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.4f")   # 1.12.0: fractions need more than 1 dp

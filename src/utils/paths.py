@@ -663,6 +663,7 @@ OUT_07_CLUSTERS_VS_COVARIATES = DIR_07 / "07_05_clusters_vs_covariates.csv"  # T
 # Script 08 — Model benchmarking
 OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"
 OUT_08_R2_MAP               = DIR_08 / "08_lcsc_02_r2_improvement_map.png"
+OUT_08_NSE_GAIN_ATLAS       = DIR_08 / "08_lcsc_05_nse_gain_atlas.png"   # Paper 1 Fig 10: iterative-NSE gain, atlas style (2026-11-22)
 OUT_08_NSE_MAP              = DIR_08 / "08_lcsc_03_nse_improvement_map.png"
 OUT_08_TABLE3_SUMMARY       = DIR_08 / "08_lcsc_04_table3_benchmark_summary.csv"
 OUT_08_PERWELL_NSE          = DIR_08 / "08_perwell_nse.csv"           # per-well TLM/SSM NSE + ΔNSE + β₂/β₃ join
@@ -1108,6 +1109,7 @@ OUT_18_SY_MAP               = DIR_18 / "18_wtf_02_spatial_sy_map.png"
 OUT_18_SY_CONTOUR           = DIR_18 / "18_wtf_03_sy_contour.png"
 OUT_18_SY_CONTOUR_EXT       = DIR_18 / "18_wtf_04_sy_contour_extended.png"
 OUT_18_HALFLIFE_MAP         = DIR_18 / "18_wtf_05_halflife_map.png"
+OUT_18_MEAN_REVERSION_ATLAS = DIR_18 / "18_wtf_06_mean_reversion_atlas.png"   # Paper 1 Fig 14: 1/beta_3, atlas style, C4 marked (2026-11-22)
 OUT_18_STORAGE_DRAINAGE_INDEX_CSV = DIR_18 / "18_wtf_05_storage_drainage_index.csv"
 OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
 OUT_18_SY_SPATIAL_TRENDS    = DIR_18 / "18_wtf_07_sy_spatial_trends.csv"  # open-dune Sy plane + within-forest Sy correlations

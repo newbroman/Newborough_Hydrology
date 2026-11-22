@@ -44,7 +44,9 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's coefficients are Model B
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-22. make_coefficient_map takes extra=callable(ax) -> legend handles,
+#   so Scripts 08 and 18 draw Paper 1's Figures 10 and 14 in the atlas style (Martin, reading copy 2026-11-21).
+__version_prev__ = "1.7.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's coefficients are Model B
 #   since Script 03 1.31.0: the map titles, the docstring and the report-number notes say so (the cluster-mean notes
 #   named the 3.7 m datum, which Model B's betas do not depend on). CEH14_beta3 / CEH14_beta3_pct now carry Model B's
 #   (positive) value, so their notes no longer say "negative"; Model A's negative value, which the documents cite,
@@ -247,6 +249,7 @@ def make_coefficient_map(
     contour_levels=None,
     contour_fmt="%.2f",
     surface=True,
+    extra=None,
 ):
     """
     Render one IDW-interpolated coefficient surface over DEM hillshade
@@ -323,6 +326,15 @@ def make_coefficient_map(
     # Colorbar
     cb = fig.colorbar(mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
     cb.set_label(cbar_label, fontsize=11)
+    if log_scale:   # 1.8.0: plain 1-2-5 ticks on a log bar (it showed a lone "10^1")
+        _lo, _hi = norm.vmin, norm.vmax
+        _t = [m * 10.0 ** e for e in range(int(np.floor(np.log10(_lo))), int(np.ceil(np.log10(_hi))) + 1)
+              for m in (1.0, 2.0, 5.0)]
+        _t = [x for x in _t if _lo <= x <= _hi]
+        if _t:
+            cb.set_ticks(_t)
+            cb.set_ticklabels([f"{x:g}" for x in _t])
+            cb.minorticks_off()
 
     # Contours
     if contour_levels is not None:
@@ -377,6 +389,10 @@ def make_coefficient_map(
                 markersize=10, linestyle="None",
             )
 
+    # 1.8.0: a caller may draw on the map before the legends (Script 18 marks C4); it returns
+    # extra legend handles, added to the cluster legend.
+    extra_handles = list(extra(ax) or []) if extra is not None else []
+
     # Legends
     if kml_handles:
         l1 = ax.legend(
@@ -387,7 +403,7 @@ def make_coefficient_map(
         ax.add_artist(l1)
 
     ax.legend(
-        handles=[cluster_handles[k] for k in sorted(cluster_handles)],
+        handles=[cluster_handles[k] for k in sorted(cluster_handles)] + extra_handles,
         fontsize=10, loc="lower right",
         title="Cluster", title_fontsize=10,
     )

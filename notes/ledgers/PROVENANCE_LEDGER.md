@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**154 exhibit(s)** across the corpus, drawing on **153 output file(s)**.
+**154 exhibit(s)** across the corpus, drawing on **155 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -59,11 +59,11 @@
 |  | Paper 1 | Figure 13 | β₃ drainage-rate surface |
 | `08_cluster_nse_medians.csv` | report9.odt | Table 1.16 | Iterative NSE by cluster, traditional linear model (TLM) against the state-space |
 | `08_lcsc_01_ceh6_showdown.png` | report9.odt | Figure 17 | Figure 1.13: Dual-model performance comparison at Lake Edge well CEH6. Upper pan |
-| `08_lcsc_02_r2_improvement_map.png` | Paper 1 | Figure 10 | SSM-over-TLM iterative NSE gain |
-|  | report9.odt | Figure 18 | Figure 1.14a: SSM gain over TLM across all 66 reference wells. Iterative R² impr |
+| `08_lcsc_02_r2_improvement_map.png` | report9.odt | Figure 18 | Figure 1.14a: SSM gain over TLM across all 66 reference wells. Iterative R² impr |
 | `08_lcsc_04_table3_benchmark_summary.csv` | report9.odt | Table 1.15 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
+| `08_lcsc_05_nse_gain_atlas.png` | Paper 1 | Figure 10 | SSM-over-TLM iterative NSE gain, atlas style (2026-11-22) |
 | `08_lcsc_model_stats.csv` | report9.odt | Table 1.15 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
-| `08_perwell_nse.csv` | Paper 1 | Figure 10 | SSM-over-TLM iterative NSE gain |
+| `08_perwell_nse.csv` | Paper 1 | Figure 10 | SSM-over-TLM iterative NSE gain, atlas style (2026-11-22) |
 | `09_scrape_04b_beta3_era_summary.csv` | report9.odt | Table 1.18 | Era-specific β₃ storage decay coefficients at scraping treatment and control wel |
 | `09_scrape_05_tier1_background_drift.png` | report9.odt | Figure 19 | Figure 1.15: Tier 1 background environmental drift analysis. CUSUM time series f |
 | `09_scrape_06_tier2_scraping_signal.png` | report9.odt | Figure 20 | Figure 1.16: Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 |
@@ -128,9 +128,9 @@
 | `18_wtf_01_well_sy_estimates.csv` | Paper 1 | Figure 9 | Interception-corrected WTF specific-yield surface |
 | `18_wtf_02_spatial_sy_map.png` | Paper 1 | Figure 9 | Interception-corrected WTF specific-yield surface |
 | `18_wtf_04_sy_contour_extended.png` | report9.odt | Figure 13 | Figure 1.10: Interpolated WTF specific yield surface for the combined reference |
-| `18_wtf_05_halflife_map.png` | Paper 1 | Figure 14 | Drainage decay half-life t½ = ln(2)/β₃ — the half-life of a departure from a wel |
-|  | report9.odt | Figure 55 | Figure 1.51: Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the net |
-| `18_wtf_05_storage_drainage_index.csv` | Paper 1 | Figure 14 | Drainage decay half-life t½ = ln(2)/β₃ — the half-life of a departure from a wel |
+| `18_wtf_05_halflife_map.png` | report9.odt | Figure 55 | Figure 1.51: Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the net |
+| `18_wtf_05_storage_drainage_index.csv` | Paper 1 | Figure 14 | Mean-reversion time 1/β₃ under Model B, atlas style, C4 marked (2026-11-22) |
+| `18_wtf_06_mean_reversion_atlas.png` | Paper 1 | Figure 14 | Mean-reversion time 1/β₃ under Model B, atlas style, C4 marked (2026-11-22) |
 | `20_clearfell_baseline_drawdown.png` | report9.odt | Figure 68 | Figure 1.64: Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2 |
 | `20_clearfell_gain.png` | report9.odt | Figure 69 | Figure 1.65: Clearfell step-change map — climate-corrected mean water-table shif |
 | `20_coastal_erosion.png` | Paper 1 | Figure 19 | Episodic coastal-retreat reach |

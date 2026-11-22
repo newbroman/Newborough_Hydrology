@@ -88,7 +88,9 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.32.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
+__version__ = "1.33.0"  # Hollingham (2026) - 2026-11-22. cluster_well_median_beta_3_drainage per cluster (03_report_numbers):
+#   report9 quotes the C4 per-well median beta_3 beside NW10's, and it had no key (Martin: "creae one").
+__version_prev__ = "1.32.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
 #   questions"). Every Model B row also carries se_alpha and corr_alpha_beta_3 (fit_ssm's with_corr, now on for the
 #   Model B fits), so Script 26's EWI standard error can carry the alpha-beta_3 covariance. Additive: no coefficient moves.
 # 1.31.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin: "essentially everything moves to
@@ -3019,7 +3021,7 @@ def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,
       deepest swept datum (report8 §3.4 "spans at most about 0.09").
     - well_median_max_R2_datum_network / well_median_R2_gain_network: the
       all-clusters medians 03_18 leaves blank (report9 §4.9.1 "1.45 m", "0.014").
-    - cluster_well_median_beta_1_recharge / _beta_2_atmospheric_draw per cluster
+    - cluster_well_median_beta_1_recharge / _beta_2_atmospheric_draw / _beta_3_drainage per cluster
       (report10 §5.6.3, the C4 per-well medians), comparison window (03_master_data).
     - cluster_well_recession_time_min/_median/_max_months per cluster: 1/β₃ over the
       member wells with β₃ > 0 (report10 §5.8.1, "t_r ≈ 8-10 months" at C1).
@@ -3065,7 +3067,7 @@ def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,
     # Per-cluster medians of the per-well coefficients, and the per-well recession time
     for cid, g in master_df.groupby("Cluster"):
         lab = labels.get(int(cid), f"C{int(cid)}")
-        for col in ("beta_1_recharge", "beta_2_atmospheric_draw"):
+        for col in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"):   # 1.33.0: beta_3 (report9 NW10 sentence)
             v = pd.to_numeric(g[col], errors="coerce").dropna()
             rpt.add(f"cluster_well_median_{col}", float(v.median()), unit="", well=lab,
                     note=f"median of per-well {col} over the {len(v)} member wells, comparison "

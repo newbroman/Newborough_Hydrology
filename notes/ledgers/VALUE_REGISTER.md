@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**197 output file(s)** supply **4510 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
+**197 output file(s)** supply **4516 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
 
 ## Cited quantities by output file
 
@@ -555,6 +555,11 @@
 |  | cluster_well_median_beta_2_atmospheric_draw · C2 (Dune) | report10.md |
 |  | cluster_well_median_beta_2_atmospheric_draw · C4 (Main Forest) | Newborough_Methods_Supplement.md, report10.md |
 |  | cluster_well_median_beta_2_atmospheric_draw · C5 (Coastal Forest) | report9.md |
+|  | cluster_well_median_beta_3_drainage · C1 (Lake Edge) | Supplementary_Material.md |
+|  | cluster_well_median_beta_3_drainage · C2 (Dune) | Supplementary_Material.md |
+|  | cluster_well_median_beta_3_drainage · C3 (Western Residual) | report9.md |
+|  | cluster_well_median_beta_3_drainage · C4 (Main Forest) | Supplementary_Material.md |
+|  | cluster_well_median_beta_3_drainage · C5 (Coastal Forest) | Supplementary_Material.md |
 |  | cluster_well_recession_time_median_months · C3 (Western Residual) | report8.md |
 |  | cluster_well_recession_time_min_months · C1 (Lake Edge) | site_geography.md |
 |  | datum_aod_r2_median_at_optimum | Newborough_Methods_Supplement.md, PaperM.md |
@@ -791,7 +796,7 @@
 |  | ceh34 · beta_1_recharge | Hollingham_2026_Paper2_amended.md, report10.md |
 |  | ceh34 · beta_2_atmospheric_draw | report10.md |
 |  | ceh34 · beta_3_drainage | Supplementary_Material.md |
-|  | ceh36 · Model_R2 | Paper1.md, Supplementary_Material.md, report9.md |
+|  | ceh36 · Model_R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
 |  | ceh36 · beta_1_recharge | report9.md |
 |  | ceh36 · beta_2_atmospheric_draw | report9.md |
 |  | ceh36 · beta_3_drainage | Supplementary_Material.md, report9.md |
@@ -1915,6 +1920,7 @@
 |  | water_balance_P_mean_mm_max | report9.md |
 |  | water_balance_P_mean_mm_min | report9.md |
 |  | water_balance_closure_max_pct | Newborough_Methods_Supplement.md |
+|  | water_balance_closure_max_pct_model_a | Newborough_Methods_Supplement.md |
 |  | water_balance_et_total_over_pet · C3 (Western Residual) | Supplementary_Material.md |
 |  | water_balance_et_total_over_pet · C4 (Main Forest) | report9.md |
 |  | water_balance_et_total_over_pet · C5 (Coastal Forest) | report10.md |
@@ -3332,7 +3338,7 @@
 |  | ceh21 · depth_to_water_m | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, Paper1_plain.md, report10.md |
 |  | ceh21 · mean_head_maod | report9.md |
 |  | ceh21 · model_R2 | Supplementary_Material.md |
-|  | ceh36 · model_R2 | Paper1.md, Supplementary_Material.md, report9.md |
+|  | ceh36 · model_R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
 |  | ceh4 · model_R2 | Newborough_Methods_Supplement.md |
 |  | ceh40 · recession_time_months | GEOMETRY_ARCHITECTURE_SPEC.md |
 |  | ceh40 · winter_max_depth_m | Supplementary_Material.md |

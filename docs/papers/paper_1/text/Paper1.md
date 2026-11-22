@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_101.odt — do not edit. source-sha256=7638d8c0c204526b pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_105.odt — do not edit. source-sha256=b773d8bc60644637 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -231,29 +231,29 @@ The head-space water-balance decomposition (Table 2; Figure 8a) closes to within
 
 How the loss divides between drainage and atmospheric draw is not identified from heads alone (Hollingham, 2026c). It is quoted here from Model B, the form used for every coefficient. Under Model B, drainage takes 38% of the loss at C1, 45% at C2, 56% at C3 and 61% at C5. At C4 Model B's drainage coefficient is not significant (p = 0.45), so its share there is not identified, and Tables 2 and 3 leave it blank.
 
-**Table 2.** Mean monthly head-space water balance (m/month), Model B, 2005--2026. Identical climate forcing at every cluster (P̄ ≈ 74.4 mm/month, PET̄ ≈ 54.5 mm/month). Drainage is β₃ times the height above each cluster's fitted base level. The drainage/ET split is not identified from heads alone (Section 4.5). At C4, Model B's β₃ is not significant (p = 0.45), so its drainage and split are left blank.
+**Table 2.** Mean monthly head-space water balance (m/month), Model B, 2005--2026. Identical climate forcing at every cluster (P̄ ≈ 74.4 mm/month, PET̄ ≈ 54.5 mm/month). Drainage is β₃ times the height above each cluster's fitted base level. The drainage/ET split is not identified from heads alone (Section 4.5). At C4, Model B's β₃ is not significant (p = 0.45), so its drainage and split (†) are taken by difference, recharge less atmospheric draw, and are not estimates of β₃.
 
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
   Cluster               Recharge   Atm. draw   Drainage   Total loss   Residual   Drain % / ET %
   C1 Lake Edge          0.276      0.171       0.105      0.277        \<0.001    38 / 62
   C2 Dune               0.259      0.142       0.117      0.259        \<0.001    45 / 55
   C3 Western Residual   0.267      0.116       0.150      0.266        +0.002     56 / 44
-  C4 Main Forest        0.192      0.136       ---        0.192        \<0.001    ---
+  C4 Main Forest        0.192      0.136       0.056†     0.192        \<0.001    29 / 71†
   C5 Coastal Forest     0.183      0.072       0.114      0.186        −0.003     61 / 39
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
 
 The volumetric conversion (Table 3) places every cluster under 889--893 mm/yr of rainfall. At the forested clusters canopy interception removes ≈214 mm/yr, leaving 678--679 mm/yr of throughfall. Split by Model B, drainage runs from 340 mm/yr at C1 to 545 mm/yr at C5; at C4 it is not identified. Evapotranspiration after interception runs from 133 mm/yr at C5 to 553 mm/yr at C1. A forest's total evaporative loss is I + ET: 347 mm/yr at C5, against 488 mm/yr at C2. The split is least certain at C1, where the three estimators of Figure 8b span 38--60% drainage, and most certain at C3 (56--66%).
 
-**Table 3.** Indicative annual volumetric water balance (mm/yr). P is the RAF Valley rainfall, the same series for every cluster, averaged over the months in which that cluster has readings; because the network was installed progressively those months differ slightly, so P varies from 889 to 893 mm/yr. I = canopy interception (24% of P; Freeman, 2008), forested clusters only; I is part of the evaporation, not added to it (Section 3.7). ET is the evaporative loss after interception, from throughfall and the water table; because I is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET and drainage split the losses by Model B's head-space ratio (Table 2). The split is not identified from heads alone. Figure 8b shows its range across three estimators (Section 4.5). At C4, where Model B does not identify β₃, the split is left blank.
+**Table 3.** Indicative annual volumetric water balance (mm/yr). P is the RAF Valley rainfall, the same series for every cluster, averaged over the months in which that cluster has readings; because the network was installed progressively those months differ slightly, so P varies from 889 to 893 mm/yr. I = canopy interception (24% of P; Freeman, 2008), forested clusters only; I is part of the evaporation, not added to it (Section 3.7). ET is the evaporative loss after interception, from throughfall and the water table; because I is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET and drainage split the losses by Model B's head-space ratio (Table 2). The split is not identified from heads alone. Figure 8b shows its range across three estimators (Section 4.5). At C4, where Model B does not identify β₃, the split (†) is taken by difference (Table 2).
 
-  --------------------- ----- ----- ------- ----- -------- ----------
-  Cluster               P     I     P_net   ET    I + ET   Drainage
-  C1 Lake Edge          893   0     893     553   553      340
-  C2 Dune               889   0     889     488   488      401
-  C3 Western Residual   889   0     889     387   387      502
-  C4 Main Forest        893   214   679     ---   ---      ---
-  C5 Coastal Forest     892   214   678     133   347      545
-  --------------------- ----- ----- ------- ----- -------- ----------
+  --------------------- ----- ----- ------- ------ -------- ----------
+  Cluster               P     I     P_net   ET     I + ET   Drainage
+  C1 Lake Edge          893   0     893     553    553      340
+  C2 Dune               889   0     889     488    488      401
+  C3 Western Residual   889   0     889     387    387      502
+  C4 Main Forest        893   214   679     420†   634†     259†
+  C5 Coastal Forest     892   214   678     133    347      545
+  --------------------- ----- ----- ------- ------ -------- ----------
 
 ![](Pictures/10000000000005BE00000640EA9072DD.jpg){width="15.983cm" height="14.363cm"}
 
@@ -290,7 +290,7 @@ Two readings constrain the split without either form. The first is a floor. Actu
 
 The second is a water balance that takes storage from outside the fit (Hollingham, 2026c). Rainfall less PET is a monthly surplus. The change in storage is the water-table change times the well's apparent storage coefficient, Sₐ, from the water-table-fluctuation method (Section 3.8). What the surplus does not account for is taken as drainage. Over the 66 reference wells it puts drainage at 31% of the annual loss at the median well, against 45% under Model B. It books more of the loss to the atmosphere than Model B: 0.74 to 0.97 of PET as actual evapotranspiration, cluster by cluster. The reading depends on Sₐ. Estimated from winter months instead, Sₐ is bracketed by two regressions, of the water-table change on rainfall and of rainfall on the change (0.14--0.19 and 0.25--0.30 across the clusters), and the median share runs from 36% to 55%. Model B's 45% lies inside that bracket. The ratio of winter to summer recession rates, a share of summer recession rather than of the annual loss, gives 60, 35, 66, 51 and 73% at C1--C5. These are checks on the share, not revised drainage rates. None of them replaces a measured flux.
 
-![](Pictures/10000000000006400000048B7A7A5B76.jpg){width="16.164cm" height="10.9612cm"}**Figure 10.** Spatial pattern of the SSM-over-TLM iterative Nash--Sutcliffe improvement across the reference network; the models and the free-running protocol are set out in Hollingham (2026c).
+![](Pictures/10000000000006400000048B7A7A5B76.jpg){width="16.164cm" height="13.0322cm"}**Figure 10.** Iterative Nash--Sutcliffe gain of Model B over the traditional linear model at each reference well, interpolated across the network and masked over the dune ridges (colour scale capped at 1.5); the models and the free-running protocol are set out in Hollingham (2026c).
 
 ## []{#anchor-12}4.7 Spatial coefficient structure and drainage timescales
 
@@ -313,13 +313,13 @@ Interpolating the per-well coefficients yields continuous surfaces (per-well ran
 
 ![](Pictures/1000000000000640000004BFE6E5DA1E.jpg){width="14.774cm" height="11.9115cm"}**Figure 12. **Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. ***β₂ atmospheric draw **(mm water-table decline per mm PET) --- highest in the forest interior (C4, 2.1--4.2 mm/mm), lowest in the Coastal Forest (C5, 1.0--1.8). *Per-well coefficients interpolated by piecewise-linear (Delaunay) interpolation over 2 m LiDAR DEM hillshade, with ridge and non-aquifer areas masked. Well markers coloured by cluster assignment. (*LiDAR data: © NRW & OS)*
 
-![](Pictures/1000000000000640000004B4D7FF729F.jpg){width="16.332cm" height="13.1371cm"}**Figure 13. **Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. ***β₃ drainage rate** (% of a departure from the fitted base level recovered per month, logarithmic scale) --- an eightfold contrast in cluster-mean drainage rate between the fast-draining Lake Edge (C1, 27--43% per month) and the Coastal Forest, and slower still in the forest interior, where the record does not identify drainage (C4, no well above 4.3% per month). CEH14, whose fitted base lies above the ground surface, sits at the ridge flank. *Per-well coefficients interpolated by piecewise-linear (Delaunay) interpolation over 2 m LiDAR DEM hillshade, with ridge and non-aquifer areas masked. Well markers coloured by cluster assignment. (*LiDAR data: © NRW & OS) *
+![](Pictures/1000000000000640000004B4D7FF729F.jpg){width="16.332cm" height="13.2187cm"}**Figure 13. **Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. ***β₃ drainage rate** (% of a departure from the fitted base level recovered per month, logarithmic scale) --- an eightfold contrast in cluster-mean drainage rate between the fast-draining Lake Edge (C1, 27--43% per month) and the Coastal Forest, and slower still in the forest interior, where the record does not identify drainage (C4, no well above 4.3% per month). CEH14, whose fitted base lies above the ground surface, sits at the ridge flank. *Per-well coefficients interpolated by piecewise-linear (Delaunay) interpolation over 2 m LiDAR DEM hillshade, with ridge and non-aquifer areas masked. Well markers coloured by cluster assignment. (*LiDAR data: © NRW & OS) *
 
-The drainage coefficient sets how fast a departure from a well\'s own level decays. Figure 14 maps t½ = ln(2)/β₃ across the network, the half-life of that decay read as a continuous process. It ranks the network exactly as the mean-reversion time −1/ln(1 − β₃) does, and sits close to ln 2 times it wherever drainage is slow; because the model steps month by month, it is about a third longer than the exact half-life at the fastest-draining Lake Edge wells. The timescale is a property of the record, not a recession towards a physical floor, and the record returns the same timescale without any model at all (Hollingham, 2026c, Section 4.7). It is not a bound on amplitude: over a summer, drainage removes only a small part of a winter excess even where the timescale is short, and the much larger seasonal fall is set by evapotranspiration (the β₂ term).
+The drainage coefficient sets how fast a departure from a well\'s own level decays. Figure 14 maps the mean-reversion time 1/β₃ across the network: the number of months over which a departure decays to about a third of its size. The timescale is a property of the record, not a recession towards a physical floor, and the record returns the same timescale without any model at all (Hollingham, 2026c, Section 4.7). It is not a bound on amplitude: over a summer, drainage removes only a small part of a winter excess even where the timescale is short, and the much larger seasonal fall is set by evapotranspiration (the β₂ term).
 
-The spatial pattern follows β₃ (Figure 13). The eastern open dune recovers fastest, the western dune is intermediate, and the forest interior slowest of all, though the drainage coefficient is not identified at its centroid. C5 Coastal Forest resembles the western dune despite sharing the pine canopy, which reinforces the substrate and elevation control. Mean-reversion times per cluster, with the model and without it, are tabulated by Hollingham (2026c, Table 3). The storage-drainage index τ = Sₐ/β₃ weights the same timescale by Sₐ. Sₐ and 1/β₃ are effectively uncorrelated across the network (r = 0.048, p = 0.71), so τ is set by 1/β₃: the two produce almost the same spatial pattern (r = 0.99) and the cluster ranking is unchanged.
+The spatial pattern follows β₃ (Figure 13). The eastern open dune recovers fastest, the western dune is intermediate, and the forest interior slowest of all, though the drainage coefficient is not identified there, at the centroid or at the wells ringed in Figure 14, so their times are not estimates. C5 Coastal Forest resembles the western dune despite sharing the pine canopy, which reinforces the substrate and elevation control. Mean-reversion times per cluster, with the model and without it, are tabulated by Hollingham (2026c, Table 3).
 
-![](Pictures/100000010000075D0000061E2DE81B46.png){width="15.871cm" height="13.191cm"}**Figure 14.** Drainage decay half-life t½ = ln(2)/β₃ (months) across the reference network, the half-life of a departure from each well\'s own level under the fitted model; CEH13 (near-zero β₃) and CEH14 (drainage not defined) are excluded. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as model output on bedrock.
+![](Pictures/100000010000075D0000061E2DE81B46.png){width="15.871cm" height="12.8435cm"}**Figure 14.** Mean-reversion time 1/β₃ (months, log scale) across the reference network, from each well\'s full-record fit under Model B. C4 Main Forest wells are ringed: Model B does not identify their drainage coefficient, so their times are not estimates. CEH13 (near-zero β₃) and CEH14 (drainage not defined) are excluded.
 
 ## 4.8 Substrate control within the forested zone
 
@@ -349,7 +349,7 @@ The water-balance residual is modelled losses minus modelled recharge at each we
 
 No well exceeds +0.02 m/month, and only fifteen are positive at all. The largest are NW3 (+0.0080) in C2 Dune, CEH23 (+0.0074) in C1 Lake Edge and NW6 (+0.0073) in C3 Western Residual. All three lie in the open dune or at the lake edge rather than at the ridge. No C4 Main Forest well is positive. The largest negative residual falls at the ridge-flank well CEH14 (−0.0105 m/month), with CEH32 (−0.0079 m/month) next. Two independent diagnostic tests on the monthly SSM residual both returned null results. One was a cross-correlation lag test for distance-dependent transport from the ridge; the other was a seasonal climatology test for unmodelled summer evaporative demand. No unmodelled flux is required to close the balance at any cluster.
 
-![](Pictures/100000010000074E000004D901E520C9.png){width="16.177cm" height="10.7356cm"}
+![](Pictures/100000010000074E000004D901E520C9.png){width="16.177cm" height="10.6318cm"}
 
 **Figure 16.** SSM water-balance residual at the 66 reference wells. Positive (red) indicates modelled losses exceeding modelled recharge; negative (blue) indicates over-prediction. The residual closes tightly across the network, with a small systematic negative offset: 65 of 66 reference wells lie within ±0.01 m/month and 51 are negative. No well exceeds +0.02 m/month; the largest positive value is NW3 (+0.0080 m/month). Rainfall is gross, and climate means are taken over the same period as the mean heads. Residuals are shown at the wells alone: no interpolation between wells predicts a withheld well's residual appreciably better than the network mean, so no surface is drawn. The residual is a diagnostic of a lumped-parameter model, not the output of a calibrated continuous-flow simulation.
 
@@ -390,7 +390,7 @@ The storage evidence points the same way and is independent of the coefficients.
 
 **Figure 17.** Illustrative forest reach. Forest-interception drawdown propagated inland from the plantation boundary by flow-weighted cost-distance (decay length λ ≈ 170 m, from C3\'s Sₐ and drainage coefficient combined with an assumed hydraulic diffusivity --- a literature conductivity, K = 6 m/day (Betson et al., 2002), and a nominal 5 m saturated thickness, the latter poorly constrained and plausibly larger; assumed edge deficit). The reach is a scaling estimate rather than a calibrated length: across the range reported for dune sand (K = 2--20 m/day) λ spans roughly 100--310 m, and across a 3--8 m saturated thickness 130--220 m, so it is stated here to the nearest tens of metres. The mapped pattern depends only on the reach being of order 200 m rather than of order 20 m or 2 km, which holds across that whole range, over the DEM hillshade with per-well drawdown values labelled. The C3 wells fall within the forest reach while the C2 wells lie largely beyond it --- drawdown falls from tens of millimetres near the plantation to under 1 mm at the easternmost C2 wells; the forest boundary, clearfell zone and Llyn Rhos-Ddu are marked. Drawdown magnitudes are illustrative of the reach rather than measured values; because the model represents canopy interception alone, its heads are a lower bound on the magnitude of the forest effect, and λ an upper bound on how far beyond the canopy that effect reaches.
 
-[]{#anchor-14}The clustering (Figures 4 and 5) and the mechanistic coefficients (Figures 11--13 and Table 1) show the same structure. This is consistent with a partition that reflects the aquifer rather than the linkage method. The half-life of that decay (Figure 14) orders the clusters the same way. C1 Lake Edge recovers fastest and the forest interior slowest. C5 is distinct from C4 despite sharing the same canopy.
+[]{#anchor-14}The clustering (Figures 4 and 5) and the mechanistic coefficients (Figures 11--13 and Table 1) show the same structure. This is consistent with a partition that reflects the aquifer rather than the linkage method. The mean-reversion time (Figure 14) orders the clusters the same way. C1 Lake Edge recovers fastest and the forest interior slowest. C5 is distinct from C4 despite sharing the same canopy.
 
 ## []{#anchor-15}5.2 Substrate versus surface control: interpreting the coefficients
 
@@ -516,7 +516,7 @@ For review only --- every figure and table below traces to a committed file in t
   Figure 11 --- β₁ recharge-sensitivity surface                      07_spatial_coefficients/07_coeff_maps_data.csv
   Figure 12 --- β₂ atmospheric-draw surface                          07_spatial_coefficients/07_coeff_maps_data.csv
   Figure 13 --- β₃ drainage-rate surface                             07_spatial_coefficients/07_coeff_maps_data.csv
-  Figure 14 --- drainage decay half-life t½ = ln(2)/β₃               18_wtf_spatial/18_wtf_05_storage_drainage_index.csv
+  Figure 14 --- mean-reversion time 1/β₃                             18_wtf_spatial/18_wtf_05_storage_drainage_index.csv
   Figure 15 --- kriged water table and flow arrows                   01b_water_table/01b_01_water_table_flow.png (kriged from the dipwells; 01b_report_numbers.csv)
   Figure 16 --- SSM water-balance residual at the wells              20_spatial_figures/20_residual_perwell.csv
   Figure 17 --- illustrative forest reach                            20_spatial_figures/20_drawdown_propagation_nohead.png; schematic, parameters from config.py (FOREST_INTERCEPTION, DRAWDOWN_H0/K/B), rendered via Script 20

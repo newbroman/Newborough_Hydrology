@@ -108,7 +108,9 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.63.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The water-balance residual field
+__version__ = "1.64.0"  # Hollingham (2026) - 2026-11-22. 20_residual_ssm.png drops the DEM surface flow-routing lines
+#   (Paper 1 Figure 16, Martin: without flow-accumulation lines); the head-gradient arrows stay.
+__version_prev__ = "1.63.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The water-balance residual field
 #   (Figure 56, 20_residual_*) reads Script 03 1.31.0's Model B β's, so each well's displacement is now taken to its own
 #   implied base, h_disp = implied_datum_m + mean depth (= β₃·(DRAINAGE_DATUM + h) − α), never B's β₃ at the fixed datum.
 #   A well whose implied base is not below ground (ceh14) carries no residual and is counted
@@ -1316,8 +1318,9 @@ def plot_residual_ssm(wt, features, dpi=300):
                    edgecolors="black", lw=0.4, alpha=0.7, zorder=8)
 
     # Stream network
-    stream_polys = load_stream_polygons()
-    stream_handles = draw_stream_network(ax, stream_polys, zorder=4)
+    # 1.64.0: no surface flow-routing lines on the residual map (Martin, Paper 1 reading copy: Figure 16
+    # "without flow-accumulation lines"); they are topographic context only and crowd the residual.
+    stream_handles = []
 
     kml_h = draw_kml_features(ax, features, zorder=6)
     ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)

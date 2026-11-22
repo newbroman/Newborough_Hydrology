@@ -10,6 +10,7 @@ Outputs:
     18_wtf_03_sy_contour.png             — IDW contour surface, reference wells only
     18_wtf_04_sy_contour_extended.png    — IDW contour surface, reference + extended wells
     18_wtf_05_halflife_map.png           — IDW contour of t½ = ln(2)/β₃ (months)
+    18_wtf_06_mean_reversion_atlas.png   — 1.21.0: 1/β₃ (months, the mean-reversion time) in Script 07's atlas style, C4 marked (Paper 1 Fig 14)
     18_wtf_05a_recip_beta3_map.png       — IDW contour of t_R = 1/β₃ (months)
     18_wtf_05_storage_drainage_index.csv — per-well storage–drainage index
                                            τ = S_a/β₃ with S_a, β₃, t½, cluster
@@ -53,7 +54,10 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0's 03_19 and
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-11-22. 18_wtf_06_mean_reversion_atlas.png: Paper 1 Figure 14 as the mean-
+#   reversion time 1/β₃ (not t½), full-record basis (D-192), drawn by Script 07's make_coefficient_map, C4 marked as
+#   not identified under Model B (Martin, reading copy 2026-11-21).
+__version_prev__ = "1.20.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0's 03_19 and
 #   03_master_data carry Model B: β₃ is bounded positive, so the "negative β₃" rule no longer removes CEH14. Its Model B is
 #   not defined (implied base DRAINAGE_DATUM − α/β₃ above ground), and a well like that is now left out of the t½, 1/β₃ and
 #   τ products with its own reason, counted in recession_n_excluded_datum. Everything else here is a rate (t½, 1/β₃,
@@ -159,7 +163,7 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE, DATA_DIR,
     INT_LCSC_MODEL_STATS,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
-    OUT_18_SY_CONTOUR_EXT, OUT_18_WELL_SY_TABLE, OUT_18_HALFLIFE_MAP,
+    OUT_18_SY_CONTOUR_EXT, OUT_18_WELL_SY_TABLE, OUT_18_HALFLIFE_MAP, OUT_18_MEAN_REVERSION_ATLAS,
     OUT_18_STORAGE_DRAINAGE_INDEX_CSV,
     OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
     OUT_18_SY_SPATIAL_TRENDS,
@@ -1515,6 +1519,41 @@ def main(supplementary=True):
 
         print("\nGenerating half-life map...")
         plot_halflife_map(rb3_df, OUT_18_HALFLIFE_MAP)
+
+        # 1.21.0 — Paper 1 Figure 14: the mean-reversion time 1/β₃ in Script 07's atlas style.
+        import importlib.util as _ilu, os as _os18
+        from matplotlib.lines import Line2D as _L2D
+        _spec = _ilu.spec_from_file_location("s07_atlas", _os18.path.join(_os18.path.dirname(_os18.path.abspath(__file__)), "07_spatial_coefficients.py"))
+        _s07 = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_s07)
+        _base = _s07.load_coefficient_data()[["Name_Original", "E", "N", "dem", "Cluster_ID"]].copy()
+        _base["well_norm"] = _base["Name_Original"].str.lower().str.strip()
+        _rb = rb3_df.assign(well_norm=rb3_df["Well"].astype(str).str.lower().str.strip())
+        _mr = _rb[~_rb["Excluded"]][["well_norm", "recip_beta3_months"]]
+        _mr = _base.merge(_mr, on="well_norm", how="inner")
+        _ex = rb3_df[rb3_df["Excluded"]]
+        _c4 = _mr[_mr["Cluster_ID"] == 4]
+        def _mark(ax):
+            ax.scatter(_c4["E"], _c4["N"], s=260, facecolors="none", edgecolors="crimson",
+                       linewidths=1.8, zorder=10)
+            ax.scatter(_ex["Easting"], _ex["Northing"], marker="x", s=90, c="crimson", linewidths=2, zorder=10)
+            ax.annotate("C4 Main Forest (ringed): drainage not identified under Model B\n"
+                        "(β₃ not significant); its times are not estimates",
+                        xy=(0.02, 0.97), xycoords="axes fraction", va="top", fontsize=9,
+                        bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.9, ec="crimson"), zorder=11)
+            return [_L2D([0], [0], marker="o", color="w", markerfacecolor="none", markeredgecolor="crimson",
+                         markersize=13, label="C4: β₃ not identified"),
+                    _L2D([0], [0], marker="x", color="crimson", linestyle="None", markersize=9,
+                         label="Excluded (" + ", ".join(_ex["Well"].astype(str).str.upper()) + ")")]
+        _s07.make_coefficient_map(
+            _mr, "recip_beta3_months",
+            "Mean-reversion time 1/β₃ (months), per well, full record (D-192)\n"
+            "Model B — Newborough Warren",
+            OUT_18_MEAN_REVERSION_ATLAS, cmap="viridis_r",
+            cbar_label="1/β₃ (months, log scale)", log_scale=True,
+            contour_levels=_s07.log_125_levels(_mr["recip_beta3_months"]), contour_fmt="%g",
+            extra=_mark,
+        )
+        print(f"  Saved Paper 1 Figure 14 atlas → {OUT_18_MEAN_REVERSION_ATLAS.name} ({len(_mr)} wells)")
 
         # Storage–drainage index τ = Sy/β₃ retained as a CSV diagnostic only.
         # No figure is emitted (map removed v1.5.0) and no report-citable

@@ -54,7 +54,9 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-10-12 (D-259). A "params" entry may carry "where":
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-22. A "when"/"unless" column's "else" may be a column spec, rendered
+#   for the excluded rows (Paper 1 Tables 2-3 print C4's drainage by difference, marked; Martin). A string "else" is unchanged.
+__version_prev__ = "1.13.0"  # Hollingham (2026) — 2026-10-12 (D-259). A "params" entry may carry "where":
 #   {column: template} to pick a report number qualified by more than its Parameter (03's partition rows are
 #   keyed by Parameter, Well and Era), and "scale" (fractions shown as percentages); a value rounding to zero renders without a minus. Paper M Table 3.
 # 1.12.0  # Hollingham (2026) — 2026-10-10. A column spec may carry "params":
@@ -266,7 +268,8 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         for col, val in spec.get(key, {}).items():
             keep = set(val) if isinstance(val, (list, tuple)) else {val}
             if (row[col] in keep) != want:
-                return spec.get("else", "—")
+                _else = spec.get("else", "—")
+                return render(_else, row, sources) if isinstance(_else, dict) else _else   # 1.14.0
     if "lookup" in spec:
         lk = spec["lookup"]
         if isinstance(lk, dict):

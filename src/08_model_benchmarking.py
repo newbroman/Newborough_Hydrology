@@ -25,6 +25,8 @@ Purpose:
         - One-row-per-well metrics table for all wells in cleaned data.
         - Map 1: Iterative R² Improvement (Deep Storage vs Constrained Buckets).
         - Map 2: Iterative NSE Improvement (Water Balance Residuals & Anomalies).
+        - 08_lcsc_05_nse_gain_atlas.png (2.1.0): the iterative-NSE gain of Model B over the TLM as an
+          IDW surface over hillshade, ridge-masked, in Script 07's atlas style (Paper 1 Figure 10).
 ====================================================================================
 """
 
@@ -34,7 +36,9 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "2.0.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The headline SSM is Model B: every
+__version__ = "2.1.0"  # Hollingham (2026) - 2026-11-22. 08_lcsc_05_nse_gain_atlas.png: Paper 1 Figure 10 as the iterative-NSE
+#   gain (not R²), drawn by Script 07's make_coefficient_map (IDW over hillshade, ridge-masked). Martin, reading copy.
+__version_prev__ = "2.0.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The headline SSM is Model B: every
 #   *_StateSpace column (one-step and iterative R2/NSE/RMSE, betas, p-values, R2_StateSpace_fit; new Alpha_StateSpace)
 #   and every *_SSM / dNSE report number (benchmark_{median,positive,negative}_NSE_SSM, benchmark_median_dNSE,
 #   benchmark_wells_SSM_worse, C*_median_SSM_NSE, C*_positive_SSM_NSE, C*_median_dNSE, dNSE_vs_beta*) now carries
@@ -138,6 +142,7 @@ from utils.paths import (
     INT_LCSC_MODEL_STATS,
     OUT_08_SHOWDOWN,
     OUT_08_R2_MAP,
+    OUT_08_NSE_GAIN_ATLAS,
     OUT_08_NSE_MAP,
     OUT_08_TABLE3_SUMMARY,
     OUT_08_PERWELL_NSE,
@@ -1161,6 +1166,26 @@ if __name__ == '__main__':
         )
 
         step(f"Saved diagnostic map 1: {improvement_map_path.name}")
+        # 2.1.0 — Paper 1 Figure 10: the iterative-NSE gain in the atlas style of Script 07.
+        try:
+            import importlib.util as _ilu
+            _spec = _ilu.spec_from_file_location("s07_atlas", Path(__file__).with_name("07_spatial_coefficients.py"))
+            _s07 = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_s07)
+            _atlas = _s07.load_coefficient_data()
+            _atlas["wn"] = _atlas["Name_Original"].apply(normalize_well_name)
+            _g = perf_df[["Well_Normalized", "Iterative_NSE_Improvement"]].rename(columns={"Well_Normalized": "wn"})
+            _atlas = _atlas.merge(_g, on="wn", how="inner")
+            _s07.make_coefficient_map(
+                _atlas, "Iterative_NSE_Improvement",
+                "Iterative NSE gain of Model B over the traditional linear model\n"
+                "Per-well, comparison window — Newborough Warren",
+                OUT_08_NSE_GAIN_ATLAS, cmap="viridis",
+                cbar_label="ΔNSE (Model B − TLM), iterative; scale capped at 1.5",
+                vmin=0.0, vmax=1.5, contour_levels=[0.25, 0.5, 1.0], contour_fmt="%.2f",
+            )
+            step(f"Saved Paper 1 Figure 10 atlas: {OUT_08_NSE_GAIN_ATLAS.name} ({len(_atlas)} wells)")
+        except Exception as _e:   # a figure must never hide; say why and fail the step
+            raise RuntimeError(f"08_lcsc_05_nse_gain_atlas: {_e}") from _e
         step(f"Saved diagnostic map 2: {nse_anomaly_map_path.name}")
     else:
         warn(f"Master coordinate file not found: {MASTER_PATH.name}. Skipping metric maps.")

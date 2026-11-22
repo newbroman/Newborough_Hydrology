@@ -1276,10 +1276,13 @@ TABLES = [
             # and split cells print a dash, because Model B does not identify C4's beta_3 (p = 0.45)
             {"col": "Recharge_B_m_month",   "fmt": "fixed", "dp": 3},
             {"col": "ET_draw_B_m_month",    "fmt": "fixed", "dp": 3},
-            {"col": "Drainage_B_m_month",   "fmt": "fixed", "dp": 3, "unless": {"Cluster": ["4"]}, "else": "—"},
+            # 2026-11-22 (Martin): C4 prints drainage BY DIFFERENCE (recharge - atmospheric draw), marked †
+            {"col": "Drainage_B_m_month",   "fmt": "fixed", "dp": 3, "unless": {"Cluster": ["4"]},
+             "else": {"fmt": "template", "template": "{Drainage_bydiff_B_m_month:.3f}†"}},
             {"col": "Total_loss_B_m_month", "fmt": "fixed", "dp": 3},
             {"col": "Residual_B_m_month",   "fmt": "fixed", "dp": 3, "sign": True, "zero_text": "<0.001"},
-            {"fmt": "template", "template": "{Drainage_B_pct:.0f} / {ET_B_pct:.0f}", "unless": {"Cluster": ["4"]}, "else": "—"},
+            {"fmt": "template", "template": "{Drainage_B_pct:.0f} / {ET_B_pct:.0f}", "unless": {"Cluster": ["4"]},
+             "else": {"fmt": "template", "template": "{Drainage_bydiff_B_pct:.0f} / {ET_bydiff_B_pct:.0f}†"}},
         ],
     },
     {
@@ -1297,9 +1300,13 @@ TABLES = [
             {"col": "I_mm_yr",         "fmt": "fixed", "dp": 0},
             {"col": "P_net_mm_yr",     "fmt": "fixed", "dp": 0},
             # Martin (review Q2): the C4 split cells print a dash (beta_3 not identified under Model B)
-            {"col": "ET_mid_mm_yr",    "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]}, "else": "—"},
-            {"col": "ET_total_mid_mm_yr", "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]}, "else": "—"},   # D-262: I + ET
-            {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]}, "else": "—"},
+            # 2026-11-22 (Martin): C4 from the split by difference (Script 16 1.16.0), marked †
+            {"col": "ET_mid_mm_yr",    "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]},
+             "else": {"fmt": "template", "template": "{ET_bydiff_mm_yr:.0f}†"}},
+            {"col": "ET_total_mid_mm_yr", "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]},
+             "else": {"fmt": "template", "template": "{ET_total_bydiff_mm_yr:.0f}†"}},   # D-262: I + ET
+            {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]},
+             "else": {"fmt": "template", "template": "{Drain_bydiff_mm_yr:.0f}†"}},
         ],
     },
     {

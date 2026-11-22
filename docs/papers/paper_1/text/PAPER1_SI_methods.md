@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt — do not edit. source-sha256=c5c505ad3ad9f6d7 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt — do not edit. source-sha256=330d85d1d3941c0d pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -15,7 +15,7 @@ The gradient regression above uses the annual summer minimum (Jun--Sep) as the p
 
 The gradient is itself seasonal. A full-panel season × δ(d)·t interaction (10,909 observations, one model) fits δ(d)·t·(1 + γ·S), with S = 1 in Mar--May. For the linear-capped form it returns γ = +0.309 ± 0.060 (t = 5.16, p \< 0.001); for the exponential form it returns +0.304 ± 0.059 (t = 5.15, p \< 0.001). Both forms reject season-independence, and both put γ above zero. The coastal-retreat drift rate is about 31 % steeper in Mar--May than over the rest of the year. The estimate is significant, has the same sign and is of compatible magnitude under both decay forms. This indicates a seasonal modulation of the gradient itself rather than an artefact of the assumed functional form.
 
-The MAM-only refit of the panel (a sensitivity block in 25_01_panel_fit_parameters.csv) points the same way. It loses power, as expected: the fitted δ₀ SE roughly doubles, 1.97 to 3.71 mm yr⁻¹. But it returns a steeper spring coast-edge anomaly than the all-season fit (δ₀ −34.06 against −31.28 mm yr⁻¹), a change of about 9 % in the same direction as γ. At the reference distance the two fits are closer still, at −25.87 against −26.38 mm yr⁻¹.
+The MAM-only refit of the panel (a sensitivity block in 25_01_panel_fit_parameters.csv) points the same way. It loses power, as expected: the fitted δ₀ SE roughly doubles, 1.97 to 3.72 mm yr⁻¹. But it returns a steeper spring coast-edge anomaly than the all-season fit (δ₀ −34.06 against −31.28 mm yr⁻¹), a change of about 9 % in the same direction as γ. At the reference distance the two fits are closer still, at −25.87 against −26.38 mm yr⁻¹.
 
 What remains year-round is the boundary effect itself. C5 Coastal Forest, the out-of-sample sentinel of S12.5, declines in both seasons (summer −32.0, spring −23.9 mm yr⁻¹, balanced annual means). So γ modulates the drift rate rather than switching it off outside spring. The all-season gradient is therefore a season-averaged quantity, not a season-independent one. Applying it unchanged to a spring metric understates the spring coastal contribution: the ≈ 71 % of C5's spring decline that it attributes to coastal retreat is a lower bound. Full seasonal results are in the report's Supplementary Material, Note S8.
 
@@ -487,12 +487,12 @@ Four specifications are fitted to test robustness:
 Fitted parameters, read live from outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv:
 
   ------------- ------------------------------- -------- ----------- --------------- ----------- --------------
-  Full          linear-capped                   12,006   −33,668.5   −31.73 ± 1.95   994 ± 57    −0.47 ± 0.56
-  Full          exponential                     12,006   −33,672.6   −41.30 ± 2.58   609 ± 99    +3.28 ± 1.52
+  Full          linear-capped                   12,006   −33,668.5   −31.73 ± 1.94   994 ± 57    −0.47 ± 0.56
+  Full          exponential                     12,006   −33,672.6   −41.30 ± 2.54   609 ± 99    +3.28 ± 1.52
   Forest-free   linear-capped                   10,929   −31,848.8   −31.35 ± 1.97   894 ± 48    −0.10 ± 0.55
-  Forest-free   exponential                     10,929   −31,853.7   −40.63 ± 3.15   489 ± 76    +2.12 ± 1.09
+  Forest-free   exponential                     10,929   −31,853.7   −40.63 ± 3.08   489 ± 76    +2.12 ± 1.09
   C3-only       linear-capped (*c_far* fixed)   3,676    −10,254.1   −29.06 ± 2.75   928 ± 71    −0.10
-  C3-only       exponential (*c_far* fixed)     3,676    −10,269.6   −32.15 ± 3.71   713 ± 109   +2.12
+  C3-only       exponential (*c_far* fixed)     3,676    −10,269.6   −32.15 ± 3.33   713 ± 109   +2.12
   ------------- ------------------------------- -------- ----------- --------------- ----------- --------------
 
 Confidence intervals are 95% (1.96 SE). The ± values in the table are the fitted, row-basis standard errors. The uncertainties quoted in the manuscript are on the well basis (§S12.7). The forest-free linear-capped fit is the headline specification: δ₀ = −31.28 mm yr⁻¹, L_cg = 902 m, c_far = −0.30 mm yr⁻¹. The manuscript quotes the fitted trend at 150 m from the shoreline, −26.38 mm yr⁻¹ (well-basis SE 3.49, §S12.7; fitted SE 1.45), rather than δ₀ itself. No well sits at the shoreline, and the two decay forms disagree there by 9.3 mm yr⁻¹, against 1.6 mm yr⁻¹ at 150 m.

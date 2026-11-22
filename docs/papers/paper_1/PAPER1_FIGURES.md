@@ -23,11 +23,11 @@ committed tree.*
 | 7 | `51_07_cluster_gap_fill.png` | `51_cluster_gap_fill/51_06_gap_fill_summary.csv` | 51 | Filling gaps from cluster-mates: miss by method, and the two hidden stretches | modelled |
 | 8 | `16_water_bal_bar_ms.png` | `16_water_balance/16_water_bal_table.csv` | 16 | Water-balance decomposition by cluster | modelled |
 | 9 | `18_wtf_02_spatial_sy_map.png` | `18_wtf_spatial/18_wtf_01_well_sy_estimates.csv` | 18 | Interception-corrected WTF specific-yield surface | modelled |
-| 10 | `08_lcsc_02_r2_improvement_map.png` | `08_model_benchmarking/08_perwell_nse.csv` | 08 | SSM-over-TLM iterative NSE gain | modelled |
+| 10 | `08_lcsc_05_nse_gain_atlas.png` | `08_model_benchmarking/08_perwell_nse.csv` | 08 | SSM-over-TLM iterative NSE gain, atlas style (2026-11-22) | modelled |
 | 11 | `07_coeff_01_beta1_recharge.png` | `07_spatial_coefficients/07_coeff_maps_data.csv` | 07 | β₁ recharge-sensitivity surface | modelled |
 | 12 | `07_coeff_02_beta2_atm_draw.png` | `07_spatial_coefficients/07_coeff_maps_data.csv` | 07 | β₂ atmospheric-draw surface | modelled |
 | 13 | `07_coeff_03_beta3_drainage.png` | `07_spatial_coefficients/07_coeff_maps_data.csv` | 07 | β₃ drainage-rate surface | modelled |
-| 14 | `18_wtf_spatial/18_wtf_05_halflife_map.png` | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv` (`half_life_months`) | 18 | Drainage decay half-life t½ = ln(2)/β₃ — the half-life of a departure from a well's own level under Model B | modelled |
+| 14 | `18_wtf_spatial/18_wtf_06_mean_reversion_atlas.png` | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv` (`recip_beta3_months` via Script 18) | 18 | Mean-reversion time 1/β₃ under Model B, atlas style, C4 marked (2026-11-22) | modelled |
 | 15 | `01b_01_water_table_flow.png` | `01b_report_numbers.csv`, `01b_water_table_{wet,mean,dry}.tif` (kriged from the dipwells) | 01b | Kriged water table + flow arrows sized by gradient (the Delaunay `20_head_surface_streams.png` retired 2026-09-27, D-205, T-89; swapped into the Paper 1 ODT in v1_61, T-90) | modelled |
 | 16 | `20_residual_ssm.png` | `20_spatial_figures/20_residual_perwell.csv` | 20 | SSM water-balance residual at the wells | modelled |
 | 17 | `25_05_fit_diagnostic.jpg` (a) + `38_coast_inland_difference.jpg` (b) | `25_coastal_gradient/25_report_numbers.csv`; `25_coastal_gradient/25_03_cluster_partition.csv`; `38_coastal_transect/38_results.txt` | 25 (+38) | Coastal-retreat gradient; per-cluster decomposition; transect corroboration | modelled |

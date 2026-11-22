@@ -8,11 +8,11 @@ paper1,figure,6,"Cluster-centroid hydrographs and seasonal amplitudes, 2005–2"
 paper1,figure,7,Filling gaps from cluster-mates. (a) How far each method mis
 paper1,figure,8,Water-balance decomposition by cluster: (a) the mean monthly
 paper1,figure,9,"Apparent storage coefficient Sₐ at each reference well, wate"
-paper1,figure,10,Spatial pattern of the SSM-over-TLM iterative Nash–Sutcliffe
+paper1,figure,10,Iterative Nash–Sutcliffe gain of Model B over the traditiona
 paper1,figure,11,Spatial SSM coefficient atlas for the 66-well reference netw
 paper1,figure,12,Spatial SSM coefficient atlas for the 66-well reference netw
 paper1,figure,13,Spatial SSM coefficient atlas for the 66-well reference netw
-paper1,figure,14,Drainage decay half-life t½ = ln(2)/β₃ (months) across the r
+paper1,figure,14,"Mean-reversion time 1/β₃ (months, log scale) across the refe"
 paper1,figure,15,The water table kriged from the dipwells in (a) the wet stat
 paper1,figure,16,SSM water-balance residual at the 66 reference wells. Positi
 paper1,figure,17,Illustrative forest reach. Forest-interception drawdown prop

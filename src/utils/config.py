@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.129.0"  # Hollingham (2026) - 2026-11-20 (J-23). TRANSFER_R2_TOL, TRANSFER_BIAS_TOL_M: Martin's criterion
+__version__ = "1.130.0"  # Hollingham (2026) - 2026-11-22 (D-337). The comparison window is January 2018 to February 2026:
+#   COMPARISON_WINDOW_START = 2018-01-01, LCSC_DATA_LIMIT 100 -> 98 calendar months, wholly after the December 2017
+#   clearfell (Martin 2026-11-22: "Jan 2018 to Feb 2026"). An import-time guard ties the two to REFERENCE_CUTOFF_DATE.
+__version_prev__ = "1.129.0"  # Hollingham (2026) - 2026-11-20 (J-23). TRANSFER_R2_TOL, TRANSFER_BIAS_TOL_M: Martin's criterion
 #   for the Model B neighbour-transfer test (Script 50 1.29.0), set before the numbers were seen.
 # 1.128.0  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). D333_WITHDRAWN_NOTE and
 #   D333_WITHDRAWN_STATUS: the note and status Scripts 09b, 09d, 19 and 21 attach to the withdrawn beta-multiplier
@@ -1490,7 +1493,17 @@ SSM_MIN_OBS = 30
 # Distinct from MIN_RECORD_MONTHS, which is an admission threshold for the
 # reference network, not a fitting window. Previously declared independently in
 # model_utils.py and in Scripts 03 and 08 (D-016).
-LCSC_DATA_LIMIT = 100
+#
+# D-337 (2026-11-22): the window's purpose is to fit every well on records after the
+# December 2017 clearfell, so pre-felling conditions do not enter the per-well
+# coefficients (Martin: "the main reason for the 2017 date is to exclude records
+# before the clearfell"). Counted back from the record end, 100 months began in
+# November 2017, one month before the felling; the window is now the calendar months
+# from COMPARISON_WINDOW_START to REFERENCE_CUTOFF_DATE inclusive, January 2018 to
+# February 2026 = 98. It starts on the split date (MODEL_AB_SPLIT_DATE) by design.
+# The guard after CLEARFELL_DATE_ISO refuses an import where the two disagree.
+COMPARISON_WINDOW_START = "2018-01-01"
+LCSC_DATA_LIMIT = 98
 
 # Script 08 1.8.0 (D-288; Martin 2026-10-28 04:47 "keep a well if it has at least a set number of the 100 months"):
 # since D-281 the comparison window is a fixed span of LCSC_DATA_LIMIT calendar months, so a well with a gap or a dry
@@ -1893,6 +1906,18 @@ BROADLEAF_INTERCEPTION = 0.15
 # CEH36 scrape is documented. This is a stated limitation of the study, not an
 # oversight, and belongs in the methods text.
 CLEARFELL_DATE_ISO  = "2017-12-01"   # December 2017 pine clearfell
+
+# D-337 guard: the comparison window is COMPARISON_WINDOW_START .. REFERENCE_CUTOFF_DATE inclusive,
+# wholly after the clearfell month, and LCSC_DATA_LIMIT is its length in calendar months.
+def _d337_window_months() -> int:
+    _s, _e = (int(x) for x in COMPARISON_WINDOW_START[:7].split("-")), (int(x) for x in REFERENCE_CUTOFF_DATE[:7].split("-"))
+    (ys, ms), (ye, me) = _s, _e
+    return (ye - ys) * 12 + (me - ms) + 1
+if _d337_window_months() != LCSC_DATA_LIMIT:
+    raise ValueError(f"D-337: LCSC_DATA_LIMIT={LCSC_DATA_LIMIT} but {COMPARISON_WINDOW_START}..{REFERENCE_CUTOFF_DATE} "
+                     f"is {_d337_window_months()} calendar months")
+if COMPARISON_WINDOW_START[:7] <= CLEARFELL_DATE_ISO[:7]:
+    raise ValueError("D-337: the comparison window must begin after the clearfell month")
 SCRAPING_DATE_0_ISO = "2013-02-01"   # February 2013 — CEH40/41/42 unmonitored cuts
 SCRAPING_DATE_ISO   = "2015-04-01"   # April 2015 — CEH36 scrape (documented)
 SCRAPING_DATE_2_ISO = "2023-10-01"   # October 2023 — re-scraping

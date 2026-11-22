@@ -2,12 +2,12 @@ rb_id,doc,section,fragment,note
 RB-01,report8,Groundwater Records,a well is admitted if it has at least 100 months of valid record and is still reporting in February 2026,
 RB-01,report8,Groundwater Records,"The 100-month figure is an admission threshold, not a fitting window",
 RB-02,report8,Pearson Correlation Distance,"calculated over contemporaneous, overlapping temporal records for wells i and j",pairwise-complete on the full record; no window
-RB-03,report8,Modelling the Cluster water levels,fitted to this average hydrograph using the full available record rather than the 100-month window applied to individual wells,
+RB-03,report8,Modelling the Cluster water levels,fitted to this average hydrograph using the full available record rather than the,
 RB-03b,MS,S.3 Script 03,every centroid on the full record and every reference well on the comparison window,Model B side by side with Model A on the RB-03/RB-04 bases
 RB-03c,report8,Groundwater Records,"across the 66 reference wells, each refitted on its comparison window, the coefficient shifts scale with each well's upstand",03_17 upstand-frame sensitivity (reason 21m)
-RB-04,report8,Spatial Coefficient Mapping,The per-well SSM is fitted to the most recent 100 months at each reference well,the summary-of-fitting-windows paragraph
+RB-04,report8,Spatial Coefficient Mapping,The per-well SSM is fitted to the comparison window,the summary-of-fitting-windows paragraph
 RB-05,report8,Spatial Coefficient Mapping,fits nothing itself and interpolates the per-well store,reason 21m
-RB-06,report8,Traditional Linear Model Benchmark,Both models were independently fitted to the most recent 100 months of data,
+RB-06,report8,Traditional Linear Model Benchmark,Both models were independently fitted to the comparison window,
 RB-07,MS,"S.16 Scripts 22, 23, 24",Script 22 refits Model B — the SSM with a constant intercept — on the full record under the shared residual-diagnostic floor,
 RB-08,MS,"S.16 Scripts 22, 23, 24",It refits Model B via fit_ssm_intercept() for every well (so the residuals are directly comparable with Script 22's),Script 24 on the same basis as Script 22
 RB-09,MS,S.19.3 Script 30,Centroid fits use the shared model_utils.fit_ssm on the full record,
@@ -35,7 +35,7 @@ RB-24,MS,D. The Sentinel wet-area model,"Each reference-network well is seeded o
 RB-25,report8,Wet Area from Sentinel,The state-space model driving these curves is fitted to 2005–February 2026,Script 45
 RB-26,MS,D. The Sentinel wet-area model,"assembles those curves, the per-cell switching levels and the level history into the public feed living/wet_area_model.json (schema nw-wet-area-1) that the scenario viewer and the film read, fitting nothing",Script 46 inherits
 RB-27,report8,Using Models to derive the Aquifer Architecture,fits Pastas at each of the 66 reference wells on exactly the months that well,Script 48
-RB-04b,report8,Using Models to derive the Aquifer Architecture,The per-well recession constants are fitted on each well's full record rather than the 100-month comparison window,D-192 sentence in the Drainage Timescales subsection
+RB-04b,report8,Using Models to derive the Aquifer Architecture,The per-well recession constants are fitted on each well's full record rather than the,D-192 sentence in the Drainage Timescales subsection
 RB-28,MS,S.23e Script 01b,the mean state is all months,Script 01b
 RB-12b,report9,Combined Driver Assessment and Observed Network Change,"from the datum-free drainage coefficient of the intercept form (Model B), fitted on the same record as the published coefficients",Script 26 persistence expectation (D-216)
 RB-12c,none,,,"MSL9 (T-131, D-291): not yet in any document; the report and Supplementary Material paragraphs follow the run and Martin's walk-through, not Paper 1 or Paper M (Martin 2026-10-30)"

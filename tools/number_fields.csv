@@ -1899,7 +1899,7 @@ pastas_vs_ssmB_efold_months_median_ratio_identified_full_dp2,outputs/48_pastas_c
 pearson_r_max_dp3,outputs/39_ccw_hindcast/39_report_numbers.csv,pearson_r_max,1,,3,,−,,bound by bind_ms129.csv (docs/report/text/Newborough_Methods_Supplement.md)
 pearson_r_median_dp3,outputs/39_ccw_hindcast/39_report_numbers.csv,pearson_r_median,1,,3,,−,,bound by bind_ms129.csv (docs/report/text/Newborough_Methods_Supplement.md)
 pearson_r_min_dp3,outputs/39_ccw_hindcast/39_report_numbers.csv,pearson_r_min,1,,3,,−,,bound by bind_ms129.csv (docs/report/text/Newborough_Methods_Supplement.md)
-perwell_vif_median_window_C4_Main_Forest_100_month_window_dp2,outputs/30_c4_drainage_identifiability/30_c4_report_numbers.csv,perwell_vif_median_window · C4 (Main Forest) · 100-month window,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+perwell_vif_median_window_C4_Main_Forest_100_month_window_dp2,outputs/30_c4_drainage_identifiability/30_c4_report_numbers.csv,perwell_vif_median_window · C4 (Main Forest) · 98-month window,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 pet_rolling12_max_mm_dp0,outputs/00_climate_summary/00_report_numbers.csv,pet_rolling12_max_mm,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 pet_rolling12_min_mm_dp0,outputs/00_climate_summary/00_report_numbers.csv,pet_rolling12_min_mm,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 pflood_example2_difference_mm_dp0,outputs/11b_spatial_thresholds/11b_report_numbers.csv,pflood_example2_difference_mm,1,,0,,−,,bound by r9_emits.csv (report_edits/text/report9.md)

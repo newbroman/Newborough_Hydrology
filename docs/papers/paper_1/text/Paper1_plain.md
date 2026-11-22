@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_5.odt — do not edit. source-sha256=d15375ed83704305 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_5.odt — do not edit. source-sha256=546e31666287719a pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -121,11 +121,11 @@ Measured straight from the readings, with no model, the same times are 2.0, 4.1,
 
 # []{#anchor-2}7. How well does it forecast?
 
-The fair test is to give a model only the weather and the first reading, and let it run month after month without seeing the real levels, so that a weak model drifts away. The paper compared its model with a simpler one with rain and evaporation but no drainage. On a scale where 1 is perfect and 0 is no better than always guessing the average (the **Nash--Sutcliffe efficiency**), the typical well scores 0.43 with the simpler model and 0.82 with drainage added. The full model beats the average at all 64 wells tested, the simpler one at 56. Drainage stops the drift by pulling the water table back towards a normal level.
+The fair test is to give a model only the weather and the first reading, and let it run month after month without seeing the real levels, so that a weak model drifts away. The paper compared its model with a simpler one with rain and evaporation but no drainage. On a scale where 1 is perfect and 0 is no better than always guessing the average (the **Nash--Sutcliffe efficiency**), the typical well scores 0.38 with the simpler model and 0.83 with drainage added. The full model beats the average at all 64 wells tested, the simpler one at 53. Drainage stops the drift by pulling the water table back towards a normal level.
 
 The gain is largest at the Lake Edge, where drainage is strongest, and smallest under the forest, where it is weakest. So a map of where the drainage term helps is a map of where drainage controls the aquifer, drawn without drilling a hole.
 
-The model also held up outside the years it learned from, with one warning. Driven by the station's weather back to 1930, with no refitting, it reproduced the seasonal rise and fall that the ecologist D.S. Ranwell recorded in three pipes in 1951--53. But for the drier years of 1989--96 it put the water table about 0.21 m too high at a typical well, so in a lastingly drier climate it probably understates how far the water table would fall (Hollingham, 2026c).
+The model also held up outside the years it learned from, with one warning. Driven by the station's weather back to 1930, with no refitting, it reproduced the seasonal rise and fall that the ecologist D.S. Ranwell recorded in three pipes in 1951--53. But for the drier years of 1989--96 it put the water table about 0.18 m too high at a typical well, so in a lastingly drier climate it probably understates how far the water table would fall (Hollingham, 2026c).
 
 # []{#anchor-2}8. The retreating coast
 

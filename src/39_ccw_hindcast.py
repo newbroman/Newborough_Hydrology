@@ -121,7 +121,9 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+__version__ = "1.8.1"  # Hollingham (2026) - 2026-11-22 (D-337). Figure 39_04's title takes the comparison window from
+#   config (COMPARISON_WINDOW_START .. REFERENCE_CUTOFF_DATE, LCSC_DATA_LIMIT months) instead of typing "last 100 months".
+__version_prev__ = "1.8.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
 #   03_master_data's unsuffixed beta columns and Model A in *_model_a; load_inputs() now gives md (the Model A
 #   comparison-window store: model_a_ok, the Model A admission check, the A hindcast) the *_model_a triple, so
 #   Model A stays Model A. Model B still comes from 03_16; no Model B result changes.
@@ -662,8 +664,8 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
     fig.legend(_h, _l, loc="lower center", ncol=3, fontsize=9, frameon=False,
                bbox_to_anchor=(0.5, 0.0))
     fig.suptitle("SSM hindcast against the 1989\u201396 CCW record: Model B (fitted intercept), "
-                 "coefficients fitted on the\nlast 100 months of each well\u2019s record "
-                 "(2017\u201311 to 2026\u201302) \u2014 its intercept is a MODERN-RECORD quantity "
+                 f"coefficients fitted on the\ncomparison window ({config.LCSC_DATA_LIMIT} months, "
+                 f"{config.COMPARISON_WINDOW_START[:7].replace('-', '\u2011')} to {config.REFERENCE_CUTOFF_DATE[:7].replace('-', '\u2011')}) \u2014 its intercept is a MODERN-RECORD quantity "
                  "applied to a drier decade",
                  fontsize=9)
     fig.tight_layout(rect=(0, 0.4 / fig.get_size_inches()[1], 1, 1))

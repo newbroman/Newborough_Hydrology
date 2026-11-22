@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_106.odt — do not edit. source-sha256=efa6a6b502380846 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_107.odt — do not edit. source-sha256=2d2bef232e832435 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -229,7 +229,7 @@ The drainage decay −β₃ shows the strongest contrast of the three coefficien
 
 The head-space water-balance decomposition (Table 2; Figure 8a) closes to within 1.7% of total losses at every cluster, and within 0.6% outside C5. This closure is a property of the fit, not independent evidence. A model fitted to heads alone can be expected to close the mean balance (Hollingham, 2026c). The closure therefore shows that the three terms are mutually consistent at the cluster mean without an unmeasured boundary term. It does not show that each flux is confirmed. Recharge is highest at C1 (0.276 m/month) and lowest under the plantation (0.183--0.192 m/month). Total losses track recharge closely at every cluster.
 
-How the loss divides between drainage and atmospheric draw is not identified from heads alone (Hollingham, 2026c). It is quoted here from Model B, the form used for every coefficient. Under Model B, drainage takes 38% of the loss at C1, 45% at C2, 56% at C3 and 61% at C5. At C4 Model B's drainage coefficient is not significant (p = 0.45), so its share there is not identified, and Tables 2 and 3 leave it blank.
+How the loss divides between drainage and atmospheric draw is not identified from heads alone (Hollingham, 2026c). It is quoted here from Model B, the form used for every coefficient. Under Model B, drainage takes 38% of the loss at C1, 45% at C2, 56% at C3 and 61% at C5. At C4 Model B's drainage coefficient is not significant (p = 0.45), so its share there is not identified; Tables 2 and 3 give it by difference, marked †.
 
 **Table 2.** Mean monthly head-space water balance (m/month), Model B, 2005--2026. Identical climate forcing at every cluster (P̄ ≈ 74.4 mm/month, PET̄ ≈ 54.5 mm/month). Drainage is β₃ times the height above each cluster's fitted base level. The drainage/ET split is not identified from heads alone (Section 4.5). At C4, Model B's β₃ is not significant (p = 0.45), so its drainage and split (†) are taken by difference, recharge less atmospheric draw, and are not estimates of β₃.
 

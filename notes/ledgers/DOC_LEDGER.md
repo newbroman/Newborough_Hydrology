@@ -5,20 +5,20 @@
 
 *Generated from `docs/PDF_MANIFEST.txt` with the live lag state from `tools/export_lag.py`. Living current-state; regenerate, do not hand-edit. `tools/export_lag.py` is the live authority.*
 
-**12 published PDFs** — 1 version-current, 6 lagging, 5 unversioned (mtime-only, not version-tracked).
+**12 published PDFs** — 7 version-current, 0 lagging, 5 unversioned (mtime-only, not version-tracked).
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_39.odt` | 2026-11-05T13:51:30Z | **STALE** |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_40.odt` | 2026-11-22T10:32:32Z | current |
 | `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_31.odt` | 2026-11-05T13:51:32Z | current |
-| `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_36.odt` | 2026-11-18T22:43:18Z | **STALE** |
-| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_94.odt` | 2026-11-18T22:43:17Z | **STALE** |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v47.odt` | 2026-11-18T22:43:18Z | **STALE** |
+| `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_38.odt` | 2026-11-22T10:32:36Z | current |
+| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_97.odt` | 2026-11-22T10:32:35Z | current |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v50.odt` | 2026-11-22T10:32:36Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-10T16:14:45Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-10T16:14:44Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-10T16:14:45Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_132.odt` | 2026-11-18T22:43:11Z | **STALE** |
-| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_62.odt` | 2026-11-18T22:43:12Z | **STALE** |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_136.odt` | 2026-11-22T10:32:28Z | current |
+| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_65.odt` | 2026-11-22T10:32:30Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-10-04T11:43:41Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-10-04T11:43:42Z | unversioned |
 

@@ -863,6 +863,7 @@ Long_term_mean_Annual_PET_mm_dp0,outputs/00_climate_summary/00_01_annual_climate
 Long_term_mean_Annual_P_mm_dp0,outputs/00_climate_summary/00_01_annual_climate_summary_short.csv,Long-term mean · Annual_P_mm,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 Long_term_mean_P_PET_ratio_dp2,outputs/00_climate_summary/00_01_annual_climate_summary_short.csv,Long-term mean · P_PET_ratio,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 MECHANISM_HORIZON_YEARS_dp0,src/utils/config.py,MECHANISM_HORIZON_YEARS,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+MIN_RECORD_MONTHS_dp0,src/utils/config.py,MIN_RECORD_MONTHS,1,,0,,−,,born a field in PaperM v1_49: the reference-network admission threshold. Distinct from LCSC_DATA_LIMIT (the fitting window) though equal to it at 100; config.py says so and D-016 separated them. PaperM section 3's admission sentence was bound to LCSC_DATA_LIMIT_dp0 and is rebound here (Martin, 2026-11-20)
 MSL5_n_dp0,outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv,MSL5 · n,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 MSL5_pearson_r_dp2_plus,outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv,MSL5 · pearson_r,1,,2,1,−,,bound by ewi_msl9_report9_bind.csv (report_edits/text/report9.md)
 MSL5_williams_p_vs_ewi_annual_dp2,outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv,MSL5 · williams_p_vs_ewi_annual,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)

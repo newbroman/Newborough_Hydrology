@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_48.odt — do not edit. source-sha256=eacace312281cfdc pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_49.odt — do not edit. source-sha256=c851ae5c6aa0a95a pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it
@@ -37,11 +37,11 @@ This paper makes both tests at a coastal dune aquifer with two independent histo
 
 ## []{#anchor}2.1 The starting point: Pastas
 
-Pastas (Collenteur et al., 2019) is widely used open-source software for fitting a groundwater record against rainfall and evaporation. It models the level as a base level, *d*, plus the response to a recharge series. In its linear setting, recharge is rainfall plus a (negative) fraction of PET, and the response to recharge builds up exponentially:
+Pastas (Collenteur et al., 2019) is widely used open-source software for fitting a groundwater record against rainfall and evaporation. It models the water level, *h*, as a base level, *d*, plus the response to recharge. Levels are measured from the ground surface and are negative below it. Recharge, R, is the month's rainfall, P, plus a share of the potential evapotranspiration, PET. PET is the evaporative demand of the weather. The share is the evaporation factor, *f*. It is negative, so evaporation takes water away. The response to recharge builds up exponentially:
 
 R(t) = P(t) + *f*·PET(t), θ(t) = *A*·(1 − exp(−t/*a*)),
 
-where *A* is the long-run gain, *a* the response time and *f* the evaporation factor. If recharge is steady within each month, one monthly step of this response is exactly
+where θ is the step response, the amount of response that has built up by month *t* under steady recharge. *A* is the long-run gain, how far the response finally goes, and *a* is the response time, how quickly it gets there. If recharge is steady within each month, one monthly step of this response is exactly
 
 h(t) − *d* = exp(−1/*a*)·(h(t−1) − *d*) + *A*·(1 − exp(−1/*a*))·R(t).
 
@@ -53,7 +53,7 @@ Written for one month at a time, the same model predicts the change in level. Ra
 
 Δh(t) = α_B + β₁·P(t) − β₂·PET(t) − β₃·(z₀ + h(t−1)).
 
-Here *h* is the water level, measured from the ground surface and negative below it; P is the month's rainfall and PET its potential evapotranspiration, from Thornthwaite's method. The coefficients α_B, β₁, β₂ and β₃ are fitted to the record by least squares, and z₀ is a fixed reference level, 3.7 m beneath the ground surface. The term uses the level at the end of the previous month, h(t−1), so that the month's change is not regressed on its own end-point. This is the exponential-response model of Section 2.1, with
+Here P is the month's rainfall and PET its potential evapotranspiration, from Thornthwaite's method. The coefficients α_B, β₁, β₂ and β₃ are fitted to the record by least squares, and z₀ is a fixed reference level, 3.7 m beneath the ground surface. The term uses the level at the end of the previous month, h(t−1), so that the month's change is not regressed on its own end-point. This is the exponential-response model of Section 2.1, with
 
 β₃ = 1 − exp(−1/*a*), β₁ = *A*·(1 − exp(−1/*a*)), β₂ = −*f*·*A*·(1 − exp(−1/*a*)), *d* = −z_B.
 
@@ -67,7 +67,7 @@ This is the traditional linear model (TLM), the usual first model of how a water
 
 ## []{#anchor}2.3 How the model is tested
 
-Every result below is a free run. The coefficients are fitted to a record of weather and water levels, and the model is then taken back to the start and run forward on the weather alone, each month from the model's own previous level; the observed level never enters again. Skill is the Nash--Sutcliffe efficiency of the simulated level (NSE; Nash and Sutcliffe, 1970): 1 is perfect, 0 is no better than quoting the well's mean level, and below 0 is worse than that mean. Three tests take the model outside the months it was fitted on. The first splits the modern record at January 2018: the model is fitted on one side and run freely across the other, both ways. The second is the Countryside Council for Wales record of 1989--96, read before the modern network existed, at 9 wells the network still reads, in a decade drier than any the fits contain; it is scored on whether the level is in the right place. The third is Ranwell's readings of 1951--53 (Ranwell, 1959) at three sites whose positions are approximate, each paired with modern wells in the same slack basin; it is scored on the seasonal swing, with each hindcast's mean offset removed.
+Every result below is a free run. The coefficients are fitted to a record of weather and water levels, and the model is then taken back to the start and run forward on the weather alone, each month from the model's own previous level; the observed level never enters again. Skill is the Nash--Sutcliffe efficiency of the simulated level (NSE; Nash and Sutcliffe, 1970): 1 is perfect, 0 is no better than quoting the well's mean level, and below 0 is worse than that mean. Three tests take the model outside the months it was fitted on. The first splits the modern record at January 2018: the model is fitted on one side and run freely across the other, both ways. The other two tests reach back before the modern network. For both, the model runs from 1930, so the level it starts from is forgotten long before the scored years. The second is the Countryside Council for Wales record of 1989--96, read before the modern network existed, at 9 wells the network still reads, in a decade drier than any the fits contain; it is scored on whether the level is in the right place. The third is Ranwell's readings of 1951--53 (Ranwell, 1959) at three sites whose positions are approximate, each paired with modern wells in the same slack basin; it is scored on the seasonal swing, with each hindcast's mean offset removed.
 
 # []{#anchor}3. Site, record and fitting bases
 
@@ -77,7 +77,7 @@ A reference network of 66 wells is admitted on record length. To be admitted, a 
 
 The wells fall into five clusters by the shape of their records, before any model is fitted. Each well's monthly level series is compared with every other well's by correlation, so the timing and shape of its rises and falls count and its depth below ground does not, and the wells are grouped by Ward's linkage on one minus that correlation. Three clusters are open dune: C1 Lake Edge, C2 Dune and C3 Western Residual. Two are pine forest: C4 Main Forest and C5 Coastal Forest. The silhouette score is highest at two clusters (0.58), which separates the main forest from the rest; at five it is 0.37. Assignments are stable when wells are resampled (median co-assignment 0.95) and when months are resampled in year-long blocks (0.99), but partitions built from two disjoint samples of the record agree only moderately (adjusted Rand index 0.53, 5--95 % range 0.35--0.73). The clusters are therefore a useful grouping of one continuous aquifer, not sharply bounded units (Hollingham, 2026a).
 
-The coefficients a study reports belong to the record they were fitted on, and in a network installed progressively the record is not one thing. Two fitting bases are used. The first is the cluster centroid on the full record: one hydrograph per cluster, the mean of its members, fitted with every month available. The second is the per-well fit, either on each well's full record or on a common comparison window, the most recent 100 months at every well, so that wells are compared under the same climate. The split-sample tests fit each well on one side of January 2018 and test it on the other. A register lists, for every analysis, the wells, the record fitted and the record evaluated, and is checked automatically against the fitting call in each script before results are published; every coefficient here carries its basis in its source file.
+The coefficients a study reports belong to the record they were fitted on, and in a network installed progressively the record is not one thing. Two fitting bases are used. The first is the cluster centroid on the full record: one hydrograph per cluster, the mean of its members, fitted with every month available. The second is the per-well fit, either on each well's full record or on a common comparison window, the most recent 100 months at every well, so that wells are compared under the same climate. At most wells that window runs from November 2017 to February 2026. The split-sample tests fit each well on one side of January 2018 and test it on the other. A register lists, for every analysis, the wells, the record fitted and the record evaluated, and is checked automatically against the fitting call in each script before results are published; every coefficient here carries its basis in its source file.
 
 # []{#anchor}4. How the model does
 
@@ -268,11 +268,11 @@ Figure 2. The residual drainage law. Left: each reference well's drainage rate k
 
 ![](Pictures/3.png){width="468.00pt" height="306.00pt"}
 
-Figure 3. Evapotranspiration backed out of the winter drainage law, as a fraction of potential evapotranspiration: each well's summer fraction against its annual, by cluster. Line: 1:1.
+Figure 3. Evapotranspiration inferred from the winter drainage law, as a fraction of potential evapotranspiration: each well's summer fraction against its annual, by cluster. Line: 1:1.
 
 ![](Pictures/4.png){width="468.00pt" height="284.14pt"}
 
-Figure 4. The drainage share of the mean annual loss per cluster under the fluctuation-method Sₐ (bars), with the span it covers across the winter joint fit's two-direction Sₐ bracket (red) and the network median (dashed). The bracket is not a confidence interval and is not centred on the bar: a smaller Sₐ books less storage and so a larger drainage share, so it lies wholly above the bar at C2--C5 and straddles it only at C1, the cluster whose share is most sensitive to choices this balance cannot settle.
+Figure 4. The drainage share of the mean annual loss, by cluster. The bars use the fluctuation-method Sₐ. The red span shows the shares given instead by the two Sₐ values of the winter joint fit, and the dashed line is the network median. That span is not a confidence interval, and it is not centred on its bar: a smaller Sₐ books less storage, which leaves a larger share to drainage. It therefore lies wholly above the bar at C2--C5, and straddles it only at C1, the cluster whose share depends most on choices this balance cannot settle.
 
 ![](Pictures/NRG_39_04_hindcast.png){width="468.00pt" height="600.35pt"}
 

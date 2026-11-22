@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.41.0"  # Hollingham (2026) — 2026-11-17 (D-334, T-213). 16_water_bal_table.csv registers Model B's
+__version__ = "1.42.0"  # Hollingham (2026) — 2026-11-22 (J-27). 50_36_pet_comparison.csv registered, keyed
+#   (basis, pet, quantity), so Paper M §3 can bind the year Penman–Monteith inputs begin (first_year, 1957) as a
+#   field (Martin 2026-11-21: "all dates should be fields!"; a year is a number).
+__version_prev2__ = "1.41.0"  # Hollingham (2026) — 2026-11-17 (D-334, T-213). 16_water_bal_table.csv registers Model B's
 #   head-space columns (Recharge_B ... ET_B_pct, LCSC_B_pct): Table 5 and report9's recharge sentence quote them.
 __version_prev__ = "1.40.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 3). Model A's beside-columns become citable:
 #   09b_02 baci_db3_pct_model_a and 08_perwell_nse SSM_NSE_model_a, so the Methods Supplement's Model A clauses bind as fields.
@@ -541,6 +544,10 @@ EXTRA_VALUE_TABLES = [
      ["Delta_vol_mm_per_month"]),
     ("outputs/00_climate_summary/00_06_pet_monthly_trends.csv", ("window", "month"),
      ["slope_mm_per_yr", "p_value", "r2", "n_years"]),
+    # J-27 (1.42.0): Script 50's PET comparison, one row per (basis, pet, quantity); Paper M §3 binds
+    # all / first_year (the first year Penman–Monteith can be computed) as a field.
+    ("outputs/50_record_length/50_36_pet_comparison.csv", ("basis", "pet", "quantity"),
+     ["value"]),
     # --- registration pass batch 1 (2026-09-20): tables the report quotes cell by cell
     ("outputs/00_climate_summary/00_01_annual_climate_summary.csv", "Year",            # report9 §4.1.1 wettest/driest years
      ["Annual_P_mm", "Annual_PET_mm", "P_PET_ratio", "Months_complete"]),

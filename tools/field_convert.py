@@ -25,7 +25,8 @@ quoted text exactly.
 
 A binding row may instead carry `date` (1.5.0, J-31): a format such as %B %Y, for a source row whose Value is an
 ISO date (field_sync 1.3.0). The rendering must reproduce the quoted text exactly, as for a number; the number
-columns are left empty. A year range is two rows, "1989" (%Y) and "96" (%y), the en dash between them typed.
+columns are left empty. A row with `all` = 1 binds every occurrence its whole context matches, for a sentence the
+document carries twice; without it an ambiguous context is skipped, as before. A year range is two rows, "1989" (%Y) and "96" (%y), the en dash between them typed.
 
 Usage:
     python3 tools/field_convert.py report8 --dry-run
@@ -37,7 +38,8 @@ from __future__ import annotations
 __version__ = "1.5.0"  # Hollingham (2026) — 2026-11-23 (J-31). A binding row may carry `date` (a format, field_sync 1.3.0):
 #   the value is the source row's ISO date and the field renders it as a date. Fields are declared with
 #   field_sync.rendered(), which serves both kinds. Number bindings are unchanged. A row whose 25-character context
-#   matches more than one occurrence is retried on the whole context it gives before it is skipped.
+#   matches more than one occurrence is retried on the whole context it gives before it is skipped; a row with all=1
+#   binds every occurrence its whole context matches (a sentence a document carries twice, e.g. a figure caption).
 # 1.4.0  # Hollingham (2026) — 2026-11-22 (D-337). --tables: a number in a HAND-BUILT table cell may be
 #   bound; its identity is tested on the whole table row (the stored context comes from the mirror, where a row is one line),
 #   and a table that table_gen owns is never touched. An already-registered field keeps its own note (it used to be
@@ -308,14 +310,18 @@ def main() -> int:
                     pb, pa = _plain_around(xml, x0, x1, width=max(len(fb), len(fa), 60))
                     if pb.endswith(fb) and pa.startswith(fa):
                         long_.append((x0, x1))
-                if len(long_) == 1:
+                if len(long_) == 1 or (long_ and str(r.get("all") or "").strip() == "1"):
                     hits = long_
-        if len(hits) != 1:
+        if len(hits) > 1 and str(r.get("all") or "").strip() == "1" and (len(_norm(r.get("before") or "")) > 25
+                                                                         or len(_norm(r.get("after") or "")) > 25):
+            pass                                      # 1.5.0: the row asks for every identical occurrence
+        elif len(hits) != 1:
             skipped.append((r, f"context matches {len(hits)} occurrence(s) of {len(occ)}")); continue
-        x0, x1 = hits[0]
-        if (x0, x1) in taken:
+        hits = [h for h in hits if h not in taken]
+        if not hits:
             continue
-        taken.add((x0, x1))
+        taken.update(hits)
+        x0, x1 = hits[0]
         name = (r.get("field") or "").strip() or field_name(r["key"], spec)
         # 1.2.0: two keys from different files can sanitise to one name (C3 · p_value in 14_ and 21_);
         # the second takes its file's stem as a prefix rather than overwriting the first.
@@ -329,7 +335,8 @@ def main() -> int:
         if name in reg and reg[name].get("note"):    # 1.4.0: a registered field keeps its provenance note
             row["note"] = reg[name]["note"]
         new_fields[name] = row
-        spans.append((x0, x1, f'<text:user-field-get text:name="{name}">{xml[x0:x1]}</text:user-field-get>'))
+        for (x0, x1) in hits:
+            spans.append((x0, x1, f'<text:user-field-get text:name="{name}">{xml[x0:x1]}</text:user-field-get>'))
     # declarations
     decls, _ = fs.fields_in(xml)
     add = [n for n in new_fields if n not in decls]

@@ -24,7 +24,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-17 (D-270). Paper2_plain_v*.odt, the plain-language
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-23 (J-31 for J-32 item 1). PaperC_v*.odt (Hollingham 2026f, born
+#   2026-11-23e) joins the mirrors (docs/papers/paper_C/text/PaperC.md), so field_sync.documents() sees its fields and
+#   docglob_lint's drift net covers it.
+# 1.8.0  # Hollingham (2026) - 2026-10-17 (D-270). Paper2_plain_v*.odt, the plain-language
 #   companion to Paper 2, joins the mirrors (docs/papers/paper_2/text/Paper2_plain.md).
 # 1.7.0  # Hollingham (2026) - 2026-10-15 (D-265). Paper1_plain_v*.odt, the plain-language
 #   companion to Paper 1, joins the mirrors (docs/papers/paper_1/text/Paper1_plain.md).
@@ -106,6 +109,7 @@ SOURCES = [
     ("docs/papers/paper_M/PaperM_v*.odt", "docs/papers/paper_M/text", True),
     # Paper M's plain-language companion (D-258): born with number fields, the same fields as the paper.
     ("docs/papers/paper_M/PaperM_plain_v*.odt", "docs/papers/paper_M/text", True),
+    ("docs/papers/paper_C/PaperC_v*.odt", "docs/papers/paper_C/text", True),   # 1.9.0
     # Reader-facing documents. They quote the same pipeline numbers as the
     # report, and until 2026-08-18 nothing would have told us when one drifted.
     ("docs/academic_summaries/academic_Summary_v*.odt",

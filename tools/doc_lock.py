@@ -91,7 +91,8 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.7.2"  # Hollingham (2026) — 2026-11-11 (J-14 follow-up). session_mode() returns
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-23 (J-32). ALIASES: doc:PaperC covers PaperC and PaperC_SI.
+# 1.7.2  # Hollingham (2026) — 2026-11-11 (J-14 follow-up). session_mode() returns
 #   "cloud" in a Claude cloud session (CLAUDE_CODE_REMOTE=true) instead of "laptop": .git/nrg_machine
 #   holds whichever machine last ran doc_lock, so the "laptop" test matched every container.
 # "1.7.1"  # Hollingham (2026) — 2026-11-11 (T-198, J-14). store_state() reads a lock
@@ -720,6 +721,7 @@ def _update(fn, publish: str | None = None) -> dict:
 # Families whose doc_tier name is long, or that are edited together, have a short claim name.
 ALIASES = {
     "doc:Paper2": ("Hollingham_2026_Paper2_amended", "Paper2_plain"),   # the paper and its plain-language companion (D-270)
+    "doc:PaperC": ("PaperC", "PaperC_SI"),   # the paper and its SI (J-32, Martin 2026-11-23)
     "doc:PaperM": ("PaperM", "PaperM_plain"),   # the paper and its plain-language companion (D-258)
     "doc:Paper1": ("Paper1", "Paper1_plain"),   # the paper and its plain-language companion (D-265)
     "doc:MS": ("Newborough_Methods_Supplement",),

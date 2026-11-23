@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.42.1"  # Hollingham (2026) — 2026-11-22 (2026-11-22f). 03_06_leave_one_out.csv registered, keyed (Cluster_Label, Excluded_Well)
+__version__ = "1.43.0"  # Hollingham (2026) — 2026-11-23 (J-32). 25_03 n_wells_within_reach and 25_02_per_well_summer_min_slopes.csv
+#   (keyed by well) registered, for Paper C SI S1.5.
+# 1.42.1  # Hollingham (2026) — 2026-11-22 (2026-11-22f). 03_06_leave_one_out.csv registered, keyed (Cluster_Label, Excluded_Well)
 #   (basis, pet, quantity), so Paper M §3 can bind the year Penman–Monteith inputs begin (first_year, 1957) as a
 #   field (Martin 2026-11-21: "all dates should be fields!"; a year is a number).
 __version_prev2__ = "1.41.0"  # Hollingham (2026) — 2026-11-17 (D-334, T-213). 16_water_bal_table.csv registers Model B's
@@ -1094,7 +1096,9 @@ EXTRA_VALUE_TABLES = [
     ('outputs/01b_water_table/01b_09_coastal_wells.csv', 'well',
      ['range_m']),
     ('outputs/25_coastal_gradient/25_03_cluster_partition.csv', 'cluster_label',
-     ['coastal_gradient_loo_max_pct_of_basis', 'coastal_gradient_loo_min_pct_of_basis', 'coastal_gradient_pct_of_basis', 'mean_dist_coast_m', 'n_wells']),
+     ['coastal_gradient_loo_max_pct_of_basis', 'coastal_gradient_loo_min_pct_of_basis', 'coastal_gradient_pct_of_basis', 'mean_dist_coast_m', 'n_wells', 'n_wells_within_reach']),
+    ('outputs/25_coastal_gradient/25_02_per_well_summer_min_slopes.csv', 'well',    # J-32: Paper C SI S1.5 (NW9 out-of-sample test)
+     ['slope_m_yr', 'slope_se', 'slope_p', 'r2', 'n_years', 'dist_coast_m']),
     ('outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv', ('source', 'model'),
      ['c_se']),
     ('outputs/37b_driver_footing/37b_driver_footing.csv', 'component',

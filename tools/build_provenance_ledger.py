@@ -37,7 +37,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-09. The output census is TRACKED files, not
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-11-23 (J-31 follow-up). _first_text_after() wanted a whole caption
+#   paragraph inside a 3000-character window; report9 Table 1.11's caption grew past it with two date fields and the
+#   ledger silently dropped the table (CLAUDE.md's count read 32 for 33). The paragraph must START inside the window
+#   and is read to its end - the same fix as table_provenance_lint 1.0.1.
+# 1.1.0  # Hollingham (2026) — 2026-11-09. The output census is TRACKED files, not
 #   whatever is on disk. `produced` was (REPO/"outputs").rglob("*"), gitignored files included, and
 #   the resulting "Outputs no exhibit renders (N)" count is written into a COMMITTED ledger that
 #   --check compares byte for byte. So the gate's verdict was a function of which untracked files
@@ -94,8 +98,12 @@ def _tracked_outputs() -> set[str]:
 
 
 def _first_text_after(xml: str, pos: int, reach: int = 3000) -> str:
-    for m in re.finditer(r"<text:p\b[^>]*>(.*?)</text:p>", xml[pos:pos + reach], re.S):
-        txt = TAG.sub("", m.group(1)).strip()
+    for m in re.finditer(r"<text:p\b[^>]*>", xml[pos:pos + reach]):
+        start = pos + m.end()
+        end = xml.find("</text:p>", start)
+        if m.group(0).endswith("/>") or end < 0:
+            continue                                   # an empty <text:p/>
+        txt = TAG.sub("", xml[start:end]).strip()
         if txt:
             return txt
     return ""

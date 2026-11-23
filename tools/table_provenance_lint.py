@@ -34,7 +34,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-23 (J-31). _first_text_after() looked for a WHOLE paragraph inside
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-23 (J-31 follow-up). Also compares the tables found here with the
+#   tables notes/ledgers/PROVENANCE_LEDGER.md lists: 92c20fa5's ledger dropped Table 1.11 while this lint traced it,
+#   and nothing compared the two (CLAUDE.md's count, stamped from the ledger, followed it to 32).
+# 1.0.1  # Hollingham (2026) — 2026-11-23 (J-31). _first_text_after() looked for a WHOLE paragraph inside
 #   a 3000-character window, so a caption paragraph that grew past it (two date fields' tags, report9 Table6) read as
 #   "no numbered caption". The paragraph must START inside the window; it is read to its own end.
 # 1.0.0  # Hollingham (2026) — 2026-09-19.
@@ -138,6 +141,19 @@ def main() -> int:
                                f"{', '.join(sorted(csvs))}"))
             elif not args.quiet:
                 print(f"  ok    Table {num:<6} {stem:<9} {sorted(csvs)[0]}")
+    # 1.1.0: the provenance ledger must list the same tables this lint found
+    found = {f"Table {num.rstrip('abcd')}" for stem in CHAPTERS
+             if (REPO / "report_edits/odt" / f"{stem}.odt").exists()
+             for _n, num, _t in captions_in(REPO / "report_edits/odt" / f"{stem}.odt") if num}
+    ledger = REPO / "notes/ledgers/PROVENANCE_LEDGER.md"
+    if ledger.is_file():
+        listed = set(re.findall(r"Table 1\.\d+", ledger.read_text(encoding="utf-8")))
+        for t in sorted(found - listed):
+            faults.append(("NOT LEDGERED", "", "", t.split()[-1],
+                           "a captioned table PROVENANCE_LEDGER.md does not list (rebuild it: build_provenance_ledger.py)"))
+        for t in sorted(listed - found):
+            faults.append(("LEDGER ONLY", "", "", t.split()[-1],
+                           "PROVENANCE_LEDGER.md lists a table no report chapter captions"))
     for tag, stem, name, num, why in faults:
         print(f"  {tag:<11} {stem:<9} {name:<12} Table {num or '?':<6} {why}")
     print()

@@ -61,6 +61,8 @@ surplus_mean_modern_m_yr,,,0.2366795709388707,m/yr,mean annual P - PET 2005-03 t
 ccw_annual_range_mean_m,,,0.7245098039215687,m,"per-well calendar-year range 1989-1995, well-years with >= 10 readings"
 ccw_annual_range_sd_m,,,0.25528269604883286,m,as above
 ccw_annual_range_n,,,51.0,well-years,as above
+ccw_annual_range_first_year,,,1989-01-01,date,first calendar year of the annual-range check (config.CCW_ANNUAL_RANGE_YEARS)
+ccw_annual_range_last_year,,,1995-01-01,date,last calendar year of the annual-range check (config.CCW_ANNUAL_RANGE_YEARS)
 ccw_annual_range_vs_davy_2010_diff_m,,,0.025490196078431282,m,"CCW_ANNUAL_RANGE_DAVY_2010_M (0.75 m, Davy et al. 2010; SD 0.27 m) minus ccw_annual_range_mean_m"
 epoch_midpoint_gap_yr,,,22.833675564681723,yr,years between the two records' midpoints
 ccw_record_first_month,,,1989-05-01,date,first month of the CCW readings

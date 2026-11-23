@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.130.0"  # Hollingham (2026) - 2026-11-22 (D-337). The comparison window is January 2018 to February 2026:
+__version__ = "1.131.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END, the (P-PET)
+#   reference window, move here from Scripts 00 and 02, which each typed them; values unchanged (2004-12-01, 2025-12-01).
+# 1.130.0  # Hollingham (2026) - 2026-11-22 (D-337). The comparison window is January 2018 to February 2026:
 #   COMPARISON_WINDOW_START = 2018-01-01, LCSC_DATA_LIMIT 100 -> 98 calendar months, wholly after the December 2017
 #   clearfell (Martin 2026-11-22: "Jan 2018 to Feb 2026"). An import-time guard ties the two to REFERENCE_CUTOFF_DATE.
 __version_prev__ = "1.129.0"  # Hollingham (2026) - 2026-11-20 (J-23). TRANSFER_R2_TOL, TRANSFER_BIAS_TOL_M: Martin's criterion
@@ -1934,6 +1936,10 @@ MSL5_SCRAPE_PAIR_FIRST_WINDOW_END = 2017
 # ~5-yr late half, so Script 10a can report the clearfell step decaying as the
 # 1998 replant and felled-margin canopy mature. Stored (not hardcoded in 10a).
 CLEARFELL_ERA_SPLIT = "2021-01-01"  # early/late boundary for the clearfell BACI decay split (W96/D-141)
+# The reference window the cumulative (P-PET) balance is detrended against (Scripts 00 and 02). Relocated from
+# those scripts, which each typed it, on 2026-11-23 (J-31); values unchanged.
+DETREND_START = "2004-12-01"
+DETREND_END   = "2025-12-01"
 
 # ── Broadleaf restock canopy-establishment fractions (2005→2025 driver map) ────
 # The broadleaf restock block (data/geo/broadleaf_restock.kml) was felled 1993,

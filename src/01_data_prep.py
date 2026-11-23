@@ -16,7 +16,12 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 01_report_numbers.csv gains
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). Emit-only: 01_report_numbers.csv gains the
+#   intervention and era dates as ISO rows - scraping_month, rescraping_month (SCRAPING_DATE_ISO, _2_ISO),
+#   scraping_era_last_month (the month before CLEARFELL_DATE_ISO), clearfell_era_split (CLEARFELL_ERA_SPLIT),
+#   clearfell_early_era_last_month (the month before it) - and cwb_detrend_start / _end (DETREND_START / _END).
+#   No other output moves.
+# 1.29.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 01_report_numbers.csv gains
 #   comparison_window_start / _end (config COMPARISON_WINDOW_START, REFERENCE_CUTOFF_DATE), well_record_start
 #   (RECORD_START_DISPLAY), raf_valley_record_first_month (the first month of 01_climate.csv) and clearfell_month
 #   (CLEARFELL_DATE_ISO), ISO dates, so the documents' typed dates are date fields (field_sync 1.3.0).
@@ -179,6 +184,7 @@ from utils.paths import (
 from utils.buckets import month_bucket
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
 from utils.comment_states import parse_comment_states, assemble_observation_states
+from utils.config import (SCRAPING_DATE_ISO, SCRAPING_DATE_2_ISO, CLEARFELL_ERA_SPLIT, DETREND_START, DETREND_END)
 from utils.config import (REFERENCE_CUTOFF_DATE, COMPARISON_WINDOW_START, CLEARFELL_DATE_ISO, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS, MIN_RECORD_MONTHS,
     RECORD_START_DISPLAY, EXCLUDED_STUDY_AREA_WELLS, LAKE_GAUGE_REASON,
     get_cluster_colour, get_obs_state_colours, get_obs_state_hatches)
@@ -981,6 +987,21 @@ def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network
            note="first month of the well-monitoring record (config.RECORD_START_DISPLAY)")
     rr.add("clearfell_month", CLEARFELL_DATE_ISO, unit="date",
            note="the month of the pine clearfell (config.CLEARFELL_DATE_ISO)")
+    # 1.30.0: the intervention and era dates, and the (P-PET) detrend window
+    _prev = lambda iso: (pd.Timestamp(iso) - pd.DateOffset(months=1)).strftime("%Y-%m-%d")
+    rr.add("scraping_month", SCRAPING_DATE_ISO, unit="date", note="the CEH36 dune scrape (config.SCRAPING_DATE_ISO)")
+    rr.add("rescraping_month", SCRAPING_DATE_2_ISO, unit="date",
+           note="the CEH18 / CEH21 re-scrape (config.SCRAPING_DATE_2_ISO)")
+    rr.add("scraping_era_last_month", _prev(CLEARFELL_DATE_ISO), unit="date",
+           note="last month of the pure-scraping era: the month before the clearfell (config.CLEARFELL_DATE_ISO)")
+    rr.add("clearfell_era_split", CLEARFELL_ERA_SPLIT, unit="date",
+           note="first month of the late clearfell era (config.CLEARFELL_ERA_SPLIT, W96/D-141)")
+    rr.add("clearfell_early_era_last_month", _prev(CLEARFELL_ERA_SPLIT), unit="date",
+           note="last month of the early clearfell era: the month before config.CLEARFELL_ERA_SPLIT")
+    rr.add("cwb_detrend_start", DETREND_START, unit="date",
+           note="first month of the (P-PET) detrend reference window (config.DETREND_START)")
+    rr.add("cwb_detrend_end", DETREND_END, unit="date",
+           note="last month of the (P-PET) detrend reference window (config.DETREND_END)")
     if climate_record:
         rr.add("raf_valley_record_first_month", climate_record["first_iso"], unit="date",
                note="first month of the RAF Valley monthly record in 01_climate.csv")

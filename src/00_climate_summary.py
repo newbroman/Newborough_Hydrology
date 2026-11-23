@@ -78,7 +78,9 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.18.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
+#   (1.131.0) instead of being typed here; values unchanged, no output moves.
+# 1.18.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the reference record length in years, the shallowest and deepest per-well mean level and
 #   the highest per-well mean winter maximum; new rows reference_record_years_from_months_median,
 #   reference_mean_wl_shallowest_m, reference_mean_wl_deepest_m and reference_winter_max_highest_m in
@@ -187,8 +189,9 @@ CB_RED = "#D55E00"
 CB_BROWN = "#8C564B"
 CB_GREY = "#9E9E9E"
 CUTOFF_DATE = pd.Timestamp(REFERENCE_CUTOFF_DATE)
-DETREND_START = pd.Timestamp("2004-12-01")
-DETREND_END = pd.Timestamp("2025-12-01")
+from utils.config import DETREND_START as _DETREND_START_ISO, DETREND_END as _DETREND_END_ISO  # 1.19.0
+DETREND_START = pd.Timestamp(_DETREND_START_ISO)
+DETREND_END = pd.Timestamp(_DETREND_END_ISO)
 
 
 # Length of the early and late comparison periods used by

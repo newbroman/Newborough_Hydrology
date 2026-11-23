@@ -14,7 +14,9 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 02_report_numbers.csv gains
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
+#   (1.131.0) instead of being typed here; values unchanged, no output moves.
+# 1.15.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 02_report_numbers.csv gains
 #   cluster_hydro_window_start / _end, ISO dates (config CLUSTER_HYDRO_WINDOW_START / _END), so the documents'
 #   "December 2006 to December 2025" are date fields (field_sync 1.3.0). No other output moves.
 # 1.14.0  # Hollingham (2026) - 2026-11-19 (J-16). Writes 02_13_cluster_mean_levels.csv: one row per cluster with
@@ -177,8 +179,9 @@ NUM_CLUSTERS = get_requested_n_clusters()
 # how this partition was arrived at.
 WARDS_K = NUM_CLUSTERS
 REFERENCE_CUTOFF = pd.Timestamp(REFERENCE_CUTOFF_DATE)
-DETREND_START = pd.Timestamp("2004-12-01")
-DETREND_END = pd.Timestamp("2025-12-01")
+from utils.config import DETREND_START as _DETREND_START_ISO, DETREND_END as _DETREND_END_ISO  # 1.16.0
+DETREND_START = pd.Timestamp(_DETREND_START_ISO)
+DETREND_END = pd.Timestamp(_DETREND_END_ISO)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # CLIMATE NORMALISATION for the amplitude descriptors (Section 4.2).

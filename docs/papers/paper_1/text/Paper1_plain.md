@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_6.odt — do not edit. source-sha256=2a1a9b1a7648995c pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_7.odt — do not edit. source-sha256=fda178756dd142c4 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper

@@ -16,7 +16,12 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.28.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 01_report_numbers.csv gains
+#   comparison_window_start / _end (config COMPARISON_WINDOW_START, REFERENCE_CUTOFF_DATE), well_record_start
+#   (RECORD_START_DISPLAY), raf_valley_record_first_month (the first month of 01_climate.csv) and clearfell_month
+#   (CLEARFELL_DATE_ISO), ISO dates, so the documents' typed dates are date fields (field_sync 1.3.0).
+#   No other output moves.
+# 1.28.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.28.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the length of the RAF Valley record in years; new row raf_valley_record_years in
 #   01_report_numbers.csv, from the climate frame written to 01_climate.csv. Emit-only; no other output moves.
@@ -174,7 +179,7 @@ from utils.paths import (
 from utils.buckets import month_bucket
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
 from utils.comment_states import parse_comment_states, assemble_observation_states
-from utils.config import (REFERENCE_CUTOFF_DATE, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS, MIN_RECORD_MONTHS,
+from utils.config import (REFERENCE_CUTOFF_DATE, COMPARISON_WINDOW_START, CLEARFELL_DATE_ISO, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS, MIN_RECORD_MONTHS,
     RECORD_START_DISPLAY, EXCLUDED_STUDY_AREA_WELLS, LAKE_GAUGE_REASON,
     get_cluster_colour, get_obs_state_colours, get_obs_state_hatches)
 from utils.render_utils import render_figure
@@ -967,6 +972,18 @@ def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network
                era=f"{climate_record['first']}-{climate_record['last']}",
                note="length of the RAF Valley monthly record in years: days from its first to its "
                     "last month-start in 01_climate.csv, divided by 365.25. report9 record length")
+    # 1.29.0 (J-31): the comparison window's ends as ISO dates, for the documents' date fields
+    rr.add("comparison_window_start", COMPARISON_WINDOW_START, unit="date",
+           note="first calendar month of the comparison window (config.COMPARISON_WINDOW_START, D-337)")
+    rr.add("comparison_window_end", REFERENCE_CUTOFF_DATE, unit="date",
+           note="last calendar month of record, and of the comparison window (config.REFERENCE_CUTOFF_DATE)")
+    rr.add("well_record_start", RECORD_START_DISPLAY, unit="date",
+           note="first month of the well-monitoring record (config.RECORD_START_DISPLAY)")
+    rr.add("clearfell_month", CLEARFELL_DATE_ISO, unit="date",
+           note="the month of the pine clearfell (config.CLEARFELL_DATE_ISO)")
+    if climate_record:
+        rr.add("raf_valley_record_first_month", climate_record["first_iso"], unit="date",
+               note="first month of the RAF Valley monthly record in 01_climate.csv")
     n = rr.save(OUT_01_REPORT_NUMBERS)
     saved(f"{OUT_01_REPORT_NUMBERS.name} ({n} value(s))")
 
@@ -1071,6 +1088,7 @@ if __name__ == "__main__":
     # of the frame just written to 01_climate.csv
     climate_record = {"years": float((climate.index.max() - climate.index.min()).days / 365.25),
                       "first": climate.index.min().strftime("%b %Y"),
+                      "first_iso": climate.index.min().strftime("%Y-%m-%d"),
                       "last": climate.index.max().strftime("%b %Y")}
     info(f"annual rainfall trend, complete years {rain_trend['first']}-{rain_trend['last']}: "
          f"{rain_trend['slope']:+.2f} mm/yr, p = {rain_trend['p']:.3f} (n = {rain_trend['n']})")

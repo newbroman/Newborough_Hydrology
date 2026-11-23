@@ -14,7 +14,10 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-19 (J-16). Writes 02_13_cluster_mean_levels.csv: one row per cluster with
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 02_report_numbers.csv gains
+#   cluster_hydro_window_start / _end, ISO dates (config CLUSTER_HYDRO_WINDOW_START / _END), so the documents'
+#   "December 2006 to December 2025" are date fields (field_sync 1.3.0). No other output moves.
+# 1.14.0  # Hollingham (2026) - 2026-11-19 (J-16). Writes 02_13_cluster_mean_levels.csv: one row per cluster with
 #   its reference-well count, months and mean level over the plotted window - the values cluster_mean_level_m already emits,
 #   as a table report9 §4.2.1 can carry (Martin, 2026-11-19: "make a table output running from a script"). No value changes.
 # 1.13.2  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
@@ -817,6 +820,11 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
     sweep_out.to_csv(OUT_02_K_SWEEP, index=False)
     step(f"Saved k-sweep validation: {OUT_02_K_SWEEP.name}")
     rr = ReportNumbers()
+    # 1.15.0 (J-31): the cluster-mean hydrograph window as ISO dates, for the documents' date fields
+    rr.add("cluster_hydro_window_start", CLUSTER_HYDRO_WINDOW_START, unit="date",
+           note="first month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_START)")
+    rr.add("cluster_hydro_window_end", CLUSTER_HYDRO_WINDOW_END, unit="date",
+           note="last month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_END)")
     rr.add("silhouette_k5", float(sweep.loc[NUM_CLUSTERS, "silhouette"]), unit="",
            era=f"k={NUM_CLUSTERS}", note="silhouette at chosen k on the 66-well reference network")
     rr.add("calinski_harabasz_k5", float(sweep.loc[NUM_CLUSTERS, "calinski_harabasz"]), unit="",

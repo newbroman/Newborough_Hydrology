@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_4.odt — do not edit. source-sha256=2baac657619e51fd pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_5.odt — do not edit. source-sha256=0e327ac88e6eeb72 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What felling and scraping did to the water table: a plain-language guide to the dune-restoration paper

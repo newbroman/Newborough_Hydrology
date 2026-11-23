@@ -35,7 +35,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-23 (J-31). A binding row may carry `date` (a format, field_sync 1.3.0):
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-11-23 (J-31). Never binds inside <svg:desc> or <svg:title>: an image's
+#   alt text is plain text in ODF, and the 1.5.0 pass put eight fields there (Paper 1 v1_108, Paper 2 v52), which
+#   paper_refs then read as duplicate captions. The `all=1` rows that reached them now find the caption alone. Nor
+#   inside a <text:index-body> (a table of contents or figure list): LibreOffice rebuilds it from the headings.
+# 1.5.0  # Hollingham (2026) — 2026-11-23 (J-31). A binding row may carry `date` (a format, field_sync 1.3.0):
 #   the value is the source row's ISO date and the field renders it as a date. Fields are declared with
 #   field_sync.rendered(), which serves both kinds. Number bindings are unchanged. A row whose 25-character context
 #   matches more than one occurrence is retried on the whole context it gives before it is skipped; a row with all=1
@@ -185,6 +189,10 @@ def _occurrences(xml: str, quoted_x: str, tables: bool = False, skip_tables=froz
             continue                                   # inside a table (or a generated one)
         if xml.rfind("<text:user-field-get", 0, a) > xml.rfind("</text:user-field-get>", 0, a):
             continue                                   # already a field
+        if any(xml.rfind(f"<svg:{t}>", 0, a) > xml.rfind(f"</svg:{t}>", 0, a) for t in ("desc", "title")):
+            continue                                   # 1.5.1: an image's alt text is plain text, never a field
+        if xml.rfind("<text:index-body>", 0, a) > xml.rfind("</text:index-body>", 0, a):
+            continue                                   # 1.5.1: a generated index; its heading carries the field
         out.append((a, b))
     return out
 

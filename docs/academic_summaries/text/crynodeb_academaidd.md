@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_31.odt — do not edit. source-sha256=7566b2bbb0392327 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_32.odt — do not edit. source-sha256=a6f75f82a7d775a6 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch

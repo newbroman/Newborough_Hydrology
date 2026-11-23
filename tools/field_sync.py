@@ -17,7 +17,7 @@ HOW
   (tested 2026-10-01); pandoc drops the use's text, so refresh_mirrors unwraps fields before converting.
 
   tools/number_fields.csv is the ONE register shared by every document:
-      field, source_csv, key, scale, abs, dp, plus, minus, thousands, note
+      field, source_csv, key, scale, abs, dp, plus, minus, thousands, note, date
   `key` is the label cite_check.collect_values() gives the row (Parameter, qualified by its Well/Era
   cells where the Parameter repeats). A value is rendered as
       x = value * scale (then |x| if abs); fixed to dp places; thousands separator if set;
@@ -25,12 +25,19 @@ HOW
       a leading `minus` character when negative after rounding, `+` when positive and plus=1.
   Rounding is a rendering decision (CLAUDE.md); the register says how, once, for every document.
 
+  A DATE field (1.3.0, J-31) has a format in `date` and leaves the number columns empty. Its source is a
+  report-numbers row whose Value is an ISO date — YYYY, YYYY-MM or YYYY-MM-DD — keyed exactly as
+  cite_check keys a number (dates()). The format takes %B (January), %b (Jan), %Y (2018), %y (18),
+  %m (01) and %d (01), with English month names whatever the locale. A year range ("1989–96") is two
+  fields with the en dash typed between them: `%Y` on the first month, `%y` on the last.
+
   --check   every field declared in every document is in the register, renders from its CSV, and
             the declaration and every displayed use equal the rendering. Exit 1 otherwise. A gate.
   --write   set every declaration and use to the rendering (odt_edit's guarded write, in place, like
             table_gen: field values are generated content). Prints each field whose value MOVED with
             the sentence it sits in, so a change of conclusion is seen (D-191), not silently typeset.
   --list    the register, with each field's current rendering and the documents using it.
+  --selftest the renderings (number and date) against fixed cases; no document is read. Exit 1 on a miss.
 
 Usage:
     python3 tools/field_sync.py --check
@@ -39,7 +46,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10): the register is
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-23 (J-31; Martin 2026-11-21: "all dates should be fields!"). A DATE
+#   field: a `date` column holds a format (%B %Y -> "January 2018", %y -> "96"), and its value is an ISO date a
+#   report-numbers row carries as a string (dates()). The number path is unchanged: a row with `date` empty renders
+#   exactly as 1.2.0 did. --selftest added.
+# 1.2.0  # Hollingham (2026) — 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10): the register is
 #   read and written through tools/register_io, so a field another chat registered while this one
 #   ran is kept, not overwritten (a short lock file and a row merge).
 # 1.1.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): dp may be
@@ -60,7 +71,7 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 
 REGISTER = REPO / "tools" / "number_fields.csv"
-COLUMNS = ["field", "source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands", "note"]
+COLUMNS = ["field", "source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands", "note", "date"]
 
 DECL_RE = re.compile(r'<text:user-field-decl\b[^>]*?text:name="([^"]+)"[^>]*?/>')
 DECL_VAL_RE = re.compile(r'office:string-value="([^"]*)"')
@@ -117,9 +128,134 @@ def render(v: float, row: dict) -> str:
     return body
 
 
+# ── dates (1.3.0, J-31) ─────────────────────────────────────────────────────
+ISO_DATE_RE = re.compile(r"(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?")
+MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September",
+          "October", "November", "December")
+_DATE_TOKENS = {"B", "b", "Y", "y", "m", "d"}
+_DATES: dict | None = None
+
+
+def dates() -> dict[tuple[str, str], str]:
+    """(source_csv, key) -> committed ISO date string, keyed as cite_check.collect_values() keys a number.
+
+    collect_values() skips a row whose Value is not a number, so a date never enters the number register
+    and nothing that checks numbers sees it; this reads the same files for the rows it skipped."""
+    global _DATES
+    if _DATES is None:
+        import pandas as pd
+        import cite_check as cc
+        _DATES = {}
+        for p in sorted(REPO.glob("outputs/**/*report_numbers*.csv")):
+            if any(d in p.parts for d in cc.EXCLUDE_OUTPUT_DIRS):
+                continue
+            try:
+                df = pd.read_csv(p, dtype=str, keep_default_na=False)
+            except Exception:
+                continue
+            cols = {c.lower(): c for c in df.columns}
+            kcol = cols.get("key") or df.columns[0]
+            vcol = cols.get("value")
+            if vcol is None:
+                continue
+            repeated = set(df[kcol][df[kcol].duplicated(keep=False)])
+            qual = [c for c in (cols.get("well"), cols.get("era"), cols.get("control"), cols.get("tier")) if c]
+            rel = str(p.relative_to(REPO))
+            for _, r in df.iterrows():
+                v = str(r[vcol]).strip()
+                if not ISO_DATE_RE.fullmatch(v):
+                    continue
+                lab = str(r[kcol])
+                if lab in repeated:
+                    parts = [str(r[c]).strip() for c in qual if str(r[c]).strip()]
+                    if parts:
+                        lab = " · ".join([lab] + parts)
+                _DATES[(rel, lab)] = v
+    return _DATES
+
+
+def render_date(iso: str, fmt: str) -> str:
+    """An ISO date (YYYY, YYYY-MM or YYYY-MM-DD) in `fmt`. A token the date does not carry (a month in a
+    bare year) or a token outside %B %b %Y %y %m %d raises ValueError: the register is wrong, not the text."""
+    m = ISO_DATE_RE.fullmatch(str(iso).strip())
+    if not m:
+        raise ValueError(f"not an ISO date: {iso!r}")
+    y, mo, d = m.group(1), m.group(2), m.group(3)
+
+    def tok(t: re.Match) -> str:
+        c = t.group(1)
+        if c == "%":
+            return "%"
+        if c not in _DATE_TOKENS:
+            raise ValueError(f"date format {fmt!r}: %{c} is not supported")
+        if c == "Y":
+            return y
+        if c == "y":
+            return y[2:]
+        if c in ("B", "b", "m"):
+            if mo is None:
+                raise ValueError(f"date format {fmt!r} needs a month; {iso!r} has none")
+            name = MONTHS[int(mo) - 1]
+            return name if c == "B" else name[:3] if c == "b" else mo
+        if d is None:
+            raise ValueError(f"date format {fmt!r} needs a day; {iso!r} has none")
+        return d
+    return re.sub(r"%(.)", tok, fmt)
+
+
+def is_date(row: dict) -> bool:
+    return bool((row.get("date") or "").strip())
+
+
 def rendered(row: dict) -> str | None:
+    if is_date(row):                             # 1.3.0
+        v = dates().get((row["source_csv"], row["key"]))
+        return None if v is None else render_date(v, row["date"])
     v = values().get((row["source_csv"], row["key"]))
     return None if v is None else render(v, row)
+
+
+def selftest() -> int:
+    """Fixed cases for both paths. The number cases pin 1.2.0's behaviour, which 1.3.0 must not move."""
+    num = [(0.6119815, dict(dp="2"), "0.61"), (-1.5049, dict(dp="2"), "−1.50"), (-1.5083, dict(dp="2"), "−1.51"),
+           (902.0, dict(dp="-2"), "900"), (0.4512, dict(scale="100", dp="0"), "45"), (-0.25, dict(dp="2", abs="1"), "0.25"),
+           (0.18, dict(dp="2", plus="1"), "+0.18"), (-0.18, dict(dp="2", minus="-"), "-0.18"),
+           (12345.6, dict(dp="0", thousands=","), "12,346"), (0.0, dict(dp="2", plus="1"), "0.00"),
+           (0.004, dict(dp="2"), "0.00"), (-0.004, dict(dp="2"), "0.00")]
+    dat = [("2018-01-01", "%B %Y", "January 2018"), ("2026-02-01", "%B %Y", "February 2026"),
+           ("2026-02", "%b %Y", "Feb 2026"), ("1989-03-01", "%Y", "1989"), ("1996-12-01", "%y", "96"),
+           ("1951", "%Y", "1951"), ("2017-12-31", "%d/%m/%Y", "31/12/2017"), ("2005-03", "%Y-%m", "2005-03"),
+           ("2000-01", "100%% %Y", "100% 2000")]
+    bad = [("1951", "%B %Y"), ("2018-01", "%d"), ("2018-01-01", "%A"), ("January 2018", "%Y")]
+    miss = 0
+    for v, row, want in num:
+        got = render(v, row)
+        if got != want:
+            miss += 1
+            print(f"  MISS number {v!r} {row}: {got!r} != {want!r}")
+        if rendered_number_unchanged(v, row) != got:
+            miss += 1
+            print(f"  MISS number {v!r} {row}: an empty `date` changed the rendering")
+    for iso, fmt, want in dat:
+        got = render_date(iso, fmt)
+        if got != want:
+            miss += 1
+            print(f"  MISS date {iso!r} {fmt!r}: {got!r} != {want!r}")
+    for iso, fmt in bad:
+        try:
+            got = render_date(iso, fmt)
+        except ValueError:
+            continue
+        miss += 1
+        print(f"  MISS date {iso!r} {fmt!r}: rendered {got!r}, should have refused")
+    n = len(num) * 2 + len(dat) + len(bad)
+    print(f"field_sync selftest: {'OK' if not miss else 'FAIL'} — {n - miss} of {n} case(s)")
+    return 0 if not miss else 1
+
+
+def rendered_number_unchanged(v: float, row: dict) -> str:
+    """The number path with an explicit empty `date`: what every pre-1.3.0 row in the register is."""
+    return render(v, dict(row, date=""))
 
 
 # ── documents ───────────────────────────────────────────────────────────────
@@ -169,7 +305,8 @@ def audit(reg, docs):
                 continue
             want = rendered(row)
             if want is None:
-                faults.append((p, "no-value", name, f"{row['source_csv']} · {row['key']} is not a committed value"))
+                faults.append((p, "no-value", name, f"{row['source_csv']} · {row['key']} is not a committed "
+                                                    f"{'date' if is_date(row) else 'value'}"))
                 continue
             if val != want:
                 faults.append((p, "decl", name, f"declared {val!r}, CSV renders {want!r}"))
@@ -216,8 +353,11 @@ def main() -> int:
     g.add_argument("--check", action="store_true")
     g.add_argument("--write", action="store_true")
     g.add_argument("--list", action="store_true")
+    g.add_argument("--selftest", action="store_true")
     ap.add_argument("--doc", help="restrict to documents whose filename contains this")
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
     reg = load_register()
     docs = [p for p in documents() if not a.doc or a.doc in p.name]
     if a.list:

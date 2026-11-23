@@ -23,6 +23,10 @@ and a field name. The emit-first pass (spec NRG_spec_emit_first_report9_2026-10-
 to the key a script emits for it; the same guards apply, and a given rendering must reproduce the
 quoted text exactly.
 
+A binding row may instead carry `date` (1.5.0, J-31): a format such as %B %Y, for a source row whose Value is an
+ISO date (field_sync 1.3.0). The rendering must reproduce the quoted text exactly, as for a number; the number
+columns are left empty. A year range is two rows, "1989" (%Y) and "96" (%y), the en dash between them typed.
+
 Usage:
     python3 tools/field_convert.py report8 --dry-run
     python3 tools/field_convert.py report8
@@ -30,7 +34,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-22 (D-337). --tables: a number in a HAND-BUILT table cell may be
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-23 (J-31). A binding row may carry `date` (a format, field_sync 1.3.0):
+#   the value is the source row's ISO date and the field renders it as a date. Fields are declared with
+#   field_sync.rendered(), which serves both kinds. Number bindings are unchanged. A row whose 25-character context
+#   matches more than one occurrence is retried on the whole context it gives before it is skipped.
+# 1.4.0  # Hollingham (2026) — 2026-11-22 (D-337). --tables: a number in a HAND-BUILT table cell may be
 #   bound; its identity is tested on the whole table row (the stored context comes from the mirror, where a row is one line),
 #   and a table that table_gen owns is never touched. An already-registered field keeps its own note (it used to be
 #   overwritten with "bound by …", losing the field's provenance three times on 2026-11-22).
@@ -122,6 +130,8 @@ def _stale_spec_for(v: float, quoted: str):
 
 def field_name(key: str, spec: dict) -> str:
     base = re.sub(r"[^A-Za-z0-9]+", "_", key).strip("_")
+    if (spec.get("date") or "").strip():         # 1.5.0: "%B %Y" -> _date_B_Y
+        return base + "_date_" + "_".join(re.findall(r"%([A-Za-z])", spec["date"]))
     tag = ""
     if spec["scale"] != "1":
         tag += "_x" + spec["scale"].replace(".", "p")
@@ -240,11 +250,27 @@ def main() -> int:
     stale_log = []
     taken = set()
     for r in rows:
-        v = vals.get((r["source_csv"], r["key"]))
+        fmt = (r.get("date") or "").strip()
+        if fmt:                                       # 1.5.0: a date binding
+            v = fs.dates().get((r["source_csv"], r["key"]))
+            if v is None:
+                skipped.append((r, "no committed ISO date at that key")); continue
+            spec = {k: "" for k in ("scale", "abs", "dp", "plus", "minus", "thousands")}
+            spec["date"] = fmt
+            try:
+                ok_ = fs.render_date(v, fmt) == r["quoted"].strip()
+            except ValueError as e:
+                skipped.append((r, str(e))); continue
+            if not ok_:
+                skipped.append((r, f"{fmt!r} renders {v!r} as {fs.render_date(v, fmt)!r}, not {r['quoted']!r}")); continue
+        else:
+            v = vals.get((r["source_csv"], r["key"]))
         if v is None:
             skipped.append((r, "value no longer committed")); continue
         given = {k: (r.get(k) or "") for k in ("scale", "abs", "dp", "plus", "minus", "thousands")}
-        if given["dp"] != "":
+        if fmt:
+            pass
+        elif given["dp"] != "":
             given["scale"] = given["scale"] or "1"
             given["minus"] = given["minus"] or "−"
             spec = given if fs.render(v, given) == r["quoted"].strip() else None
@@ -272,6 +298,18 @@ def main() -> int:
             pb, pa = _plain_around(xml, x0, x1)
             if (not nb or (pb.endswith(nb[-min(len(nb), len(pb)):]) if pb else False)) and (not na or (pa.startswith(na[:min(len(na), len(pa))]) if pa else False)):
                 hits.append((x0, x1))
+        if len(hits) > 1:
+            # 1.5.0: identical for 25 characters either side - retry on the whole context the row gives. Only a row
+            # that was going to be skipped reaches this, so no binding made before 1.5.0 can change.
+            fb, fa = _norm(r.get("before") or ""), _norm(r.get("after") or "")
+            if len(fb) > 25 or len(fa) > 25:
+                long_ = []
+                for (x0, x1) in hits:
+                    pb, pa = _plain_around(xml, x0, x1, width=max(len(fb), len(fa), 60))
+                    if pb.endswith(fb) and pa.startswith(fa):
+                        long_.append((x0, x1))
+                if len(long_) == 1:
+                    hits = long_
         if len(hits) != 1:
             skipped.append((r, f"context matches {len(hits)} occurrence(s) of {len(occ)}")); continue
         x0, x1 = hits[0]
@@ -285,7 +323,8 @@ def main() -> int:
         if (name in new_fields and not _same(new_fields[name])) or (name in reg and not _same(reg[name])):
             name = re.sub(r"[^A-Za-z0-9]+", "_", pathlib.Path(r["source_csv"]).stem).strip("_") + "__" + name
         row = dict(spec, field=name, source_csv=r["source_csv"], key=r["key"], note=origin)
-        if name in reg and any(reg[name].get(k) != row.get(k) for k in ("source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands")):
+        row.setdefault("date", "")
+        if name in reg and any((reg[name].get(k) or "") != (row.get(k) or "") for k in ("source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands", "date")):
             skipped.append((r, f"field {name} already registered with a different spec")); continue
         if name in reg and reg[name].get("note"):    # 1.4.0: a registered field keeps its provenance note
             row["note"] = reg[name]["note"]
@@ -295,7 +334,7 @@ def main() -> int:
     decls, _ = fs.fields_in(xml)
     add = [n for n in new_fields if n not in decls]
     if add:
-        dx = "".join(f'<text:user-field-decl office:value-type="string" office:string-value="{html.escape(fs.render(vals[(new_fields[n]["source_csv"], new_fields[n]["key"])], new_fields[n]), quote=True)}" text:name="{n}"/>' for n in add)
+        dx = "".join(f'<text:user-field-decl office:value-type="string" office:string-value="{html.escape(fs.rendered(new_fields[n]), quote=True)}" text:name="{n}"/>' for n in add)
         if "<text:user-field-decls>" in xml:
             i = xml.index("<text:user-field-decls>") + len("<text:user-field-decls>")
             spans.append((i, i, dx))

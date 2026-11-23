@@ -358,7 +358,7 @@ BUNDLE_ORDER = ["report", "report6", "report7", "report8", "report9", "report10"
                # 1.33.0 (Martin 2026-10-04: "please ensure that all docs have a proof reading doc tool too"):
                # every mirrored document, not the report alone. A stem resolves through resolve_doc().
                "Newborough_Methods_Supplement", "Supplementary_Material",
-               "Paper1", "PAPER1_SI_methods", "Hollingham_2026_Paper2_amended", "PaperM",
+               "Paper1", "PAPER1_SI_methods", "Hollingham_2026_Paper2_amended", "PaperM", "PaperC",
                "academic_Summary", "crynodeb_academaidd",
                "public_summary_EN", "public_summary_CY", "public_summary_PL",
                "NRG_Web_Tools_User_Manual", "NRG_Web_Tools_Technical_Note"]
@@ -366,7 +366,7 @@ BUNDLE_ORDER = ["report", "report6", "report7", "report8", "report9", "report10"
 BUNDLE_LABEL = {"report": "Front matter", "Newborough_Methods_Supplement": "Methods Supplement",
                 "Supplementary_Material": "Supplementary Material", "Paper1": "Paper 1",
                 "PAPER1_SI_methods": "Paper 1 SI", "Hollingham_2026_Paper2_amended": "Paper 2",
-                "PaperM": "Paper M", "academic_Summary": "Academic summary",
+                "PaperM": "Paper M", "PaperC": "Paper C", "academic_Summary": "Academic summary",
                 "crynodeb_academaidd": "Crynodeb academaidd", "public_summary_EN": "Public summary EN",
                 "public_summary_CY": "Public summary CY", "public_summary_PL": "Public summary PL",
                 "NRG_Web_Tools_User_Manual": "Web tools manual",

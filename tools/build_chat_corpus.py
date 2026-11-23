@@ -435,6 +435,7 @@ def selftest() -> int:
         "docs/papers/paper_1/text/Paper1.md",
         "docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md",
         "docs/papers/paper_M/text/PaperM.md",
+        "docs/papers/paper_C/text/PaperC.md",
         "DECISION_LOG.md", "working/updates/HANDOVER_NOTE.md",
         "literature/ranwell_1959_dune_slack_habitat.pdf",
         "literature/stratford_robins_hollingham_nd_hydrology_land_use_two_welsh_dunes.pdf",

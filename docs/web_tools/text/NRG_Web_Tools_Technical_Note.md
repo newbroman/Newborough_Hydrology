@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_Technical_Note.odt — do not edit. source-sha256=510f3d6289973b41 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_Technical_Note.odt — do not edit. source-sha256=0340098f817ec9a3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 **Newborough Warren**

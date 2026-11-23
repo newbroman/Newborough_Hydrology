@@ -121,7 +121,9 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 39_report_numbers.csv gains
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). Emit-only: ccw_annual_range_first_year /
+#   _last_year (CCW_ANNUAL_RANGE_YEARS) as ISO dates, so "1989–95" is a date field. No other output moves.
+# 1.9.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 39_report_numbers.csv gains
 #   ccw_record_first_month and ccw_record_last_month, ISO dates (the first and last month of the CCW readings),
 #   so the documents' "1989–96" are date fields (field_sync 1.3.0). No other output moves.
 # 1.8.1  # Hollingham (2026) - 2026-11-22 (D-337). Figure 39_04's title takes the comparison window from
@@ -401,6 +403,11 @@ def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens,
                 f">= {config.CCW_ANNUAL_RANGE_MIN_MONTHS} readings")
     rn.add("ccw_annual_range_sd_m", rng.std(), note="as above")
     rn.add("ccw_annual_range_n", len(rng), unit="well-years", note="as above")
+    # 1.10.0 (J-31): the range's years as ISO dates (January of each), for the documents' "1989–95"
+    rn.add("ccw_annual_range_first_year", f"{config.CCW_ANNUAL_RANGE_YEARS[0]}-01-01", unit="date",
+           note="first calendar year of the annual-range check (config.CCW_ANNUAL_RANGE_YEARS)")
+    rn.add("ccw_annual_range_last_year", f"{config.CCW_ANNUAL_RANGE_YEARS[1]}-01-01", unit="date",
+           note="last calendar year of the annual-range check (config.CCW_ANNUAL_RANGE_YEARS)")
     rn.add("ccw_annual_range_vs_davy_2010_diff_m", config.CCW_ANNUAL_RANGE_DAVY_2010_M - rng.mean(),
            note=f"CCW_ANNUAL_RANGE_DAVY_2010_M ({config.CCW_ANNUAL_RANGE_DAVY_2010_M:g} m, Davy et al. 2010; "
                 f"SD {config.CCW_ANNUAL_RANGE_DAVY_2010_SD_M:g} m) minus ccw_annual_range_mean_m")

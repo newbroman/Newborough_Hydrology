@@ -88,4 +88,11 @@ comparison_window_start,,,2018-01-01,date,"first calendar month of the compariso
 comparison_window_end,,,2026-02-01,date,"last calendar month of record, and of the comparison window (config.REFERENCE_CUTOFF_DATE)"
 well_record_start,,,2005-04-01,date,first month of the well-monitoring record (config.RECORD_START_DISPLAY)
 clearfell_month,,,2017-12-01,date,the month of the pine clearfell (config.CLEARFELL_DATE_ISO)
+scraping_month,,,2015-04-01,date,the CEH36 dune scrape (config.SCRAPING_DATE_ISO)
+rescraping_month,,,2023-10-01,date,the CEH18 / CEH21 re-scrape (config.SCRAPING_DATE_2_ISO)
+scraping_era_last_month,,,2017-11-01,date,last month of the pure-scraping era: the month before the clearfell (config.CLEARFELL_DATE_ISO)
+clearfell_era_split,,,2021-01-01,date,"first month of the late clearfell era (config.CLEARFELL_ERA_SPLIT, W96/D-141)"
+clearfell_early_era_last_month,,,2020-12-01,date,last month of the early clearfell era: the month before config.CLEARFELL_ERA_SPLIT
+cwb_detrend_start,,,2004-12-01,date,first month of the (P-PET) detrend reference window (config.DETREND_START)
+cwb_detrend_end,,,2025-12-01,date,last month of the (P-PET) detrend reference window (config.DETREND_END)
 raf_valley_record_first_month,,,1930-12-01,date,first month of the RAF Valley monthly record in 01_climate.csv

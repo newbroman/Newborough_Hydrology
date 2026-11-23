@@ -62,7 +62,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.7.0"  # Hollingham (2026) — 2026-11-12 (J-7, Martin: "yes, do it in this chat"). The
+__version__ = "2.8.0"  # Hollingham (2026) — 2026-11-23 (T-162, Martin: "lets look at these"). Archive stubs no
+#   longer live in HANDOVER_NOTE.md, which Tier 0 counts: --write moves every `## A to B — archived` stub, verbatim,
+#   into HANDOVER_NOTE_archive_index.md (outside Tier 0, newest first) and leaves one `## Archived entries` pointer,
+#   and archive_oldest_entries() writes its stub to that index rather than back into the note. An archive pass
+#   can therefore only shrink Tier 0. That is the convergence T-162 asked for: 60 stubs (about 180 lines) were in
+#   the counted note when this landed. --selftest exercises collapse_stub_text().
+# "2.7.0"  # Hollingham (2026) — 2026-11-12 (J-7, Martin: "yes, do it in this chat"). The
 #   staleness detector exempts commits that touch only the records doc_lock publishes itself (D-314: lock,
 #   overrides, chat register, job queue, board marker; read from doc_lock), --write's archive files and the post-ship
 #   Drive manifest commit, so a claim or queue publish no longer turns `records` red. --selftest guards the exemption against drift.
@@ -126,6 +132,16 @@ DECISIONS = REPO / "working" / "DECISION_LOG.md"
 INDEX = REPO / "working" / "DECISION_INDEX.md"
 BOOTSTRAP = REPO / "working" / "HANDOVER_BOOTSTRAP.md"
 NOTE = UPDATES / "HANDOVER_NOTE.md"
+# 2.8.0 (T-162): where archive stubs live, outside Tier 0. The name starts HANDOVER_NOTE_archive_, so the
+# WRITE_OUTPUTS exemption already covers it as a tool output.
+ARCHIVE_INDEX = UPDATES / "HANDOVER_NOTE_archive_index.md"
+POINTER_HEAD = "## Archived entries"
+POINTER_TEXT = (f"{POINTER_HEAD}\nOlder entries are moved verbatim to `HANDOVER_NOTE_archive_*.md` files by "
+                "`session_handover.py --write` (D-213). `HANDOVER_NOTE_archive_index.md` lists them, newest first (T-162).\n")
+_STUB_RE = re.compile(r"^## \d{4}-\d{2}-\d{2} to \d{4}-\d{2}-\d{2} — archived")
+INDEX_HEADER = ("# NRG — handover archive index\n\nOne stub per archive pass, newest first, each naming the file its "
+                "entries were moved to verbatim. Written by `tools/session_handover.py --write` (2.8.0, T-162); it sits "
+                "outside Tier 0, so archiving shrinks what a session must read.\n")
 CHANGELOGS = REPO / "working" / "changelogs"
 
 # --check parameters. Named here, not scattered, so the gate's tolerances are
@@ -436,6 +452,58 @@ def tier0_measure() -> tuple[int, int, list[str]]:
 _ENTRY_RE = re.compile(r"^## (\d{4}-\d{2}-\d{2})(?!\s+to\s)")   # a dated entry, not an archive stub
 
 
+def collapse_stub_text(note: str) -> tuple[str, list[str]]:
+    """(note without its archive stubs, the stub blocks in note order). A stub runs from its heading to
+    the next `## ` heading or the end; trailing blank lines are dropped from the block. If any stub was
+    removed and the note has no pointer section, one is appended. Pure, for --selftest (2.8.0, T-162)."""
+    lines = note.split("\n")
+    keep, blocks, i = [], [], 0
+    while i < len(lines):
+        if _STUB_RE.match(lines[i]):
+            j = i + 1
+            while j < len(lines) and not lines[j].startswith("## "):
+                j += 1
+            blk = lines[i:j]
+            while blk and not blk[-1].strip():
+                blk.pop()
+            blocks.append("\n".join(blk))
+            i = j
+            continue
+        keep.append(lines[i])
+        i += 1
+    out = "\n".join(keep)
+    if blocks and POINTER_HEAD not in keep:
+        out = out.rstrip("\n") + "\n\n" + POINTER_TEXT
+    return out, blocks
+
+
+def _index_prepend(blocks: list[str]) -> None:
+    """Put stub blocks at the top of the archive index (they are newer than what it holds)."""
+    if not blocks:
+        return
+    old = ARCHIVE_INDEX.read_text(encoding="utf-8") if ARCHIVE_INDEX.is_file() else INDEX_HEADER
+    head, sep, body = old.partition("\n## ")
+    body = (sep.lstrip("\n") + body) if sep else ""
+    new = INDEX_HEADER.rstrip("\n") + "\n\n" + "\n\n".join(blocks) + "\n" + ("\n" + body if body else "")
+    ARCHIVE_INDEX.write_text(new.rstrip("\n") + "\n", encoding="utf-8")
+
+
+def collapse_stubs() -> str | None:
+    """Move every archive stub out of HANDOVER_NOTE.md into the archive index (2.8.0, T-162)."""
+    if not NOTE.is_file():
+        return None
+    note = NOTE.read_text(encoding="utf-8")
+    new, blocks = collapse_stub_text(note)
+    if not blocks:
+        return None
+    _t, before, _r = tier0_measure()
+    _index_prepend(blocks)
+    NOTE.write_text(new, encoding="utf-8")
+    _t, after, _r = tier0_measure()
+    return (f"  STUBS  {len(blocks)} archive stub(s) moved to {ARCHIVE_INDEX.name}; "
+            f"Tier 0 prose {before} -> {after}")
+
+
 def archive_oldest_entries() -> str | None:
     """Move the oldest dated entries of HANDOVER_NOTE.md to an archive file until
     Tier 0 prose is NOTE_ARCHIVE_MARGIN lines under budget (D-213). Entries move
@@ -463,9 +531,11 @@ def archive_oldest_entries() -> str | None:
     # already seen the growth (738 -> 707 -> 729 -> 741) and stopped rather than shred more
     # dated records; he was right, and the session that then ran it three times to "test
     # convergence" was not.
-    _stub_re = re.compile(r"^## \d{4}-\d{2}-\d{2} to \d{4}-\d{2}-\d{2} — archived")
+    _stub_re = _STUB_RE             # the local name T-167's regression guard reads
     _oldest_head = heads[-1]
-    stub_at = next((i for i, l in enumerate(lines) if i > _oldest_head and _stub_re.match(l)),
+    # 2.8.0: the region also ends at the pointer section, which follows the entries once stubs are collapsed
+    stub_at = next((i for i, l in enumerate(lines)
+                    if i > _oldest_head and (_stub_re.match(l) or l.strip() == POINTER_HEAD)),
                    len(lines))
     excess = prose - (TIER0_PROSE_BUDGET - NOTE_ARCHIVE_MARGIN)
     take: list[int] = []            # indices into heads, oldest first
@@ -499,8 +569,13 @@ def archive_oldest_entries() -> str | None:
                     + "\n".join(block).rstrip() + "\n", encoding="utf-8")
     stub = [f"## {d_first} to {d_last} — archived",
             f"{len(take)} entries moved verbatim to `{arch.name}` by `session_handover.py --write` (Tier 0 prose was {prose}/{TIER0_PROSE_BUDGET}).", ""]
-    lines = lines[:first_i] + stub + lines[last_i:]
-    NOTE.write_text("\n".join(lines), encoding="utf-8")
+    # 2.8.0 (T-162): the stub goes to the archive index, not back into the counted note
+    _index_prepend(["\n".join(stub).rstrip("\n")])
+    lines = lines[:first_i] + lines[last_i:]
+    new, _moved = collapse_stub_text("\n".join(lines))
+    if POINTER_HEAD not in new.split("\n"):
+        new = new.rstrip("\n") + "\n\n" + POINTER_TEXT
+    NOTE.write_text(new, encoding="utf-8")
     _t, prose2, _r = tier0_measure()
     return f"  ARCHIVED  {len(take)} entries ({d_first} to {d_last}) -> {arch.name}; Tier 0 prose {prose} -> {prose2}"
 
@@ -808,6 +883,14 @@ def selftest() -> int:
     ancient = UPDATES / ("HANDOFF_2000-01-01" + ".md")   # built, not a literal: docref_lint reads literals as citations
     if not handoff_timestamp(ancient) < datetime.now().astimezone():
         bad.append("handoff_timestamp fallback did not read a filename date")
+    # 2.8.0 (T-162): stubs leave the note whole, entries stay, and a pointer is left exactly once.
+    demo = ("# t\n\n## 2026-11-23 — live\nbody\n\n## 2026-11-20 to 2026-11-21 — archived\n2 entries moved.\n\n"
+            "## 2026-11-19 — older live\nx\n\n## 2026-09-01 to 2026-09-02 — archived\nOld.\n")
+    out, blks = collapse_stub_text(demo)
+    if len(blks) != 2 or "— archived" in out or "## 2026-11-19 — older live" not in out or out.count(POINTER_HEAD) != 1:
+        bad.append(f"collapse_stub_text: {len(blks)} block(s), pointer x{out.count(POINTER_HEAD)}")
+    if collapse_stub_text(out)[1] or collapse_stub_text(out)[0] != out:
+        bad.append("collapse_stub_text is not idempotent")
     # 2.7.0 (J-7): every record that publishes itself is exempt from the staleness detector, and the
     # fallback list has not fallen behind doc_lock's own (a drifted copy is how this went red three times).
     try:
@@ -836,9 +919,9 @@ def main(argv):
         return check(verbose="--quiet" not in argv)
     include_lag = "--lag" in argv
     if "--write" in argv:
-        rep = archive_oldest_entries()          # D-213: before the HANDOFF measures Tier 0
-        if rep:
-            print(rep)
+        for rep in (collapse_stubs(), archive_oldest_entries()):   # 2.8.0 (T-162), then D-213
+            if rep:
+                print(rep)
     text = build(include_lag)
     if "--write" in argv:
         dest = UPDATES / f"HANDOFF_{date.today().isoformat()}.md"

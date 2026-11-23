@@ -112,7 +112,10 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 44_report_numbers.csv gains
+#   ranwell_span_first_month and ranwell_span_last_month, ISO dates (config.RANWELL_HINDCAST_SPAN), so the
+#   documents' "1951–53" are date fields (field_sync 1.3.0). No other output moves.
+# 1.14.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
 #   03_master_data / 03_03's unsuffixed coefficient columns and Model A in *_model_a. md (the master store) and the
 #   03_03 centroids (Q5's pre-planting run) are read only as Model A here, so both now go through _model_a_store(),
 #   which gives the *_model_a columns the unsuffixed names. Model B still comes from 03_16; no Model B result changes.
@@ -1487,6 +1490,11 @@ def main() -> int:
     hlm = metrics[metrics["headline"]]
     rn = [
         ("ranwell_hindcast_sites", len(hlm), "count", "Ranwell sites with a printed series and a same-basin paired well"),
+        # 1.15.0 (J-31): Ranwell's reading span as ISO dates, for the documents' "1951–53" date fields
+        ("ranwell_span_first_month", SPAN[0].start_time.strftime("%Y-%m-%d"), "date",
+         "first month of Ranwell's readings (config.RANWELL_HINDCAST_SPAN)"),
+        ("ranwell_span_last_month", SPAN[1].start_time.strftime("%Y-%m-%d"), "date",
+         "last month of Ranwell's readings (config.RANWELL_HINDCAST_SPAN)"),
     ]
     # 1.13.0 (D-332): the hindcast keys keep their names and carry Model B (the forecaster); Model A at
     # the fixed floor follows as <key>_model_a and Model A at mean high water as <key>_mhw (Scenario 3).

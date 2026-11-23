@@ -108,7 +108,10 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.64.0"  # Hollingham (2026) - 2026-11-22. 20_residual_ssm.png drops the DEM surface flow-routing lines
+__version__ = "1.65.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 20_residual_report_numbers.csv gains
+#   residual_window_first_month / _last_month, ISO dates of the averaging window, so the documents' "March 2005"
+#   is a date field (field_sync 1.3.0). No other output moves.
+# 1.64.0  # Hollingham (2026) - 2026-11-22. 20_residual_ssm.png drops the DEM surface flow-routing lines
 #   (Paper 1 Figure 16, Martin: without flow-accumulation lines); the head-gradient arrows stay.
 __version_prev__ = "1.63.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The water-balance residual field
 #   (Figure 56, 20_residual_*) reads Script 03 1.31.0's Model B β's, so each well's displacement is now taken to its own
@@ -1250,6 +1253,11 @@ def plot_residual_ssm(wt, features, dpi=300):
     _win = wt.attrs.get("residual_window")
     if _win:
         _wera = f"{_win['start']:%Y-%m} to {_win['end']:%Y-%m}"
+        # 1.65.0 (J-31): the window's ends as ISO dates, for the documents' date fields
+        rrpt.add("residual_window_first_month", f"{_win['start']:%Y-%m-%d}", unit="date",
+                 note="first month of the averaging window (the mean-head record's first month)")
+        rrpt.add("residual_window_last_month", f"{_win['end']:%Y-%m-%d}", unit="date",
+                 note="last month of the averaging window")
         rrpt.add("residual_window_months", int(_win["n_months"]), unit="months", era=_wera,
                  note="climate months in the averaging window, first to last month of the "
                       "mean-head record")

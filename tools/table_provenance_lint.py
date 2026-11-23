@@ -34,7 +34,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-19.
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-23 (J-31). _first_text_after() looked for a WHOLE paragraph inside
+#   a 3000-character window, so a caption paragraph that grew past it (two date fields' tags, report9 Table6) read as
+#   "no numbered caption". The paragraph must START inside the window; it is read to its own end.
+# 1.0.0  # Hollingham (2026) — 2026-09-19.
 
 import argparse
 import csv as _csv
@@ -54,9 +57,12 @@ CHAPTERS = ["report6", "report7", "report8", "report9", "report10",
 
 def _first_text_after(xml: str, pos: int, reach: int = 3000) -> str:
     """The first paragraph after `pos` that has any text in it."""
-    window = xml[pos:pos + reach]
-    for m in re.finditer(r"<text:p\b[^>]*>(.*?)</text:p>", window, re.S):
-        txt = TAG.sub("", m.group(1)).strip()
+    for m in re.finditer(r"<text:p\b[^>]*>", xml[pos:pos + reach]):
+        start = pos + m.end()
+        end = xml.find("</text:p>", start)
+        if m.group(0).endswith("/>") or end < 0:
+            continue                                   # an empty <text:p/>
+        txt = TAG.sub("", xml[start:end]).strip()
         if txt:
             return txt
     return ""

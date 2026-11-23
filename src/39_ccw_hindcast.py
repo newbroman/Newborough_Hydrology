@@ -121,7 +121,10 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.8.1"  # Hollingham (2026) - 2026-11-22 (D-337). Figure 39_04's title takes the comparison window from
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 39_report_numbers.csv gains
+#   ccw_record_first_month and ccw_record_last_month, ISO dates (the first and last month of the CCW readings),
+#   so the documents' "1989–96" are date fields (field_sync 1.3.0). No other output moves.
+# 1.8.1  # Hollingham (2026) - 2026-11-22 (D-337). Figure 39_04's title takes the comparison window from
 #   config (COMPARISON_WINDOW_START .. REFERENCE_CUTOFF_DATE, LCSC_DATA_LIMIT months) instead of typing "last 100 months".
 __version_prev__ = "1.8.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
 #   03_master_data's unsuffixed beta columns and Model A in *_model_a; load_inputs() now gives md (the Model A
@@ -407,6 +410,11 @@ def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens,
     mid_m = m0 + (m1 - m0) / 2
     gap = (mid_m - mid_w).days / 365.25
     rn.add("epoch_midpoint_gap_yr", gap, unit="yr", note="years between the two records' midpoints")
+    # 1.9.0 (J-31): the CCW record's span as ISO dates, for the documents' "1989–96" date fields
+    rn.add("ccw_record_first_month", pd.Timestamp(first_month).strftime("%Y-%m-%d"), unit="date",
+           note="first month of the CCW readings")
+    rn.add("ccw_record_last_month", pd.Timestamp(last_month).strftime("%Y-%m-%d"), unit="date",
+           note="last month of the CCW readings")
     rn.add("epoch_rate_if_linear_mm_yr", -op["epoch_shift_m"].median() * 1000 / gap, unit="mm/yr",
            note="NOT a rate: the open-ground median shift divided by the midpoint gap, "
                 "quoted in the text only to be disclaimed")

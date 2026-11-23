@@ -1,4 +1,5 @@
 Parameter,Well,Era,Value,Unit,Note
+modelab_split_date,,,2018-01-01,date,the split-sample tests fit before / from this month (config.MODEL_AB_SPLIT_DATE)
 modelab_nse_fwd_A_median_all,,,0.6119815001294202,,"median out-of-sample NSE, Model A, fitted before 2018-01-01, free-run over the other side; n = 66 wells (all)"
 modelab_nse_fwd_B_median_all,,,0.7865467156802144,,"median out-of-sample NSE, Model B, fitted before 2018-01-01, free-run over the other side; n = 66 wells (all)"
 modelab_nse_fwd_share_B_better_all,,,0.8787878787878788,fraction,"share of wells where Model B's out-of-sample NSE beats Model A's (fwd, all, n = 66)"

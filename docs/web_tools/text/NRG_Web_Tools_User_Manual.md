@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=cd8dcb25c8bd6450 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=5572d721c2da7d89 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 2

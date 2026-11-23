@@ -1,5 +1,7 @@
 key,value,unit,note
 ranwell_hindcast_sites,3,count,Ranwell sites with a printed series and a same-basin paired well
+ranwell_span_first_month,1951-02-01,date,first month of Ranwell's readings (config.RANWELL_HINDCAST_SPAN)
+ranwell_span_last_month,1953-08-01,date,last month of Ranwell's readings (config.RANWELL_HINDCAST_SPAN)
 ranwell_hindcast_r_median,0.9289765512203686,-,"Model B: median r, headline pairing, offset removed"
 ranwell_hindcast_r_min,0.9096947957965569,-,Model B: lowest r among the headline pairings
 ranwell_hindcast_r_min_all_pairings,0.8244241342807288,-,"Model B: lowest r over the 11 same-basin site-well pairings in 44_04 it was run at (headline and alternates), offset removed"

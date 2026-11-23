@@ -61,7 +61,10 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in the
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 48_report_numbers.csv gains
+#   modelab_split_date, the ISO date of config.MODEL_AB_SPLIT_DATE, so the documents' "split at January 2018" is
+#   a date field (field_sync 1.3.0). No other output moves.
+# 1.9.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in the
 #   unsuffixed coefficient columns of 03_master_data and 03_15, and Model A beside them as *_model_a. The ssmA_*
 #   columns of 48_01 (and the ssmA rows of 48_02) read those *_model_a columns (beta_*_model_a, Model_R2_model_a;
 #   03_15 R2_model_a), so Model A stays Model A; ssmB is unchanged (03_16 and the full-record fit here). 48_01's
@@ -735,6 +738,9 @@ def main(no_fig: bool = False) -> int:
 
     phase(6, "Report numbers")
     rr = ReportNumbers()
+    # 1.10.0 (J-31): the split's date, for the documents' date fields
+    rr.add("modelab_split_date", MODEL_AB_SPLIT_DATE, unit="date",
+           note="the split-sample tests fit before / from this month (config.MODEL_AB_SPLIT_DATE)")
     # D-217: the four counts on which the two forms are compared, all reference wells and by cluster
     def _med(col, g=ab):
         v = pd.to_numeric(g[col], errors="coerce").dropna()

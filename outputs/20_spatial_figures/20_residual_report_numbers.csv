@@ -43,6 +43,8 @@ residual_spearman_signed_easting_rho,,,-0.3464597902097902,,"Spearman ρ, α aga
 residual_spearman_signed_easting_p,,,0.0046959457044325305,,p for the row above
 residual_spearman_signed_northing_rho,,,-0.09554195804195804,,"Spearman ρ, α against N, n=65"
 residual_spearman_signed_northing_p,,,0.4490066068308664,,p for the row above
+residual_window_first_month,,,2005-03-01,date,first month of the averaging window (the mean-head record's first month)
+residual_window_last_month,,,2026-02-01,date,last month of the averaging window
 residual_window_months,,2005-03 to 2026-02,252.0,months,"climate months in the averaging window, first to last month of the mean-head record"
 residual_p_bar_mm,,2005-03 to 2026-02,74.11150793650792,mm/month,mean monthly rainfall P̄ over the averaging window
 residual_pet_bar_mm,,2005-03 to 2026-02,54.38821035826871,mm/month,mean monthly Thornthwaite PET̄ over the averaging window

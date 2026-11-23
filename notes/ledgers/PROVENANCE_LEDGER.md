@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**154 exhibit(s)** across the corpus, drawing on **155 output file(s)**.
+**153 exhibit(s)** across the corpus, drawing on **155 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -123,7 +123,6 @@
 | `16_water_bal_vol_table.csv` | Paper 1 | Table 3 | Indicative annual volumetric water balance (mm/yr) |
 |  | report9.odt | Table 1.10 | Indicative annual volumetric water balance by cluster, 2005–2026. At steady stat |
 | `17_wtf_01_sy_estimates.csv` | Paper 1 | Table 4 | Specific yield by cluster, WTF method — event-median (Approach B) |
-|  | report9.odt | Table 1.11 | Apparent storage coefficient (Sₐ) estimates by hydrogeological cluster derived f |
 | `17_wtf_03_event_boxplot.png` | report9.odt | Figure 12 | Figure 1.9: Distribution of event-level specific yield (Sy) from monthly rising- |
 | `18_wtf_01_well_sy_estimates.csv` | Paper 1 | Figure 9 | Interception-corrected WTF specific-yield surface |
 | `18_wtf_02_spatial_sy_map.png` | Paper 1 | Figure 9 | Interception-corrected WTF specific-yield surface |

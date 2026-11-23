@@ -38,6 +38,8 @@ enter the fit as levels below a bound; the named script's fit calls must pass
 dry_bound=), `filled` (a centroid averaged from members whose dry months were filled
 with their expected level below the bound; checked the same way), `excluded` (dry months are dropped, as before), `inherited` or `n/a`.
 
+Every `id` must be unique (J-30, 2026-11-23): two rows sharing an id is a FAIL.
+
 Usage:
     python3 tools/record_basis_lint.py
     python3 tools/record_basis_lint.py --quiet
@@ -138,6 +140,13 @@ def main() -> int:
 
     rows = list(csv.DictReader(open(TABLE, encoding="utf8")))
     fail = manual = 0
+    # J-30 (2026-11-23): an id names one row. A duplicate is refused here, where it is made: register_io used
+    # to collapse it silently on the next keyed write, which is how RB-15 lost a row on 2026-11-20 (changelog 2026-11-20c).
+    from collections import Counter
+    for rid_, n_ in sorted(Counter(r["id"].strip() for r in rows).items()):
+        if n_ > 1:
+            print(f"  {R}FAIL{N}   {rid_}  id appears on {n_} rows; every row needs its own id")
+            fail += 1
     if not args.quiet:
         print(f"{B}record_basis{N} — does §F.6 still describe the code? "
               f"({len(rows)} rows)\n")

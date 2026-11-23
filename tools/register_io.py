@@ -26,7 +26,11 @@ Usage (self-test):  python3 tools/register_io.py --selftest
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-10. First issue (spec NRG_spec_parallel_chats_2026-10-10).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-23. J-30: under key_cols only ANOTHER writer's row is dropped
+#   for a key this writer's rows carry. This writer's own rows are kept as given; a key they repeat is a duplicate in the
+#   register and is WARNED about, never collapsed. 1.0.0 de-duplicated every output row, so a register's own duplicate
+#   key lost a row with a message blaming "another writer" — how RB-15 vanished from record_basis.csv (2026-11-20c).
+# 1.0.0 — Hollingham (2026) — 2026-10-10. First issue (spec NRG_spec_parallel_chats_2026-10-10).
 
 import contextlib
 import csv
@@ -157,9 +161,20 @@ def write_rows(path, fieldnames: list[str], rows: list[dict], sort_key=None, key
             final, kept, dropped = merge(base, mine, disk)
         out_rows = [dict(zip(fieldnames, k)) for k in final]
         if key_cols:
-            seen, dedup, clash = set(), [], []
-            for r in out_rows:                    # this writer's rows come first in `final`
-                kk = tuple(r.get(c, "") for c in key_cols)
+            # `final` is this writer's rows first, then the `extra` rows another writer added (merge()).
+            # Only an other-writer row is ever dropped, and only for a key this writer's rows carry (1.1.0, J-30).
+            n_mine = len(out_rows) - kept
+            mine_rows, other_rows = out_rows[:n_mine], out_rows[n_mine:]
+            kf = lambda r: tuple(r.get(c, "") for c in key_cols)
+            from collections import Counter
+            own = Counter(kf(r) for r in mine_rows)
+            own_dup = [k for k, n in own.items() if n > 1]
+            if own_dup:
+                print(f"  register_io: {path.name}: WARNING the register has {len(own_dup)} duplicate key(s) in this "
+                      f"writer's own rows, all kept: {', '.join('/'.join(k) for k in own_dup[:5])}", file=sys.stderr)
+            seen, dedup, clash = set(own), list(mine_rows), []
+            for r in other_rows:
+                kk = kf(r)
                 if kk in seen:
                     clash.append(kk)
                     continue
@@ -169,6 +184,7 @@ def write_rows(path, fieldnames: list[str], rows: list[dict], sort_key=None, key
                 print(f"  register_io: {path.name}: {len(clash)} key(s) changed by another writer as well; "
                       f"this writer's row kept: {', '.join('/'.join(k) for k in clash[:5])}", file=sys.stderr)
             out_rows = dedup
+            kept -= len(clash)                    # a resolved clash was not kept
         if sort_key is not None:
             out_rows.sort(key=sort_key)
         buf = io.StringIO()
@@ -224,6 +240,21 @@ def _selftest() -> int:
         got = p.read_text(encoding="utf-8")
         if got != "k,v\na,7\nc,3\nd,4\n":
             print(f"FAIL keyed clash: got {got!r}"); ok = False
+        # 1.1.0 (J-30): this writer's own duplicate key is kept (both rows), and an other-writer row on
+        # that key is still resolved to this writer's rows
+        p.write_text("k,v\na,1\na,2\nb,3\n", encoding="utf-8")
+        a = read_rows(p); snapA = dict(_SNAPSHOT)
+        b = read_rows(p) + [{"k": "a", "v": "8"}, {"k": "e", "v": "5"}]
+        write_rows(p, F, b, key_cols=["k"])        # B is the writer: its own duplicate 'a' rows are all kept
+        got = p.read_text(encoding="utf-8")
+        if got != "k,v\na,1\na,2\nb,3\na,8\ne,5\n":
+            print(f"FAIL own duplicates: got {got!r}"); ok = False
+        _SNAPSHOT.clear(); _SNAPSHOT.update(snapA)
+        a = a + [{"k": "f", "v": "6"}]             # A adds f; B's a,8 and e,5 arrive as another writer's rows
+        write_rows(p, F, a, key_cols=["k"])
+        got = p.read_text(encoding="utf-8")
+        if got != "k,v\na,1\na,2\nb,3\nf,6\ne,5\n":
+            print(f"FAIL own duplicates + other clash: got {got!r}"); ok = False
         # lock: a second holder waits, then times out
         with excl_lock(p):
             try:

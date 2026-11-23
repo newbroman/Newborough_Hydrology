@@ -74,6 +74,7 @@ DOC_FAMILIES = [
     (r"Paper2_plain", "Paper 2, plain-language companion"),
     (r"PaperM", "Methods paper (Paper M)"),
     (r"PaperM_plain", "Methods paper, plain-language companion"),
+    (r"PaperC", "Coastal-retreat paper (Paper C)"),
     (r"report(\d*)", "Technical report"),
     (r"Newborough_Methods_Supplement", "Methods Supplement"),
     (r"Supplementary_Material", "Supplementary Material"),

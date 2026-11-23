@@ -22,7 +22,8 @@ Usage:  python3 tools/self_cite_lint.py [--selftest]
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-06. First issue.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-23 (J-32). Paper C joins DOCS: it cites Hollingham 2026a-c and is itself 2026f.
+# 1.0.0  # 2026-10-06. First issue.
 
 import csv
 import re
@@ -34,7 +35,8 @@ REGISTER = REPO / "tools" / "self_citations.csv"
 DOCS = ["docs/papers/paper_1/text/Paper1.md",
         "docs/papers/paper_1/text/PAPER1_SI_methods.md",
         "docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md",
-        "docs/papers/paper_M/text/PaperM.md"]
+        "docs/papers/paper_M/text/PaperM.md",
+        "docs/papers/paper_C/text/PaperC.md"]
 CITE_RE = re.compile(r"Hollingham(?:,|\s*\()\s*(2026[a-z]?)\b")
 ENTRY_RE = re.compile(r"^(?:>\s*)?Hollingham,\s*M\.,?\s*\(?(2026[a-z]?)\)?[.,]?\s*(.*)$", re.M)
 

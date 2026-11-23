@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.131.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END, the (P-PET)
+__version__ = "1.132.0"  # Hollingham (2026) - 2026-11-23 (J-33). COAST_RETREAT_M (6 m) is superseded as the drawn
+#   event by the measured 2019-20 winter displacement (coastal_utils 1.1.0); kept as Script 40's comparator.
+# 1.131.0  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END, the (P-PET)
 #   reference window, move here from Scripts 00 and 02, which each typed them; values unchanged (2004-12-01, 2025-12-01).
 # 1.130.0  # Hollingham (2026) - 2026-11-22 (D-337). The comparison window is January 2018 to February 2026:
 #   COMPARISON_WINDOW_START = 2018-01-01, LCSC_DATA_LIMIT 100 -> 98 calendar months, wholly after the December 2017
@@ -1179,8 +1181,13 @@ SURVEY_MAX_ROUND_HOURS     = 9.0     # Martin, 2026-10-04: keep the round under 
 # in Scripts 09d/09f; centralised here so all three read one definition.
 #   SCRAPE_RISE_BUFFER_M : radius of the scrape rise (slack) zone (m); the
 #                          drawdown cone is measured from this buffer outward.
-#   COAST_RETREAT_M      : single-event shoreline retreat visualised (m;
-#                          Storm-Brendan-scale exemplar, Pye & Blott 2024).
+#   COAST_RETREAT_M      : SUPERSEDED 2026-11-23 (J-33, Martin: "option 2") AS THE DRAWN EVENT.
+#                          The Storm-Brendan-scale exemplar of Pye & Blott (2024), 6 m. No
+#                          figure draws it now: Scripts 20, 09f and 09g read the MEASURED
+#                          event (Script 40's 2019-20 winter median displacement) through
+#                          utils.coastal_utils.load_measured_event_retreat. RETAINED only as
+#                          Script 40's labelled comparator. Per D-075 the measured value is a
+#                          result and does not belong in this file.
 #   COAST_RETREAT_RATE   : SUPERSEDED 2026-08-29 (D-090). NO SCRIPT DIVIDES BY
 #                          THIS ANY MORE. It was the normaliser converting a
 #                          retreat event to an edge drawdown, and it was a

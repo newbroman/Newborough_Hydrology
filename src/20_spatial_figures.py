@@ -108,7 +108,10 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.65.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 20_residual_report_numbers.csv gains
+__version__ = "1.66.0"  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
+#   MEASURED: COAST_RETREAT_M is bound from coastal_utils.load_measured_event_retreat (Script 40's 2019-20
+#   winter median, the Storm Brendan winter) instead of config's 6 m exemplar; labels print it to 0.1 m.
+# 1.65.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 20_residual_report_numbers.csv gains
 #   residual_window_first_month / _last_month, ISO dates of the averaging window, so the documents' "March 2005"
 #   is a date field (field_sync 1.3.0). No other output moves.
 # 1.64.0  # Hollingham (2026) - 2026-11-22. 20_residual_ssm.png drops the DEM surface flow-routing lines
@@ -409,7 +412,7 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS,
                           MECHANISM_HORIZON_YEARS,
-                          COAST_RETREAT_M, COAST_RETREAT_RATE,
+                          COAST_RETREAT_RATE,
                           SCRAPE_RISE_BUFFER_M,
                           SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M,
                           CEH36_E, CEH36_N,
@@ -431,7 +434,11 @@ def quote_reach_m(length_m: float) -> float:
 
 from utils.render_utils import render_figure
 from utils.console_utils import track
-from utils.coastal_utils import coastal_edge_h0, load_measured_retreat_rate
+from utils.coastal_utils import coastal_edge_h0, load_measured_retreat_rate, load_measured_event_retreat
+# J-33 (1.66.0, Martin 2026-11-23 "option 2"): the single drawn event is MEASURED (Script 40's 2019-20
+# winter median displacement), no longer config.COAST_RETREAT_M = 6 m. Bound once here under the old
+# name so every construction and label below uses it.
+COAST_RETREAT_M, _EVENT_PROV = load_measured_event_retreat(quiet=True)
 from utils.kml_io import read_kml
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2233,7 +2240,7 @@ def plot_coastal_erosion(wt, features, dpi=300):
     h0, delta0, L, _r, _pm = _coastal_edge_h0()
     _r, _p = load_measured_retreat_rate(quiet=True)
     print(f"  h₀ = {h0:.1f} mm  "
-          f"({COAST_RETREAT_M:.0f} m retreat × {delta0:.2f}/{_r:.4f} "
+          f"({COAST_RETREAT_M:.1f} m retreat × {delta0:.2f}/{_r:.4f} "
           f"mm per m, rate {_p}), L = {L:.0f} m")
 
     # ── Erosion front (dune edge) from the DEM ────────────────────────────
@@ -2351,7 +2358,7 @@ def plot_coastal_erosion(wt, features, dpi=300):
 
     # Colorbar
     cb = fig.colorbar(cf, ax=ax, fraction=0.03, pad=0.04, shrink=0.85)
-    cb.set_label(f"Drawdown from {COAST_RETREAT_M:.0f} m retreat (mm)",
+    cb.set_label(f"Drawdown from {COAST_RETREAT_M:.1f} m retreat (mm)",
                  fontsize=9)
 
     # Legends
@@ -2373,8 +2380,8 @@ def plot_coastal_erosion(wt, features, dpi=300):
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
     ax.set_title(
         "Coastal-erosion drawdown (dune-edge front)\n"
-        f"{COAST_RETREAT_M:.0f} m shoreline retreat, reach L = {L:.0f} m, "
-        f"edge h₀ = {h0:.0f} mm  |  Storm Brendan exemplar",
+        f"{COAST_RETREAT_M:.1f} m shoreline retreat, reach L = {L:.0f} m, "
+        f"edge h₀ = {h0:.0f} mm  |  2019–20 winter (Storm Brendan), measured",
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
@@ -3158,7 +3165,7 @@ def plot_coastal_net_effect(wt, features, dpi=300):
     ax.set_title(
         "Net coastal water-table change — SLR gain minus erosion drawdown\n"
         f"+{SLR_RISE_M:.2f} m SLR over {SLR_WINDOW_YEARS:.0f} yr (gradual) vs one "
-        f"{COAST_RETREAT_M:.0f} m retreat (episodic)  |  blue = net rise, red = net fall",
+        f"{COAST_RETREAT_M:.1f} m retreat (episodic)  |  blue = net rise, red = net fall",
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
@@ -3218,7 +3225,7 @@ def plot_scrape_coastal_net(wt, features, dpi=300):
 
     print(f"  clearfell-baseline drawdown: max {np.nanmax(dd):.0f} mm "
           f"(scrape H0={scr_H0:.0f} mm [measured], Storm Brendan h0={h0:.0f} mm, "
-          f"retreat={COAST_RETREAT_M:.0f} m)")
+          f"retreat={COAST_RETREAT_M:.1f} m)")
 
     fig, ax = plt.subplots(figsize=(10, 9), facecolor="white")
     load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
@@ -3269,7 +3276,7 @@ def plot_scrape_coastal_net(wt, features, dpi=300):
     ax.set_title(
         "Drawdown imposed on the clearfell pre-fell baseline (Oct 2017)\n"
         f"Feb 2013 + Apr 2015 scrape cuts (H₀ measured at CEH36, assumed elsewhere) "
-        f"+ Storm Brendan {COAST_RETREAT_M:.0f} m retreat · combined head loss\n"
+        f"+ Storm Brendan {COAST_RETREAT_M:.1f} m retreat · combined head loss\n"
         "Oct 2023 cuts (CEH18/CEH21) excluded — postdate the clearfell by 6 years",
         fontsize=9.5, fontweight="bold", pad=10)
 

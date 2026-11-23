@@ -86,6 +86,7 @@ Outputs
                                        decomposition is computed against
 25_04_baci_corroboration.csv           BACI absorption vs model prediction
 25_14_correction_diagnostic.csv        can the gradient correct single wells?
+25_05a_gradient_fits.jpg               Panel (a) of 25_05 alone (Paper C Figure 3; 1.39.0).
 25_05_fit_diagnostic.jpg               Two-panel figure (a) per-well + fits,
                                        (b) cluster stacked bars
 25_06_baci_corroboration_chart.jpg     Forest plot of corroboration
@@ -126,7 +127,9 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.38.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The beta3_recursion covariate of
+__version__ = "1.39.0"  # Hollingham (2026) - 2026-11-23 (J-33). Also writes 25_05a_gradient_fits.jpg: panel (a) of
+#   25_05 alone (summer minimum), for Paper C Figure 3, whose decomposition is a table. 25_05 itself is unchanged.
+# 1.38.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The beta3_recursion covariate of
 #   25_15 runs Model B: Script 03's coefficients (Model B since 03 1.31.0) at the panel-median implied datum
 #   (implied_datum_m = DRAINAGE_DATUM - alpha/beta_3) in place of DRAINAGE_DATUM; panel wells whose implied datum is
 #   not below ground are left out of the medians and counted (basis implied_datum_m, n_wells_excluded_datum).
@@ -2848,8 +2851,9 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
                           cluster_partition_df: pd.DataFrame,
                           fig_path: Path,
                           fit_ff_e: dict | None = None,
-                          figlabels: dict | None = None) -> None:
-    """Two-panel diagnostic:
+                          figlabels: dict | None = None,
+                          single_panel: bool = False) -> None:
+    """Two-panel diagnostic (single_panel=True draws panel (a) alone, 1.39.0):
         (a) per-well summer-min slope vs distance, with the three lin-cap
             fits (full network, forest-free, C3 only) overlaid; if the
             forest-free exponential fit (fit_ff_e) is supplied it is also
@@ -2861,8 +2865,12 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
     """
     if figlabels is None:
         figlabels = _SUMMER_FIG
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6.0))
-    ax1, ax2 = axes
+    if single_panel:
+        fig, ax1 = plt.subplots(1, 1, figsize=(8.5, 6.0))
+        ax2 = None
+    else:
+        fig, axes = plt.subplots(1, 2, figsize=(15, 6.0))
+        ax1, ax2 = axes
 
     # ── Panel (a) — per-well scatter and fitted curves ──
     for cn, lbl in CLUSTER_LABELS.items():
@@ -2929,6 +2937,13 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
                    fontsize=11, loc="left")
     ax1.legend(loc="lower right", fontsize=8, framealpha=0.9)
     ax1.grid(alpha=0.3)
+
+    if single_panel:
+        # Paper C Figure 3 (J-33): the fits alone; the decomposition is Paper C's Table 1.
+        fig.tight_layout()
+        render_figure(fig, fig_path, pil_kwargs={"quality": 85})
+        plt.close(fig)
+        return
 
     # ── Panel (b) — cluster decomposition ──
     p = cluster_partition_df.sort_values("mean_dist_coast_m").reset_index(drop=True)
@@ -4638,6 +4653,11 @@ def main() -> None:
         plot_fit_diagnostic(pw, fit_full_l, fit_ff_l, fit_c3_l,
                             part, m["out_diag"], fit_ff_e=fit_ff_e,
                             figlabels=m["figlabels"])
+        if m["key"] == "summer_min":
+            # 1.39.0 (J-33): panel (a) alone, for Paper C Figure 3.
+            plot_fit_diagnostic(pw, fit_full_l, fit_ff_l, fit_c3_l,
+                                part, paths.OUT_25_FIT_DIAGNOSTIC_A, fit_ff_e=fit_ff_e,
+                                figlabels=m["figlabels"], single_panel=True)
         plot_cluster_decomposition(part, m["out_decomp"],
                                    figlabels=m["figlabels"])
         partitions[m["key"]] = part
@@ -4679,7 +4699,7 @@ def main() -> None:
     print("    25_04_baci_corroboration.csv")
     print("    25_14_correction_diagnostic.csv (+ _spring)")
     print("    25_04b_baci_corroboration_spread.csv")
-    print("    25_05_fit_diagnostic.jpg / _spring.jpg")
+    print("    25_05_fit_diagnostic.jpg / _spring.jpg; 25_05a_gradient_fits.jpg (panel a)")
     print("    25_06_baci_corroboration_chart.jpg")
     print("    25_07_cluster_decomposition.png / _spring.png")
     print("    25_08_spring_vs_summer_comparison.csv + .png")

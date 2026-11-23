@@ -33,11 +33,16 @@ WHY THIS EXISTS
   from shoreline position, both measured by this study. That is not circular —
   they are different data — but the methods text must say so.
 
-__version__ : 1.0.0
+__version__ : 1.1.0
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-29. First issue (D-090).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-23 (J-33, Martin: "option 2"). The single EVENT is measured
+#   too: load_measured_event_retreat() reads Script 40's 2019-20 winter median shore-normal displacement
+#   (40_report_numbers.csv, winter2019_20_displacement_median_m), the winter of Storm Brendan, and
+#   coastal_edge_h0() uses it by default. config.COAST_RETREAT_M (6 m, the Pye & Blott exemplar) is no
+#   longer the drawn event anywhere; it survives only as Script 40's labelled comparator.
+# 1.0.0  # Hollingham (2026) — 2026-08-29. First issue (D-090).
 #   Centralises h0 = retreat x (delta_0 / rate), previously written out in
 #   Script 20 (twice) and 09f, and re-points its divisor from the committed
 #   config constant to Script 40's measured rate.
@@ -85,16 +90,42 @@ def load_measured_retreat_rate(quiet: bool = False):
     return float(rate), "pipeline_params default (first pass)"
 
 
+def load_measured_event_retreat(quiet: bool = False):
+    """(event retreat m, provenance str): the measured single-event displacement.
+
+    Script 40's median shore-normal displacement across the 2019-20 winter (the Storm
+    Brendan winter), from 40_report_numbers.csv. Read live, with the documented
+    first-pass default as fallback, exactly as load_measured_retreat_rate() does.
+    It is a winter's displacement, not a single storm's: the mean rate alone would
+    give about 1.3 m of it over that interval (Script 40 emits that expectation).
+    """
+    key = "winter2019_20_displacement_median_m"
+    try:
+        df = pd.read_csv(paths.OUT_40_REPORT_NUMBERS)
+        row = df[df["Parameter"] == key]
+        if len(row):
+            v = row["Value"].iloc[0]
+            if pd.notna(v) and float(v) > 0:
+                return float(v), "Script 40 measured 2019-20 winter median displacement"
+    except Exception as exc:
+        if not quiet:
+            print(f"  [WARNING] could not read Script 40's event displacement ({exc})")
+    v = default_value("coast_event_retreat_m")
+    if not quiet:
+        print(f"  [WARNING] using the documented first-pass default event retreat {v} m")
+    return float(v), "pipeline_params default (first pass)"
+
+
 def coastal_edge_h0(delta0_abs, retreat_m=None, quiet: bool = False):
     """Edge drawdown (mm) for a single retreat event of ``retreat_m`` metres.
 
     Returns (h0_mm, rate_m_yr, per_metre_mm, provenance).
     ``delta0_abs`` is the absolute coast-edge decline rate in mm/yr, read live
-    from Script 25 by the caller.
+    from Script 25 by the caller. ``retreat_m`` defaults to the MEASURED event
+    (load_measured_event_retreat, 1.1.0), not config.COAST_RETREAT_M.
     """
-    from utils.config import COAST_RETREAT_M
     if retreat_m is None:
-        retreat_m = COAST_RETREAT_M
+        retreat_m, _ = load_measured_event_retreat(quiet=quiet)
     rate, prov = load_measured_retreat_rate(quiet=quiet)
     per_metre = delta0_abs / rate
     return retreat_m * per_metre, rate, per_metre, prov

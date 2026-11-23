@@ -77,7 +77,10 @@ is retired by D-200 (T-88): the raw WMC3 step is within the record's noise.
 ====================================================================================
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
+#   MEASURED (coastal_utils.load_measured_event_retreat: Script 40's 2019-20 winter median), not config's
+#   6 m exemplar. 09f_01's column coastal_6m_storm_head_mm is renamed coastal_storm_head_mm.
+# 1.11.0  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
 #   Martin 22:12): emit-only. 09f_report_numbers.csv carries scrape_head_at_wmc3_mm, the scrape-head
 #   profile interpolated (unrounded) at the CEH36 -> WMC3 distance panel (a) already reads, so Paper 2
 #   §4.1.3's drain-cone prediction is a field. The figure and 09f_01 are unchanged.
@@ -130,11 +133,12 @@ from utils.paths import (
 from utils.console_utils import banner, phase, info, warn, saved
 from utils.site_observations import load_site_observation
 from utils.scraping_common import MPL_DEFAULTS
-from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
+from utils.config import (SCRAPE_RISE_BUFFER_M,
                           DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS,
                           FOREST_CIDS)
 from utils.pipeline_params import default_value
-from utils.coastal_utils import coastal_edge_h0
+from utils.coastal_utils import coastal_edge_h0, load_measured_event_retreat
+_EVENT_M, _EVENT_PROV = load_measured_event_retreat(quiet=True)   # J-33: measured, not config 6 m
 from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers
 
@@ -317,16 +321,18 @@ def _load_c3_beta3():
 
 
 def _coastal_retreat_edge_head(delta0_abs, L):
-    """Edge head drawdown (mm) and reach L (m) for a single COAST_RETREAT_M
-    shoreline-retreat event, EXACTLY as Script 20's plot_coastal_erosion:
+    """Edge head drawdown (mm) and reach L (m) for a single shoreline-retreat event of
+    the MEASURED size (Script 40, 2019-20 winter median; 1.12.0), as Script 20's
+    plot_coastal_erosion:
 
-        h0 = COAST_RETREAT_M * (δ₀ / measured_retreat_rate)  (mm)
+        h0 = event_retreat * (δ₀ / measured_retreat_rate)  (mm)
         Δh(d) = h0 * (1 - d/L)   (linear-capped, to zero at L)
 
     Constants match Script 20 module constants (single source of truth).
     """
-    h0, _rate, _per_m, _prov = coastal_edge_h0(delta0_abs)
-    return h0, L, COAST_RETREAT_M
+    event_m, _ = load_measured_event_retreat()
+    h0, _rate, _per_m, _prov = coastal_edge_h0(delta0_abs, retreat_m=event_m)
+    return h0, L, event_m
 
 
 # ----------------------------------------------------------------------------
@@ -344,7 +350,7 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
       - Scrape drain (dipole): exp decay over λ; edge = measured CEH36 response.
         This is the MODELLED cone; no off-site scrape effect is measured (D-200).
       - Standing pine / thinned forest: canopy drawdown, exp decay over λ.
-      - Coastal retreat, 6 m acute storm: single Storm-Brendan-class EVENT,
+      - Coastal retreat, one storm winter: the measured 2019-20 EVENT,
         linear-capped to zero at L (Script 20 form, ÷ storm-inclusive rate).
       - Coastal retreat, 5-year accumulation: five years of the fitted coast-edge
         trend δ₀, linear-capped to zero at L. Accumulation of the fitted trend,
@@ -386,7 +392,7 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
     ax.plot(r, forest_thinned, color="#6aa84f", lw=2.0, ls="--",
             label="Thinned forest 50% (drawdown)", zorder=3)
     ax.plot(r, coastal_6m, color="#7d5ba6", lw=2.2, ls="-",
-            label="Coastal retreat: 6 m acute storm (single event)", zorder=3)
+            label=f"Coastal retreat: one storm winter ({_EVENT_M:.1f} m, 2019-20)", zorder=3)
     ax.plot(r, coastal_5yr, color="#7d5ba6", lw=2.4, ls=":",
             label="Coastal retreat: 5-year accumulation (5\u00d7\u03b4\u2080)",
             zorder=3)
@@ -438,7 +444,7 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
         "scrape_head_mm": scrape_head,
         "standing_pine_head_mm": forest_standing,
         "thinned_forest_head_mm": forest_thinned,
-        "coastal_6m_storm_head_mm": coastal_6m,
+        "coastal_storm_head_mm": coastal_6m,
         "coastal_5yr_head_mm": coastal_5yr,
     })
     prof.to_csv(OUT_09F_REACH_CSV, index=False, float_format="%.2f")
@@ -565,7 +571,7 @@ def main():
              "default 129 mm (run Script 09a for the live value).")
     clearfell_recovery_mm = _load_clearfell_recovery_mm()
 
-    # 6 m acute-storm edge drawdown (Script 20 construction, ÷ storm rate)
+    # measured single-event edge drawdown (Script 20 construction, ÷ measured rate)
     coast_edge_6m, coast_L, _ = _coastal_retreat_edge_head(abs(coast_d0), coast_L)
     # Chronic accumulation of the fitted trend over COAST_CHRONIC_YEARS: N × δ₀
     # (chronic normaliser cancels, so independent of the assumed retreat rate).
@@ -584,7 +590,7 @@ def main():
     info(f"scrape edge head ({scrape_edge_src}) = {scrape_edge_head:.1f} mm")
     info(f"clearfell recovery = {clearfell_recovery_mm:.1f} mm")
     info(f"coast-edge \u03b4\u2080 = {coast_d0:.1f} mm/yr (CI {coast_lo:.1f}, {coast_hi:.1f}), L = {coast_L:.0f} m")
-    info(f"coastal 6 m storm edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
+    info(f"coastal {_EVENT_M:.1f} m event edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
     info(f"WMC3 raw 2015 step = {wmc3_step:.1f} \u00b1 {wmc3_se:.1f} mm at {wmc3_dist:.0f} m (not resolved)")
     info(f"forest t\u00bd (C4\u2013C5) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3 t\u00bd = {thalf_c3:.0f} mo")
 

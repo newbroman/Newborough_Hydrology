@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.88.0"  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). OUT_09D_REPORT_NUMBERS (Script 09d
+__version__ = "1.89.0"  # Hollingham (2026) - 2026-11-23 (J-33). OUT_25_FIT_DIAGNOSTIC_A (25_05a_gradient_fits.jpg).
+# 1.88.0  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). OUT_09D_REPORT_NUMBERS (Script 09d
 #   3.13.0): the count of withdrawn scenario rows. Additive.
 # 1.87.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). OUT_39_THREE_FORMS (Script 39 1.7.0):
 #   the three forms per CCW well against 1989-96, dry months scored. Additive.
@@ -1239,6 +1240,7 @@ OUT_25_BACI_CORROBORATION = DIR_25 / "25_04_baci_corroboration.csv"
 # judge how much of a tier verdict rests on the tier mean.
 OUT_25_BACI_TIER_SPREAD   = DIR_25 / "25_04b_baci_corroboration_spread.csv"
 OUT_25_FIT_DIAGNOSTIC     = DIR_25 / "25_05_fit_diagnostic.jpg"
+OUT_25_FIT_DIAGNOSTIC_A   = DIR_25 / "25_05a_gradient_fits.jpg"   # panel (a) alone, Paper C Fig 3 (J-33)
 OUT_25_BACI_CHART         = DIR_25 / "25_06_baci_corroboration_chart.jpg"
 OUT_25_CLUSTER_DECOMP_FIG = DIR_25 / "25_07_cluster_decomposition.png"
 OUT_25_REPORT_NUMBERS     = DIR_25 / "25_report_numbers.csv"

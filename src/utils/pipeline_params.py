@@ -40,7 +40,12 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 2b). defaults_lint after the phase 2b
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). Adds coast_event_retreat_m
+#   = 8.9483, the first-pass fallback for the single-event retreat now that it is MEASURED by Script 40
+#   (the 2019-20 winter median displacement) rather than config.COAST_RETREAT_M = 6.0. mech_coastal_storm_mm
+#   follows (09f_01 coastal_storm_head_mm, renamed from coastal_6m_storm_head_mm); its value is refreshed
+#   from the committed CSV after the run.
+# 1.19.0  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 2b). defaults_lint after the phase 2b
 #   full rerun: _DEFAULTS["drawdown_lambda_m"] 222.3 -> 172.1 (Script 20 now takes C3's Model B beta_3, 0.103/month) and
 #   _DEFAULTS["scrape_offsite_100m_vol"] -31.3 -> -27.8 (09d with that lambda; settled by the run's settle pass).
 # 1.18.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The params file carries Model B:
@@ -388,6 +393,10 @@ _DEFAULTS = {
                                          # well BY ASSUMPTION (D-057): the clusters do not
                                          # agree (C3 ≈ 0, C2 −14.6). A CENTRAL ESTIMATE,
                                          # not a resolved rate
+    "coast_event_retreat_m":     8.9483,  # Script 40, the 2019-20 winter (Storm Brendan) median
+                                         # shore-normal displacement, 40_report_numbers.csv
+                                         # winter2019_20_displacement_median_m. The single
+                                         # EVENT in h0 = retreat x (delta_0/rate) (J-33).
     "coast_retreat_rate_m_yr":   2.3207,  # Script 40, 2006->2026 on the modern
                                          # common frontage, 20.2 yr. The DIVISOR
                                          # in h0 = retreat x (delta_0/rate).
@@ -420,7 +429,7 @@ _DEFAULTS = {
     "mech_coastal_5yr_mm":      -156.40, # 09f_01 coastal_5yr_head_mm
     "mech_scrape_cut_rise_mm":   128.09, # 09f_01 scrape_head_mm (CEH36 cut rise)
     "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
-    "mech_coastal_storm_mm":     -80.87, # 09f_01 coastal_6m_storm_head_mm (D-091)
+    "mech_coastal_storm_mm":     -120.61, # 09f_01 coastal_storm_head_mm (D-091; J-33 measured event)
     "clearfell_summer_step_mm":   -1.0,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }
 

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_C/PaperC_v1_0.odt — do not edit. source-sha256=a61f0443bc25efa8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_C/PaperC_v1_1.odt — do not edit. source-sha256=50a93a4004fbf096 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Coastal retreat draws down a dune aquifer: separating shoreline erosion from climate in a 21-year dipwell record
@@ -127,10 +127,10 @@ The coastal deepening is steeper in spring but present all year. A season × dis
 
 Table 1 sets the coastal term against each cluster's observed summer-minimum decline. The coastal share follows how many of a cluster's wells lie within the reach.
 
--   **C3 Western Residual**, the open dune nearest the shore, has half its wells within the reach. The coast accounts for −7.0 mm/yr of its decline, most of it (93%; 87--102% across the delete-one-well refits). This is the most secure cluster result: C3 is an open-dune cluster, and its wells are in the headline fit.
+-   **C3 Western Residual**, the open dune nearest the shore, has 11 of its 22 wells within the reach. The coast accounts for −7.0 mm/yr of its decline, most of it (93%; 87--102% across the delete-one-well refits). This is the most secure cluster result: C3 is an open-dune cluster, and its wells are in the headline fit.
 -   **C5 Coastal Forest** has all four of its wells within the reach. The coast accounts for −17.1 mm/yr, about half of its decline of −32.0 mm/yr. The share rests on four wells and is sensitive to which wells the cluster contains. It is reported as "about half", not as a calibrated share (Section 5.3).
--   **C4 Main Forest** has three of its four wells in the gradient subset within the reach. The coast accounts for −4.8 mm/yr, about three-quarters of a cluster decline that the record does not resolve from zero.
--   **C1 Lake Edge and C2 Dune**, far inland, carry almost no coastal term: −0.6 mm/yr at C1, from its one coast-side well, and none at C2. Their declines, −11.0 and −14.6 mm/yr, are not explained by the coast.
+-   **C4 Main Forest** has 3 of its 4 wells in the gradient subset within the reach. The coast accounts for −4.8 mm/yr, about three-quarters of a cluster decline that the record does not resolve from zero.
+-   **C1 Lake Edge and C2 Dune**, far inland, carry almost no coastal term: −0.6 mm/yr at C1, from its 1 well inside the reach, and none at C2. Their declines, −11.0 and −14.6 mm/yr, are not explained by the coast.
 
 The decline away from the coast is the main thing this decomposition does not explain. It is not attributed to climate here, because the fit does not isolate a climate rate (Section 4.2). Its candidate causes are discussed in Hollingham (2026a). The full decomposition, with the non-coastal term and the unexplained remainder for every cluster, is in the Supporting Information, Table S2.
 
@@ -204,15 +204,15 @@ The method needs a dipwell network with a spread of distances from an eroding sh
 
 ![](Pictures/0.png){width="6.29921in" height="2.6274347285431574in"}
 
-**Figure 1.** The three coastal-retreat quantities, defined on a long-section from the eroding Caernarfon Bay shoreline inland to the fitted reach. The coastal water table (solid) is the fitted coast-edge trend accumulated over twenty years, declining linearly to zero at L_cg; the undisturbed table (dotted) is the same surface without it. δ₀ is the deepening rate at the shoreline, an extrapolation beyond the nearest well; the headline rate is read at 150 m. c_far is not drawn: it is a nuisance parameter, not a rate. The ghosted wedges at the shore mark the shoreline positions implied by a single storm event, drawn here as the 6 m exemplar of Pye and Blott (2024) (the measured 2019--20 winter median is 8.9 m; Section 4.5), and by five and twenty years of the mean retreat rate. Schematic, built from the fitted parameters; vertical scale exaggerated. (Source: 09g_coastal_vs_climate_reach.png; parameters from 25_01_panel_fit_parameters.csv.)
+**Figure 1.** The three coastal-retreat quantities, defined on a long-section from the eroding Caernarfon Bay shoreline inland to the fitted reach. The coastal water table (solid) is the fitted coast-edge trend accumulated over twenty years, declining linearly to zero at L_cg; the undisturbed table (dotted) is the same surface without it. δ₀ is the deepening rate at the shoreline, an extrapolation beyond the nearest well; the headline rate is read at 150 m. c_far is not drawn: it is a nuisance parameter, not a rate. The ghosted wedges at the shore mark the shoreline positions implied by the measured 2019--20 storm winter (8.9 m; Section 4.5) and by five and twenty years of the mean retreat rate. Schematic, built from the fitted parameters; vertical scale exaggerated. (Source: 09g_coastal_vs_climate_reach.png; parameters from 25_01_panel_fit_parameters.csv.)
 
 ![](Pictures/1.png){width="6.29921in" height="3.453426842531189in"}
 
 **Figure 2.** Shoreline retreat along the Caernarfon Bay frontage, measured as signed shore-normal displacement between the digitized coastlines of 2006, 2017, 2021 and 2026. (Source: 40_01_alongshore_profile.png.)
 
-![](Pictures/2.jpg){width="6.29921in" height="2.493508236873308in"}
+![](Pictures/2.jpg){width="5.11811in" height="3.5843263952764763in"}
 
-**Figure 3.** The coastal gradient. (a) Per-well summer-minimum trend against distance to the eroding shoreline, with the forest-free, full-network and C3-only linear fits and the forest-free exponential fit. (b) The per-cluster decomposition from which Table 1 is drawn; its non-coastal and unexplained terms are tabulated in the Supporting Information (S2). (Source: 25_05_fit_diagnostic.jpg.)
+**Figure 3.** The coastal gradient: per-well summer-minimum trend against distance to the eroding shoreline, with the forest-free, full-network and C3-only linear fits and the forest-free exponential fit. (Source: 25_05a_gradient_fits.jpg.)
 
 ![](Pictures/3.jpg){width="5.90551in" height="3.662431144590128in"}
 
@@ -220,7 +220,7 @@ The method needs a dipwell network with a spread of distances from an eroding sh
 
 ![](Pictures/4.png){width="6.29921in" height="4.285888635896953in"}
 
-**Figure 5.** The episodic view: water-table drawdown contoured inland from the dune front for a single storm retreat event, over the fitted reach. The per-event edge drawdown is scaled from the chronic gradient through the measured retreat rate E_c. The event is drawn as the 6 m exemplar of Pye and Blott (2024); the measured 2019--20 winter median is 8.9 m (Section 4.5). (Source: 20_coastal_erosion.png; parameters from 25_report_numbers.csv and 40_report_numbers.csv.)
+**Figure 5.** The episodic view: water-table drawdown contoured inland from the dune front for a single storm retreat event, over the fitted reach. The per-event edge drawdown is scaled from the chronic gradient through the measured retreat rate E_c. The event is the measured 2019--20 winter median displacement, 8.9 m (Section 4.5). (Source: 20_coastal_erosion.png; parameters from 25_report_numbers.csv and 40_report_numbers.csv.)
 
 # []{#anchor}Supporting Information
 

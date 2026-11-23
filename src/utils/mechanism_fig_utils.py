@@ -57,7 +57,9 @@ printed checks) and writes the outputs via paths.py.
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-11-23 (J-33). Reads 09f_01 coastal_storm_head_mm
+#   (renamed from coastal_6m_storm_head_mm): the storm is the measured 2019-20 winter event, not 6 m.
+# 1.13.0
 # CHANGELOG
 #   1.13.0 (2026-09-28, proofread): the clearfell magnitude line is in mm like the scrape
 #       line ("+108 mm over the year (p=0.003) · -1 mm summer (n.s.)"; was "+0.11 m … (p=0.00) ·
@@ -252,7 +254,7 @@ _09F_COLMAP = {                  # EDGE_DH_MM key -> 09f_01 column (row 0 = dist
     'coastal_5yr':     'coastal_5yr_head_mm',
     'scrape_cut_rise': 'scrape_head_mm',
     'thinned':         'thinned_forest_head_mm',
-    'coastal_storm':   'coastal_6m_storm_head_mm',
+    'coastal_storm':   'coastal_storm_head_mm',
 }
 
 # initialised to documented first-pass defaults; load_amplitudes() resolves live values
@@ -311,7 +313,7 @@ def load_reach():
         coastal_dd(d)      : 20-yr coastal drawdown (mm, +ve) =
                              (MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS) x |coastal_5yr(d)|
         c5_dd(d)           : 5-yr coastal drawdown (mm, +ve) = |coastal_5yr(d)|
-        storm_dd(d)        : single 6 m storm drawdown (mm, +ve) = |coastal_6m_storm(d)|
+        storm_dd(d)        : single measured-event storm drawdown (mm, +ve) = |coastal_storm(d)|
         reach_L_m, delta0_mm_yr, source
 
     Coastal retreat is the ONLY driver this dict carries. The retired keys `crossing_m`,
@@ -334,7 +336,7 @@ def load_reach():
         df = pd.read_csv(OUT_09F_REACH_CSV)
         d   = df['distance_m'].to_numpy(float)
         c5  = df['coastal_5yr_head_mm'].to_numpy(float)
-        st  = df['coastal_6m_storm_head_mm'].to_numpy(float)
+        st  = df['coastal_storm_head_mm'].to_numpy(float)
         edge5 = abs(float(c5[0]))
         Lfit = float(d[np.max(np.where(np.abs(c5) > 0.0))]) if np.any(np.abs(c5) > 0) \
             else float(default_value('coast_reach_L_m'))

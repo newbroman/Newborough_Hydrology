@@ -108,7 +108,9 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.66.0"  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
+__version__ = "1.66.1"  # Hollingham (2026) - 2026-11-23 (J-33 follow-up). The coastal_h0 note prints the event to
+#   0.1 m ("8.9 m retreat", was "9 m"), as the labels already did; the combined-figure docstring no longer says ~6 m.
+# 1.66.0  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
 #   MEASURED: COAST_RETREAT_M is bound from coastal_utils.load_measured_event_retreat (Script 40's 2019-20
 #   winter median, the Storm Brendan winter) instead of config's 6 m exemplar; labels print it to 0.1 m.
 # 1.65.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 20_residual_report_numbers.csv gains
@@ -1856,7 +1858,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     _h0, _d0, _L, _rm, _pm = _coastal_edge_h0()
     _rate, _prov = load_measured_retreat_rate(quiet=True)
     rpt.add("coastal_h0", float(_h0), unit="mm",
-            note=f"single-event edge drawdown, {_rm:.0f} m retreat × "
+            note=f"single-event edge drawdown, {_rm:.1f} m retreat × "
                  f"(δ₀/measured retreat rate); δ₀={_d0:.2f} mm/yr "
                  f"[Script 25 forest-free linear_capped, 2005-03 to 2026-02], "
                  f"rate={_rate:.4f} m/yr [{_prov}] — windows matched to 99 %, D-090")
@@ -3059,8 +3061,8 @@ def plot_coastal_net_effect(wt, features, dpi=300):
       • Single shore only. Both fields are referenced to the eroding
         Caernarfon Bay (SW) shore. The Menai / Malltraeth margins are not
         represented; SLR there is omitted.
-      • Episodic vs gradual. Erosion is ONE ~6 m retreat event (Storm Brendan
-        exemplar); SLR is a GRADUAL +SLR_RISE_M accrued over the window. A
+      • Episodic vs gradual. Erosion is ONE measured retreat event (the 2019-20
+        winter, Storm Brendan; COAST_RETREAT_M, D-338); SLR is a GRADUAL +SLR_RISE_M accrued over the window. A
         real 5-yr period could contain zero, one, or several storm pulses, so
         the red (erosion-dominated) band would deepen/widen in a storm-rich
         window and shrink in a quiet one.

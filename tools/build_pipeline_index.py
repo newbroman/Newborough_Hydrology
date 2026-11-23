@@ -39,7 +39,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-11. T-197 / J-13: first issue.
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-11-23 (J-32 remainder). DOC_FAMILIES gains PaperC_SI.
+# 1.0.0  # Hollingham (2026) - 2026-11-11. T-197 / J-13: first issue.
 
 import argparse
 import ast
@@ -75,6 +76,7 @@ DOC_FAMILIES = [
     (r"PaperM", "Methods paper (Paper M)"),
     (r"PaperM_plain", "Methods paper, plain-language companion"),
     (r"PaperC", "Coastal-retreat paper (Paper C)"),
+    (r"PaperC_SI", "Coastal-retreat paper, supporting information"),
     (r"report(\d*)", "Technical report"),
     (r"Newborough_Methods_Supplement", "Methods Supplement"),
     (r"Supplementary_Material", "Supplementary Material"),

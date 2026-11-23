@@ -78,7 +78,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.38.0"  # Hollingham (2026) — 2026-11-11 (J-12, T-196; Martin 2026-11-09 on the J-10
+__version__ = "1.38.1"  # Hollingham (2026) — 2026-11-23 (J-32 remainder). BUNDLE_ORDER/LABEL gain PaperC_SI (the 1.33.0 rule: every mirrored document).
+# 1.38.0  # Hollingham (2026) — 2026-11-11 (J-12, T-196; Martin 2026-11-09 on the J-10
 #   review's Q9: "move to the hq daily pass"). bundle_sha256 is now a function of WHAT THE BUNDLE IS
 #   BUILT FROM - the chapter input hashes of the chapters in it and the Bindings tabs' content - via
 #   _bundle_hash(), not of NRG_proof.html's bytes. Measured 2026-11-11: two refreshes with all 25
@@ -358,7 +359,7 @@ BUNDLE_ORDER = ["report", "report6", "report7", "report8", "report9", "report10"
                # 1.33.0 (Martin 2026-10-04: "please ensure that all docs have a proof reading doc tool too"):
                # every mirrored document, not the report alone. A stem resolves through resolve_doc().
                "Newborough_Methods_Supplement", "Supplementary_Material",
-               "Paper1", "PAPER1_SI_methods", "Hollingham_2026_Paper2_amended", "PaperM", "PaperC",
+               "Paper1", "PAPER1_SI_methods", "Hollingham_2026_Paper2_amended", "PaperM", "PaperC", "PaperC_SI",
                "academic_Summary", "crynodeb_academaidd",
                "public_summary_EN", "public_summary_CY", "public_summary_PL",
                "NRG_Web_Tools_User_Manual", "NRG_Web_Tools_Technical_Note"]
@@ -366,7 +367,7 @@ BUNDLE_ORDER = ["report", "report6", "report7", "report8", "report9", "report10"
 BUNDLE_LABEL = {"report": "Front matter", "Newborough_Methods_Supplement": "Methods Supplement",
                 "Supplementary_Material": "Supplementary Material", "Paper1": "Paper 1",
                 "PAPER1_SI_methods": "Paper 1 SI", "Hollingham_2026_Paper2_amended": "Paper 2",
-                "PaperM": "Paper M", "PaperC": "Paper C", "academic_Summary": "Academic summary",
+                "PaperM": "Paper M", "PaperC": "Paper C", "PaperC_SI": "Paper C SI", "academic_Summary": "Academic summary",
                 "crynodeb_academaidd": "Crynodeb academaidd", "public_summary_EN": "Public summary EN",
                 "public_summary_CY": "Public summary CY", "public_summary_PL": "Public summary PL",
                 "NRG_Web_Tools_User_Manual": "Web tools manual",

@@ -53,7 +53,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-23 (J-32): paperC joins FAMILIES.
+__version__ = "1.2.0"  # 2026-11-23 (J-32 remainder): PaperC_SI is paperC's companion.
+# 1.1.0  # 2026-11-23 (J-32): paperC joins FAMILIES.
 # 1.0.1  # Hollingham (2026) - 2026-10-27. SKIP, not FAIL, when the checkout carries no paper
 #   document at all (the public clone; T-127 read "broken" in the daily cloud check).
 # 1.0.0  # Hollingham (2026) - 2026-10-25. First issue (Martin 06:52: "set up
@@ -80,7 +81,7 @@ FAMILIES = {
     "paper1": ("Paper1_v", ["PAPER1_SI_methods", "Paper1_plain"]),
     "paper2": ("Hollingham_2026_Paper2_amended", ["Paper2_plain"]),
     "paperM": ("PaperM_v", ["PaperM_plain"]),
-    "paperC": ("PaperC_v", []),          # 2026-11-23 (J-32): no companion documents yet
+    "paperC": ("PaperC_v", ["PaperC_SI"]),   # 2026-11-23 (J-32); the SI joins as a companion (J-32 remainder)
 }
 KINDS = ("figure", "table")
 

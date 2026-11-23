@@ -22,7 +22,9 @@ Usage:  python3 tools/self_cite_lint.py [--selftest]
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-23 (J-32). Paper C joins DOCS: it cites Hollingham 2026a-c and is itself 2026f.
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-23 (J-32 remainder). PaperC_SI joins DOCS; it cites 2026a, and
+#   names its own work (2026f) in its title block, which OWN_LABEL exempts from needing an entry.
+# 1.1.0  # Hollingham (2026) — 2026-11-23 (J-32). Paper C joins DOCS: it cites Hollingham 2026a-c and is itself 2026f.
 # 1.0.0  # 2026-10-06. First issue.
 
 import csv
@@ -36,7 +38,11 @@ DOCS = ["docs/papers/paper_1/text/Paper1.md",
         "docs/papers/paper_1/text/PAPER1_SI_methods.md",
         "docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md",
         "docs/papers/paper_M/text/PaperM.md",
-        "docs/papers/paper_C/text/PaperC.md"]
+        "docs/papers/paper_C/text/PaperC.md",
+        "docs/papers/paper_C/text/PaperC_SI.md"]
+# A document naming the work it belongs to (the SI's title block: "Hollingham (2026f), Paper C") is not
+# citing it, so its own label needs no reference entry (1.2.0).
+OWN_LABEL = {"PaperC_SI.md": "2026f"}
 CITE_RE = re.compile(r"Hollingham(?:,|\s*\()\s*(2026[a-z]?)\b")
 ENTRY_RE = re.compile(r"^(?:>\s*)?Hollingham,\s*M\.,?\s*\(?(2026[a-z]?)\)?[.,]?\s*(.*)$", re.M)
 
@@ -68,7 +74,7 @@ def evaluate(name: str, text: str, reg: dict[str, str]) -> list[str]:
             faults.append(f"{name}: unlettered 'Hollingham, 2026' citation at offset {m.start()}")
             continue
         cited.add(lab)
-        if lab not in entries and "SI_methods" not in name:   # the SI uses Paper 1's list
+        if lab not in entries and "SI_methods" not in name and lab != OWN_LABEL.get(name):   # the SI uses Paper 1's list
             faults.append(f"{name}: {lab} cited but has no reference entry")
     for lab, rest in entries.items():
         if lab not in reg:

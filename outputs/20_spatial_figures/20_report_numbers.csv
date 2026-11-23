@@ -35,7 +35,7 @@ drawdown_d15,D15,,21.887090492785084,mm,modelled steady-state forest drawdown
 drawdown_ceh24,CEH24,,0.11240347277841287,mm,modelled steady-state forest drawdown
 drawdown_ceh10,CEH10,,0.3224202332082429,mm,modelled steady-state forest drawdown
 drawdown_ceh11,CEH11,,0.0541953652759956,mm,modelled steady-state forest drawdown
-coastal_h0,,,120.61136693912275,mm,"single-event edge drawdown, 9 m retreat × (δ₀/measured retreat rate); δ₀=31.28 mm/yr [Script 25 forest-free linear_capped, 2005-03 to 2026-02], rate=2.3207 m/yr [Script 40 measured 2006-2026 (20.2 yr)] — windows matched to 99 %, D-090"
+coastal_h0,,,120.61136693912275,mm,"single-event edge drawdown, 8.9 m retreat × (δ₀/measured retreat rate); δ₀=31.28 mm/yr [Script 25 forest-free linear_capped, 2005-03 to 2026-02], rate=2.3207 m/yr [Script 40 measured 2006-2026 (20.2 yr)] — windows matched to 99 %, D-090"
 coastal_h0_per_metre,,,13.478616869783451,mm/m,δ₀/measured retreat rate — head per metre of shoreline retreat; the quantity Scripts 20 and 09f divide by
 coastal_delta0,,,31.28,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted 2005-03 to 2026-02
 coastal_drawdown_20yr_mm,,20 yr,625.6,mm,chronic coastal drawdown at the dune toe over the full-window horizon: MECHANISM_HORIZON_YEARS x coastal_delta0 (20_driver_change_20yr.png coastal field)

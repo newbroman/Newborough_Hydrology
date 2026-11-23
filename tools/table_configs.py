@@ -115,7 +115,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-11-18 (J-19, T-110, D-334). paper1/Table7 (the per-cluster
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-11-23 (J-29, T-226). paper1_si/S12_3 retired: S12 moved to Paper C's SI (2026f),
+#   whose Table S1 carries the panel-fit parameters as number fields.
+# 1.22.0  # Hollingham (2026) — 2026-11-18 (J-19, T-110, D-334). paper1/Table7 (the per-cluster
 #   drainage decay half-life) removed: a recession time at a fixed floor is not a finding, and Script 18's CSV had
 #   moved to Model B's beta_3. paper1/Table4's header follows the ODT's S_a spelling (T-01 moved the document
 #   and left this config, which is what table_gen was refusing on.)
@@ -1309,31 +1311,8 @@ TABLES = [
              "else": {"fmt": "template", "template": "{Drain_bydiff_mm_yr:.0f}†"}},
         ],
     },
-    {
-        # 2026-11-22f: S12.3 was typed and every cell had gone stale against 25_01 (n, AIC, δ₀, L_cg, c_far)
-        "id": "paper1_si/S12_3",
-        "doc": "docs/papers/paper_1/PAPER1_SI_methods_v*.odt",
-        "table_name": "Table6",
-        "caption": "Paper 1 SI S12.3 - coastal-gradient panel fit parameters (Script 25)",
-        "sources": {"pf": "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv"},
-        "rows": {"source": "pf", "filter": {"source": ["full", "forest_free", "c3_only"]}},
-        "header": ["Specifica-tion", "Model", "n", "AIC", "δ₀ (mm yr⁻¹)", "L_cg (m)", "c_far (mm yr⁻¹)"],
-        "columns": [
-            {"col": "source", "fmt": "map",
-             "map": {"full": "Full", "forest_free": "Forest-free", "c3_only": "C3-only"}},
-            {"col": "model", "fmt": "map",
-             "map": {"linear_capped": "linear-capped", "exponential": "exponential",
-                     "linear_capped_cfix": "linear-capped (c_far fixed)",
-                     "exponential_cfix": "exponential (c_far fixed)"}},
-            {"fmt": "template", "template": "{n_obs:,.0f}"},
-            {"fmt": "template", "template": "{AIC:,.1f}"},
-            {"fmt": "template", "template": "{delta_0_mm_yr:.2f} ± {delta_0_se:.2f}"},
-            {"fmt": "template", "template": "{L_m:.0f} ± {L_se:.0f}"},
-            {"fmt": "template", "template": "{c_mm_yr:+.2f} ± {c_se:.2f}",
-             "when": {"model": ["linear_capped", "exponential"]},
-             "else": {"col": "c_mm_yr", "fmt": "fixed", "dp": 2, "sign": True}},
-        ],
-    },
+    # paper1_si/S12_3 retired 2026-11-23 (J-29, T-226, changelog 2026-11-23i): PAPER1_SI_methods v1_43 moved S12 to
+    # Paper C's SI (Hollingham 2026f, S1), whose Table S1 carries these parameters as number fields (D-219).
     {
         "id": "paper1/Table4",
         "doc": "docs/papers/paper_1/Paper1_v*.odt",

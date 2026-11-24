@@ -9,6 +9,12 @@ alone brings those back; a pull by this list does not.
   python3 tools/drive_manifest_list.py list REMOTE    # print the manifest's paths, one per line
                                                       # exit 2 (message on stderr) if there is no
                                                       # usable manifest for REMOTE: callers fall back
+  python3 tools/drive_manifest_list.py plan REMOTE    # 1.1.0 (T-205, D-328): the paths a pull should
+                                                      # fetch, decided by CONTENT: missing here, or
+                                                      # here as a copy some earlier archive recorded
+                                                      # (stale). A file whose MD5 no archive ever
+                                                      # recorded is an edit not yet archived: kept,
+                                                      # and named on stderr. Exit 2 as for list.
   python3 tools/drive_manifest_list.py verify         # compare local MD5s with the manifest; report,
                                                       # never fail (a file newer here is kept by
                                                       # --update on purpose)
@@ -18,7 +24,9 @@ Spec working/updates/NRG_spec_T118_drive_pull_manifest_2026-10-21.md (Martin 202
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-21. New (T-118).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (T-205, D-328). `plan`: what to fetch by MD5
+#   against the manifest and its history in the private repository, replacing rclone --update's mtimes.
+# 1.0.0  # Hollingham (2026) — 2026-10-21. New (T-118).
 
 import hashlib
 import json
@@ -56,8 +64,69 @@ def md5(p: pathlib.Path) -> str:
     return h.hexdigest()
 
 
+def history() -> dict[str, set]:
+    """path -> every MD5 any committed manifest recorded for it (the private repository's history)."""
+    import subprocess
+    seen: dict[str, set] = {}
+    g = ["git", f"--git-dir={REPO / '.git-working'}", f"--work-tree={REPO}"]
+    try:
+        revs = subprocess.run(g + ["log", "--format=%H", "--", "working/DRIVE_MANIFEST.json"],
+                              capture_output=True, text=True, check=True).stdout.split()
+    except (OSError, subprocess.CalledProcessError):
+        return seen
+    for rev in revs:
+        r = subprocess.run(g + ["show", f"{rev}:working/DRIVE_MANIFEST.json"], capture_output=True, text=True)
+        try:
+            for p, h in (json.loads(r.stdout).get("files") or {}).items():
+                seen.setdefault(p, set()).add(h)
+        except ValueError:
+            continue
+    return seen
+
+
+def superseded(files: dict) -> set:
+    """Manifest paths that are not their versioned family's newest (the archive is written before the
+    prune, so it names them; a pull brings down the current set, T-118)."""
+    import re
+    sys.path.insert(0, str(REPO / "tools"))
+    try:
+        from refresh_mirrors import SOURCES, _version_key
+    except Exception:
+        return set()
+    out = set()
+    for pattern, _mirror, versioned in SOURCES:
+        if not versioned:
+            continue
+        rx = re.compile("^" + re.escape(pattern).replace(r"\*", "[_v0-9]*") + "$")
+        fam = sorted((p for p in files if rx.match(p)), key=lambda p: _version_key(pathlib.Path(p)))
+        out.update(fam[:-1])
+    return out
+
+
+def plan(m: dict) -> tuple[list, list]:
+    """(fetch, kept): fetch what is missing or a stale archived copy; keep an edit no archive recorded."""
+    past = None
+    fetch, kept = [], []
+    old = superseded(m["files"])
+    for p, h in sorted(m["files"].items()):
+        f = REPO / p
+        if not f.exists():
+            # prune_versions moved a superseded version to archive/<below docs/>: present, if it is this copy
+            a = REPO / "archive" / p[len("docs/"):] if p.startswith("docs/") else None
+            if not (a and a.is_file() and md5(a) == h) and p not in old:
+                fetch.append(p)
+            continue
+        here = md5(f)
+        if here == h:
+            continue
+        if past is None:
+            past = history()
+        (fetch if here in past.get(p, set()) else kept).append(p)
+    return fetch, kept
+
+
 def main() -> int:
-    if len(sys.argv) < 2 or sys.argv[1] not in ("list", "verify"):
+    if len(sys.argv) < 2 or sys.argv[1] not in ("list", "plan", "verify"):
         print(__doc__, file=sys.stderr)
         return 1
     if sys.argv[1] == "list":
@@ -65,6 +134,16 @@ def main() -> int:
         if m is None:
             return 2
         sys.stdout.write("".join(p + "\n" for p in sorted(m["files"])))
+        return 0
+    if sys.argv[1] == "plan":
+        m = load(sys.argv[2] if len(sys.argv) > 2 else None)
+        if m is None:
+            return 2
+        fetch, kept = plan(m)
+        for p in kept:
+            print(f"  KEPT (an edit here that no archive recorded - archive it, or move it aside to take Drive's): {p}",
+                  file=sys.stderr)
+        sys.stdout.write("".join(p + "\n" for p in fetch))
         return 0
     m = load()
     if m is None:

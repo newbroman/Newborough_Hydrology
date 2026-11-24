@@ -29,7 +29,9 @@
 #   and what it holds (tools/doc_lock.py). Step 3 refuses commits that touch another chat's claim
 #   (tools/ship_scope.py check), and the ship is given a request file so nrg_git.sh 1.29.0 scopes it.
 #
-# Version 1.1.1 — Hollingham (2026) — 2026-11-08. lock_push commits only when the lock file has a
+# Version 1.2.0 — Hollingham (2026) — 2026-11-24. T-200 (D-324): step 3 takes the `ship` claim for --chat beside
+#   the documents lock (nrg_git.sh 1.37.0 refuses a chat's push without it) and every exit releases it.
+# 1.1.1 — Hollingham (2026) — 2026-11-08. lock_push commits only when the lock file has a
 #   staged change, and pushes either way. D-314 made doc_lock commit and push the record itself, so
 #   lock_push's commit had nothing to do and failed every cloud ship at step 3 since 2026-11-06.
 # 1.1.0 — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10).
@@ -63,6 +65,7 @@ export NRG_DOC_LOCK_HOLDER="cloud"
 FILTER="tools/rclone-odt-filter.txt"
 REMOTE="$(sed -n 's/^DRIVE_REMOTE="\([^"]*\)".*/\1/p' working/nrg_git.sh | head -1)"
 LOCKED=0
+SHIPCLAIM=0      # 1.2.0 (T-200, D-324): this run holds the `ship` claim, so nrg_git.sh's push_if_ahead lets it push
 
 step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 
@@ -80,6 +83,7 @@ fail() {
     "$VPY" tools/doc_lock.py release --force --note "cloud ship ${ID} failed before shipping: $1" >/dev/null
     lock_push "doc lock released: cloud ship ${ID} failed ($1)" || echo "  (lock release not pushed)"
   fi
+  [ "$SHIPCLAIM" = 1 ] && "$VPY" tools/doc_lock.py release ship --chat "$CHAT" >/dev/null 2>&1
   echo "SHIP: FAIL $1  (log ${LOG})"
   exit 1
 }
@@ -155,6 +159,12 @@ fi
 NRG_CHAT="$CHAT" "$VPY" tools/ship_scope.py check --chat "$CHAT" --range origin/main..HEAD \
   || fail claimed-elsewhere "these commits touch files another chat has claimed (above): that chat ships them, or releases its claim"
 "$VPY" tools/doc_lock.py take --note "cloud ship ${ID}" >/dev/null && LOCKED=1
+# 1.2.0 (T-200, D-324): the right to push is the `ship` claim; take it beside the documents lock (it publishes itself)
+if [ -n "$CHAT" ]; then
+  "$VPY" tools/doc_lock.py take ship --chat "$CHAT" --note "cloud ship ${ID}" \
+    || fail ship-claimed "another chat holds the ship claim (above): ship from that chat, or after it releases"
+  SHIPCLAIM=1
+fi
 lock_push "doc lock: cloud ship ${ID}" || fail lock-push "could not push the lock to the private repo"
 
 step 4/7 "no committed mirror is ahead of Drive (refresh_mirrors --verify, by content)"
@@ -170,6 +180,7 @@ if [ "$DRY" = 1 ]; then
   "${WG[@]}" push --dry-run origin HEAD >/dev/null 2>&1 && echo "  private push: OK" || echo "  private push: REFUSED"
   git push --dry-run origin HEAD >/dev/null 2>&1 && echo "  public push: OK" || echo "  public push: REFUSED"
   "$VPY" tools/doc_lock.py release --force --note "cloud ship ${ID}: dry run" >/dev/null
+  [ "$SHIPCLAIM" = 1 ] && "$VPY" tools/doc_lock.py release ship --chat "$CHAT" >/dev/null 2>&1
   lock_push "doc lock released: cloud ship ${ID} dry run" || echo "  (lock release not pushed)"
   echo "SHIP: DRYRUN OK  (every check passed; nothing shipped; log ${LOG})"
   exit 0
@@ -185,6 +196,7 @@ rc=$?
 line="$(grep -a '^SHIP: ' "$(ls -t scratch/ship_*.log 2>/dev/null | head -1)" 2>/dev/null | tail -1)"
 
 step 7/7 "release the lock and keep the log"
+[ "$SHIPCLAIM" = 1 ] && "$VPY" tools/doc_lock.py release ship --chat "$CHAT" >/dev/null 2>&1
 "$VPY" tools/doc_lock.py release --force \
   --note "cloud ship ${ID} wrote ODTs to Drive: on the L14 run bash tools/drive_pull.sh before editing" >/dev/null
 mkdir -p working/ship_logs

@@ -8,6 +8,7 @@ docs/public_summaries/Newborough_Warren_Podsumowanie.pdf  <-  public_summary_PL.
 docs/public_summaries/Newborough_Warren_Public_Summary.pdf  <-  public_summary_EN.odt  |  2026-10-10T16:14:44Z
 docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf  <-  public_summary_CY.odt  |  2026-10-10T16:14:45Z
 docs/report/Newborough_Methods_Supplement.pdf  <-  Newborough_Methods_Supplement_v2_0_148.odt  |  2026-11-24T07:31:39Z
+docs/report/report.pdf  <-  report.odm+chapters sha256:5f46fd3763b10c14  |  2026-11-24T07:31:41Z
 docs/report/Supplementary_Material.pdf  <-  Supplementary_Material_v1_69.odt  |  2026-11-23T11:07:12Z
 docs/web_tools/NRG_Web_Tools_Technical_Note.pdf  <-  NRG_Web_Tools_Technical_Note.odt  |  2026-11-23T14:45:30Z
 docs/web_tools/NRG_Web_Tools_User_Manual.pdf  <-  NRG_Web_Tools_User_Manual.odt  |  2026-11-23T14:45:30Z

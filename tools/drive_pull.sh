@@ -15,7 +15,10 @@
 # Usage:  bash tools/drive_pull.sh             # pull
 #         bash tools/drive_pull.sh --dry-run   # list what would change, change nothing
 #
-# Version 1.1.0 — Hollingham (2026) — 2026-10-21. T-118 (spec NRG_spec_T118_drive_pull_manifest_2026-10-21,
+# Version 1.2.0 — Hollingham (2026) — 2026-11-24. T-205 (D-328): the manifest path fetches by MD5
+#   (drive_manifest_list.py plan): a file missing here or a stale archived copy comes down; one whose MD5
+#   no archive ever recorded is an unarchived edit and is kept, by name. --update (mtime) only on the fallback.
+# 1.1.0 — Hollingham (2026) — 2026-10-21. T-118 (spec NRG_spec_T118_drive_pull_manifest_2026-10-21,
 #   Martin 21:29): pull by the manifest (tools/drive_manifest_list.py), filter as the fallback; MD5 report.
 # 1.0.0 — Hollingham (2026) — 2026-10-02. First issue (with the switch to gdrivefile:NRG_documents_v2).
 set -euo pipefail
@@ -41,7 +44,11 @@ step "3/3" "copying documents down${DRY:+ (dry run: nothing changes)}"
 LIST="$(mktemp)"; trap 'rm -f "$LIST"' EXIT
 if python3 tools/drive_manifest_list.py list "$REMOTE" > "$LIST"; then
   echo "  the manifest names $(wc -l < "$LIST") current documents; superseded versions on Drive stay there"
-  rclone copy "$REMOTE" . --files-from "$LIST" --no-traverse --update $DRY --progress
+  # 1.2.0 (T-205, D-328): what comes down is decided by MD5, not by --update's modification times
+  python3 tools/drive_manifest_list.py plan "$REMOTE" > "$LIST.fetch"
+  echo "  by content: $(wc -l < "$LIST.fetch") to fetch (missing here, or a copy an earlier archive recorded)"
+  [ -s "$LIST.fetch" ] && rclone copy "$REMOTE" . --files-from "$LIST.fetch" --no-traverse --ignore-times $DRY --progress
+  rm -f "$LIST.fetch"
   [ -z "$DRY" ] && python3 tools/drive_manifest_list.py verify
 else
   echo "  WARNING: no usable working/DRIVE_MANIFEST.json - copying by filter, so superseded versions come down too"

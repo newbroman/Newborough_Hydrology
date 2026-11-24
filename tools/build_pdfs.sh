@@ -174,6 +174,11 @@ if [[ $CHECK -eq 1 ]]; then
   echo "Check: $current current, $stale stale/missing, $noodt with no ODT source."
   [[ $stale -gt 0 ]] && echo "Run 'build_pdfs.sh' to rebuild." || true
 else
+  # T-188 (2026-11-24): carry over lines for PDFs this script does not build (report.pdf, written by
+  # export_master_pdf with a content fingerprint), from the CURRENT manifest, or the rewrite would drop them
+  if [[ -f "$MANIFEST" ]]; then
+    awk 'NR==FNR {have[$1]=1; next} !/^#/ && $2 == "<-" && !($1 in have)' "$NEW_MANIFEST" "$MANIFEST" >> "$NEW_MANIFEST"
+  fi
   { echo "# published PDF  <-  source ODT  |  built (UTC)"; LC_ALL=C sort -f "$NEW_MANIFEST"; } > "$MANIFEST"
   echo "Rebuilt $built PDF(s); $current already current. Manifest: $MANIFEST"
   if [[ $noodt -gt 0 ]]; then

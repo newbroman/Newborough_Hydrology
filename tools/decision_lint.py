@@ -47,7 +47,9 @@ CLAIMS = REPO / "tools" / "claims_register.csv"
 # Deltas older than the log cannot be expected to reference it.
 LOG_START = "2026-08-16"
 
-REQUIRED_FIELDS = ["Question:", "Decision:", "Rationale:", "Revisit-if:"]
+# "Traces to:" joined 2026-11-24 (D-331, T-207): context_for finds a decision by it, and 33 of 336 entries had none,
+# D-155 among them; they were backfilled by appended fields the same day. An entry governing the whole project says so.
+REQUIRED_FIELDS = ["Question:", "Decision:", "Rationale:", "Revisit-if:", "Traces to:"]
 DECISION_RE = re.compile(r"\bD-(\d{3})\b")
 DELTA_DATE_RE = re.compile(r"CHANGELOG_delta_(\d{4}-\d{2}-\d{2})")
 EXEMPT_PHRASE = "no decision"

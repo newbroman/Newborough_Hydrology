@@ -26,7 +26,9 @@
 # Usage:  bash tools/nrg_git_selftest.sh          # verdict line, exit non-zero on a failure
 #         bash tools/nrg_git_selftest.sh -v       # show each case's output
 #
-# Version 1.0.0 — Hollingham (2026) — 2026-11-09. First issue (J-4).
+# Version 1.1.0 — Hollingham (2026) — 2026-11-24. T-200 (D-324): ship_claim_ok() run in four states - the holder
+#   pushes, another chat's claim and an unheld one refuse with a route, a run with no chat is not asked.
+# 1.0.0 — Hollingham (2026) — 2026-11-09. First issue (J-4).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -129,6 +131,31 @@ check "D conflict: the merge is left in progress, so abort and resolve are both 
 check "D conflict: never offers 'keep GitHub's / keep mine' for records" \
   "$([[ "$out" != *"Keep GitHub's version"* ]] && echo 0 || echo 1)" "$out"
 
+# ── the push right (1.1.0, T-200, D-324): a chat pushes only while it holds `ship` ────────
+sed -n '/^ship_claim_ok(){/,/^}/p' "$SRC" > "$WORK/ship.sh"
+if ! grep -q '^ship_claim_ok(){' "$WORK/ship.sh"; then
+  check "ship: ship_claim_ok() exists in $SRC" 1
+else
+  sc(){ # $1 pushing chat, $2 the ship claim's holder -> output then rc=N
+    ( fail(){ echo "x $1"; }; ship_holder(){ printf '%s' "$SHIP_H"; }
+      . "$WORK/ship.sh"; NRG_PUSH_CHAT="$1" SHIP_H="$2" ship_claim_ok; echo "rc=$?" ) 2>&1; }
+  out="$(sc "Chat A" "Chat A")"
+  check "ship: the holder may push" "$([[ "$out" == *"rc=0"* ]] && echo 0 || echo 1)" "$out"
+  out="$(sc "Chat A" "Chat B")"
+  check "ship: another chat's claim refuses, naming the holder and the request route" \
+    "$([[ "$out" == *"rc=1"* && "$out" == *"Chat B"* && "$out" == *".ship_request"* ]] && echo 0 || echo 1)" "$out"
+  out="$(sc "Chat A" "")"
+  check "ship: an unheld claim refuses and offers the take" \
+    "$([[ "$out" == *"rc=1"* && "$out" == *"take ship"* ]] && echo 0 || echo 1)" "$out"
+  out="$(sc "" "Chat B")"
+  check "ship: a run with no chat (Martin, or the watcher) is not asked" "$([[ "$out" == *"rc=0"* ]] && echo 0 || echo 1)" "$out"
+fi
+pbody="$(sed -n '/^push_if_ahead(){/,/^}/p' "$SRC")"
+check "wiring (text): push_if_ahead() calls ship_claim_ok before pushing" \
+  "$([[ "$pbody" == *"ship_claim_ok"* ]] && echo 0 || echo 1)"
+check "wiring (text): NRG_PUSH_CHAT is captured before --ship adopts a request's chat" \
+  "$(grep -n 'NRG_PUSH_CHAT=' "$SRC" | head -1 | cut -d: -f1 | { read l; a=$(grep -n 'export NRG_CHAT="\$req_chat"' "$SRC" | cut -d: -f1); [ -n "$l" ] && [ "$l" -lt "${a:-0}" ] && echo 0 || echo 1; })"
+
 # ── wiring, necessarily textual ────────────────────────────────────────────────────────
 ibody="$(sed -n '/^integrate(){/,/^}/p' "$SRC")"
 ubody="$(sed -n '/^update_machine(){/,/^}/p' "$SRC")"
@@ -146,6 +173,6 @@ check "wiring (text): option 4 runs update_machine, not integrate" \
   "$(grep -q '"\$OPT_PULL") update_machine' "$SRC" && echo 0 || echo 1)"
 
 total=$((pass+fail))
-if [ "$fail" = 0 ]; then echo "  nrg_git_selftest: OK — ${pass} of ${total} (4 behavioural, the rest wiring)"; exit 0; fi
+if [ "$fail" = 0 ]; then echo "  nrg_git_selftest: OK — ${pass} of ${total} (8 behavioural, the rest wiring)"; exit 0; fi
 echo "  nrg_git_selftest: FAIL — ${fail} of ${total}"
 exit 1

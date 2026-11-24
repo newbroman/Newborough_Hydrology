@@ -42,7 +42,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.10"  # Hollingham (2026) — 2026-11-05 (D-301 phase 3, T-137). rule_audit exempt:
+__version__ = "1.0.11"  # Hollingham (2026) — 2026-11-24 (T-187). decision_register exempt: a record compared
+#   against origin, nothing to rebuild.
+# "1.0.10"  # Hollingham (2026) — 2026-11-05 (D-301 phase 3, T-137). rule_audit exempt:
 #   its findings are READ from the tree's own history and this script's gate summary, so a ship has no
 #   artefact to rebuild, and the watermark it keeps moves with the HQ pass rather than with a ship.
 # 1.0.9  # Hollingham (2026) — 2026-11-21. EXEMPT gains chat_links, whose gate landed with
@@ -84,6 +86,7 @@ EXEMPT = {
     "job_queue":             "a REGISTER of queued work (D-301): rows are added by chats and fired by a release or the HQ pass, so a ship has nothing to regenerate",
     "chat_links":            "it checks a REGISTER column chats fill in for themselves (their conversation URL, 2026-11-21): a ship cannot regenerate it, because the only source is each chat's own Claude-Session trailer, and tools/chat_links.py --write is run when a chat that never recorded one has committed",
     "task_register":         "a REGISTER of tasks, minted from ORIGIN and published by the row that takes the id (2026-11-08): --check compares this clone against origin, so there is no artefact to rebuild and a ship inventing rows would defeat the point",
+    "decision_register":     "the private DECISION_LOG's ids against origin's (T-187, 2026-11-24): like task_register it compares two records written by people, so there is nothing to rebuild and a ship must not mint decisions",
     "hq_snapshot":           "the HQ page's payload (D-301): it renders into gitignored scratch/hq/ and the db is written by a SESSION, which no ship can do - the gate only says whether the pieces are there",
     "hq_page":               "the HQ page shell (D-301): gitignored scratch/hq/index.html, and PUBLISHING is a session's act - the gate is advisory and says a republish is owed",
     "build_table_ledger":    "TABLE_LEDGER.md is retired (2026-09-19); the builder refuses to regenerate it and --check passes on the banner",

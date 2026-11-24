@@ -62,7 +62,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.8.0"  # Hollingham (2026) — 2026-11-23 (T-162, Martin: "lets look at these"). Archive stubs no
+__version__ = "2.9.0"  # Hollingham (2026) — 2026-11-24 (T-168, T-140). REPO honours NRG_REPO_ROOT, as doc_lock does;
+#   TIER0_PROSE_BUDGET back to 600 (fences excluded since 2.x);
+#   imports follow HERE, the file's own tree.
+# "2.8.0"  # Hollingham (2026) — 2026-11-23 (T-162, Martin: "lets look at these"). Archive stubs no
 #   longer live in HANDOVER_NOTE.md, which Tier 0 counts: --write moves every `## A to B — archived` stub, verbatim,
 #   into HANDOVER_NOTE_archive_index.md (outside Tier 0, newest first) and leaves one `## Archived entries` pointer,
 #   and archive_oldest_entries() writes its stub to that index rather than back into the note. An archive pass
@@ -118,13 +121,18 @@ __version__ = "2.8.0"  # Hollingham (2026) — 2026-11-23 (T-162, Martin: "lets 
 #     rather than remembered.
 
 import json
+import os
 import re
 import subprocess
 import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+# 2.9.0 (T-168): HERE is where this file lives; REPO is the tree it reads and WRITES. They differ only under
+# NRG_REPO_ROOT, as in doc_lock, so a test can point the archiver at a temp tree instead of the live note
+# (2026-11-06: four --write passes of a T-162 test landed in the real HANDOVER_NOTE). Imports follow HERE.
+HERE = Path(__file__).resolve().parent.parent
+REPO = Path(os.environ.get("NRG_REPO_ROOT") or HERE).resolve()
 PRIVATE_GIT = REPO / ".git-working"
 UPDATES = REPO / "working" / "updates"
 REGISTER = UPDATES / "NRG_WORK_REGISTER.md"
@@ -156,7 +164,8 @@ CHANGELOGS = REPO / "working" / "changelogs"
 NOTE_LONG_ENTRY = 40         # per dated entry in HANDOVER_NOTE.md — advisory
 NOTE_KEEP_ENTRIES = 6        # --write never archives below this many dated entries
 NOTE_ARCHIVE_MARGIN = 30     # lines under the budget that an archive pass aims for
-TIER0_PROSE_BUDGET = 650     # lines, excluding the one-line-per-decision index (D-080, D-307)
+TIER0_PROSE_BUDGET = 600     # lines, excluding the one-line-per-decision index and fenced status (D-080, D-307;
+#   back from 650 in 2.9.0, T-140: the fences D-307 raised it for are no longer counted; measured 516 that day)
 # 650 since 2026-11-05 (D-307, Martin's call), from 600 under D-150 and 250 under D-080.
 # Raised because the budget is measured with the HANDOFF's repository-status fences in it:
 # the same tree measured 625 with 39 files uncommitted and about 577 once they were committed,
@@ -190,7 +199,7 @@ _SELF_PUBLISHED_FALLBACK = ("working/DOCUMENT_LOCK.json", "working/claim_overrid
 def self_published_records() -> tuple[str, ...]:
     """The records doc_lock commits and pushes on its own (D-314), from doc_lock itself."""
     try:
-        sys.path.insert(0, str(REPO / "tools"))
+        sys.path.insert(0, str(HERE / "tools"))
         import doc_lock                                 # noqa: E402
         return tuple(doc_lock.SHARED_RECORD_PATHS) + (doc_lock.PUBLISH_OWED,)
     except Exception:
@@ -348,7 +357,7 @@ def _decision_entries():
     # Parse through context_for rather than with a second regex of our own. Two
     # parsers of one format drift, and this repo's characteristic defect is
     # exactly that: a derived artifact outliving agreement with its source.
-    sys.path.insert(0, str(REPO / "tools"))
+    sys.path.insert(0, str(HERE / "tools"))
     from context_for import parse_entries          # noqa: E402
     return parse_entries()
 
@@ -894,7 +903,7 @@ def selftest() -> int:
     # 2.7.0 (J-7): every record that publishes itself is exempt from the staleness detector, and the
     # fallback list has not fallen behind doc_lock's own (a drifted copy is how this went red three times).
     try:
-        sys.path.insert(0, str(REPO / "tools"))
+        sys.path.insert(0, str(HERE / "tools"))
         import doc_lock                                 # noqa: E402
         live = set(doc_lock.SHARED_RECORD_PATHS) | {doc_lock.PUBLISH_OWED}
         if not live <= set(exempt_paths()):

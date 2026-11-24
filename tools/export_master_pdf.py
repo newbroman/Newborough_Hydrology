@@ -62,7 +62,9 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.3.1"  # Hollingham (2026) — 2026-09-06. main() calls
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (T-188). After publishing report.pdf, records its sources'
+#   content fingerprint in docs/PDF_MANIFEST.txt (export_lag.record_master).
+# "1.3.1"  # Hollingham (2026) — 2026-09-06. main() calls
 #   uno_pdf.ensure_uno_interpreter() so `python tools/export_master_pdf.py`
 #   from an active venv re-execs under the system python3-uno instead of
 #   failing (the report.pdf rebuild trap, 2026-09-06).
@@ -298,6 +300,12 @@ def main() -> int:
     shutil.copy2(tmp, target)
     tmp.unlink(missing_ok=True)
     print(f"\n  published {target.relative_to(REPO) if target.is_relative_to(REPO) else target}")
+    # 1.4.0 (T-188): record what it was built from, by content, so export_lag and the ship can tell a stale
+    # report.pdf from a fresh clone's checkout time
+    if target.resolve() == (REPO / "docs/report/report.pdf").resolve():
+        sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+        import datetime as _dt, export_lag                    # noqa: E402
+        print("  manifest: " + export_lag.record_master(_dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")))
     print("  report.pdf is now built, not hand-exported — "
           "tools/export_lag.py's note about File > Export as PDF is retired.")
     return 0

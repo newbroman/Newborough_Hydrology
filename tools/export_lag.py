@@ -45,7 +45,9 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-13 (Script 47 1.9.0). PAGES_ROOT: the Welsh and Polish film pages, mp4s and stills.
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-24 (T-188). report.pdf judged by a content fingerprint of
+#   report.odm and its chapters recorded in docs/PDF_MANIFEST.txt (record_master), not by mtime.
+# "1.2.0"  # Hollingham (2026) — 2026-10-13 (Script 47 1.9.0). PAGES_ROOT: the Welsh and Polish film pages, mp4s and stills.
 # 1.1.1  # Hollingham (2026) — 2026-09-29. PAGES_ROOT still -> 47_04_hindcast_still_2000-12.png (the current wettest-month still; the 2001-02 one was a 25 Sep render).
 # 1.1.0  # Hollingham (2026) — 2026-08-28
 
@@ -62,6 +64,37 @@ BUILD_PDFS = REPO / "tools/build_pdfs.sh"
 # The hand-exported master, which build_pdfs.sh deliberately does not build.
 MASTER = ("docs/report/report.pdf",
           [str(MASTER_ODM.relative_to(REPO)), ODT_GLOB])
+
+# 1.3.0 (T-188): report.pdf's sources are unversioned, so their mtimes were all there was, and a fresh clone
+# stamps the PDF newer than every chapter: a stale report.pdf read as current (2026-11-08, behind report9's
+# D-316 edits). export_master_pdf now records a CONTENT fingerprint of report.odm and every chapter in the
+# manifest line it writes; this tool compares that, and falls back to mtimes only when no line exists.
+MASTER_TAG = "report.odm+chapters"
+
+
+def master_sources() -> list:
+    """report.odm and every chapter ODT, in a fixed order (the fingerprint's inputs)."""
+    return [MASTER_ODM] + sorted(p for p in REPO.glob(ODT_GLOB) if p.resolve() != MASTER_ODM.resolve())
+
+
+def master_fingerprint() -> str:
+    import hashlib
+    h = hashlib.sha256()
+    for p in master_sources():
+        h.update(str(p.relative_to(REPO)).encode("utf-8") + b"\0")
+        h.update(p.read_bytes())
+    return f"{MASTER_TAG} sha256:{h.hexdigest()[:16]}"
+
+
+def record_master(when_utc: str) -> str:
+    """Write or replace report.pdf's manifest line with the current fingerprint; returns the line."""
+    line = f"{MASTER[0]}  <-  {master_fingerprint()}  |  {when_utc}"
+    rows = MANIFEST.read_text(encoding="utf8").splitlines() if MANIFEST.exists() else ["# published PDF  <-  source ODT  |  built (UTC)"]
+    rows = [r for r in rows if not r.startswith(MASTER[0] + " ")]
+    head, body = rows[:1], rows[1:] + [line]
+    MANIFEST.write_text("\n".join(head + sorted(body, key=str.lower)) + "\n", encoding="utf8")
+    return line
+
 
 # build_pdfs.sh already records which ODT VERSION each PDF was built from, which
 # is a better signal than a modification time and the reason this tool reads it.
@@ -180,7 +213,20 @@ def run(strict: bool, only: str | None = None) -> int:
             print(f"           live source is {live.name}")
             continue
 
-        # Unversioned sources, and the hand-exported master: mtime is all there is.
+        # 1.3.0 (T-188): the master's content fingerprint, when export_master_pdf recorded one.
+        if pdf_rel == MASTER[0] and recorded and recorded.startswith(MASTER_TAG):
+            now = master_fingerprint()
+            if recorded != now:
+                lagging += 1
+                stale.append(pdf_rel)
+                print(f"\n  STALE    {pdf_rel}   (by content: a source changed since it was built)")
+                print(f"           built from {recorded}")
+                print(f"           sources now {now}")
+            else:
+                print(f"  current  {pdf_rel}  <-  {recorded}")
+            continue
+
+        # Unversioned sources with no recorded fingerprint: mtime is all there is.
         pt = pdf.stat().st_mtime
         ahead = [s for s in srcs if s.stat().st_mtime > pt]
         if ahead:

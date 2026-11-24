@@ -42,6 +42,14 @@
 + docs/media_store/**
 + **/*.media.json
 
+# --- the published Water Watch newsletters and their index (T-170, 2026-11-24). They were in no
+# --- Drive archive: this filter was ODT-only (measured 2026-11-07; an interim copy went to
+# --- gdrivefile:NRG_water_watch/ by hand). They are committed in water_watch/, so local and Drive
+# --- are the same bytes on every machine, and since T-171 the manifest check no longer trips on
+# --- files the ship moves. Each month's issue now goes up with the archive that ships it.
++ water_watch/Newborough_Water_Watch_*.pdf
++ water_watch/index.html
+
 # --- everything else stays out. Without this catch-all rclone would upload the
 # --- entire repository, which is already in git twice over.
 - **

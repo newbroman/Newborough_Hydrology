@@ -36,7 +36,9 @@ one file, which is the narrowest thing that can still be called publication.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-08. First cut: mint from origin, publish
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (T-201). add() writes its one row through register_io
+#   (read_rows/write_rows under the lock) instead of rewriting the file; a same-moment duplicate id is kept and
+#   reported, never resolved by dropping a row. 1.0.0 — 2026-11-08. First cut: mint from origin, publish
 #   the row alone, and gate a local id that disagrees with origin's.
 
 import argparse
@@ -160,15 +162,30 @@ def publish(message: str, repo: pathlib.Path | None = None) -> tuple[bool, str]:
 
 
 def add(args) -> int:
+    """Mint the next id and write ONE row through register_io (T-201).
+
+    The whole-file rewrite this replaced lost another chat's row on 2026-11-11 (T-199). read_rows/write_rows
+    re-read the file under a short exclusive lock and apply only this row, so a row another chat added
+    between the read and the write survives. key_cols is NOT passed: with it a clash would keep this row
+    and drop theirs, which is the loss itself. If another chat minted the same id at the same moment, both
+    rows are kept and this says so, loudly, for a person to renumber one."""
+    sys.path.insert(0, str(REPO / "tools"))
+    import register_io                                  # noqa: E402
     tid, how = next_id(repo=None)
-    hdr, rows = read_local()
-    row = [tid, args.subject, args.source, args.check_cmd, args.expect, args.opened or "",
-           args.claim or "", args.note or ""]
-    row = (row + [""] * len(hdr))[:len(hdr)]
-    with REGISTER.open("w", encoding="utf8", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(hdr)
-        w.writerows(rows + [row])
+    disk = register_io.read_rows(REGISTER)
+    hdr = list(disk[0].keys()) if disk else read_local()[0]
+    if any(r.get("id") == tid for r in disk):
+        print(f"  REFUSED  {tid} is already in the register on disk (a row written since the mint); run again")
+        return 1
+    vals = [tid, args.subject, args.source, args.check_cmd, args.expect, args.opened or "",
+            args.claim or "", args.note or ""]
+    row = dict(zip(hdr, (vals + [""] * len(hdr))[:len(hdr)]))
+    register_io.write_rows(REGISTER, hdr, disk + [row])
+    after = [r.get("id") for r in register_io.read_rows(REGISTER)]
+    if after.count(tid) > 1:
+        print(f"  WARNING  {tid} now appears {after.count(tid)} times: another chat minted it at the same moment. "
+              f"Both rows are kept; renumber one before publishing.")
+        return 1
     ok, why = publish(f"task register: {tid} minted by chat "
                       f"{os.environ.get('NRG_CHAT', '(unnamed)')!r}", repo=None)
     print(f"  {tid}  ({how})")

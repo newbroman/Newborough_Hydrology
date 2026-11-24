@@ -91,7 +91,10 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-23 (J-32). ALIASES: doc:PaperC covers PaperC and PaperC_SI.
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-24 (T-200, D-324). AREAS gains "ship", the right to push; and the
+#   stale second `__version__ = "1.5.1"` assignment below, which overrode this line so the module reported 1.5.1 since
+#   1.6.0, is now a comment like the other history lines.
+# 1.8.0  # Hollingham (2026) - 2026-11-23 (J-32). ALIASES: doc:PaperC covers PaperC and PaperC_SI.
 # 1.7.2  # Hollingham (2026) — 2026-11-11 (J-14 follow-up). session_mode() returns
 #   "cloud" in a Claude cloud session (CLAUDE_CODE_REMOTE=true) instead of "laptop": .git/nrg_machine
 #   holds whichever machine last ran doc_lock, so the "laptop" test matched every container.
@@ -113,7 +116,7 @@ __version__ = "1.8.0"  # Hollingham (2026) - 2026-11-23 (J-32). ALIASES: doc:Pap
 #   and says LOCAL ONLY. Off under NRG_NO_LOCK_PUSH=1 and where there is no remote, so --selftest's
 #   temp trees cannot reach the real repository. The `touched` refresh is NOT published, or every
 #   claim-gate pass would push.
-__version__ = "1.5.1"  # Hollingham (2026) — 2026-11-06 (T-155). _run() strips NRG_DOC_LOCK_HOLDER and
+# 1.5.1  # Hollingham (2026) — 2026-11-06 (T-155). _run() strips NRG_DOC_LOCK_HOLDER and
 #   NRG_DOC_LOCK_FILE, so the selftest is not decided by a caller's override: cloud_ship.sh exports
 #   NRG_DOC_LOCK_HOLDER="cloud" for the whole run and it reached this selftest through nrg_git.sh --ship
 #   and check_all, failing 8a/8b and so every cloud ship since check_all 1.33.0 gated it (2026-11-04).
@@ -730,7 +733,9 @@ ALIASES = {
     "doc:academic": ("academic_Summary", "crynodeb_academaidd"),
     "doc:web_manuals": ("NRG_Web_Tools_User_Manual", "NRG_Web_Tools_Technical_Note"),
 }
-AREAS = ("pipeline", "tools")
+AREAS = ("pipeline", "tools", "ship")
+# "ship" (1.10.0, T-200, D-324): the right to push. No path maps to it; working/nrg_git.sh push_if_ahead() refuses a
+# chat that does not hold it, and tools/cloud_ship.sh takes it beside the documents lock.
 PIPELINE_PREFIXES = ("src/", "outputs/", "data/")
 PIPELINE_FILES = ("run_analysis.py", "requirements.txt")
 PIPELINE_EXCEPT = ("outputs/chat/",)          # rebuilt by every ship (build_chat_corpus): derived

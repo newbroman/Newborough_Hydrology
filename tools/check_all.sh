@@ -18,6 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.43.0 - 2026-11-24   one run per tree (T-146): scratch/check_all.lock refuses a second concurrent
+#                               run and names the holding chat; the summary JSON records NRG_CHAT as "chat".
+#                               decision_register --check joins task_register's (T-187): one D-number, one title.
+#                               version_header_lint (T-143): this header agrees with its own changelog.
 # VERSION 1.42.0 - 2026-11-21   chat_links joins the chats section (Martin: "I need to archive chats
 #                               that are complete. I can't tell which chat I should go back to").
 #                               Its SELFTEST gates; its --check fails on a link that is not a URL -
@@ -239,6 +243,41 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
+# ── one run at a time per tree (1.43.0, T-146) ──────────────────────────────────────────────────────
+# Two chats running this over one tree at once (D-301) overwrote each other's scratch/check_all_summary.json,
+# so each read the other's verdict; measured 2026-11-05 ('rule audit' and 'Script 55'). A second run now
+# REFUSES, naming the holder. The lock records pid, host, NRG_CHAT and start; it is taken over, with a note,
+# when its process is gone (same host) or it is older than two hours (another host, e.g. a dead bridge VM).
+# Created with noclobber, so two starts cannot both take it. The mount refuses unlink (CLAUDE.md 4), so a
+# lock that cannot be removed is moved aside with the usual unique suffix. NRG_CHECK_ALL_NOLOCK=1 skips it
+# (a nested or test run that knows what it is doing).
+CHECK_LOCK="scratch/check_all.lock"
+_ca_release() {
+    [ "${_CA_LOCKED:-0}" = "1" ] || return 0
+    rm -f "$CHECK_LOCK" 2>/dev/null || { mkdir -p _to_delete/locks; mv "$CHECK_LOCK" "_to_delete/locks/check_all.lock.stale.$$" 2>/dev/null; }
+}
+if [ "${NRG_CHECK_ALL_NOLOCK:-0}" != "1" ] && [ "${1:-}" != "--fast" ] && [ "${1:-}" != "--docs" ]; then
+    mkdir -p scratch
+    if [ -f "$CHECK_LOCK" ]; then
+        read -r _lpid _lhost _lstart _lchat < "$CHECK_LOCK" 2>/dev/null || true
+        _age=$(( $(date +%s) - ${_lstart:-0} ))
+        if { [ "${_lhost:-}" = "$(hostname)" ] && ! kill -0 "${_lpid:-0}" 2>/dev/null; } || [ "$_age" -gt 7200 ]; then
+            echo "  check_all: a stale lock (pid ${_lpid:-?} on ${_lhost:-?}, chat '${_lchat:-?}', ${_age}s old) is taken over"
+            mkdir -p _to_delete/locks; mv "$CHECK_LOCK" "_to_delete/locks/check_all.lock.stale.$$" 2>/dev/null || rm -f "$CHECK_LOCK"
+        else
+            echo "check_all: REFUSED — another run holds the tree: chat '${_lchat:-?}', pid ${_lpid:-?} on ${_lhost:-?}, started ${_age}s ago."
+            echo "  Its verdict and yours would overwrite one summary (T-146). Wait for it, then run again."
+            exit 3
+        fi
+    fi
+    if ( set -o noclobber; printf '%s %s %s %s\n' "$$" "$(hostname)" "$(date +%s)" "${NRG_CHAT:-unnamed}" > "$CHECK_LOCK" ) 2>/dev/null; then
+        _CA_LOCKED=1; trap _ca_release EXIT
+    else
+        echo "check_all: REFUSED — another run took the lock at the same moment; run again."
+        exit 3
+    fi
+fi
+
 FIX=0
 [ "${1:-}" = "--fix" ] && FIX=1
 rc=0
@@ -298,6 +337,7 @@ for line in tsv.read_text(encoding="utf-8").splitlines():
 out.write_text(json.dumps({
     "generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "host": platform.node(),
+    "chat": __import__("os").environ.get("NRG_CHAT", ""),   # 1.43.0 (T-146): whose run this verdict is
     "verdict": "OK" if total == "0" else "FAIL",
     "sections": secs,
     "counts": {"sections": len(secs),
@@ -809,6 +849,13 @@ python3 tools/register_lint.py || rc=1
 # unreachable rather than guessing agreement.
 python3 tools/task_register.py --selftest >/dev/null || { echo "  task_register --selftest: FAIL"; rc=1; }
 python3 tools/task_register.py --check || rc=1
+# The same question for D-numbers (T-187): D-318 was written twice on 2026-11-08. Fails on a D-number
+# repeated in one log or carrying a different title here and on the private origin.
+python3 tools/decision_register.py --selftest >/dev/null || { echo "  decision_register --selftest: FAIL"; rc=1; }
+python3 tools/decision_register.py --check || rc=1
+# This file's own # VERSION header against its changelog (T-143): written in one place only twice.
+python3 tools/version_header_lint.py --selftest >/dev/null || { echo "  version_header_lint --selftest: FAIL"; rc=1; }
+python3 tools/version_header_lint.py || rc=1
 
 section "── inequality claims (is every \"p < x\" still true of its value?) ──"
 # The proof-copy refresh that headed this section until 1.41.0 (J-12, T-196) now runs in the HQ

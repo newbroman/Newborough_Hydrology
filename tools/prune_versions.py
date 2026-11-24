@@ -21,8 +21,12 @@ archive/ is gitignored (not public) and excluded from the Drive upload filter, b
 every version was uploaded to Drive while it was still in docs/ (`rclone copy` never deletes,
 so Drive keeps every version ever archived). The ship runs this only AFTER a successful
 Drive archive (nrg_git.sh 1.25.0). As a second guard, a backup newer than the last Drive
-archive (`.last_drive_archive`) is never moved or removed: it stays where it is, reported,
-until the next archive has uploaded it.
+archive is never moved or removed: it stays where it is, reported, until the next archive has
+uploaded it. 1.3.0 (T-205, D-328): "on Drive" means its MD5 is the one working/DRIVE_MANIFEST.json
+records for its docs/ path, which every archive writes (nrg_git.sh 1.26.0). It used to mean "older
+than the .last_drive_archive marker", and an mtime says nothing once a checkout, a copy or a pull has
+rewritten it; these files are in no repository, so a wrong delete leaves a document that exists
+nowhere. No readable manifest means nothing is moved or removed.
 
 Pre-edit snapshots (`..._v2_0_4.pre-tablegen-2026-09-19.odt`) are not versions of the family
 and are left alone.
@@ -44,7 +48,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-10-02. Default --keep 10 backups (Martin: "lets
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-24 (T-205, D-328). A version is moved or removed
+#   only when its MD5 matches working/DRIVE_MANIFEST.json for its docs/ path; the mtime marker is retired.
+# "1.2.1"  # Hollingham (2026) — 2026-10-02. Default --keep 10 backups (Martin: "lets
 #   keep it at 10 versions"; D-151 third note).
 # 1.2.0  # Hollingham (2026) — 2026-10-02. docs/ keeps only the newest version;
 #   older versions MOVE to archive/<path below docs/> (gitignored, not on Drive's upload
@@ -70,7 +76,32 @@ import odt_media  # noqa: E402
 STORE = REPO / "docs" / "media_store"
 ARCHIVE = REPO / "archive"
 DOCS = REPO / "docs"
-MARKER = REPO / ".last_drive_archive"
+DRIVE_MANIFEST = REPO / "working" / "DRIVE_MANIFEST.json"
+
+
+def drive_md5s() -> dict[str, str] | None:
+    """docs-path -> MD5 Drive holds, from the last archive's manifest; None if unreadable."""
+    try:
+        files = json.loads(DRIVE_MANIFEST.read_text(encoding="utf-8")).get("files") or {}
+    except (OSError, ValueError):
+        return None
+    return files or None
+
+
+def docs_key(f: Path) -> str:
+    """The manifest key for a document in docs/ or its backup in archive/ (archive/X <- docs/X)."""
+    r = f.resolve()
+    return ("docs/" + str(r.relative_to(ARCHIVE.resolve()))) if r.is_relative_to(ARCHIVE.resolve()) \
+        else str(r.relative_to(REPO.resolve()))
+
+
+def _md5(f: Path) -> str:
+    import hashlib
+    h = hashlib.md5()
+    with open(f, "rb") as fh:
+        for b in iter(lambda: fh.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
 
 
 def _name_rx(pattern: str) -> re.Pattern:
@@ -172,14 +203,18 @@ def main(argv: list[str]) -> int:
             print("            of a broken store removes the evidence of what broke.")
             return 1
 
-    marker = MARKER.stat().st_mtime if MARKER.is_file() else None
+    drive = drive_md5s()
+    if drive is None:
+        print(f"  note: no readable {DRIVE_MANIFEST.relative_to(REPO)} - nothing can be shown to be on Drive,"
+              " so nothing will be moved or removed")
     n_move = n_rm = n_held = n_stay = 0
     mb_rm = 0.0
     for pattern, newest, move, remove in plan(a.keep, a.only):
         fam = pattern.split("/")[-1]
         # Not yet on Drive -> neither moved (archive/ is outside the upload filter, so a
         # version moved before its first upload would never reach Drive) nor removed.
-        unsafe = lambda f: f.is_file() and (marker is None or f.stat().st_mtime > marker)
+        # 1.3.0: by content against the manifest, never by mtime (D-328)
+        unsafe = lambda f: f.is_file() and (drive is None or drive.get(docs_key(f)) != _md5(f))
         stay = [f for f in move if unsafe(f)]
         move = [f for f in move if f not in stay]
         held = [r for r in remove if unsafe(r)]
@@ -194,10 +229,10 @@ def main(argv: list[str]) -> int:
             print(f"            remove {len(remove)} old backup(s), {size:.1f} MB (on Drive): "
                   + ", ".join(r.name for r in remove))
         if stay:
-            print(f"            LEAVE {len(stay)} in docs/ until the next Drive archive: "
+            print(f"            LEAVE {len(stay)} in docs/ until the next Drive archive (not in the manifest as this content): "
                   + ", ".join(f.name for f in stay))
         if held:
-            print(f"            KEEP {len(held)} newer than the last Drive archive: "
+            print(f"            KEEP {len(held)} not on Drive as this content: "
                   + ", ".join(r.name for r in held))
         n_move += len(move); n_rm += len(remove); n_held += len(held); n_stay += len(stay)
         mb_rm += size

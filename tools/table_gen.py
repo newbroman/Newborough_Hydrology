@@ -54,7 +54,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
+__version__ = "1.15.1"  # Hollingham (2026) — 2026-11-24 (2026-11-24j audit). A header cell's paragraphs are found
+#   with a pattern that refuses a self-closing <text:p/>: the old one let an empty paragraph's "body" run into the
+#   next. Here it was harmless (the joined text came out the same); the same pattern deleted two report9 headings in
+#   the J-16 builds that day. Behaviour unchanged: table_gen --check, 68 tables, identical.
+# 1.15.0  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
 #   SKIP when they are absent by design, FAIL on zero subjects.
 # "1.14.1"  # Hollingham (2026) - 2026-11-22 (2026-11-22f). A "{x:,.1f}" template no longer fails the negative-zero test on its thousands separator
 #   for the excluded rows (Paper 1 Tables 2-3 print C4's drainage by difference, marked; Martin). A string "else" is unchanged.
@@ -496,7 +500,7 @@ def read_cells(xml: str, start: int, end: int):
                 # Offsets -1 mark it as never-written, as an empty <text:p/> is.
                 txt = " ".join(
                     t for t in (TAGS.sub("", m.group(1)).strip()
-                                for m in re.finditer(r"<text:p\b[^>]*>(.*?)</text:p>",
+                                for m in re.finditer(r"<text:p\b[^>]*?(?<!/)>(.*?)</text:p>",
                                                      inner, re.S)) if t)
                 cells.append((-1, -1, txt, [], value))
                 continue

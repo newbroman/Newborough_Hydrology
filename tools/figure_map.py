@@ -38,7 +38,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026); 2026-09-07 caption source column.
+__version__ = "1.1.1"  # Hollingham (2026); 2026-09-07 caption source column. 1.1.1 (2026-11-24): _CAP no longer opens on a self-closing <text:p/>.
 
 import argparse
 import collections
@@ -58,7 +58,7 @@ _TAG = re.compile(r"<[^>]+>")
 _H = re.compile(r'<text:h\b([^>]*)>(.*?)</text:h>', re.S)
 _LEVEL = re.compile(r'text:outline-level="(\d+)"')
 _SEQ = re.compile(r'<text:sequence[^>]*text:name="Figure"[^>]*>([^<]*)</text:sequence>')
-_CAP = re.compile(r'<text:p[^>]*>((?:(?!</text:p>).)*)</text:p>', re.S)
+_CAP = re.compile(r'<text:p\b[^>]*?(?<!/)>((?:(?!</text:p>).)*)</text:p>', re.S)
 
 
 def _clean(s: str) -> str:

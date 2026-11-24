@@ -70,7 +70,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-17 (T-213). --skip FILE leaves a STALE picture as it is, for a figure whose
+__version__ = "1.1.1"  # 2026-11-24 (2026-11-24j audit). The caption search refuses a self-closing <text:p/>, so an
+#   empty paragraph before a heading can no longer swallow the heading the search is meant to stop at. Measured: the
+#   old and new patterns pair every figure identically across all 11 paper documents (the heading's own text stopped
+#   the caption parse), so no past re-embed was affected.
+# 1.1.0  # 2026-11-17 (T-213). --skip FILE leaves a STALE picture as it is, for a figure whose
 #   caption still describes the old output and changes with its text (Paper 1's half-life map waits for T-110).
 __version_prev__ = "1.0.0"  # 2026-10-07 (Claude). First issue. Extends reembed_figures to the
 #   papers, as Martin approved: the PAPER1_FIGURES.md and PAPER2_FIGURES.md tables are the map, pictures are paired
@@ -220,7 +224,7 @@ def pair_images(xml: str) -> list[dict]:
         tb_open = xml.rfind("<draw:text-box", 0, pos)
         if tb_open != -1 and xml.rfind("</draw:text-box>", tb_open, pos) == -1:
             tb_close = xml.find("</draw:text-box>", pos)
-            for p in re.finditer(r"<text:p\b[^>]*>(.*?)</text:p>", xml[tb_open:tb_close], re.S):
+            for p in re.finditer(r"<text:p\b[^>]*?(?<!/)>(.*?)</text:p>", xml[tb_open:tb_close], re.S):
                 fig = _caption_number(_plain(p.group(1)))
                 if fig is not None:
                     break
@@ -231,7 +235,7 @@ def pair_images(xml: str) -> list[dict]:
             fig = _caption_number(_plain(xml[xml.find(">", p_open) + 1:p_close]))
         # 3. the first caption paragraph after it, stopping at a heading
         if fig is None and p_close != -1:
-            for blk in re.finditer(r"<text:(p|h)\b[^>]*>(.*?)</text:\1>",
+            for blk in re.finditer(r"<text:(p|h)\b[^>]*?(?<!/)>(.*?)</text:\1>",
                                    xml[p_close:p_close + 60000], re.S):
                 if blk.group(1) == "h":
                     break

@@ -59,7 +59,7 @@
 |  | Paper 1 | Figure 13 | β₃ drainage-rate surface |
 | `08_cluster_nse_medians.csv` | report9.odt | Table 1.16 | Iterative NSE by cluster, traditional linear model (TLM) against the state-space |
 | `08_lcsc_01_ceh6_showdown.png` | report9.odt | Figure 17 | Figure 1.13: Dual-model performance comparison at Lake Edge well CEH6. Upper pan |
-| `08_lcsc_02_r2_improvement_map.png` | report9.odt | Figure 18 | Figure 1.14a: SSM gain over TLM across all 66 reference wells. Iterative R² impr |
+| `08_lcsc_02_r2_improvement_map.png` | report9.odt | Figure 18 | Figure 1.14a: SSM gain over TLM across the 64 benchmark wells. Iterative R² impr |
 | `08_lcsc_04_table3_benchmark_summary.csv` | report9.odt | Table 1.15 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
 | `08_lcsc_05_nse_gain_atlas.png` | Paper 1 | Figure 10 | SSM-over-TLM iterative NSE gain, atlas style (2026-11-22) |
 | `08_lcsc_model_stats.csv` | report9.odt | Table 1.15 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
@@ -133,11 +133,11 @@
 |  | report9.odt | Table 1.10 | Indicative annual volumetric water balance by cluster, 2005–2026. At steady stat |
 | `17_wtf_01_sy_estimates.csv` | Paper 1 | Table 4 | Specific yield by cluster, WTF method — event-median (Approach B) |
 |  | report9.odt | Table 1.11 | Apparent storage coefficient (Sₐ) estimates by hydrogeological cluster derived f |
-| `17_wtf_03_event_boxplot.png` | report9.odt | Figure 12 | Figure 1.9: Distribution of event-level specific yield (Sy) from monthly rising- |
+| `17_wtf_03_event_boxplot.png` | report9.odt | Figure 12 | Figure 1.9: Distribution of event-level apparent storage coefficient (Sₐ) from m |
 | `18_wtf_01_well_sy_estimates.csv` | Paper 1 | Figure 9 | Interception-corrected WTF specific-yield surface |
 | `18_wtf_02_spatial_sy_map.png` | Paper 1 | Figure 9 | Interception-corrected WTF specific-yield surface |
-| `18_wtf_04_sy_contour_extended.png` | report9.odt | Figure 13 | Figure 1.10: Interpolated WTF specific yield surface for the combined reference |
-| `18_wtf_05_halflife_map.png` | report9.odt | Figure 55 | Figure 1.51: Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the net |
+| `18_wtf_04_sy_contour_extended.png` | report9.odt | Figure 13 | Figure 1.10: Interpolated WTF Sₐ surface for the combined reference and extended |
+| `18_wtf_05_halflife_map.png` | report9.odt | Figure 55 | Figure 1.51: Model B drainage decay half-life (t½ = ln(2)/β₃, months) across the |
 | `18_wtf_05_storage_drainage_index.csv` | Paper 1 | Figure 14 | Mean-reversion time 1/β₃ under Model B, atlas style, C4 marked (2026-11-22) |
 | `18_wtf_06_mean_reversion_atlas.png` | Paper 1 | Figure 14 | Mean-reversion time 1/β₃ under Model B, atlas style, C4 marked (2026-11-22) |
 | `20_clearfell_baseline_drawdown.png` | report9.odt | Figure 68 | Figure 1.64: Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2 |

@@ -36,7 +36,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-19.
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-09-19. 1.0.1 (2026-11-24): PARA no longer opens on a self-closing <text:p/>.
 
 import argparse
 import pathlib
@@ -50,7 +50,7 @@ import odt_edit                                            # noqa: E402
 ZWSP = "​"
 REPO = pathlib.Path(__file__).resolve().parent.parent
 CELL = re.compile(r"<table:table-cell\b.*?</table:table-cell>", re.S)
-PARA = re.compile(r"(<text:p\b[^>]*>)(.*?)(</text:p>)", re.S)
+PARA = re.compile(r"(<text:p\b[^>]*?(?<!/)>)(.*?)(</text:p>)", re.S)
 
 
 def header_rows(xml: str):

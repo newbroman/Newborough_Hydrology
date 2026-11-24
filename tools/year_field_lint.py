@@ -6,7 +6,9 @@ WHY
   (Martin, 2026-11-24: "by the time I publish all these docs will be dated 2027"). src/utils/publication.py holds
   one year per work; tools/number_fields.csv binds each citation to it, so a change of year is one edit and
   `field_sync --write`. This gate stops the typed form from regrowing: every live document's count of BARE
-  self-citation years (a year after "Hollingham", or a byline year, outside any field) may not exceed its frozen
+  self-citation years (a year after "Hollingham" in a reference or citation, outside any field; Martin 2026-11-24:
+  "only … 2026 in references with Hollingham, written before hand", and "the two by lines will need updating too";
+  never the record's dates) may not exceed its frozen
   inventory, `tools/year_field_inventory.csv`. The held documents (Paper 1 and Paper C families, 2026-11-24) carry
   their counts there until they are bound; a count that FALLS is reported so the inventory can be lowered.
 
@@ -20,7 +22,10 @@ WHY
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-24. New (D-341 draft).
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-24. Martin: "we should only be changing 2026 in references with
+#   Hollingham, written before hand" and "the two by lines will need updating too": a year after "Hollingham" in a
+#   reference or citation, and the year under "M. Hollingham" in a byline, count; a record date ("by early 2026") never.
+# 1.0.0  # Hollingham (2026) — 2026-11-24. New (D-341 draft).
 
 import argparse
 import csv
@@ -97,8 +102,10 @@ def selftest() -> int:
     check("a field does not count", bare_years(p(f"as shown (Hollingham, {f}d).")) == 0)
     check("another author's year does not count", bare_years(p("tide levels (UKHO, 2026).")) == 0)
     check("a date does not count", bare_years(p("Added 2026-07-18; Hollingham 2026-08-01 note")) == 0)
-    check("a byline year after M. Hollingham counts", bare_years(p("M. Hollingham") + p("2026")) == 1)
+    check("a byline year under M. Hollingham counts", bare_years(p("M. Hollingham") + p("2026")) == 1)
+    check("a draft byline under M. Hollingham counts", bare_years(p("M. Hollingham") + p("Draft — 2026")) == 1)
     check("a byline field does not count", bare_years(p("M. Hollingham") + p(f)) == 0)
+    check("a record date does not count", bare_years(p("by early 2026 the CUSUM")) == 0)
     check("a lone year elsewhere does not count", bare_years(p("Results") + p("2026")) == 0)
     check("the report issue line counts", bare_years(p("Aquifer, Wales. Technical report, October 2026. https://x")) == 1)
     print("year_field_lint selftest:", "OK" if ok else "FAIL")

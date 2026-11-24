@@ -202,7 +202,9 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.31.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 is the suite 50a-50e: five Step rows in
+__version__ = "2.32.0"  # Hollingham (2026) - 2026-11-24 (Fable review). After each successful step, record the code
+#   that ran (tools/code_signature.py -> outputs/pipeline_code_signatures.json); output_lag 1.2.0 judges by it.
+# "2.31.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 is the suite 50a-50e: five Step rows in
 #   Phase 19 in place of one (all tier X, opt-in, Martin 2026-11-24). _DOCUMENTED_COUNTS: total_registered 64 -> 68,
 #   by_tier.optin_diagnostic 12 -> 16, by_exec.optin 8 -> 12; total_phases unchanged (22).
 # "2.30.0"  # Hollingham (2026) - 2026-11-05. Phase 22: Script 55, the water-balance residual
@@ -1496,6 +1498,13 @@ def run_script(script_name: str, label: str, extra_args: list = None) -> None:
                 "fallbacks": [{"key": f.get("key"), "source": f.get("source"),
                                "script": f.get("script")} for f in fallbacks],
             })
+            # 2.32.0: the code that ran, so output_lag judges staleness by code rather than clocks (Fable review)
+            try:
+                sys.path.insert(0, str(ROOT_DIR / "tools"))
+                import code_signature
+                code_signature.record([script_name])
+            except Exception as exc:                # noqa: BLE001 - never block a run
+                say_warn(f"code signature not recorded for {script_name}: {exc}")
             note = f"  provenance: {len(inputs)} input(s) hashed, {len(emitted)} file(s) emitted"
             if fallbacks:
                 note += paint(f", {len(fallbacks)} FALLBACK(s) served", _Ansi.YELLOW)

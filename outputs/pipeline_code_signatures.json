@@ -1,0 +1,1122 @@
+{
+ "scripts": {
+  "00_climate_summary.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.19.0 run at 2026-11-24T00:12:59",
+   "sig": "788ea3d1fcb54db5",
+   "utils": {
+    "utils/config.py": "0403c8a6a39d4399",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "e181119c6643f1ac",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "01_data_prep.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.30.0 run at 2026-11-23T23:52:08",
+   "sig": "9a0a7696b98d48c0",
+   "utils": {
+    "utils/buckets.py": "3b07597c66a3bd19",
+    "utils/clearfell_common.py": "fbc2680c9528ba44",
+    "utils/comment_states.py": "0d288d5a65f828eb",
+    "utils/config.py": "34f00f131dd2b5db",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "5e0ed9b6cc665530",
+    "utils/paths.py": "3e9b701e6a96d462",
+    "utils/pipeline_params.py": "4c4423bdb5432727",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/site_observations.py": "7b816c89e7e04def"
+   }
+  },
+  "01b_water_table.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.1 run at 2026-11-23T23:52:32",
+   "sig": "aa94fdb85a09713b",
+   "utils": {
+    "utils/config.py": "d42673dbdf282f40",
+    "utils/console_utils.py": "42b44ca0ed3d3875",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/map_utils.py": "2d790fa4bad38dbe",
+    "utils/paths.py": "c504a665fb34f647",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/water_table.py": "4db649b62cdf3d5d"
+   }
+  },
+  "02_clustering.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.16.0 run at 2026-11-23T23:53:54",
+   "sig": "3337112c248aa484",
+   "utils": {
+    "utils/config.py": "401dc0bc3583b6aa",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/paths.py": "0a718e1f57aef9e7",
+    "utils/pipeline_params.py": "c204c427520c1547",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "03_state_space_model.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.33.0 run at 2026-11-23T23:54:22",
+   "sig": "2c75c5249b109134",
+   "utils": {
+    "utils/config.py": "30f6b10a9525f799",
+    "utils/console_utils.py": "397ca4551f9b01c2",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "eb6b82e81561c97c",
+    "utils/model_utils.py": "be7ff2b2d69be86b",
+    "utils/paths.py": "a35940caadb81ee2",
+    "utils/pipeline_params.py": "fff8454f07ea3cb1",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "04_cluster_visualisations.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.1.1 run at 2026-11-24T00:07:08",
+   "sig": "1c3733d9fdfdbed9",
+   "utils": {
+    "utils/config.py": "0a538d6b2fd0ba81",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "a9808c9be7c319dc",
+    "utils/paths.py": "0fbbffddfa1418d3",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "05_pearson_affinity.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.2 run at 2026-11-24T00:07:27",
+   "sig": "e856aef52bc41539",
+   "utils": {
+    "utils/config.py": "67cb3f7e9379ee83",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "a9808c9be7c319dc",
+    "utils/paths.py": "28037fd01f0ab697",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "06_pearson_extended.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:07:48",
+   "sig": "94f74535d83fb022",
+   "utils": {
+    "utils/config.py": "9e255d8223e1250d",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "193d6a34a43848c0",
+    "utils/paths.py": "ba55497f0b44ecde",
+    "utils/render_utils.py": "13882e71ea6dca25",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "07_spatial_coefficients.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:08:25",
+   "sig": "e9ca7c6af2e99fe0",
+   "utils": {
+    "utils/config.py": "5c1887674969e339",
+    "utils/console_utils.py": "397ca4551f9b01c2",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "efceb7b19a04752a",
+    "utils/paths.py": "840348e7c8ab7212",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "08_model_benchmarking.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.1.0 run at 2026-11-24T00:09:07",
+   "sig": "2d1764fc9e2d7a3d",
+   "utils": {
+    "utils/config.py": "80db80e2da49e800",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "193d6a34a43848c0",
+    "utils/model_utils.py": "17266df517d4195e",
+    "utils/paths.py": "5971cebb1cbe8b35",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "09a_paired_baci.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "sig": "ed6082e108d7dfca",
+   "utils": {
+    "utils/config.py": "2168b961579f0f9d",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "f85cf49251bbfc5d",
+    "utils/paths.py": "c7bd07516f591856",
+    "utils/render_utils.py": "13882e71ea6dca25",
+    "utils/scraping_common.py": "f16a793ed09d1107",
+    "utils/site_observations.py": "4de1de813c0e6312"
+   }
+  },
+  "09b_scraping_propagation.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "sig": "b0d47b557fa16795",
+   "utils": {
+    "utils/clearfell_common.py": "26141fbfa925ebc4",
+    "utils/config.py": "bbc90a4a95d785ae",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/model_utils.py": "7b2fc2c53d3a7340",
+    "utils/paths.py": "d02cbfddf88b57d4",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/scraping_common.py": "ee2894a0b0c6b257"
+   }
+  },
+  "09c_summer_minima.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "sig": "be18ecda9cacefee",
+   "utils": {
+    "utils/clearfell_common.py": "708747a3e869128e",
+    "utils/config.py": "ec32f4da6a05fb02",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "4c007b93c8a4a6ee",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/scraping_common.py": "f49d18b4470cdbfc"
+   }
+  },
+  "09d_scenario_comparison.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "sig": "26cf142f5c3837d4",
+   "utils": {
+    "utils/clearfell_common.py": "d46fea5a0624db2a",
+    "utils/config.py": "95c04c96642488d8",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "e1349ab5551d068a",
+    "utils/pipeline_params.py": "864fd4ee689f0dae",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/scraping_common.py": "24efc1a520b11ba3",
+    "utils/site_observations.py": "cb78f9ae85febcc6"
+   }
+  },
+  "09e_robustness.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "sig": "83d051ecf85f28a0",
+   "utils": {
+    "utils/config.py": "1f74845899956a3f",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "a5f0789174040279",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/scraping_common.py": "fa6ea176f85bed9d"
+   }
+  },
+  "09f_management_effects.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.12.0 run at 2026-11-24T00:23:51",
+   "sig": "a15c10004628bf2b",
+   "utils": {
+    "utils/coastal_utils.py": "16aeaad33a7fd509",
+    "utils/config.py": "b5e197277f886a6a",
+    "utils/console_utils.py": "e4bc0254a119d46e",
+    "utils/paths.py": "c3f21aac8c7e787e",
+    "utils/pipeline_params.py": "864fd4ee689f0dae",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/scraping_common.py": "c6c17f0842c0aeb5",
+    "utils/site_observations.py": "cb78f9ae85febcc6"
+   }
+  },
+  "09g_mechanism_diagrams.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:23:53",
+   "sig": "7d84338892502878",
+   "utils": {
+    "utils/console_utils.py": "c46afb132b492082",
+    "utils/mechanism_fig_utils.py": "7917fd9736b17c17",
+    "utils/paths.py": "06171d5104d098c8"
+   }
+  },
+  "10a_ancova_baci.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "f6e76f75a0108589",
+   "utils": {
+    "utils/clearfell_common.py": "a24b715763de31cd",
+    "utils/config.py": "dae896224aad265b",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "0a6a71e040d29f1a",
+    "utils/paths.py": "a0c74add890847c3",
+    "utils/pipeline_params.py": "864fd4ee689f0dae",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10b_spatial_step_maps.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "903b7971cba2ba79",
+   "utils": {
+    "utils/clearfell_common.py": "d355e2ed663dfe58",
+    "utils/config.py": "888b5c1a2e76c227",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "b472aba11051b209",
+    "utils/map_utils.py": "efceb7b19a04752a",
+    "utils/paths.py": "12a982ca54222599",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10c_forest_zone_analysis.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "05c774ec6e611dfc",
+   "utils": {
+    "utils/config.py": "7ea1ecc8de4e3d24",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/map_utils.py": "95cd9a2b90d0a274",
+    "utils/paths.py": "f0e6ee0ffcedf8ac",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "10d_summer_minima.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "2039fc8b7b169813",
+   "utils": {
+    "utils/clearfell_common.py": "c76e135da3adf280",
+    "utils/config.py": "ed4f336e8f6ed167",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "c3c780f45f5e0067",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10e_coefficient_decomposition.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "5f77e121de573830",
+   "utils": {
+    "utils/clearfell_common.py": "47f252630312ba24",
+    "utils/config.py": "0f73d8a5f229fd13",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "7b2fc2c53d3a7340",
+    "utils/paths.py": "6275abdd13201d89",
+    "utils/pipeline_params.py": "dedff19b2abf667e",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10f_robustness.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "5741e3b3489f4f5c",
+   "utils": {
+    "utils/clearfell_common.py": "55bc1c196a9da226",
+    "utils/config.py": "d335407b717c986a",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "7b2fc2c53d3a7340",
+    "utils/paths.py": "57263adc1ec3d250"
+   }
+  },
+  "10g_diagnostics.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "6a8ad55c4404d385",
+   "utils": {
+    "utils/clearfell_common.py": "8733e8638f4500c4",
+    "utils/config.py": "1f74845899956a3f",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "0a6a71e040d29f1a",
+    "utils/paths.py": "27a03c7b08da4079",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10h_synthetic_impact_baci.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "bc48a1fc50ab4727",
+   "utils": {
+    "utils/clearfell_common.py": "aa68bc75a8a051e2",
+    "utils/config.py": "5708e513b39a8233",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "248c683336341fe5",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10i_ceh34_hindcast.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "dcc1c54411eea2ff",
+   "utils": {
+    "utils/clearfell_common.py": "e1a3c3d75dbeaaa3",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "109d0e7f250883e1",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10j_impact_edge_contrast.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "6dbfc33eeccf0a1d",
+   "utils": {
+    "utils/clearfell_common.py": "b988556431ce8953",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "472b4e6f00907634",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/site_observations.py": "4de1de813c0e6312"
+   }
+  },
+  "10k_four_zone_baci.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "f91605dc2ebba1dc",
+   "utils": {
+    "utils/clearfell_common.py": "1c69addf4700e414",
+    "utils/config.py": "7199daf6294f59fc",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "5ef7a96d2d2c71e5",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/site_observations.py": "4de1de813c0e6312"
+   }
+  },
+  "10l_four_zone_summer_minima.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "99252808a43e27c9",
+   "utils": {
+    "utils/clearfell_common.py": "de6aeb1ce00f9bc6",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "c27c8c0d92c42a26",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/site_observations.py": "4de1de813c0e6312"
+   }
+  },
+  "10m_wmc3_baci_dual.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "2277c7f585323511",
+   "utils": {
+    "utils/clearfell_common.py": "dc3148b256697553",
+    "utils/config.py": "607788f1c975229a",
+    "utils/console_utils.py": "42b44ca0ed3d3875",
+    "utils/paths.py": "2add6bcebea08e05",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "10n_synthetic_did.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "0087b53498a2ae0a",
+   "utils": {
+    "utils/clearfell_common.py": "55bc1c196a9da226",
+    "utils/console_utils.py": "23a405869ae4167f",
+    "utils/paths.py": "fac69d997042bc3d"
+   }
+  },
+  "11_forecasting_thresholds.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:11:44",
+   "sig": "c6036ced3f2ac27b",
+   "utils": {
+    "utils/config.py": "ba5349044f048a76",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "92554588a7909ad6",
+    "utils/paths.py": "77a21197dfd0930c",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "11b_spatial_thresholds.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.25.0 run at 2026-11-24T00:11:47",
+   "sig": "73a7de2494ff9b82",
+   "utils": {
+    "utils/config.py": "d6e331d08e3e79e2",
+    "utils/console_utils.py": "397ca4551f9b01c2",
+    "utils/forecaster_engine.py": "6aac53965b0152a9",
+    "utils/map_utils.py": "5df57e8776a449fd",
+    "utils/model_utils.py": "92554588a7909ad6",
+    "utils/paths.py": "ba1f0970d508852f",
+    "utils/render_utils.py": "ef1704b1dbd9339c",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "11c_pflood_achievability.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:12:42",
+   "sig": "355f3ff139a7094e",
+   "utils": {
+    "utils/config.py": "f8458a264ac7fcd6",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/map_utils.py": "5df57e8776a449fd",
+    "utils/paths.py": "2bcb80852802e7dd",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "12_figure_site_overview.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.0 run at 2026-11-24T00:13:11",
+   "sig": "5fef39ae891f5fab",
+   "utils": {
+    "utils/config.py": "6a40786335635ffc",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/map_utils.py": "1c34cb5b8efaf2df",
+    "utils/paths.py": "dcd60db0e590da53",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "13_figure_experimental_design.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:13:39",
+   "sig": "68c8fe28507f4231",
+   "utils": {
+    "utils/clearfell_common.py": "01093b8a8b20bc40",
+    "utils/config.py": "251b2e003b6e23d0",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/map_utils.py": "abad5b6214741b52",
+    "utils/paths.py": "e81193d1ac8ff0a0",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "14_climate_projections.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.14.1 run at 2026-11-24T00:13:08",
+   "sig": "5344022c65339e20",
+   "utils": {
+    "utils/cluster_series.py": "aab7d9a704d803d1",
+    "utils/config.py": "97201c6d30260aab",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "6e9d32233d7064df",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "14b_year_of_crossing.py": {
+   "recorded": "seed: code at 364d77b1, the commit carrying version 3.0.0 run at 2026-11-23T07:36:15",
+   "sig": "06cbdd354ad6235b",
+   "utils": {
+    "utils/config.py": "dd3df71aa540c72e",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "c53f61ef63a7f688",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "15_depth_dependent_pet.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.11.0 run at 2026-11-24T00:14:06",
+   "sig": "d4b0c91025328b4e",
+   "utils": {
+    "utils/config.py": "2c29b91876b8d1a7",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "150ab1f2ccc16b02",
+    "utils/paths.py": "d64bdbcf8f393d34",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "16_water_bal.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.16.0 run at 2026-11-24T00:14:18",
+   "sig": "bbadb50b85bdbc91",
+   "utils": {
+    "utils/config.py": "f1fc42d89fc67352",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "b86dff9ba0ce4eca",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/site_observations.py": "4de1de813c0e6312"
+   }
+  },
+  "17_wtf_specific_yield.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.0 run at 2026-11-24T00:14:14",
+   "sig": "332a95f29dc6a6b3",
+   "utils": {
+    "utils/config.py": "922b3a18af20527e",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "1220d2d3e8400517",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "18_wtf_spatial.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.21.0 run at 2026-11-24T00:14:20",
+   "sig": "0b11874d7618aaab",
+   "utils": {
+    "utils/config.py": "6a49b17d14bbd026",
+    "utils/console_utils.py": "397ca4551f9b01c2",
+    "utils/map_utils.py": "a06798142226b20c",
+    "utils/paths.py": "d14595d334f601c7",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "19_spatial_groundwater.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.38.0 run at 2026-11-24T00:15:41",
+   "sig": "14f11ecee654a9cb",
+   "utils": {
+    "utils/clearfell_common.py": "d46fea5a0624db2a",
+    "utils/config.py": "32e9e883a18bb64f",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/map_utils.py": "906eb4b54b948e9d",
+    "utils/model_utils.py": "57f5c72f49f0df89",
+    "utils/paths.py": "9582a641b6cb478b",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/water_table.py": "bdff58e47dd90628"
+   }
+  },
+  "20_spatial_figures.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.66.1 run at 2026-11-24T00:15:49",
+   "sig": "9f80238b16f562a9",
+   "utils": {
+    "utils/clearfell_common.py": "37b939062bf2400f",
+    "utils/coastal_utils.py": "16aeaad33a7fd509",
+    "utils/config.py": "293ecd2510778b50",
+    "utils/console_utils.py": "3992178ae2d89c4d",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/kriging.py": "c3aff776a7ce69a6",
+    "utils/map_utils.py": "a7824ef8d8fa8341",
+    "utils/paths.py": "3d2427c501bff46c",
+    "utils/pipeline_params.py": "864fd4ee689f0dae",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "21_forestry_scenarios.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.15.0 run at 2026-11-24T00:17:33",
+   "sig": "54ccd11d66ea5a12",
+   "utils": {
+    "utils/clearfell_common.py": "6e0fe852392e4112",
+    "utils/config.py": "bca6b63f5a17248d",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "2f012f32765606de",
+    "utils/paths.py": "8ffff8147196931d",
+    "utils/pipeline_params.py": "67e95b24bded5510",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e",
+    "utils/scraping_common.py": "282133a9dbfc9b42"
+   }
+  },
+  "22_residual_lag_analysis.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:18:31",
+   "sig": "9978628d2ebe4fa7",
+   "utils": {
+    "utils/config.py": "65a2073b0da713ca",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "a5d899e45682d016",
+    "utils/model_utils.py": "c0e673163cf8e76f",
+    "utils/paths.py": "185698da7bb0cf0a",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "23_ridge_recharge_lag_test.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:18:38",
+   "sig": "b8ee94bdee4f6677",
+   "utils": {
+    "utils/config.py": "61287404b955c59e",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "a5d899e45682d016",
+    "utils/paths.py": "4720a1ea08460ffc",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "24_residual_seasonality.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.4.1 run at 2026-11-24T00:18:44",
+   "sig": "03a2e5e5e29c0788",
+   "utils": {
+    "utils/config.py": "20da950615fa24ee",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "193d6a34a43848c0",
+    "utils/model_utils.py": "c0e673163cf8e76f",
+    "utils/paths.py": "2a5773f674256ad4",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "24b_residual_climatology.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:23:06",
+   "sig": "58e9f59699866ebc",
+   "utils": {
+    "utils/config.py": "83ea42d4de56a596",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/paths.py": "5f3614a47da24fa4",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "25_coastal_gradient.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.39.0 run at 2026-11-24T00:17:39",
+   "sig": "362be994622f6e47",
+   "utils": {
+    "utils/clearfell_common.py": "a1c2f40569207913",
+    "utils/config.py": "b1702c7b9d90821e",
+    "utils/console_utils.py": "397ca4551f9b01c2",
+    "utils/paths.py": "8dfc54bda6c6956d",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/scraping_common.py": "f4ed6efb852614f8"
+   }
+  },
+  "26_van_willegen_msl.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.36.0 run at 2026-11-24T00:18:57",
+   "sig": "e99b4e2827465f65",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/cluster_series.py": "22d3579d017bae9e",
+    "utils/community_bands.py": "2b25da4c2004da6f",
+    "utils/config.py": "3f651b49f78658b2",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/map_utils.py": "5df57e8776a449fd",
+    "utils/model_utils.py": "7b2fc2c53d3a7340",
+    "utils/paths.py": "56cfc4cba34ae9e9",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/scraping_common.py": "ebd406687aaf4f5d"
+   }
+  },
+  "26b_van_willegen_msl_projections.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.4.0 run at 2026-11-24T00:19:16",
+   "sig": "cdb29053fdfa0878",
+   "utils": {
+    "utils/config.py": "5f068bbf3fbdeae9",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/model_utils.py": "d7c2cbd2a28b04aa",
+    "utils/paths.py": "455cf2c2448f664b",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "26c_msl5_report_figures.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.1 run at 2026-11-24T00:19:19",
+   "sig": "dd04f7f08fe5f4b5",
+   "utils": {
+    "utils/config.py": "4f7333bf56a84707",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "841b8d84e26e614f",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "28_c3_detrend_check.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.3.0 run at 2026-11-24T00:19:21",
+   "sig": "2381401c01c8b00e",
+   "utils": {
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/paths.py": "91766d4115ace0c6",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "29_c3_within_variance_check.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.11.0 run at 2026-11-24T00:19:27",
+   "sig": "d9347cd2c0bb2ad3",
+   "utils": {
+    "utils/config.py": "bbbf748f9050a9f8",
+    "utils/console_utils.py": "2cc1cbf79808083c",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/paths.py": "6c94073ee32cc45c",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "30_c4_drainage_identifiability.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.9.0 run at 2026-11-24T00:19:29",
+   "sig": "882bf17b0221aca2",
+   "utils": {
+    "utils/config.py": "6d96bed0469d15f7",
+    "utils/console_utils.py": "2d101996d12651b2",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/model_utils.py": "aec9520d48c52436",
+    "utils/paths.py": "e620c6bb300fce6d",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "31_cluster_validation.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.4.2 run at 2026-11-24T00:23:09",
+   "sig": "a47fb0f454259212",
+   "utils": {
+    "utils/config.py": "7e0459f1876bf21f",
+    "utils/console_utils.py": "f617b22f1fb8139e",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "2d790fa4bad38dbe",
+    "utils/paths.py": "ff8e977dee151978",
+    "utils/pipeline_params.py": "71bfba84f86a7e68",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "31b_separation_vs_recoverability.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.3.1 run at 2026-11-24T00:23:19",
+   "sig": "22b1e315461a0335",
+   "utils": {
+    "utils/console_utils.py": "f9d839c0e19a63ee",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/paths.py": "0395b2a6901a4b43",
+    "utils/pipeline_params.py": "c5bae29d3c7465cb",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "32_differential_movement.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.9.0 run at 2026-11-24T00:20:16",
+   "sig": "495e2027d1f5e0b6",
+   "utils": {
+    "utils/config.py": "6de8165992f0bbb8",
+    "utils/console_utils.py": "94a7331582595003",
+    "utils/map_utils.py": "da53367b87e2632b",
+    "utils/paths.py": "2450d24eb61e8177",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "33_envelope_amplification.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.0 run at 2026-11-24T00:20:53",
+   "sig": "8bfb2143360ef99f",
+   "utils": {
+    "utils/config.py": "5d0bb4ab2ee2bd10",
+    "utils/console_utils.py": "94a7331582595003",
+    "utils/envelope_metric.py": "c0d687083dbd3f98",
+    "utils/map_utils.py": "efceb7b19a04752a",
+    "utils/paths.py": "19a45ae3be676543",
+    "utils/pipeline_params.py": "0a0420ea6cabbf05",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "34_window_sensitivity.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 0.8.0 run at 2026-11-24T00:23:22",
+   "sig": "e1489bfc42a76d62",
+   "utils": {
+    "utils/config.py": "dab78203ca74f684",
+    "utils/console_utils.py": "cc843ef21afe1146",
+    "utils/paths.py": "d24672723126f3a3",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "35_per_well_amplification.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.6.0 run at 2026-11-24T00:21:38",
+   "sig": "1112f54ded31d377",
+   "utils": {
+    "utils/config.py": "c47c9c7f92721477",
+    "utils/console_utils.py": "cc843ef21afe1146",
+    "utils/envelope_metric.py": "c0d687083dbd3f98",
+    "utils/map_utils.py": "7893624b966f95b4",
+    "utils/paths.py": "1eeb5a4a79c2c939",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "36_absolute_climate_trend.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.0 run at 2026-11-24T00:21:52",
+   "sig": "8e49a2c96ddf9a59",
+   "utils": {
+    "utils/config.py": "e2d7c615ac00937e",
+    "utils/console_utils.py": "4296ae01456a31a3",
+    "utils/map_utils.py": "efceb7b19a04752a",
+    "utils/paths.py": "fb0b54a1cb66abb4",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "37_driver_validation.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 3.11.0 run at 2026-11-24T00:22:42",
+   "sig": "2114a3a5d2e32e78",
+   "utils": {
+    "utils/clearfell_common.py": "f0f5ee7ad04a45d3",
+    "utils/config.py": "8579d52fe3633fd8",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/map_utils.py": "7893624b966f95b4",
+    "utils/paths.py": "6c63c180895a8e43",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "37b_driver_footing.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.1 run at 2026-11-24T00:22:58",
+   "sig": "db19e984b78a4fb3",
+   "utils": {
+    "utils/config.py": "f9b15bf84badc3bd",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/map_utils.py": "9be750a37a3e0081",
+    "utils/mechanism_fig_utils.py": "8478e7e8a0204a3c",
+    "utils/paths.py": "4d00fcb90312dc48",
+    "utils/pipeline_params.py": "8833b9d075c40f4f",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "38_coastal_transect.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.0 run at 2026-11-24T00:23:25",
+   "sig": "2106b0914c4dc17c",
+   "utils": {
+    "utils/config.py": "bf22e0d268bd3899",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/paths.py": "76c3a575f4db91d4",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "39_ccw_hindcast.py": {
+   "recorded": "seed: code at 714de7a5, the commit carrying version 1.11.0 run at 2026-11-24T00:23:27",
+   "sig": "4651dc3d3c06d2f1",
+   "utils": {
+    "utils/config.py": "8eb136e0c08d673d",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "9ef096091acf7d6e",
+    "utils/model_utils.py": "1d5efc3167204b43",
+    "utils/paths.py": "1598477df06df8ac",
+    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "40_shoreline_retreat.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:23:47",
+   "sig": "6f4a5503bad7b152",
+   "utils": {
+    "utils/config.py": "d6ae2616583c325b",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/map_utils.py": "906eb4b54b948e9d",
+    "utils/paths.py": "6c0edd96207a7e2a",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "41_canopy_cover.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.16.0 run at 2026-11-24T00:23:49",
+   "sig": "e36a108b9a6e2b64",
+   "utils": {
+    "utils/config.py": "a00f3f2ebe1632c9",
+    "utils/console_utils.py": "5173c8a29dad0e37",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/map_utils.py": "906eb4b54b948e9d",
+    "utils/paths.py": "f382069fa1fa6bec",
+    "utils/render_utils.py": "a2081811a4b88dbc"
+   }
+  },
+  "43_ranwell_sites.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.1.0 run at 2026-11-24T00:23:55",
+   "sig": "4954dab6e81d0484",
+   "utils": {
+    "utils/config.py": "55392ab49174ad69",
+    "utils/console_utils.py": "2d101996d12651b2",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/paths.py": "6a550bdcda607875",
+    "utils/render_utils.py": "d0922edf110ab2b2"
+   }
+  },
+  "44_ranwell_hindcast.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.15.0 run at 2026-11-24T00:24:04",
+   "sig": "bb8bb9ab9b5076f9",
+   "utils": {
+    "utils/config.py": "c3259f4fe6a19798",
+    "utils/console_utils.py": "fadc45f84d67f931",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "7148d3709fc28ba8",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/model_utils.py": "c807e9b424176dbe",
+    "utils/paths.py": "5462890fbb994b67",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/water_table.py": "ca32333dc342e2f6"
+   }
+  },
+  "45_wet_area_model.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.6.0 run at 2026-11-24T00:24:19",
+   "sig": "1d8a449b06737ec6",
+   "utils": {
+    "utils/buckets.py": "3b07597c66a3bd19",
+    "utils/config.py": "adf44a250cec8924",
+    "utils/console_utils.py": "b821f3863b17364f",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/map_utils.py": "50661eed388b679a",
+    "utils/paths.py": "4634ee5dcb2b67c8",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "46_wet_area_feed.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:24:23",
+   "sig": "f1c89d3ae33e5418",
+   "utils": {
+    "utils/config.py": "d337a3a35283848c",
+    "utils/console_utils.py": "d5e5a8e25b9d3efe",
+    "utils/paths.py": "f61314e57e05148f"
+   }
+  },
+  "47_hindcast_film.py": {
+   "recorded": "seed: code at 512352b9, the commit carrying version 1.11.0 run at 2026-11-12T23:39:02",
+   "sig": "421edd8bf0afaec8",
+   "utils": {
+    "utils/config.py": "649f9aa8ec715fb0",
+    "utils/console_utils.py": "694d25a880187ac1",
+    "utils/film_text.py": "ef4dc351ff052756",
+    "utils/hindcast_utils.py": "3cbd034e2e15e18c",
+    "utils/model_utils.py": "485458e18da71577",
+    "utils/paths.py": "102785d27cd42d05",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "48_pastas_crosscheck.py": {
+   "recorded": "seed: code at 714de7a5, the commit carrying version 1.11.0 run at 2026-11-24T00:24:23",
+   "sig": "0d3750e8617984b5",
+   "utils": {
+    "utils/config.py": "465daa0a5e79cc6f",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/model_utils.py": "339bed4257cc0fca",
+    "utils/pastas_utils.py": "c72e9b64f9313d72",
+    "utils/paths.py": "18636e6714240929",
+    "utils/render_utils.py": "e4dcd94759c58330",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "50_record_length.py": {
+   "recorded": "seed: code at 714de7a5, the commit carrying version 1.30.0 run at 2026-11-24T00:25:16",
+   "sig": "fdfd4763f46c8b26",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/config.py": "462f0ac215aba202",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "c9200a5782a20bf8",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/midas_rain.py": "be2067975a706ee9",
+    "utils/model_utils.py": "d8d3de095c3967ca",
+    "utils/pastas_utils.py": "e837d213fabfb905",
+    "utils/paths.py": "a8768a0c6d3e1549",
+    "utils/pet_alternatives.py": "35bb9070197a8978",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "50a_record_length.py": {
+   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T02:59:49",
+   "sig": "193c48fc67a106e4",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/config.py": "462f0ac215aba202",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "c9200a5782a20bf8",
+    "utils/midas_rain.py": "be2067975a706ee9",
+    "utils/model_utils.py": "d8d3de095c3967ca",
+    "utils/pastas_utils.py": "e837d213fabfb905",
+    "utils/paths.py": "943ad3cf20f9c486",
+    "utils/pet_alternatives.py": "35bb9070197a8978",
+    "utils/reclen_common.py": "c9fa71a03fb13236",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "50b_datum_bases.py": {
+   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T01:40:29",
+   "sig": "55d06cff3a160549",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/config.py": "462f0ac215aba202",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "c9200a5782a20bf8",
+    "utils/midas_rain.py": "be2067975a706ee9",
+    "utils/model_utils.py": "d8d3de095c3967ca",
+    "utils/pastas_utils.py": "e837d213fabfb905",
+    "utils/paths.py": "943ad3cf20f9c486",
+    "utils/pet_alternatives.py": "35bb9070197a8978",
+    "utils/reclen_common.py": "c9fa71a03fb13236",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "50c_transfer.py": {
+   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T01:55:17",
+   "sig": "5cb521f13ae39fa9",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/config.py": "462f0ac215aba202",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "c9200a5782a20bf8",
+    "utils/midas_rain.py": "be2067975a706ee9",
+    "utils/model_utils.py": "d8d3de095c3967ca",
+    "utils/pastas_utils.py": "e837d213fabfb905",
+    "utils/paths.py": "907b420505ccba3e",
+    "utils/pet_alternatives.py": "35bb9070197a8978",
+    "utils/reclen_common.py": "c9fa71a03fb13236",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "50d_two_stores.py": {
+   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T01:55:50",
+   "sig": "1393663cc47814ee",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/config.py": "462f0ac215aba202",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "c9200a5782a20bf8",
+    "utils/kml_io.py": "847160926d675cb0",
+    "utils/midas_rain.py": "be2067975a706ee9",
+    "utils/model_utils.py": "d8d3de095c3967ca",
+    "utils/pastas_utils.py": "e837d213fabfb905",
+    "utils/paths.py": "e1be3a38f13c1bc8",
+    "utils/pet_alternatives.py": "35bb9070197a8978",
+    "utils/reclen_common.py": "c9fa71a03fb13236",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "50e_drier_epochs.py": {
+   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T02:35:20",
+   "sig": "84382fcdd87067e0",
+   "utils": {
+    "utils/clearfell_common.py": "47000681cc25a619",
+    "utils/config.py": "462f0ac215aba202",
+    "utils/console_utils.py": "7e47b046eb1082d0",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "c9200a5782a20bf8",
+    "utils/midas_rain.py": "be2067975a706ee9",
+    "utils/model_utils.py": "d8d3de095c3967ca",
+    "utils/pastas_utils.py": "e837d213fabfb905",
+    "utils/paths.py": "943ad3cf20f9c486",
+    "utils/pet_alternatives.py": "35bb9070197a8978",
+    "utils/reclen_common.py": "c9fa71a03fb13236",
+    "utils/render_utils.py": "d0922edf110ab2b2",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "51_cluster_gap_fill.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T01:21:36",
+   "sig": "53e8f1c96de7bfa0",
+   "utils": {
+    "utils/config.py": "6bcc63b366b3c8d9",
+    "utils/console_utils.py": "b821f3863b17364f",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "844cdf2bdab7873e",
+    "utils/model_utils.py": "0a9de3c2a6c56197",
+    "utils/paths.py": "943ad3cf20f9c486",
+    "utils/render_utils.py": "e4dcd94759c58330",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "53_ccw_forest_drift.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.1.0 run at 2026-11-24T01:22:20",
+   "sig": "184b83397450769b",
+   "utils": {
+    "utils/config.py": "03a81cb9c2ab3cf0",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/hindcast_utils.py": "9ef096091acf7d6e",
+    "utils/paths.py": "943ad3cf20f9c486",
+    "utils/render_utils.py": "e4dcd94759c58330",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "54_dry_year_hysteresis.py": {
+   "recorded": "seed override: provenance shows the 02:48 run read outputs/50e_drier_epochs/ (J-15's new OUT_50_E13_PET), so it ran today's utils/paths.py, committed later in 8ac5a387",
+   "sig": "d2b658fcd4ddb184",
+   "utils": {
+    "utils/config.py": "0b897961afeb3e0e",
+    "utils/console_utils.py": "d72037dc511ba6fa",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/model_utils.py": "0a9de3c2a6c56197",
+    "utils/pastas_utils.py": "a607a140ed23241c",
+    "utils/paths.py": "e623edddab9bae97",
+    "utils/render_utils.py": "e4dcd94759c58330",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "55_water_balance_drainage.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.3.0 run at 2026-11-24T01:22:26",
+   "sig": "bb7517f3029588e5",
+   "utils": {
+    "utils/config.py": "8cc3f694e449adc0",
+    "utils/console_utils.py": "4296ae01456a31a3",
+    "utils/data_utils.py": "abf6466eab534cf2",
+    "utils/hindcast_utils.py": "e7ef4fd1c3ae2f0d",
+    "utils/model_utils.py": "9be0ea7b20ed7a9f",
+    "utils/paths.py": "943ad3cf20f9c486",
+    "utils/render_utils.py": "e4dcd94759c58330",
+    "utils/report_numbers_utils.py": "065755c28d02b79e"
+   }
+  },
+  "run_09_scraping.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "sig": "6f348ee1900c82fc",
+   "utils": {
+    "utils/console_utils.py": "2cc1cbf79808083c"
+   }
+  },
+  "run_10_clearfell.py": {
+   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "sig": "1d8d54c4d418888a",
+   "utils": {
+    "utils/console_utils.py": "397ca4551f9b01c2"
+   }
+  }
+ }
+}

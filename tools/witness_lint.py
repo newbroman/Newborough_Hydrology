@@ -9,16 +9,17 @@ tools/gate_witness.csv carries one row per `gated` rule of tools/rule_gate_matri
 or `none`), the tool judged, and one sentence of evidence with file:line. First populated 2026-11-24 by reading
 each gate's source as check_all invokes it.
 
-    FAIL   a gated rule with no row, a row with a token outside the seven, or a row for a rule no longer gated
-    LIST   every `none`: by D-325 these report rather than gate. Each is listed with its evidence; demoting one in
-           check_all.sh is a ruling on that classification, made by Martin, not by this lint (T-202 note)
+    FAIL   a gated rule with no row, a token outside the eight, `covers` not full|partial, or a row for an ungated rule
+    LIST   every `none` and every `partial`. D-325 note 2026-11-24 (Martin, after the Fable review): NOTHING IS DEMOTED
+           on this classification - a gate with no witness keeps gating, and the fix is to give it one
 
     python3 tools/witness_lint.py
     python3 tools/witness_lint.py --selftest
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-24. New (T-202, D-325).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (Fable review). Seventh witness `source`; a `covers` column
+#   (full|partial); nothing is demoted - absent or partial witnesses are listed as work. 1.0.0 — New (T-202, D-325).
 
 import csv
 import pathlib
@@ -27,7 +28,9 @@ import sys
 REPO = pathlib.Path(__file__).resolve().parent.parent
 MATRIX = REPO / "tools/rule_gate_matrix.csv"
 WITNESS = REPO / "tools/gate_witness.csv"
-ADMISSIBLE = ("committed", "origin", "snapshot", "hash", "proof", "measured")
+# "source" (1.1.0; D-325 note 2026-11-24, from the Fable review): an artefact a DIFFERENT actor produced, read from
+# the tree rather than from git (a document quote against the pipeline CSV, a register against a script's AST).
+ADMISSIBLE = ("committed", "origin", "snapshot", "hash", "proof", "measured", "source")
 
 
 def verdict(matrix: list[dict], witness: list[dict]) -> tuple[list[str], list[dict]]:
@@ -37,7 +40,9 @@ def verdict(matrix: list[dict], witness: list[dict]) -> tuple[list[str], list[di
     faults += [f"{i}: has a witness row but is not gated in the matrix" for i in sorted(set(by) - gated)]
     faults += [f"{i}: witness {r['witness']!r} is not one of {ADMISSIBLE + ('none',)}" for i, r in sorted(by.items())
                if r["witness"] not in ADMISSIBLE + ("none",)]
-    return faults, [r for i, r in sorted(by.items()) if i in gated and r["witness"] == "none"]
+    faults += [f"{i}: covers {r.get('covers')!r} is not full|partial" for i, r in sorted(by.items())
+               if r.get("covers", "full") not in ("full", "partial")]
+    return faults, [r for i, r in sorted(by.items()) if i in gated and (r["witness"] == "none" or r.get("covers") == "partial")]
 
 
 def main(argv: list[str]) -> int:
@@ -54,11 +59,13 @@ def main(argv: list[str]) -> int:
     for f in faults:
         print(f"  FAIL  {f}")
     if none:
-        print(f"  {len(none)} gated rule(s) name NO witness — by D-325 a report, not a gate (demotion awaits a ruling):")
+        print(f"  {len(none)} gated rule(s) whose witness is absent or partial - they keep gating (D-325 note "
+              f"2026-11-24); each is a gate to give a witness:")
         for r in none:
-            print(f"    {r['id']:4s} {r['tool']:28s} {r['evidence'][:110]}")
+            print(f"    {r['id']:4s} {r['witness']:8s} {r.get('covers',''):8s} {r['tool'][:24]:24s} {r['evidence'][:90]}")
     n = sum(1 for r in rd(WITNESS))
-    print(f"witness_lint: {'FAIL' if faults else 'OK'} — {n} gated rule(s), {n - len(none)} with a witness, {len(none)} without")
+    print(f"witness_lint: {'FAIL' if faults else 'OK'} — {n} gated rule(s), {n - len(none)} with a full witness, "
+          f"{len(none)} without or partial")
     return 1 if faults else 0
 
 

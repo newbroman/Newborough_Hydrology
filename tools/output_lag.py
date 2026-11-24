@@ -89,7 +89,10 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-29. A run that recorded the script's current
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (Fable review risks 1-2). A script with a recorded code
+#   signature (outputs/pipeline_code_signatures.json, tools/code_signature.py) is judged by CODE, not clocks or
+#   __version__: an unbumped edit, or a fresh clone of edited scripts, now reads behind.
+# "1.1.0"  # Hollingham (2026) — 2026-09-29. A run that recorded the script's current
 #   __version__ in outputs/pipeline_provenance.json is current whatever the clocks say: a script
 #   committed after the run it was in carries a commit time later than outputs the run left
 #   byte-identical (10c on 29u, "0.0 d ahead" with nothing behind). Reads the provenance file;
@@ -304,6 +307,15 @@ def main() -> int:
     ran = run_log()
     prov_versions = _provenance_versions()
     behind, unresolved, no_emits = [], [], []
+    # 1.3.0 (Fable review 2026-11-24): the CODE that ran is the witness, where it was recorded. A script whose
+    # executable AST, or a utils name it uses, differs from its run's is behind - whatever the clocks or the
+    # __version__ say; one that matches is current. Clocks remain only for a script with no recorded signature.
+    sys.path.insert(0, str(REPO / "tools"))
+    try:
+        import code_signature
+        sigs = code_signature.load()
+    except Exception:                                   # noqa: BLE001 - no witness: the clocks below decide
+        code_signature, sigs = None, {}
 
     for script, emits in ledger_rows():
         sp = REPO / "src" / script
@@ -311,6 +323,12 @@ def main() -> int:
             continue
         s_t, s_dirty = when(sp, dirty)
         if s_t is None:
+            continue
+        moved = code_signature.differs(script, sigs) if code_signature else None
+        if moved is not None:
+            if moved:
+                behind.append((script, s_dirty, "the code that ran (code signature): " + ", ".join(moved)
+                               + " changed since", 0.0, False))
             continue
         if not emits:
             no_emits.append(script)

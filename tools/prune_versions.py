@@ -48,7 +48,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-24 (T-205, D-328). A version is moved or removed
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (Fable review). Never renames over a different archive/
+#   copy; a version counts as on Drive if ANY manifest in the private history recorded its MD5.
+# "1.3.0"  # Hollingham (2026) — 2026-11-24 (T-205, D-328). A version is moved or removed
 #   only when its MD5 matches working/DRIVE_MANIFEST.json for its docs/ path; the mtime marker is retired.
 # "1.2.1"  # Hollingham (2026) — 2026-10-02. Default --keep 10 backups (Martin: "lets
 #   keep it at 10 versions"; D-151 third note).
@@ -167,12 +169,27 @@ def referenced_images() -> set[str]:
     return names
 
 
-def _move(f: Path) -> None:
+def _move(f: Path) -> bool:
+    """False, and nothing moved, when archive/ already holds a DIFFERENT file at that name (1.4.0, Fable review):
+    a rename over it would destroy a copy Drive may not hold. An identical copy there is kept and this one retired."""
     dest = archive_path(f)
     dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.is_file():
+        if _md5(dest) != _md5(f):
+            print(f"            REFUSED to move {f.name}: archive/ holds a DIFFERENT file of that name - "
+                  f"compare them by hand; neither is touched")
+            return False
+        for victim in (f, odt_media.sidecar_path(f)):
+            if victim.is_file() and victim != dest:
+                try:
+                    victim.unlink()
+                except OSError:
+                    odt_media._retire(victim)
+        return True
     for src, dst in ((f, dest), (odt_media.sidecar_path(f), odt_media.sidecar_path(dest))):
         if src.is_file():
             src.rename(dst)          # a rename: permitted on the bridge mount, where unlink is not
+    return True
 
 
 def _remove(f: Path) -> None:
@@ -204,6 +221,11 @@ def main(argv: list[str]) -> int:
             return 1
 
     drive = drive_md5s()
+    try:
+        import drive_manifest_list
+        past = drive_manifest_list.history() if drive is not None else {}
+    except Exception:                                   # noqa: BLE001 - the latest manifest alone still decides
+        past = {}
     if drive is None:
         print(f"  note: no readable {DRIVE_MANIFEST.relative_to(REPO)} - nothing can be shown to be on Drive,"
               " so nothing will be moved or removed")
@@ -214,7 +236,10 @@ def main(argv: list[str]) -> int:
         # Not yet on Drive -> neither moved (archive/ is outside the upload filter, so a
         # version moved before its first upload would never reach Drive) nor removed.
         # 1.3.0: by content against the manifest, never by mtime (D-328)
-        unsafe = lambda f: f.is_file() and (drive is None or drive.get(docs_key(f)) != _md5(f))
+        # 1.4.0 (Fable review): any manifest the private history holds counts, not only the latest - a backup moved
+        # to archive/ drops out of the NEXT manifest (archive/ is outside the filter), and was then kept for ever
+        unsafe = lambda f: f.is_file() and (drive is None or _md5(f) not in ({drive.get(docs_key(f))}
+                                                                           | past.get(docs_key(f), set())))
         stay = [f for f in move if unsafe(f)]
         move = [f for f in move if f not in stay]
         held = [r for r in remove if unsafe(r)]
@@ -238,7 +263,8 @@ def main(argv: list[str]) -> int:
         mb_rm += size
         if a.apply:
             for f in move:
-                _move(f)
+                if not _move(f):
+                    n_move -= 1
             for r in remove:
                 _remove(r if r.is_file() else archive_path(r))
 

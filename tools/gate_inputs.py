@@ -24,7 +24,8 @@ pattern this generalises.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-24. New (T-204, D-327).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (the independent review). Floors come from the committed
+#   tools/gate_floors.json (about 90% of each count), not 1. 1.0.0 — New (T-204, D-327).
 
 import pathlib
 import sys
@@ -43,11 +44,27 @@ class Inputs:
         print(f"{self.gate}: SKIP (inputs absent by design) — no {what}. Nothing was checked.")
         return 0
 
-    def floor_fault(self, n: int, what: str = "subject(s)", floor: int = 1) -> int | None:
+    def floor_fault(self, n: int, what: str = "subject(s)", floor: int | None = None) -> int | None:
+        """1.1.0: the floor is this gate's committed one in tools/gate_floors.json (about 90% of its measured
+        count), so a run over a stray subset fails - one ODT made the inputs "present" (the review, 2026-11-24)."""
+        if floor is None:
+            floor = committed_floor(self.gate)
         if n >= floor:
             return None
-        print(f"{self.gate}: FAIL — examined {n} {what}, below the floor of {floor}: its inputs are present, "
-              f"so a pass on nothing is not an OK (D-327)")
+        why = "a pass on nothing is not an OK" if n == 0 else \
+            "fewer subjects than the committed floor (tools/gate_floors.json): a subset of the inputs?"
+        print(f"{self.gate}: FAIL — examined {n} {what}, below the floor of {floor}: {why} (D-327)")
+        return 1
+
+
+FLOORS = REPO / "tools" / "gate_floors.json"
+
+
+def committed_floor(gate: str) -> int:
+    try:
+        import json
+        return max(1, int(json.loads(FLOORS.read_text(encoding="utf-8"))[gate]["floor"]))
+    except (OSError, ValueError, KeyError, TypeError):
         return 1
 
 
@@ -65,7 +82,8 @@ def selftest() -> int:
     a = declare_inputs("t", here="tools/gate_inputs.py", glob="tools/*.py")
     b = declare_inputs("t", gone="no/such/file.odt", alt=["no/such/*.odt", "tools/gate_inputs.py"])
     ok = (not a.absent and b.absent == ["gone"] and a.floor_fault(0) == 1 and a.floor_fault(3) is None
-          and a.floor_fault(2, floor=5) == 1)
+          and a.floor_fault(2, floor=5) == 1
+          and committed_floor("no such gate") == 1 and committed_floor("table_provenance_lint") >= 1)
     print(f"  gate_inputs --selftest: {'OK' if ok else 'FAIL'}")
     return 0 if ok else 1
 

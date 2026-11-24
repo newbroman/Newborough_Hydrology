@@ -380,7 +380,7 @@ def main() -> int:
     faults, plans = audit(reg, docs)
     n_fields = sum(len(fields_in(read_xml(p))[0]) for p in docs)
     if a.check:
-        bad = inp.floor_fault(n_fields, "field declaration(s) across the documents")
+        bad = None if a.doc else inp.floor_fault(n_fields, "field declaration(s) across the documents")  # full run only
         if bad:
             return bad
         for p, kind, name, det in faults:

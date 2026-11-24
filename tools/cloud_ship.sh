@@ -29,7 +29,9 @@
 #   and what it holds (tools/doc_lock.py). Step 3 refuses commits that touch another chat's claim
 #   (tools/ship_scope.py check), and the ship is given a request file so nrg_git.sh 1.29.0 scopes it.
 #
-# Version 1.2.1 — Hollingham (2026) — 2026-11-24 (Fable review). A trap releases the ship claim on every exit, a kill
+# Version 1.3.0 — Hollingham (2026) — 2026-11-24 (D-339). --paths "tools/number_fields.csv,…" names the shared registers
+#   and other unclaimed paths the ship carries; without it a dirty register stops the ship (ship_scope 1.4.0).
+# 1.2.1 — Hollingham (2026) — 2026-11-24 (Fable review). A trap releases the ship claim on every exit, a kill
 #   included; a refused take names both causes (held elsewhere, or the chat unregistered).
 # 1.2.0 — Hollingham (2026) — 2026-11-24. T-200 (D-324): step 3 takes the `ship` claim for --chat beside
 #   the documents lock (nrg_git.sh 1.37.0 refuses a chat's push without it) and every exit releases it.
@@ -43,12 +45,13 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
-ID="" APPROVED="" DRY=0 MSG="" CHAT="${NRG_CHAT:-}" CLAIMS=""
+ID="" APPROVED="" DRY=0 MSG="" CHAT="${NRG_CHAT:-}" CLAIMS="" PATHS=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --id) ID="$2"; shift 2 ;;
     --chat) CHAT="$2"; shift 2 ;;
     --claims) CLAIMS="$2"; shift 2 ;;
+    --paths) PATHS="$2"; shift 2 ;;     # 1.3.0 (D-339): shared registers and other unclaimed paths this ship carries
     --approved) APPROVED="$2"; shift 2 ;;
     --dry-run) DRY=1; shift ;;
     *) MSG="$1"; shift ;;
@@ -195,8 +198,8 @@ fi
 step 6/7 "ship (working/nrg_git.sh --ship)"
 mkdir -p scratch
 REQF="scratch/cloud_ship_request_${ID}.json"
-"$VPY" -c 'import json,sys; json.dump({"id": sys.argv[1], "chat": sys.argv[2] or None, "claims": [c for c in sys.argv[3].replace(",", " ").split() if c], "paths": []}, open(sys.argv[4], "w"))' \
-  "$ID" "$CHAT" "$CLAIMS" "$REQF"
+"$VPY" -c 'import json,sys; sp=lambda x: [c for c in x.replace(",", " ").split() if c]; json.dump({"id": sys.argv[1], "chat": sys.argv[2] or None, "claims": sp(sys.argv[3]), "paths": sp(sys.argv[5])}, open(sys.argv[4], "w"))' \
+  "$ID" "$CHAT" "$CLAIMS" "$REQF" "$PATHS"
 NRG_CHAT="$CHAT" NRG_SHIP_REQUEST="$REQF" ./working/nrg_git.sh --ship "${MSG:-cloud ship ${ID}}"
 rc=$?
 line="$(grep -a '^SHIP: ' "$(ls -t scratch/ship_*.log 2>/dev/null | head -1)" 2>/dev/null | tail -1)"

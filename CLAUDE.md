@@ -234,7 +234,8 @@ family another chat holds with a NEW version file is parked too; one whose shipp
 edited (the report chapters, the public summaries) STOPS the ship with the holder's name — ship
 after that chat, or from one chat holding both claims. A request with no chat or claims is refused
 while anyone holds a claim; `nrg_git.sh --ship-all` is Martin's, by hand. A document chat that needs
-a new emit asks the `pipeline` holder.
+a new emit asks the `pipeline` holder. **A ship commits only what it can explain (D-339)**: anything not under a
+declared claim or derived must be in `paths`, and a changed `tools/*.csv` register not named there STOPS the ship.
 
 ## 4d. What the gates do not catch (2026-09-20)
 

@@ -1,0 +1,8 @@
+{
+ "_note": "D-327 floors (gate_inputs 1.1.0, 2026-11-24, from the independent review): about 90% of each gate's subject count on 2026-11-24, so a gate run on a stray subset of its inputs FAILS while ordinary edits do not. Lowering one is a deliberate edit of this committed file; say why in the commit.",
+ "table_provenance_lint": {"floor": 30, "what": "report tables", "measured_2026_11_24": 33},
+ "form_label_lint": {"floor": 128, "what": "fields and typed values", "measured_2026_11_24": 142},
+ "field_sync": {"floor": 2860, "what": "field declarations", "measured_2026_11_24": 3181},
+ "table_gen": {"floor": 55, "what": "configured tables", "measured_2026_11_24": 61},
+ "register_lint": {"floor": 180, "what": "status rows", "measured_2026_11_24": 201}
+}

@@ -26,7 +26,8 @@
 # Usage:  bash tools/nrg_git_selftest.sh          # verdict line, exit non-zero on a failure
 #         bash tools/nrg_git_selftest.sh -v       # show each case's output
 #
-# Version 1.1.0 — Hollingham (2026) — 2026-11-24. T-200 (D-324): ship_claim_ok() run in four states - the holder
+# Version 1.2.0 — Hollingham (2026) — 2026-11-24. An empty chat inside a Claude session is refused (nrg_git 1.40.0).
+# 1.1.0 — Hollingham (2026) — 2026-11-24. T-200 (D-324): ship_claim_ok() run in four states - the holder
 #   pushes, another chat's claim and an unheld one refuse with a route, a run with no chat is not asked.
 # 1.0.0 — Hollingham (2026) — 2026-11-09. First issue (J-4).
 set -uo pipefail
@@ -147,8 +148,11 @@ else
   out="$(sc "Chat A" "")"
   check "ship: an unheld claim refuses and offers the take" \
     "$([[ "$out" == *"rc=1"* && "$out" == *"take ship"* ]] && echo 0 || echo 1)" "$out"
-  out="$(sc "" "Chat B")"
-  check "ship: a run with no chat (Martin, or the watcher) is not asked" "$([[ "$out" == *"rc=0"* ]] && echo 0 || echo 1)" "$out"
+  out="$(CLAUDECODE= CLAUDE_CODE_REMOTE= sc "" "Chat B")"
+  check "ship: a run with no chat outside a Claude session (Martin, or the watcher) is not asked" "$([[ "$out" == *"rc=0"* ]] && echo 0 || echo 1)" "$out"
+  out="$(CLAUDECODE=1 sc "" "Chat B")"
+  check "ship: inside a Claude session an empty chat is refused (1.40.0)" \
+    "$([[ "$out" == *"rc=1"* && "$out" == *"must name its chat"* ]] && echo 0 || echo 1)" "$out"
 fi
 pbody="$(sed -n '/^push_if_ahead(){/,/^}/p' "$SRC")"
 check "wiring (text): push_if_ahead() calls ship_claim_ok before pushing" \
@@ -173,6 +177,6 @@ check "wiring (text): option 4 runs update_machine, not integrate" \
   "$(grep -q '"\$OPT_PULL") update_machine' "$SRC" && echo 0 || echo 1)"
 
 total=$((pass+fail))
-if [ "$fail" = 0 ]; then echo "  nrg_git_selftest: OK — ${pass} of ${total} (8 behavioural, the rest wiring)"; exit 0; fi
+if [ "$fail" = 0 ]; then echo "  nrg_git_selftest: OK — ${pass} of ${total} (9 behavioural, the rest wiring)"; exit 0; fi
 echo "  nrg_git_selftest: FAIL — ${fail} of ${total}"
 exit 1

@@ -57,7 +57,10 @@ Exit: 0 go, 1 refused or stopped (the reason printed), 2 usage.
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-05. `pathspec`: the paths a ship must keep out of
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (D-339, T-145). The commit point: a changed path ships only
+#   under a declared claim, named in `paths`, or as a derived file ship_stage judges; a dirty shared register
+#   (tools/*.csv) not named STOPS the ship and is never parked; other unexplained work is held.
+# "1.2.0"  # Hollingham (2026) — 2026-11-05. `pathspec`: the paths a ship must keep out of
 #   its stage, so a parked file cannot be committed by whoever rewrites it next (T-149, ship 3dbe1626).
 # 1.1.0  # Hollingham (2026) — 2026-11-05. `resolve`: close a hold whose parked work the
 #   tree already carries. restore() rightly refuses to overwrite a moved file, but nothing could then clear the
@@ -178,6 +181,22 @@ def family_documents(fam: str):
 
 
 # ── the plan ────────────────────────────────────────────────────────────────
+# D-339: the shared registers - merged row by row by register_io, never claimed (CLAUDE.md §4b), never parked
+def is_register(p: str) -> bool:
+    return p.startswith("tools/") and p.endswith(".csv")
+
+
+# D-339: what ship_regenerate() rebuilds; ship_stage judges these after it, so the plan does not hold them
+DERIVED_PREFIXES = ("notes/ledgers/", "outputs/chat/", "chat/", "report_edits/text/")
+DERIVED_FILES = ("DECISIONS_PUBLIC.md", "docs/PDF_MANIFEST.txt", "pipeline_index.html",
+                 "outputs/pipeline_manifest.json", "data/geo/site_outline.geojson")
+
+
+def is_derived(p: str) -> bool:
+    return (p in DERIVED_FILES or p.startswith(DERIVED_PREFIXES) or p.endswith(".pdf")
+            or (p.startswith("docs/") and "/text/" in p and p.endswith(".md")))
+
+
 def plan(req: dict) -> dict:
     import doc_lock
     chat = req.get("chat")
@@ -210,8 +229,24 @@ def plan(req: dict) -> dict:
 
     for st, p in changed_paths():
         cl = doc_lock.claim_for_path(p)
-        if cl in others and p not in paths:
+        if p in paths or (cl and cl in want):
+            continue
+        if cl in others:
             P["hold"].append({"path": p, "status": st, "claim": cl, "holder": others[cl]})
+        # 1.4.0 (D-339): what a ship commits must be explained - under a declared claim, named in `paths`, or
+        # rebuilt by its own regenerate (tools/ship_stage.py judges those after it). Two cases used to ship with
+        # whoever shipped: a shared register's rows, and work under a claim nobody holds.
+        elif is_register(p):
+            P["stop"].append(f"{p}: a shared register with changes this request does not name. Rows cannot be "
+                             f"split between ships and a register is never parked (other chats are writing it): "
+                             f"list it in the request's paths if every changed row is this chat's, otherwise "
+                             f"ship after the chat that wrote them (D-339)")
+        elif is_derived(p):
+            P["notes"].append(f"{p}: derived - the regenerate rebuilds it and ship_stage judges the result")
+        else:
+            P["hold"].append({"path": p, "status": st, "claim": cl or "(none)",
+                              "holder": f"nobody - {'claim ' + cl + ' is unheld' if cl else 'unclaimed'} and not "
+                                        f"in this request (D-339)"})
 
     # documents of families another chat holds
     for cl in sorted(c for c in others if c.startswith("doc:")):
@@ -531,7 +566,7 @@ def _selftest() -> int:
         dd = pathlib.Path(d)
         subprocess.run(["git", "init", "-q", str(dd)], check=True)
         for rel, txt in {"src/a.py": "a=1\n", "tools/t.py": "t=1\n", "tools/reg.csv": "k\n",
-                         "notes/n.txt": "n\n"}.items():
+                         "notes/n.txt": "n\n", ".gitignore": ".ship_hold/\n"}.items():
             (dd / rel).parent.mkdir(parents=True, exist_ok=True)
             (dd / rel).write_text(txt)
         env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t",
@@ -541,7 +576,6 @@ def _selftest() -> int:
         global REPO, HOLD
         R0, H0 = REPO, HOLD
         REPO, HOLD = dd, dd / ".ship_hold"
-        (dd / ".gitignore").write_text(".ship_hold/\n")
         try:
             import doc_lock
             saved = (doc_lock.claims, doc_lock.claim_for_path, doc_lock.claim_names)
@@ -553,7 +587,7 @@ def _selftest() -> int:
             (dd / "src/new.py").write_text("n\n")          # chat B, new file
             (dd / "tools/t.py").write_text("t=2\n")        # chat A, tools
             (dd / "tools/reg.csv").write_text("k\nx\n")    # shared
-            P = plan({"chat": "A", "claims": ["tools"], "paths": []})
+            P = plan({"chat": "A", "claims": ["tools"], "paths": ["tools/reg.csv"]})
             held = sorted(h["path"] for h in P["hold"])
             if held != ["src/a.py", "src/new.py"] or P["stop"]:
                 print("FAIL plan", held, P["stop"]); ok = False
@@ -562,7 +596,7 @@ def _selftest() -> int:
             if (dd / "src/a.py").read_text() != "a=1\n" or (dd / "src/new.py").exists():
                 print("FAIL parked tree"); ok = False
             st = sorted(p for _, p in changed_paths())
-            if st != [".gitignore", "tools/reg.csv", "tools/t.py"]:
+            if st != ["tools/reg.csv", "tools/t.py"]:
                 print("FAIL tree during ship", st); ok = False
             subprocess.run(["git", "-C", str(dd), "add", "-A"], check=True)
             subprocess.run(["git", "-C", str(dd), "commit", "-qm", "ship A"], check=True, env=env)
@@ -604,7 +638,7 @@ def _selftest() -> int:
             # chat rewrite the parked file before the stage, and check that `git add -A` with these
             # pathspecs cannot commit it - which is what ship 3dbe1626 did.
             (dd / "src/a.py").write_text("a=4\n")
-            P5 = plan({"chat": "A", "claims": ["tools"], "paths": []})
+            P5 = plan({"chat": "A", "claims": ["tools"], "paths": ["tools/reg.csv"]})
             if park(P5, "t3") != 0:
                 print("FAIL park t3"); ok = False
             buf = io.StringIO()
@@ -629,6 +663,28 @@ def _selftest() -> int:
                 pathspec("t3")
             if buf2.getvalue().strip():
                 print("FAIL: a resolved hold still excluded paths"); ok = False
+
+            # D-339 (T-145): the commit point. A dirty register the request does not name STOPS the ship and is
+            # never parked; named, it ships; an unclaimed file not in paths is held; a derived file is left to
+            # ship_stage.
+            (dd / "notes/n.txt").write_text("n2\n")
+            (dd / "tools/reg.csv").write_text("k\nrow from some chat\n")
+            (dd / "notes/ledgers").mkdir(parents=True, exist_ok=True)
+            (dd / "notes/ledgers/L.txt").write_text("x\n")
+            P6 = plan({"chat": "A", "claims": ["tools"], "paths": []})
+            h6 = sorted(h["path"] for h in P6["hold"])
+            if not any("tools/reg.csv" in s and "shared register" in s for s in P6["stop"]) \
+                    or "tools/reg.csv" in h6:
+                print("FAIL D-339: a dirty register not named in paths did not stop the ship", P6["stop"], h6); ok = False
+            if "notes/n.txt" not in h6:
+                print("FAIL D-339: an unclaimed file not in paths was not held", h6); ok = False
+            if any("notes/ledgers/L.txt" in x for x in h6):
+                print("FAIL D-339: a derived file was held", h6); ok = False
+            P7 = plan({"chat": "A", "claims": ["tools"], "paths": ["tools/reg.csv", "notes/n.txt"]})
+            if P7["stop"] or any(h["path"] in ("tools/reg.csv", "notes/n.txt") for h in P7["hold"]):
+                print("FAIL D-339: named paths did not ship", P7["stop"], P7["hold"]); ok = False
+            (dd / "notes/n.txt").write_text("n\n")
+            (dd / "notes/ledgers/L.txt").unlink()
 
             P2 = plan({})
             if not P2["stop"]:

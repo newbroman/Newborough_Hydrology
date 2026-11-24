@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_13.odt — do not edit. source-sha256=7ac080948edd3dba pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_13.odt — do not edit. source-sha256=a2d81611158fd0e2 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -119,7 +119,7 @@ Water levels alone cannot say how much of the water lost each month drains away 
 
 The paper gives three readings. Model B itself puts drainage at 45 % of the loss at the median well. The seasons give a second, with no model at all: winter falls are nearly all drainage and summer falls are drainage and evaporation together, so their ratio is a drainage share. A water balance gives a third, using a storage figure measured from how far the water table rises after rain, the **apparent storage**, which is not a property of the sand alone: it puts drainage at 31 % at the median well, or 36--55 % with a second way of estimating the storage figure. The three agree on the dune and differ most in the west and in the coastal forest. Only a direct measurement of one of the flows would settle it.
 
-Under the pine forest the trees catch part of the rain, which evaporates before it reaches the ground. The model already carries that loss, so it is counted inside the evaporation, not added on top. So counted, the main forest's total evaporation is 633 millimetres a year, 0.97 times what the weather asks for: within what the weather allows.
+Under the pine forest the trees catch part of the rain, which evaporates before it reaches the ground. The model already carries that loss, so it is counted inside the evaporation, not added on top. So counted, the main forest's total evaporation is 631 millimetres a year, 0.97 times what the weather asks for: within what the weather allows.
 
 # []{#anchor}7. A fixed floor: tried, and not adopted
 

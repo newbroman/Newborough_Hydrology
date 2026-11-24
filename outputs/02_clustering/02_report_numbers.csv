@@ -35,6 +35,19 @@ cluster_stability_median_min_stable_k5,,k=5,0.9802567888414756,,"lowest per-clus
 bootstrap_n_resamples,,,1000.0,count,config.CLUSTER_BOOT_N
 bootstrap_k_min,,,4.0,,config.CLUSTER_BOOT_K_RANGE
 bootstrap_k_max,,,7.0,,config.CLUSTER_BOOT_K_RANGE
+cluster_period_split_date,,,2018-01-01,date,first month of the second half in the pre/post clustering test (config.MODEL_AB_SPLIT_DATE)
+cluster_period_ari_pre_post,,split 2018-01-01,0.5779251539554714,,"adjusted Rand index between Ward k=5 partitions fitted before and after the split, on the 66 wells both halves carry"
+cluster_period_ari_pre_post_p,,split 2018-01-01,0.000999000999000999,,permutation p-value of that ARI (1000 shuffles of one half's labels)
+cluster_period_ari_pre_full,,split 2018-01-01,0.6491897564499203,,ARI of the partition fitted before the split against the full-record partition
+cluster_period_ari_post_full,,split 2018-01-01,0.49945550715619164,,ARI of the partition fitted from the split against the full-record partition
+cluster_period_n_wells_pre,,split 2018-01-01,66.0,count,wells with at least two seasonal cycles in the pre-split half
+cluster_period_n_months_pre,,split 2018-01-01,154.0,count,calendar months in the pre-split half
+cluster_period_same_share_pre,,split 2018-01-01,0.7878787878787878,fraction,share of wells the pre-split partition places in the cluster of the same name (ids matched by maximum shared membership)
+cluster_period_n_wells_post,,split 2018-01-01,66.0,count,wells with at least two seasonal cycles in the post-split half
+cluster_period_n_months_post,,split 2018-01-01,98.0,count,calendar months in the post-split half
+cluster_period_same_share_post,,split 2018-01-01,0.7272727272727273,fraction,share of wells the post-split partition places in the cluster of the same name (ids matched by maximum shared membership)
+cluster_period_n_wells_both,,split 2018-01-01,66.0,count,wells carried by both halves
+cluster_period_same_share_both,,split 2018-01-01,0.5606060606060606,fraction,share of the wells both halves carry that sit in their full-record cluster in both
 cluster_ground_elev_min_m,C1 (Lake Edge),,3.534,m AOD,lowest member: ceh11 (01_locations.csv ground_elev_m)
 cluster_ground_elev_max_m,C1 (Lake Edge),,10.9,m AOD,highest member: ceh27
 cluster_isolated_well,C1 (Lake Edge),,ceh11,,member furthest from any other member of the same cluster (planar E/N)

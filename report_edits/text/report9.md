@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=93f1d8e08924feff pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=d54ee96a0ec57530 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -293,12 +293,12 @@ The storage coefficient Sₐ (the \'apparent specific yield\' of Healy and Cook,
 
 **Indicative volumes (Table 10; Figure 11b)**
 
--   **Rainfall** is 889--893 mm/yr at every cluster, over its own fitted months.
--   **Interception** at the forest clusters (C4, C5) is 214 mm/yr (24%; Freeman, 2008), leaving 678--679 mm/yr at the ground.
+-   **Rainfall** is 891 mm/yr at every cluster, the mean over the complete years of the record.
+-   **Interception** at the forest clusters (C4, C5) is 214 mm/yr (24%; Freeman, 2008), leaving 677--677 mm/yr at the ground.
 -   **Interception is part of evaporation, not added to it.** The model is fitted on gross rainfall and above-canopy PET, so its evaporation term already includes the intercepted rain.
 -   **The split is Model B\'s**, and its range runs from Model B to the recession ratio (Table 9). At steady state total losses equal rainfall; the hatched band in Figure 11b spans that range.
--   **C4\'s evaporative loss** (I + ET) under Model B is 633 mm/yr, 97% of its PET (655 mm/yr), against 488 mm/yr at C2. Soil evaporation and transpiration after interception make up 419 mm/yr of it.
--   **C5\'s evaporative loss** under Model B is 347 mm/yr, and drainage takes the larger share.
+-   **C4\'s evaporative loss** (I + ET) under Model B is 631 mm/yr, 97% of its PET (653 mm/yr), against 489 mm/yr at C2. Soil evaporation and transpiration after interception make up 418 mm/yr of it.
+-   **C5\'s evaporative loss** under Model B is 346 mm/yr, and drainage takes the larger share.
 -   **Drainage share, Model B to the recession ratio:** C1 38--60%, C2 35--45%, C3 56--66%, C4 29--51%, C5 61--73%.
 
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
@@ -306,20 +306,20 @@ The storage coefficient Sₐ (the \'apparent specific yield\' of Healy and Cook,
 |         |                  |          |        |         |               |                  |                    |
 |         |                  | (mm/yr)  | mm/yr) | (mm/yr) | mm/yr)        | (mm/yr)          | (mm/yr)            |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
-| C1      | Lake Edge        | 893      | 0      | 893     | 553           | 553              | 340                |
+| C1      | Lake Edge        | 891      | 0      | 891     | 552           | 552              | 339                |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
-| C2      | Dune             | 889      | 0      | 889     | 488           | 488              | 401                |
+| C2      | Dune             | 891      | 0      | 891     | 489           | 489              | 402                |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
-| C3      | Western Residual | 889      | 0      | 889     | 387           | 387              | 502                |
+| C3      | Western Residual | 891      | 0      | 891     | 388           | 388              | 503                |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
-| C4      | Main Forest      | 893      | 214    | 679     | 419           | 633              | 260                |
+| C4      | Main Forest      | 891      | 214    | 677     | 418           | 631              | 260                |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
-| C5      | Coastal Forest   | 892      | 214    | 678     | 133           | 347              | 545                |
+| C5      | Coastal Forest   | 891      | 214    | 677     | 133           | 346              | 544                |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
 
 ***Table ****: **Indicative annual volumetric water balance by cluster, 2005--2026. At steady state, total losses (I + ET + drainage) equal rainfall P at every cluster: the model is fitted on gross rainfall, so its split applies to P and interception is part of the evaporation. I = canopy interception (24% of P; Freeman, 2008), applied to C4 and C5 only. ET is the evaporative loss after interception, from net rainfall and the water table; because interception is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET and drainage are split by Model B, the free-intercept form; the range across Model B, the depth-dependent model and the seasonal recession ratio is shown graphically in Figure 11b as a hatched band. In Figure 11b interception is drawn within the evaporation on the loss bar. (Source: 16_water_bal_vol_table.csv)*
 
-![](Pictures/1000000100000CC600000DE531708043.png){width="6.2217in" height="5.6154in"}**Figure :** Water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. (a) Model B\'s mean monthly head-space decomposition: for each cluster, the left bar shows recharge (β₁·P̄) and the right bar shows losses decomposed into drainage (β₃·h̄\_disp − α_B) and atmospheric draw (β₂·PET̄). Drainage and ET percentages are shown below each cluster label. All clusters receive near-identical climate forcing: P̄ = 74.1--74.4 mm/month, PET̄ = 54.4--54.5 mm/month. Drainage datum = 3.7 m b.g.s. (b) Indicative annual volumetric water balance. All clusters receive P ≈ 890 mm/yr (889--893 by cluster); for forested clusters (C4, C5) canopy interception (I = 214 mm/yr, 24% of P; Freeman, 2008) is drawn on the input bar and, on the loss bar, within the evaporation, between ET and drainage. The bars split the losses by Model B; the hatched band spans the three estimators (Model B, the depth-dependent model and the seasonal recession ratio). (Source: 16_water_bal_bar_ms.png).
+![](Pictures/1000000100000CC600000DE531708043.png){width="6.2217in" height="5.6154in"}**Figure :** Water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. (a) Model B\'s mean monthly head-space decomposition: for each cluster, the left bar shows recharge (β₁·P̄) and the right bar shows losses decomposed into drainage (β₃·h̄\_disp − α_B) and atmospheric draw (β₂·PET̄). Drainage and ET percentages are shown below each cluster label. All clusters receive near-identical climate forcing: P̄ = 74.1--74.4 mm/month, PET̄ = 54.4--54.5 mm/month. Drainage datum = 3.7 m b.g.s. (b) Indicative annual volumetric water balance. All clusters receive P = 891 mm/yr; for forested clusters (C4, C5) canopy interception (I = 214 mm/yr, 24% of P; Freeman, 2008) is drawn on the input bar and, on the loss bar, within the evaporation, between ET and drainage. The bars split the losses by Model B; the hatched band spans the three estimators (Model B, the depth-dependent model and the seasonal recession ratio). (Source: 16_water_bal_bar_ms.png).
 
 **
 

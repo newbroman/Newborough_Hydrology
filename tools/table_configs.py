@@ -115,7 +115,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) — 2026-11-24 (J-16). report9 §4.6's four tables: TableClearfellFourZone
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-11-24 (Paper 1 review). paper1/Table2: C4's residual prints —†
+#   (zero by construction, its drainage taken by difference); paper1/Table9 retired with Paper 1's §4.11.
+# 1.25.0  # Hollingham (2026) — 2026-11-24 (J-16). report9 §4.6's four tables: TableClearfellFourZone
 #   (10k_01 + 10l_01), TableClearfellSeasonal (run_10's 10_16), TableClearfellRobustness (run_10's 10_17),
 #   TableClearfellEraSplit (10a_13); and §4.5's three: TableScrapeSummerMinEras (09c report numbers),
 #   TableScrapeSummerMinBACI (09c 1.10.0's 09c_09), TableScrapeScenarios (09d_01 + 09d_02). report9/Table9 (Table 19): the scraping p is Scraping_p_hac (Q4).
@@ -1453,7 +1455,10 @@ TABLES = [
             {"col": "Drainage_B_m_month",   "fmt": "fixed", "dp": 3, "unless": {"Cluster": ["4"]},
              "else": {"fmt": "template", "template": "{Drainage_bydiff_B_m_month:.3f}†"}},
             {"col": "Total_loss_B_m_month", "fmt": "fixed", "dp": 3},
-            {"col": "Residual_B_m_month",   "fmt": "fixed", "dp": 3, "sign": True, "zero_text": "<0.001"},
+            # 2026-11-24 (Martin, Paper 1 review): C4's drainage is taken by difference, so its residual is zero BY
+            # CONSTRUCTION, not a closure result - it prints a dash, marked †
+            {"col": "Residual_B_m_month",   "fmt": "fixed", "dp": 3, "sign": True, "zero_text": "<0.001",
+             "unless": {"Cluster": ["4"]}, "else": "—†"},
             {"fmt": "template", "template": "{Drainage_B_pct:.0f} / {ET_B_pct:.0f}", "unless": {"Cluster": ["4"]},
              "else": {"fmt": "template", "template": "{Drainage_bydiff_B_pct:.0f} / {ET_bydiff_B_pct:.0f}†"}},
         ],
@@ -1715,32 +1720,8 @@ TABLES = [
     # A recession time at a fixed floor is not a finding under D-334, and Script 18's CSV had moved to
     # Model B's beta_3, so the published Model A values read as drift. Paper 1 now cites Hollingham (2026c)
     # Table 3 for the per-cluster mean-reversion times; the per-well map stays as Paper 1 Figure 14.
-    {
-        # 2026-10-07: Paper 1 Table 9 had been hand-typed and was pre-D-196 in every row when
-        # Script 25 1.33.0 moved the partition; registered so it regenerates and is gated.
-        "id": "paper1/Table9",
-        "doc": "docs/papers/paper_1/Paper1_v*.odt",
-        "table_name": "Table9",
-        "caption": "Paper 1 - decomposition of cluster summer-minimum decline against the balanced basis (Script 25)",
-        "sources": {"dec": "outputs/25_coastal_gradient/25_03_cluster_partition.csv"},
-        "rows": {"source": "dec"},
-        "header": ["Cluster", "mean dist. (m)", "observed", "coastal-retreat",
-                   "climate + offset", "unexplained", "coastal %"],
-        "columns": [
-            {"col": "cluster_label", "fmt": "map", "map": {
-                "C1 (Lake Edge)": "C1 Lake Edge",
-                "C2 (Dune)": "C2 Dune",
-                "C3 (Western Residual)": "C3 Western Residual",
-                "C4 (Main Forest)": "C4 Main Forest (n = {n_wells})",
-                "C5 (Coastal Forest)": "C5 Coastal Forest (n = {n_wells}) \u2020"}},
-            {"fmt": "template", "template": "{mean_dist_coast_m:.0f}"},
-            {"col": "observed_balanced_annual_mean_mm_yr", "fmt": "fixed", "dp": 1},
-            {"col": "coastal_gradient_mm_yr", "fmt": "fixed", "dp": 1, "zero_text": "0"},
-            {"col": "climate_plus_far_field_mm_yr", "fmt": "fixed", "dp": 1, "sign": True},
-            {"col": "unexplained_mm_yr", "fmt": "fixed", "dp": 1},
-            {"col": "coastal_gradient_pct_of_basis", "fmt": "fixed", "dp": 0, "zero_text": "0"},
-        ],
-    },
+    # paper1/Table9 retired 2026-11-24 (Martin, Paper 1 review: "Coastal material, move it"): Paper 1 v1_110 drops
+    # §4.11 and its Table 7; the cluster decomposition is Paper C's (Hollingham 2026f), from the same Script 25 CSV.
     {
         "id": "report9/Table16",
         "doc": 9,

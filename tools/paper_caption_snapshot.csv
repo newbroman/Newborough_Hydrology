@@ -1,28 +1,4 @@
 family,kind,number,title
-paper1,figure,1,"Site topography, geology and monitoring network at Newboroug"
-paper1,figure,2,Climate forcing over the monitoring period (2005–2026) from 
-paper1,figure,3,Summer-temperature record showing the post-2013 warming rela
-paper1,figure,4,Hierarchical clustering of hydrograph dynamics: Ward’s dendr
-paper1,figure,5,Spatial distribution of the five hydrogeological clusters (P
-paper1,figure,6,"Cluster-centroid hydrographs and seasonal amplitudes, 2005–2"
-paper1,figure,7,Filling gaps from cluster-mates. (a) How far each method mis
-paper1,figure,8,Water-balance decomposition by cluster: (a) the mean monthly
-paper1,figure,9,"Apparent storage coefficient Sₐ at each reference well, wate"
-paper1,figure,10,Iterative Nash–Sutcliffe gain of Model B over the traditiona
-paper1,figure,11,Spatial SSM coefficient atlas for the 66-well reference netw
-paper1,figure,12,Spatial SSM coefficient atlas for the 66-well reference netw
-paper1,figure,13,Spatial SSM coefficient atlas for the 66-well reference netw
-paper1,figure,14,"Mean-reversion time 1/β₃ (months, log scale) across the refe"
-paper1,figure,15,The water table kriged from the dipwells in (a) the wet stat
-paper1,figure,16,SSM water-balance residual at the 65 reference wells carryin
-paper1,figure,17,Illustrative forest reach. Forest-interception drawdown prop
-paper1,table,1,Cluster mechanistic characterization. β₁ = recharge sensitiv
-paper1,table,2,"Mean monthly head-space water balance (m/month), Model B, 20"
-paper1,table,3,Indicative annual volumetric water balance (mm/yr). P is the
-paper1,table,4,"Apparent storage coefficient Sₐ by cluster, water-table-fluc"
-paper1,table,5,Per-well SSM coefficient ranges by cluster. Cluster β₁ range
-paper1,table,6,Within-forest spatial predictors of per-well SSM coefficient
-paper1,table,7,Decomposition of cluster summer-minimum decline (mm/yr) agai
 paper2,figure,1,Three-method robustness assessment of the scraping signal at
 paper2,figure,2,"Paired BACI summer-minimum analysis, CEH36 (scraped) versus "
 paper2,figure,3,Forest-control BACI time series and CUSUM for the Impact tie
@@ -48,3 +24,26 @@ paperC,figure,3,The coastal gradient: per-well summer-minimum trend against
 paperC,figure,4,The model-free check: the spring coast-to-inland head differ
 paperC,figure,5,The episodic view: water-table drawdown contoured inland fro
 paperC,table,1,How much of each cluster’s summer-minimum decline is coastal
+paper1,figure,1,"Site topography, geology and monitoring network at Newboroug"
+paper1,figure,2,Climate forcing over the monitoring period (2005–2026) from 
+paper1,figure,3,Summer-temperature record showing the post-2013 warming rela
+paper1,figure,4,Hierarchical clustering of hydrograph dynamics: Ward’s dendr
+paper1,figure,5,Spatial distribution of the five hydrogeological clusters (P
+paper1,figure,6,"Cluster-centroid hydrographs and seasonal amplitudes, 2005–2"
+paper1,figure,7,Filling gaps from cluster-mates. (a) How far each method mis
+paper1,figure,8,Water-balance decomposition by cluster: (a) the mean monthly
+paper1,figure,9,"Apparent storage coefficient Sₐ at each reference well, wate"
+paper1,figure,10,Iterative Nash–Sutcliffe gain of Model B over the traditiona
+paper1,figure,11,Spatial SSM coefficient atlas for the 66-well reference netw
+paper1,figure,12,Spatial SSM coefficient atlas for the 66-well reference netw
+paper1,figure,13,Spatial SSM coefficient atlas for the 66-well reference netw
+paper1,figure,14,"Mean-reversion time 1/β₃ (months, log scale) across the refe"
+paper1,figure,15,The water table kriged from the dipwells in (a) the wet stat
+paper1,figure,16,SSM water-balance residual at the 65 reference wells carryin
+paper1,figure,17,Illustrative forest reach. Forest-interception drawdown is p
+paper1,table,1,Cluster mechanistic characterization. β₁ = recharge sensitiv
+paper1,table,2,"Mean monthly head-space water balance (m/month), Model B, 20"
+paper1,table,3,Indicative annual volumetric water balance (mm/yr). P is the
+paper1,table,4,"Apparent storage coefficient Sₐ by cluster, water-table-fluc"
+paper1,table,5,Per-well SSM coefficient ranges by cluster. Cluster β₁ range
+paper1,table,6,Within-forest spatial predictors of per-well SSM coefficient

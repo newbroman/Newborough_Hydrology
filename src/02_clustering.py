@@ -14,7 +14,11 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-11-24 (Paper 1 review). New: the partition fitted before and
+#   after MODEL_AB_SPLIT_DATE (the December 2017 clearfell) separately, compared by ARI with a permutation p-value
+#   (02_14_period_split.csv; cluster_period_* report numbers). Martin: "shouldnt we run the clustering on pre and
+#   post dec 2017 to see if the clusters hold?"
+# 1.17.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.16.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
@@ -151,7 +155,7 @@ from utils.config import (
     CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
     CLUSTER_MONTH_DEGENERACY_GAP,
     CLUSTER_HYDRO_WINDOW_START, CLUSTER_HYDRO_WINDOW_END,
-    FOREST_CIDS,
+    FOREST_CIDS, MODEL_AB_SPLIT_DATE,
 )
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -166,7 +170,7 @@ from utils.paths import (
     OUT_02_AMP_PER_WELL, OUT_02_AMP_SUMMARY, OUT_02_AMP_BOXPLOT,
     OUT_02_K_SWEEP, OUT_02_REPORT_NUMBERS,
     OUT_02_MONTH_STABILITY, OUT_02_MONTH_STABILITY_FIG,
-    OUT_02_CLUSTER_MEAN_LEVELS,
+    OUT_02_CLUSTER_MEAN_LEVELS, DIR_02,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.pipeline_params import get_requested_n_clusters
@@ -795,6 +799,64 @@ def plot_month_stability(well_stab: pd.Series, month_stab: pd.Series,
     render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
 
+
+
+# 1.18.0 (Martin 2026-11-24, Paper 1 review: "shouldnt we run the clustering on pre and post dec 2017 to see if the
+# clusters hold?"). The path is built from DIR_02 here, not added to utils/paths.py: every pipeline script imports
+# paths, so a constant there would move every step's code signature for one file only this script writes.
+OUT_02_PERIOD_SPLIT = DIR_02 / "02_14_period_split.csv"
+
+
+def period_split_stability(wells_ref: pd.DataFrame, full_labels: pd.Series, k: int) -> tuple[pd.DataFrame, dict]:
+    """Cluster the record before and after MODEL_AB_SPLIT_DATE separately and compare the partitions.
+
+    The same method as the main partition (Ward's on 1 - r, k clusters), run on each half of the record alone:
+    'pre' is every month before MODEL_AB_SPLIT_DATE (to December 2017, the clearfell month), 'post' every month
+    from it. A well enters a half only with two full seasonal cycles there (2 x CLUSTER_MONTH_BLOCK_MONTHS
+    months). Agreement is the adjusted Rand index (label-free): each half against the full-record partition, and
+    the halves against each other on the wells both carry, with a permutation p-value (CLUSTER_BOOT_N shuffles of
+    one half's labels, seed CLUSTER_BOOT_SEED). For reading per well, each half's arbitrary cluster ids are matched
+    to the canonical ids by the assignment that maximises shared members (Hungarian), so `same_*` says whether a
+    well sits in the cluster of the same name.
+    """
+    from scipy.optimize import linear_sum_assignment
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    min_months = 2 * CLUSTER_MONTH_BLOCK_MONTHS
+    halves = {"pre": wells_ref[wells_ref.index < split], "post": wells_ref[wells_ref.index >= split]}
+    labels, n_months = {}, {}
+    for h, d in halves.items():
+        keep = [c for c in d.columns if d[c].notna().sum() >= min_months]
+        d = d[keep]
+        n_months[h] = int(len(d.index))
+        _, sq = _correlation_distance(d)
+        raw = pd.Series(fcluster(linkage(squareform(sq, checks=False), method="ward"), t=k, criterion="maxclust"),
+                        index=d.columns)
+        ct = pd.crosstab(full_labels.reindex(raw.index), raw)
+        r_idx, c_idx = linear_sum_assignment(-ct.values)
+        to_canon = {ct.columns[c]: ct.index[r] for r, c in zip(r_idx, c_idx)}
+        labels[h] = raw.map(lambda v: to_canon.get(v, np.nan))
+        labels[h + "_raw"] = raw
+    rows = pd.DataFrame({"well": full_labels.index, "full_cluster": full_labels.values})
+    for h in ("pre", "post"):
+        rows[f"{h}_cluster"] = rows["well"].map(labels[h])
+        rows[f"{h}_group_raw"] = rows["well"].map(labels[h + "_raw"])
+        rows[f"same_{h}"] = rows[f"{h}_cluster"] == rows["full_cluster"]
+    stats = {}
+    for h in ("pre", "post"):
+        w = labels[h + "_raw"].index
+        stats[f"ari_{h}_full"] = float(adjusted_rand_score(full_labels.reindex(w).values, labels[h + "_raw"].values))
+        stats[f"n_wells_{h}"] = int(len(w))
+        stats[f"n_months_{h}"] = n_months[h]
+        stats[f"same_share_{h}"] = float(rows.loc[rows["well"].isin(w), f"same_{h}"].mean())
+    both = labels["pre_raw"].index.intersection(labels["post_raw"].index)
+    a_, b_ = labels["pre_raw"].reindex(both).values, labels["post_raw"].reindex(both).values
+    ari = float(adjusted_rand_score(a_, b_))
+    rng = np.random.default_rng(CLUSTER_BOOT_SEED)
+    null = np.array([adjusted_rand_score(a_, rng.permutation(b_)) for _ in range(CLUSTER_BOOT_N)])
+    stats.update(ari_pre_post=ari, ari_pre_post_p=float((1 + (null >= ari).sum()) / (1 + len(null))),
+                 n_wells_both=int(len(both)),
+                 same_share_both=float((rows.set_index("well").reindex(both)[["same_pre", "same_post"]].all(axis=1)).mean()))
+    return rows, stats
 
 def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
     """
@@ -1910,6 +1972,36 @@ if __name__ == "__main__":
     )
     cluster_df.to_csv(INT_CLUSTER_STATS, index=False)
     step(f"Saved cluster stats: {INT_CLUSTER_STATS.name}")
+    # 1.18.0: does the partition hold either side of MODEL_AB_SPLIT_DATE (the December 2017 clearfell)?
+    _full = pd.Series(sub_clusters, index=wells_ref.columns)
+    _ps_rows, _ps = period_split_stability(wells_ref, _full, WARDS_K)
+    _ps_rows.to_csv(OUT_02_PERIOD_SPLIT, index=False)
+    step(f"Saved period split: {OUT_02_PERIOD_SPLIT.name} - ARI pre/post {_ps['ari_pre_post']:.2f} "
+         f"(p {_ps['ari_pre_post_p']:.3f}), pre/full {_ps['ari_pre_full']:.2f}, post/full {_ps['ari_post_full']:.2f}")
+    _per = f"split {MODEL_AB_SPLIT_DATE}"
+    rr.add("cluster_period_split_date", MODEL_AB_SPLIT_DATE, unit="date",
+           note="first month of the second half in the pre/post clustering test (config.MODEL_AB_SPLIT_DATE)")
+    rr.add("cluster_period_ari_pre_post", _ps["ari_pre_post"], unit="", era=_per,
+           note=f"adjusted Rand index between Ward k={WARDS_K} partitions fitted before and after the split, on the "
+                f"{_ps['n_wells_both']} wells both halves carry")
+    rr.add("cluster_period_ari_pre_post_p", _ps["ari_pre_post_p"], unit="", era=_per,
+           note=f"permutation p-value of that ARI ({CLUSTER_BOOT_N} shuffles of one half's labels)")
+    rr.add("cluster_period_ari_pre_full", _ps["ari_pre_full"], unit="", era=_per,
+           note="ARI of the partition fitted before the split against the full-record partition")
+    rr.add("cluster_period_ari_post_full", _ps["ari_post_full"], unit="", era=_per,
+           note="ARI of the partition fitted from the split against the full-record partition")
+    for _h in ("pre", "post"):
+        rr.add(f"cluster_period_n_wells_{_h}", _ps[f"n_wells_{_h}"], unit="count", era=_per,
+               note=f"wells with at least two seasonal cycles in the {_h}-split half")
+        rr.add(f"cluster_period_n_months_{_h}", _ps[f"n_months_{_h}"], unit="count", era=_per,
+               note=f"calendar months in the {_h}-split half")
+        rr.add(f"cluster_period_same_share_{_h}", _ps[f"same_share_{_h}"], unit="fraction", era=_per,
+               note=f"share of wells the {_h}-split partition places in the cluster of the same name (ids matched by "
+                    f"maximum shared membership)")
+    rr.add("cluster_period_n_wells_both", _ps["n_wells_both"], unit="count", era=_per,
+           note="wells carried by both halves")
+    rr.add("cluster_period_same_share_both", _ps["same_share_both"], unit="fraction", era=_per,
+           note="share of the wells both halves carry that sit in their full-record cluster in both")
     add_cluster_geography_numbers(rr, cluster_df)
     add_cluster_membership_numbers(rr, cluster_df, Z)
     rr.add("amplitude_min_obs_per_window", AMP_MIN_OBS_PER_WIN, unit="count",

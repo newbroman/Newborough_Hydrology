@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_56.odt — do not edit. source-sha256=59fb8b0d382a2054 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_56.odt — do not edit. source-sha256=3e9d1800d1bb58e5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it
@@ -188,7 +188,7 @@ The three readings agree on the dune (C2). They differ most in the western resid
 
 ## []{#anchor-4}6.3 Interception and the forest
 
-Under the pine forest the canopy intercepts part of the rain, which evaporates without reaching the ground. The model is fitted on gross rainfall and on demand above the canopy, so its evaporation term already carries that interception loss, and the water balance books interception inside the evaporation, not on top of it. So booked, the main forest's total evaporation is 633 mm a year, 0.97 times Thornthwaite PET, within what the weather allows. A scan of the interception fraction closes the forest's atmospheric loss against PET at 0.20 in the coastal forest, consistent with the adopted fraction, and at 0.15 under the main forest, where the drainage shows no dependence on head at any fraction scanned, so what the scan returns there measures an assumed drainage law as much as a canopy.
+Under the pine forest the canopy intercepts part of the rain, which evaporates without reaching the ground. The model is fitted on gross rainfall and on demand above the canopy, so its evaporation term already carries that interception loss, and the water balance books interception inside the evaporation, not on top of it. So booked, the main forest's total evaporation is 631 mm a year, 0.97 times Thornthwaite PET, within what the weather allows. A scan of the interception fraction closes the forest's atmospheric loss against PET at 0.20 in the coastal forest, consistent with the adopted fraction, and at 0.15 under the main forest, where the drainage shows no dependence on head at any fraction scanned, so what the scan returns there measures an assumed drainage law as much as a canopy.
 
 # []{#anchor-4}7. Comparison with a fixed-floor model
 

@@ -79,7 +79,13 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.18.1"  # Hollingham (2026) — 2026-11-24 (T-221, Martin: "approve"). The *_lo/_hi key Notes said
+__version__ = "1.19.1"  # Hollingham (2026) — 2026-11-24. The site-wide P and PET are the mean over COMPLETE calendar
+#   years (site_annual_means, Script 00's definition: 891 mm), not mean monthly x 12 over every reporting month, which the
+#   2005 and 2026 part-years pulled to 889 mm. The registry's site P - PET keeps its every-month basis.
+# 1.19.0  # Hollingham (2026) — 2026-11-24 (Paper 1 review, Martin: "I'm tempted just to cite 891mm as
+#   the average for all"). Table 7 / Paper 1 Table 3 and panel (b) give every cluster the site-wide P and PET (mean over
+#   every reporting month) instead of its own fitted months; P is one value, not 889-893.
+# 1.18.1  # Hollingham (2026) — 2026-11-24 (T-221, Martin: "approve"). The *_lo/_hi key Notes said
 #   "the three estimators"; they now name the two that set the range. Notes only; no value changes.
 # 1.18.0  # Hollingham (2026) — 2026-11-24 (T-221, D-334). The partition range (Lo/Hi_drain_frac, the
 #   *_lo/_hi keys, Figure 11b's hatched band) spans Model B and the recession ratio only; the depth-dependent estimator,
@@ -514,6 +520,21 @@ def site_climate_means(df):
     return float(sub["P_m"].mean()), float(sub["PET"].mean())
 
 
+def site_annual_means(df):
+    """(P_mm_yr, PET_mm_yr): the mean over the COMPLETE calendar years in which any cluster reports (1.19.1).
+
+    The definition Script 00 uses for mean_annual_rain_well_record (2006-2025, 891 mm), so the volumetric table and the
+    paper's quoted mean annual rainfall agree. A mean monthly value x 12 over every reporting month (1.19.0) is pulled
+    to 889 mm by the two part-years, April-December 2005 and January-February 2026, which miss different seasons.
+    """
+    cols = [f"C{cid}" for cid in sorted(_CFG_LABELS.keys()) if f"C{cid}" in df.columns]
+    sub = df[df[cols].notna().any(axis=1)][["Date", "P_m", "PET"]].dropna()
+    yr = sub.groupby(sub["Date"].dt.year)
+    full = yr.size()[lambda n: n == 12].index
+    ann = yr[["P_m", "PET"]].sum().loc[full] * 1000.0
+    return float(ann["P_m"].mean()), float(ann["PET"].mean())
+
+
 def partition_estimates(s: dict, r: dict, ddp_frac=np.nan) -> dict:
     """1.12.0 (D-283): the drainage fraction of the loss by each estimator, the headline and its range.
     Headline: Model B (falls back to Model A where Model B is absent). Range: the lowest and highest
@@ -528,15 +549,17 @@ def partition_estimates(s: dict, r: dict, ddp_frac=np.nan) -> dict:
     return dict(est=est, mid=head, lo=min(vals), hi=max(vals))
 
 
-def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=None):
+def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=None, site_annual=None):
     """Save Table 3b: volumetric water balance partition.
 
     Shows P, I, and the ET/Drainage partition bracketed by SSM and recession
     methods. No Sy-dependent conversion — the partition is derived from
     headspace ratios (SSM) and observed recession rates.
     """
-    site_P_annual = site_P_m * 12 * 1000       # mm/yr, over every reporting month
+    site_P_annual = site_P_m * 12 * 1000       # mm/yr, over every reporting month (the registry's site P - PET)
     site_PET_annual = site_PET_m * 12 * 1000
+    # 1.19.1: the table's P and PET are the complete-calendar-year means (site_annual_means), as Script 00 quotes them
+    tab_P_annual, tab_PET_annual = site_annual if site_annual else (site_P_annual, site_PET_annual)
 
     # Publish the site-wide P − PET to the observations registry for
     # downstream consumers (and to satisfy the "no hardcoded values"
@@ -551,8 +574,12 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=No
     for cid in sorted(summary.keys()):
         s = summary[cid]
         r = recession.get(cid, {})
-        P_annual = s["P_m"] * 12 * 1000        # this cluster's own fitted months (1.7.0)
-        PET_annual = s["PET_m"] * 12 * 1000
+        # 1.19.0 (Martin 2026-11-24, Paper 1 review): one site-wide P and PET for every cluster, the mean over every
+        # reporting month (site_climate_means). Until 1.18.1 each cluster used its own fitted months (1.7.0), which
+        # printed P as 889-893 mm/yr and read as if the clusters got different rain. The head-space fractions are
+        # unchanged; applying them to the site mean moves no figure by more than 2 mm/yr.
+        P_annual = tab_P_annual
+        PET_annual = tab_PET_annual
 
         is_forest = cid in FOREST_CIDS
         I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0.0
@@ -728,7 +755,7 @@ def save_recession_table(summary, recession, path, datum_range=None, ddp=None):
 # FIGURE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None, ddp=None):
+def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None, ddp=None, site_annual=None):
     """Two-panel Figure 8.
 
     Panel (a): Head-space SSM decomposition — recharge vs ET + drainage.
@@ -740,7 +767,8 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
 
     site_P_annual = site_P_m * 12 * 1000       # reference lines: every reporting month (1.7.0)
     site_PET_annual = site_PET_m * 12 * 1000
-    P_by_cid = {c: summary[c]["P_m"] * 12 * 1000 for c in cids}
+    _tabP = site_annual[0] if site_annual else site_P_annual   # 1.19.1: complete-year mean, as the table
+    P_by_cid = {c: _tabP for c in cids}   # 1.19.0: one site-wide P (save_volumetric_table)
 
     if ms:
         apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
@@ -833,7 +861,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     gap = 0.04
 
     for i, cid in enumerate(cids):
-        P_annual = P_by_cid[cid]               # this cluster's own forcing (1.7.0)
+        P_annual = P_by_cid[cid]               # the site-wide forcing (1.19.0)
         is_forest = cid in FOREST_CIDS
         I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0
         P_net = P_annual - I_val
@@ -968,8 +996,8 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
 
     I_pct = int(FOREST_INTERCEPTION * 100)
     ax2.text(0.5, -0.14,
-             f"Rainfall P = {min(P_by_cid.values()):.0f}–{max(P_by_cid.values()):.0f} mm/yr by cluster "
-             f"(each over its own months). At steady state, "
+             f"Rainfall P = {_tabP:.0f} mm/yr at every cluster "
+             f"(the site mean over the record). At steady state, "
              f"total losses = P. The bars split the losses by Model B, interception counted within evaporation; the hatched band spans the ET/drainage\nboundary "
              f"between Model B and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
@@ -985,7 +1013,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=None):
+def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=None, site_annual=None):
     """The closure of the head-space balance: |residual| as a percentage of total
     losses, per cluster, and the largest of them — the "closes to within N%" the
     documents quote."""
@@ -1027,16 +1055,17 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
                note=f"highest cluster mean {name}")
     # Emit-first (1.9.0): annual rainfall per cluster as Table 7 (16_water_bal_vol_table.csv
     # P_mm_yr) computes it, and its range and mean across clusters.
-    P_yr = [summary[cid]["P_m"] * 12 * 1000 for cid in summary]
+    # 1.19.1: every cluster's annual P is the site mean over complete calendar years (site_annual_means), as Table 7
+    # now prints it; min, max and mean are kept as keys and are now equal.
+    _sP = site_annual[0] if site_annual else None
+    P_yr = [(_sP if _sP is not None else summary[cid]["P_m"] * 12 * 1000) for cid in summary]
     rr.add("water_balance_P_mm_yr_min", min(P_yr), unit="mm/yr",
-           note="lowest cluster annual rainfall: mean monthly P over the cluster's fitted months x 12 "
-                "(Table 7 P_mm_yr)")
+           note="lowest cluster annual rainfall (Table 7 P_mm_yr); one site value since 1.19.1")
     rr.add("water_balance_P_mm_yr_max", max(P_yr), unit="mm/yr",
-           note="highest cluster annual rainfall: mean monthly P over the cluster's fitted months x 12 "
-                "(Table 7 P_mm_yr)")
+           note="highest cluster annual rainfall (Table 7 P_mm_yr); one site value since 1.19.1")
     rr.add("water_balance_P_mm_yr_mean", float(np.mean(P_yr)), unit="mm/yr",
-           note="mean across clusters of annual rainfall (Table 7 P_mm_yr): the approximate site "
-                "annual rainfall the report quotes")
+           note="annual rainfall at every cluster (Table 7 P_mm_yr): the site mean over complete calendar years, "
+                "as Script 00's mean_annual_rain_well_record")
     rr.add("water_balance_closure_max_pct", worst[1] if worst else np.nan, unit="%",
            note=f"Model B (D-332): largest per-cluster residual as a share of total losses "
                 f"({worst[0] if worst else 'none'}): the balance closes to within this at every cluster")
@@ -1050,8 +1079,8 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
         s = summary[cid]
         pe = partition_estimates(s, recession.get(cid, {}), (ddp or {}).get(cid, np.nan))
         lab = _CFG_LABELS[cid]
-        P_yr = s["P_m"] * 12 * 1000
-        PET_yr = s["PET_m"] * 12 * 1000
+        P_yr = site_annual[0] if site_annual else s["P_m"] * 12 * 1000      # 1.19.1: as Table 7
+        PET_yr = site_annual[1] if site_annual else s["PET_m"] * 12 * 1000
         I_yr = FOREST_INTERCEPTION * P_yr if cid in FOREST_CIDS else 0.0
         Pn = P_yr - I_yr
         for key, val, unit, note in (
@@ -1130,22 +1159,23 @@ def main():
 
     site_P_m, site_PET_m = site_climate_means(df)
     ddp = load_ddp_share()
-    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m, ddp=ddp)
+    _site_annual = site_annual_means(df)
+    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m, ddp=ddp, site_annual=_site_annual)
     datum_range = load_datum_range()
     save_recession_table(summary, recession, OUT_16_REC_TABLE, datum_range, ddp=ddp)
     save_report_numbers(summary, OUT_16_REPORT_NUMBERS, recession=recession, ddp=ddp,
-                        excluded_datum=mb.attrs.get("excluded_datum", {}))
+                        excluded_datum=mb.attrs.get("excluded_datum", {}), site_annual=_site_annual)
 
     # ── Figure 8 ──
     # Manuscript version
     # 1.14.0 (D-334): no Model A datum bracket in the figure; 16_water_bal_rec_table.csv keeps those columns
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None, ddp=ddp)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None, ddp=ddp, site_annual=_site_annual)
     fig.savefig(OUT_16_BAR_MS, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     saved(f"{OUT_16_BAR_MS.name}")
 
     # Lay version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=None, ddp=ddp)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=None, ddp=ddp, site_annual=_site_annual)
     fig.savefig(OUT_16_BAR_LAY, dpi=150, bbox_inches='tight')
     plt.close(fig)
     saved(f"{OUT_16_BAR_LAY.name}")

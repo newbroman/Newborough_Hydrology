@@ -78,7 +78,9 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-24 (T-220, D-334). Figure 51_07 panel (a) draws the Model B
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
+#   cells (Martin: "might be better to put the well names in the table cells"); the grey still carries the count.
+# "1.3.0"  # Hollingham (2026) - 2026-11-24 (T-220, D-334). Figure 51_07 panel (a) draws the Model B
 #   SSM run and no longer the Model A fixed-floor column; Model A stays in the CSV and report numbers as reference.
 # "1.2.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM reference is Model B: a sixth
 #   rule ssm_model_b (fit_ssm intercept=True, beta_3 bounded below, run freely with its alpha) beside ssm_model_a,
@@ -632,9 +634,15 @@ def plot(ho, cdt, cd) -> None:
     if cdt is not None:
         s = cdt[cdt["modern_cluster"].notna()]
         ct = pd.crosstab(s["modern_cluster"].astype(int), s["ccw_cluster"].astype(int))
-        a.imshow(ct.values, cmap="Greys", aspect="auto")
+        a.imshow(ct.values, cmap="Greys", aspect="auto", vmin=0, vmax=max(2 * ct.values.max(), 1))
+        # 1.4.0 (Martin 2026-11-24, Paper 1 review): the cells name their wells; the grey carries the count, kept light
+        # (vmax at twice the largest count) so the names stay legible
+        names = s.assign(mc=s["modern_cluster"].astype(int), gc=s["ccw_cluster"].astype(int)) \
+                 .groupby(["mc", "gc"])["well"].apply(lambda w: "\n".join(sorted(str(x).upper() for x in w)))
         for (i, j), v in np.ndenumerate(ct.values):
-            a.text(j, i, str(v), ha="center", va="center", color="w" if v > ct.values.max() / 2 else "k")
+            if v:
+                a.text(j, i, names.get((ct.index[i], ct.columns[j]), str(v)), ha="center", va="center",
+                       fontsize=6.5, color="k", linespacing=1.1)
         a.set_yticks(range(len(ct.index)))
         a.set_yticklabels([CLUSTER_LABELS.get(int(c), f"C{c}") for c in ct.index], fontsize=7)
         a.set_xticks(range(len(ct.columns)))

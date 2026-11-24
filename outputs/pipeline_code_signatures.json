@@ -1,7 +1,7 @@
 {
  "scripts": {
   "00_climate_summary.py": {
-   "recorded": "2026-11-24T14:26:15Z",
+   "recorded": "2026-11-24T21:19:51Z",
    "sig": "788ea3d1fcb54db5",
    "utils": {
     "utils/config.py": "0403c8a6a39d4399",
@@ -12,7 +12,7 @@
    }
   },
   "01_data_prep.py": {
-   "recorded": "2026-11-24T14:02:45Z",
+   "recorded": "2026-11-24T20:59:29Z",
    "sig": "9a0a7696b98d48c0",
    "utils": {
     "utils/buckets.py": "3b07597c66a3bd19",
@@ -29,7 +29,7 @@
    }
   },
   "01b_water_table.py": {
-   "recorded": "2026-11-24T14:03:55Z",
+   "recorded": "2026-11-24T21:00:31Z",
    "sig": "aa94fdb85a09713b",
    "utils": {
     "utils/config.py": "d42673dbdf282f40",
@@ -43,10 +43,10 @@
    }
   },
   "02_clustering.py": {
-   "recorded": "2026-11-24T14:04:27Z",
-   "sig": "16e024c0a988d244",
+   "recorded": "2026-11-24T21:01:00Z",
+   "sig": "a792ee617c73b158",
    "utils": {
-    "utils/config.py": "401dc0bc3583b6aa",
+    "utils/config.py": "474bef61bba3f90d",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/paths.py": "0a718e1f57aef9e7",
@@ -56,7 +56,7 @@
    }
   },
   "03_state_space_model.py": {
-   "recorded": "2026-11-24T14:18:16Z",
+   "recorded": "2026-11-24T21:13:47Z",
    "sig": "2c75c5249b109134",
    "utils": {
     "utils/config.py": "30f6b10a9525f799",
@@ -71,7 +71,7 @@
    }
   },
   "04_cluster_visualisations.py": {
-   "recorded": "2026-11-24T14:18:45Z",
+   "recorded": "2026-11-24T21:14:06Z",
    "sig": "1c3733d9fdfdbed9",
    "utils": {
     "utils/config.py": "0a538d6b2fd0ba81",
@@ -83,7 +83,7 @@
    }
   },
   "05_pearson_affinity.py": {
-   "recorded": "2026-11-24T14:19:11Z",
+   "recorded": "2026-11-24T21:14:24Z",
    "sig": "027d1c290167d90f",
    "utils": {
     "utils/config.py": "67cb3f7e9379ee83",
@@ -96,7 +96,7 @@
    }
   },
   "06_pearson_extended.py": {
-   "recorded": "2026-11-24T14:19:50Z",
+   "recorded": "2026-11-24T21:14:56Z",
    "sig": "40cc8a1253f0d9bd",
    "utils": {
     "utils/config.py": "9e255d8223e1250d",
@@ -109,7 +109,7 @@
    }
   },
   "07_spatial_coefficients.py": {
-   "recorded": "2026-11-24T14:20:49Z",
+   "recorded": "2026-11-24T21:15:40Z",
    "sig": "7217291fc6364f6e",
    "utils": {
     "utils/config.py": "5c1887674969e339",
@@ -122,7 +122,7 @@
    }
   },
   "08_model_benchmarking.py": {
-   "recorded": "2026-11-24T14:21:41Z",
+   "recorded": "2026-11-24T21:16:16Z",
    "sig": "9bdb52b378f5144f",
    "utils": {
     "utils/config.py": "80db80e2da49e800",
@@ -136,7 +136,7 @@
    }
   },
   "09a_paired_baci.py": {
-   "recorded": "2026-11-24T17:09:32Z",
+   "recorded": "2026-11-24T21:16:32Z",
    "sig": "ed6082e108d7dfca",
    "utils": {
     "utils/config.py": "2168b961579f0f9d",
@@ -149,7 +149,7 @@
    }
   },
   "09b_scraping_propagation.py": {
-   "recorded": "2026-11-24T17:09:32Z",
+   "recorded": "2026-11-24T21:16:32Z",
    "sig": "b0d47b557fa16795",
    "utils": {
     "utils/clearfell_common.py": "26141fbfa925ebc4",
@@ -164,7 +164,7 @@
    }
   },
   "09c_summer_minima.py": {
-   "recorded": "2026-11-24T17:09:32Z",
+   "recorded": "2026-11-24T21:16:32Z",
    "sig": "e2b6b328a7dce68c",
    "utils": {
     "utils/clearfell_common.py": "708747a3e869128e",
@@ -176,7 +176,7 @@
    }
   },
   "09d_scenario_comparison.py": {
-   "recorded": "2026-11-24T17:09:32Z",
+   "recorded": "2026-11-24T21:16:32Z",
    "sig": "26cf142f5c3837d4",
    "utils": {
     "utils/clearfell_common.py": "d46fea5a0624db2a",
@@ -191,7 +191,7 @@
    }
   },
   "09e_robustness.py": {
-   "recorded": "2026-11-24T17:09:32Z",
+   "recorded": "2026-11-24T21:16:32Z",
    "sig": "83d051ecf85f28a0",
    "utils": {
     "utils/config.py": "1f74845899956a3f",
@@ -202,7 +202,7 @@
    }
   },
   "09f_management_effects.py": {
-   "recorded": "2026-11-24T17:08:56Z",
+   "recorded": "2026-11-24T21:30:35Z",
    "sig": "a15c10004628bf2b",
    "utils": {
     "utils/coastal_utils.py": "16aeaad33a7fd509",
@@ -217,7 +217,7 @@
    }
   },
   "09g_mechanism_diagrams.py": {
-   "recorded": "2026-11-24T17:09:00Z",
+   "recorded": "2026-11-24T21:30:36Z",
    "sig": "7d84338892502878",
    "utils": {
     "utils/console_utils.py": "c46afb132b492082",
@@ -226,7 +226,7 @@
    }
   },
   "10a_ancova_baci.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "8b25eeb494b8a7c8",
    "utils": {
     "utils/clearfell_common.py": "a24b715763de31cd",
@@ -239,7 +239,7 @@
    }
   },
   "10b_spatial_step_maps.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "41103fbe3847c837",
    "utils": {
     "utils/clearfell_common.py": "d355e2ed663dfe58",
@@ -252,7 +252,7 @@
    }
   },
   "10c_forest_zone_analysis.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "05c774ec6e611dfc",
    "utils": {
     "utils/config.py": "7ea1ecc8de4e3d24",
@@ -264,7 +264,7 @@
    }
   },
   "10d_summer_minima.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "0052ccf686310ede",
    "utils": {
     "utils/clearfell_common.py": "c76e135da3adf280",
@@ -275,7 +275,7 @@
    }
   },
   "10e_coefficient_decomposition.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "d47b6a371ada7884",
    "utils": {
     "utils/clearfell_common.py": "47f252630312ba24",
@@ -288,7 +288,7 @@
    }
   },
   "10f_robustness.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "5741e3b3489f4f5c",
    "utils": {
     "utils/clearfell_common.py": "55bc1c196a9da226",
@@ -299,7 +299,7 @@
    }
   },
   "10g_diagnostics.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "9291e94602bdc334",
    "utils": {
     "utils/clearfell_common.py": "8733e8638f4500c4",
@@ -311,7 +311,7 @@
    }
   },
   "10h_synthetic_impact_baci.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "9ff5a2a6995cd6dd",
    "utils": {
     "utils/clearfell_common.py": "aa68bc75a8a051e2",
@@ -322,7 +322,7 @@
    }
   },
   "10i_ceh34_hindcast.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "2e3d5a0c4ef6dbe2",
    "utils": {
     "utils/clearfell_common.py": "e1a3c3d75dbeaaa3",
@@ -332,7 +332,7 @@
    }
   },
   "10j_impact_edge_contrast.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "6dbfc33eeccf0a1d",
    "utils": {
     "utils/clearfell_common.py": "b988556431ce8953",
@@ -343,7 +343,7 @@
    }
   },
   "10k_four_zone_baci.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "f91605dc2ebba1dc",
    "utils": {
     "utils/clearfell_common.py": "1c69addf4700e414",
@@ -355,7 +355,7 @@
    }
   },
   "10l_four_zone_summer_minima.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "99252808a43e27c9",
    "utils": {
     "utils/clearfell_common.py": "de6aeb1ce00f9bc6",
@@ -366,7 +366,7 @@
    }
   },
   "10m_wmc3_baci_dual.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "7ac5ab3ff8ddb887",
    "utils": {
     "utils/clearfell_common.py": "dc3148b256697553",
@@ -377,7 +377,7 @@
    }
   },
   "10n_synthetic_did.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "0087b53498a2ae0a",
    "utils": {
     "utils/clearfell_common.py": "55bc1c196a9da226",
@@ -386,7 +386,7 @@
    }
   },
   "11_forecasting_thresholds.py": {
-   "recorded": "2026-11-24T14:24:29Z",
+   "recorded": "2026-11-24T21:18:27Z",
    "sig": "c6036ced3f2ac27b",
    "utils": {
     "utils/config.py": "ba5349044f048a76",
@@ -397,7 +397,7 @@
    }
   },
   "11b_spatial_thresholds.py": {
-   "recorded": "2026-11-24T14:25:46Z",
+   "recorded": "2026-11-24T21:19:23Z",
    "sig": "73a7de2494ff9b82",
    "utils": {
     "utils/config.py": "d6e331d08e3e79e2",
@@ -411,7 +411,7 @@
    }
   },
   "11c_pflood_achievability.py": {
-   "recorded": "2026-11-24T14:26:06Z",
+   "recorded": "2026-11-24T21:19:42Z",
    "sig": "355f3ff139a7094e",
    "utils": {
     "utils/config.py": "f8458a264ac7fcd6",
@@ -423,7 +423,7 @@
    }
   },
   "12_figure_site_overview.py": {
-   "recorded": "2026-11-24T14:26:54Z",
+   "recorded": "2026-11-24T21:20:25Z",
    "sig": "800502830800ef40",
    "utils": {
     "utils/config.py": "6a40786335635ffc",
@@ -434,7 +434,7 @@
    }
   },
   "13_figure_experimental_design.py": {
-   "recorded": "2026-11-24T14:27:27Z",
+   "recorded": "2026-11-24T21:20:52Z",
    "sig": "d25300464f1d0737",
    "utils": {
     "utils/clearfell_common.py": "01093b8a8b20bc40",
@@ -447,7 +447,7 @@
    }
   },
   "14_climate_projections.py": {
-   "recorded": "2026-11-24T14:26:20Z",
+   "recorded": "2026-11-24T21:19:55Z",
    "sig": "5344022c65339e20",
    "utils": {
     "utils/cluster_series.py": "aab7d9a704d803d1",
@@ -469,7 +469,7 @@
    }
   },
   "15_depth_dependent_pet.py": {
-   "recorded": "2026-11-24T14:27:37Z",
+   "recorded": "2026-11-24T21:21:01Z",
    "sig": "d4b0c91025328b4e",
    "utils": {
     "utils/config.py": "2c29b91876b8d1a7",
@@ -481,8 +481,8 @@
    }
   },
   "16_water_bal.py": {
-   "recorded": "2026-11-24T17:05:44Z",
-   "sig": "dd58f0d83096f37b",
+   "recorded": "2026-11-24T22:34:50Z",
+   "sig": "c76531f800ada786",
    "utils": {
     "utils/config.py": "f1fc42d89fc67352",
     "utils/console_utils.py": "2cc1cbf79808083c",
@@ -493,7 +493,7 @@
    }
   },
   "17_wtf_specific_yield.py": {
-   "recorded": "2026-11-24T14:27:41Z",
+   "recorded": "2026-11-24T21:21:05Z",
    "sig": "9a60f7583af67ac6",
    "utils": {
     "utils/config.py": "922b3a18af20527e",
@@ -504,7 +504,7 @@
    }
   },
   "18_wtf_spatial.py": {
-   "recorded": "2026-11-24T14:29:22Z",
+   "recorded": "2026-11-24T21:22:22Z",
    "sig": "efe916463698a895",
    "utils": {
     "utils/config.py": "6a49b17d14bbd026",
@@ -516,7 +516,7 @@
    }
   },
   "19_spatial_groundwater.py": {
-   "recorded": "2026-11-24T14:29:29Z",
+   "recorded": "2026-11-24T21:22:27Z",
    "sig": "14f11ecee654a9cb",
    "utils": {
     "utils/clearfell_common.py": "d46fea5a0624db2a",
@@ -530,7 +530,7 @@
    }
   },
   "20_spatial_figures.py": {
-   "recorded": "2026-11-24T17:07:20Z",
+   "recorded": "2026-11-24T21:23:58Z",
    "sig": "6e776ac30996797c",
    "utils": {
     "utils/clearfell_common.py": "37b939062bf2400f",
@@ -548,7 +548,7 @@
    }
   },
   "21_forestry_scenarios.py": {
-   "recorded": "2026-11-24T17:07:30Z",
+   "recorded": "2026-11-24T21:24:05Z",
    "sig": "54ccd11d66ea5a12",
    "utils": {
     "utils/clearfell_common.py": "6e0fe852392e4112",
@@ -563,7 +563,7 @@
    }
   },
   "22_residual_lag_analysis.py": {
-   "recorded": "2026-11-24T14:32:43Z",
+   "recorded": "2026-11-24T21:25:05Z",
    "sig": "6a56434e7e902a3b",
    "utils": {
     "utils/config.py": "65a2073b0da713ca",
@@ -577,7 +577,7 @@
    }
   },
   "23_ridge_recharge_lag_test.py": {
-   "recorded": "2026-11-24T14:32:50Z",
+   "recorded": "2026-11-24T21:25:12Z",
    "sig": "6650fc8e1bad3ecd",
    "utils": {
     "utils/config.py": "61287404b955c59e",
@@ -590,7 +590,7 @@
    }
   },
   "24_residual_seasonality.py": {
-   "recorded": "2026-11-24T14:33:07Z",
+   "recorded": "2026-11-24T21:25:25Z",
    "sig": "47cee5b91a18cbef",
    "utils": {
     "utils/config.py": "20da950615fa24ee",
@@ -604,7 +604,7 @@
    }
   },
   "24b_residual_climatology.py": {
-   "recorded": "2026-11-24T14:38:06Z",
+   "recorded": "2026-11-24T21:29:44Z",
    "sig": "58e9f59699866ebc",
    "utils": {
     "utils/config.py": "83ea42d4de56a596",
@@ -616,7 +616,7 @@
    }
   },
   "25_coastal_gradient.py": {
-   "recorded": "2026-11-24T14:32:36Z",
+   "recorded": "2026-11-24T21:24:59Z",
    "sig": "362be994622f6e47",
    "utils": {
     "utils/clearfell_common.py": "a1c2f40569207913",
@@ -628,7 +628,7 @@
    }
   },
   "26_van_willegen_msl.py": {
-   "recorded": "2026-11-24T14:33:31Z",
+   "recorded": "2026-11-24T21:25:44Z",
    "sig": "e99b4e2827465f65",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -644,7 +644,7 @@
    }
   },
   "26b_van_willegen_msl_projections.py": {
-   "recorded": "2026-11-24T14:33:35Z",
+   "recorded": "2026-11-24T21:25:48Z",
    "sig": "cdb29053fdfa0878",
    "utils": {
     "utils/config.py": "5f068bbf3fbdeae9",
@@ -656,7 +656,7 @@
    }
   },
   "26c_msl5_report_figures.py": {
-   "recorded": "2026-11-24T14:33:37Z",
+   "recorded": "2026-11-24T21:25:50Z",
    "sig": "dd04f7f08fe5f4b5",
    "utils": {
     "utils/config.py": "4f7333bf56a84707",
@@ -666,7 +666,7 @@
    }
   },
   "28_c3_detrend_check.py": {
-   "recorded": "2026-11-24T14:33:44Z",
+   "recorded": "2026-11-24T21:25:56Z",
    "sig": "2381401c01c8b00e",
    "utils": {
     "utils/console_utils.py": "2cc1cbf79808083c",
@@ -676,7 +676,7 @@
    }
   },
   "29_c3_within_variance_check.py": {
-   "recorded": "2026-11-24T14:33:48Z",
+   "recorded": "2026-11-24T21:25:59Z",
    "sig": "d9347cd2c0bb2ad3",
    "utils": {
     "utils/config.py": "bbbf748f9050a9f8",
@@ -688,7 +688,7 @@
    }
   },
   "30_c4_drainage_identifiability.py": {
-   "recorded": "2026-11-24T14:34:42Z",
+   "recorded": "2026-11-24T21:26:51Z",
    "sig": "d3f88f50618c19fb",
    "utils": {
     "utils/config.py": "6d96bed0469d15f7",
@@ -701,7 +701,7 @@
    }
   },
   "31_cluster_validation.py": {
-   "recorded": "2026-11-24T14:38:16Z",
+   "recorded": "2026-11-24T21:29:57Z",
    "sig": "a47fb0f454259212",
    "utils": {
     "utils/config.py": "7e0459f1876bf21f",
@@ -714,7 +714,7 @@
    }
   },
   "31b_separation_vs_recoverability.py": {
-   "recorded": "2026-11-24T14:38:20Z",
+   "recorded": "2026-11-24T21:30:01Z",
    "sig": "22b1e315461a0335",
    "utils": {
     "utils/console_utils.py": "f9d839c0e19a63ee",
@@ -725,7 +725,7 @@
    }
   },
   "32_differential_movement.py": {
-   "recorded": "2026-11-24T14:35:24Z",
+   "recorded": "2026-11-24T21:27:29Z",
    "sig": "495e2027d1f5e0b6",
    "utils": {
     "utils/config.py": "6de8165992f0bbb8",
@@ -736,7 +736,7 @@
    }
   },
   "33_envelope_amplification.py": {
-   "recorded": "2026-11-24T17:08:20Z",
+   "recorded": "2026-11-24T21:28:11Z",
    "sig": "8bfb2143360ef99f",
    "utils": {
     "utils/config.py": "c15ce03bbc2c6ada",
@@ -750,7 +750,7 @@
    }
   },
   "34_window_sensitivity.py": {
-   "recorded": "2026-11-24T14:38:23Z",
+   "recorded": "2026-11-24T21:30:03Z",
    "sig": "e1489bfc42a76d62",
    "utils": {
     "utils/config.py": "dab78203ca74f684",
@@ -761,7 +761,7 @@
    }
   },
   "35_per_well_amplification.py": {
-   "recorded": "2026-11-24T14:36:35Z",
+   "recorded": "2026-11-24T21:28:27Z",
    "sig": "1112f54ded31d377",
    "utils": {
     "utils/config.py": "c47c9c7f92721477",
@@ -774,7 +774,7 @@
    }
   },
   "36_absolute_climate_trend.py": {
-   "recorded": "2026-11-24T14:37:35Z",
+   "recorded": "2026-11-24T21:29:17Z",
    "sig": "8e49a2c96ddf9a59",
    "utils": {
     "utils/config.py": "e2d7c615ac00937e",
@@ -786,7 +786,7 @@
    }
   },
   "37_driver_validation.py": {
-   "recorded": "2026-11-24T17:08:39Z",
+   "recorded": "2026-11-24T21:29:32Z",
    "sig": "2114a3a5d2e32e78",
    "utils": {
     "utils/clearfell_common.py": "f0f5ee7ad04a45d3",
@@ -800,7 +800,7 @@
    }
   },
   "37b_driver_footing.py": {
-   "recorded": "2026-11-24T17:08:51Z",
+   "recorded": "2026-11-24T21:29:41Z",
    "sig": "db19e984b78a4fb3",
    "utils": {
     "utils/config.py": "f9b15bf84badc3bd",
@@ -815,7 +815,7 @@
    }
   },
   "38_coastal_transect.py": {
-   "recorded": "2026-11-24T14:38:26Z",
+   "recorded": "2026-11-24T21:30:06Z",
    "sig": "2106b0914c4dc17c",
    "utils": {
     "utils/config.py": "bf22e0d268bd3899",
@@ -826,7 +826,7 @@
    }
   },
   "39_ccw_hindcast.py": {
-   "recorded": "2026-11-24T14:38:50Z",
+   "recorded": "2026-11-24T21:30:28Z",
    "sig": "4651dc3d3c06d2f1",
    "utils": {
     "utils/config.py": "8eb136e0c08d673d",
@@ -840,7 +840,7 @@
    }
   },
   "40_shoreline_retreat.py": {
-   "recorded": "2026-11-24T14:38:53Z",
+   "recorded": "2026-11-24T21:30:30Z",
    "sig": "6f4a5503bad7b152",
    "utils": {
     "utils/config.py": "d6ae2616583c325b",
@@ -851,7 +851,7 @@
    }
   },
   "41_canopy_cover.py": {
-   "recorded": "2026-11-24T14:38:55Z",
+   "recorded": "2026-11-24T21:30:32Z",
    "sig": "e36a108b9a6e2b64",
    "utils": {
     "utils/config.py": "a00f3f2ebe1632c9",
@@ -863,7 +863,7 @@
    }
   },
   "43_ranwell_sites.py": {
-   "recorded": "2026-11-24T14:39:10Z",
+   "recorded": "2026-11-24T21:30:45Z",
    "sig": "4954dab6e81d0484",
    "utils": {
     "utils/config.py": "55392ab49174ad69",
@@ -874,7 +874,7 @@
    }
   },
   "44_ranwell_hindcast.py": {
-   "recorded": "2026-11-24T14:39:30Z",
+   "recorded": "2026-11-24T21:31:02Z",
    "sig": "bb8bb9ab9b5076f9",
    "utils": {
     "utils/config.py": "c3259f4fe6a19798",
@@ -889,7 +889,7 @@
    }
   },
   "45_wet_area_model.py": {
-   "recorded": "2026-11-24T14:39:34Z",
+   "recorded": "2026-11-24T21:31:06Z",
    "sig": "1d8a449b06737ec6",
    "utils": {
     "utils/buckets.py": "3b07597c66a3bd19",
@@ -902,7 +902,7 @@
    }
   },
   "46_wet_area_feed.py": {
-   "recorded": "2026-11-24T14:39:35Z",
+   "recorded": "2026-11-24T21:31:07Z",
    "sig": "f1c89d3ae33e5418",
    "utils": {
     "utils/config.py": "d337a3a35283848c",
@@ -924,7 +924,7 @@
    }
   },
   "48_pastas_crosscheck.py": {
-   "recorded": "2026-11-24T14:40:32Z",
+   "recorded": "2026-11-24T21:31:59Z",
    "sig": "0d3750e8617984b5",
    "utils": {
     "utils/config.py": "465daa0a5e79cc6f",
@@ -957,7 +957,7 @@
    }
   },
   "50a_record_length.py": {
-   "recorded": "2026-11-24T14:41:56Z",
+   "recorded": "2026-11-24T21:33:16Z",
    "sig": "193c48fc67a106e4",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -976,7 +976,7 @@
    }
   },
   "50b_datum_bases.py": {
-   "recorded": "2026-11-24T14:59:23Z",
+   "recorded": "2026-11-24T21:49:26Z",
    "sig": "55d06cff3a160549",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -995,7 +995,7 @@
    }
   },
   "50c_transfer.py": {
-   "recorded": "2026-11-24T14:59:57Z",
+   "recorded": "2026-11-24T21:50:01Z",
    "sig": "5cb521f13ae39fa9",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -1014,7 +1014,7 @@
    }
   },
   "50d_two_stores.py": {
-   "recorded": "2026-11-24T15:42:12Z",
+   "recorded": "2026-11-24T22:29:53Z",
    "sig": "1393663cc47814ee",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -1034,7 +1034,7 @@
    }
   },
   "50e_drier_epochs.py": {
-   "recorded": "2026-11-24T15:43:03Z",
+   "recorded": "2026-11-24T22:30:42Z",
    "sig": "84382fcdd87067e0",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -1053,8 +1053,8 @@
    }
   },
   "51_cluster_gap_fill.py": {
-   "recorded": "2026-11-24T15:43:49Z",
-   "sig": "45493c5cbdf8ff93",
+   "recorded": "2026-11-24T22:31:28Z",
+   "sig": "afdf5a33e045935a",
    "utils": {
     "utils/config.py": "6bcc63b366b3c8d9",
     "utils/console_utils.py": "b821f3863b17364f",
@@ -1067,7 +1067,7 @@
    }
   },
   "53_ccw_forest_drift.py": {
-   "recorded": "2026-11-24T15:43:53Z",
+   "recorded": "2026-11-24T22:31:32Z",
    "sig": "184b83397450769b",
    "utils": {
     "utils/config.py": "03a81cb9c2ab3cf0",
@@ -1079,7 +1079,7 @@
    }
   },
   "54_dry_year_hysteresis.py": {
-   "recorded": "2026-11-24T15:43:56Z",
+   "recorded": "2026-11-24T22:31:34Z",
    "sig": "d2b658fcd4ddb184",
    "utils": {
     "utils/config.py": "0b897961afeb3e0e",
@@ -1093,7 +1093,7 @@
    }
   },
   "55_water_balance_drainage.py": {
-   "recorded": "2026-11-24T17:09:12Z",
+   "recorded": "2026-11-24T22:31:43Z",
    "sig": "aa2547fe362b1194",
    "utils": {
     "utils/config.py": "057e662023478a7f",
@@ -1107,14 +1107,14 @@
    }
   },
   "run_09_scraping.py": {
-   "recorded": "2026-11-24T17:09:32Z",
+   "recorded": "2026-11-24T21:16:32Z",
    "sig": "6f348ee1900c82fc",
    "utils": {
     "utils/console_utils.py": "2cc1cbf79808083c"
    }
   },
   "run_10_clearfell.py": {
-   "recorded": "2026-11-24T17:32:18Z",
+   "recorded": "2026-11-24T21:18:21Z",
    "sig": "a1f8de10824a25d5",
    "utils": {
     "utils/console_utils.py": "397ca4551f9b01c2",

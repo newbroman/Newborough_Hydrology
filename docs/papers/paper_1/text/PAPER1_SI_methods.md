@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_43.odt — do not edit. source-sha256=4aa82dec89c2c528 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_44.odt — do not edit. source-sha256=3248a2fc0d31a2b8 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -436,11 +436,11 @@ The flow-direction field (Figure 15) is the negative gradient of the kriged head
 
 ## []{#anchor-24}S12. Coastal-retreat gradient regression
 
-The coastal-retreat gradient regression has moved, whole, to the Supporting Information of the companion coastal-retreat paper (Hollingham, 2026f, Section S1). That document gives its specification, the nested specifications and parameter values, the model selection, the C5 out-of-sample test, the seasonal tests and the single-well leverage of δ₀. Section 4.11 of the main manuscript applies the gradient to each cluster's decline (Table 7).
+The coastal-retreat gradient regression has moved, whole, to the Supporting Information of the companion coastal-retreat paper (Hollingham, 2026f, Section S1). That document gives its specification, the nested specifications and parameter values, the model selection, the C5 out-of-sample test, the seasonal tests and the single-well leverage of δ₀. The companion paper applies the gradient to each cluster's decline.
 
 ## []{#anchor-25}S13. Forest-interception drawdown reach (Figure 17)
 
-Section 4.11 of the main manuscript renders the inland reach of forest-interception drawdown as a physical decay length (20_spatial_figures.py for the figure). This reach is the distance over which interception-driven recharge suppression at the plantation boundary persists in the down-gradient open dune. The calculation is a Dupuit-style drainage length:
+Figure 17 of the main manuscript (Section 5.1) renders the inland reach of forest-interception drawdown as a physical decay length (20_spatial_figures.py for the figure). This reach is the distance over which interception-driven recharge suppression at the plantation boundary persists in the down-gradient open dune. The calculation is a Dupuit-style drainage length:
 
 > λ = √( *Kb* / (Sₐ · β₃) )
 

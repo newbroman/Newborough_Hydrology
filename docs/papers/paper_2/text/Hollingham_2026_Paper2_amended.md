@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v53.odt — do not edit. source-sha256=ef369fde6c3ad66e pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v54.odt — do not edit. source-sha256=ac0d88a64567fa86 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record
@@ -57,7 +57,7 @@ The monitoring record comprises end-of-month manual dipwell readings. For the an
 
 ## []{#anchor}2.2 The scraping intervention
 
-In April 2015 the ground surface of one dune slack, instrumented by dipwell CEH36, was mechanically lowered to raise the summer water table toward the surface. The excavation depth was not directly surveyed. Back-calculation from the observed water-table response and the C3 (Western Residual) apparent storage coefficient, Sₐ, the water-table-fluctuation 'apparent specific yield' of Healy and Cook (2002) (d_ex = H₀ / Sₐ), implies a lowering of approximately 0.43 m. A second scraping episode in October 2023 re-scraped CEH36 and lowered two further slacks (CEH18, CEH21) for the first time. CEH36 lies approximately 340 m seaward and downslope of the later clearfell footprint. This proximity matters when the interaction between the two interventions is considered. The unscraped slack CEH4, and CEH22 nearer the coast, serve as paired controls.
+In April 2015 the ground surface of one dune slack, instrumented by dipwell CEH36, was mechanically lowered to raise the summer water table toward the surface. The excavation depth was not directly surveyed. Back-calculation from the observed water-table response and CEH36's own apparent storage coefficient, Sₐ, the water-table-fluctuation 'apparent specific yield' of Healy and Cook (2002) (d_ex = H₀ / Sₐ), implies a lowering of approximately 0.35 m. A second scraping episode in October 2023 re-scraped CEH36 and lowered two further slacks (CEH18, CEH21) for the first time. CEH36 lies approximately 340 m seaward and downslope of the later clearfell footprint. This proximity matters when the interaction between the two interventions is considered. The unscraped slack CEH4, and CEH22 nearer the coast, serve as paired controls.
 
 ## []{#anchor}2.3 The clearfell intervention
 
@@ -99,7 +99,7 @@ Three independent methods all return a positive scraping benefit at CEH36 during
 
 The ecologically decisive result is at the summer minimum. The paired BACI summer-minimum analysis returns a significant improvement at CEH36 of +0.195 m against CEH4 (p = 0.004) and +0.161 m against the climate-control centroid (p = 0.006). The CEH4 control's own summer minimum deepened after the pure-scraping era (Section 4.1.1). Against the climate-control centroid, though, that deepening is not significant (−0.034 m, p = 0.33). The deteriorating background against which the paired gain is measured is evidenced by its Tier 1 CUSUM decline and era means.
 
-Neither of the slacks scraped in October 2023 shows a benefit that survives background correction (CEH18 +0.056 m, p = 0.20; CEH21 −0.008 m, p = 0.89). This is consistent with their short two-summer post-scraping record and, at CEH21, with an unreliable control on its own coastal-erosion trajectory.
+Neither of the slacks scraped in October 2023 shows a benefit that survives background correction (CEH18 +0.204 m, p = 0.35; CEH21 +0.043 m, p = 0.36). This is consistent with their short two-summer post-scraping record and, at CEH21, with an unreliable control on its own coastal-erosion trajectory.
 
 ![](Pictures/10000000000006A4000004C87E925B49.jpg){width="5.4in" height="3.8882in"}
 
@@ -308,7 +308,7 @@ Two points follow for monitoring design. First, the aquifer equilibrates to a st
 
 ![](Pictures/10000000000006A4000004877D5E708D.jpg){width="5.8in" height="3.3333in"}
 
-**Figure 8.** Modelled steady-state drawdown field around the 2015 CEH36 scrape --- edge magnitude empirically anchored, reach modelled. The edge drawdown is set to the *measured* CEH36 scraping response (≈0.13 m; Script 09a, Pure-Scraping era vs CEH4), not an assumed value; the surrounding field is a steady-state radial-drain decay along a flow-weighted cost-distance (leaky-aquifer length λ = √(K·b/(Sₐ·β₃)) ≈ 170 m), with the excavation interior masked because the slack itself rises. The excavation depth (≈0.43 m) is the *inferred* output, d_ex = H₀/Sₐ, not a survey input. In the model, the elevated displacement head at the scrape steepens drainage gradients and draws the surrounding water table down (not resolved in the record; Section 4.1.3) --- the same mechanism as coastal erosion, underlying the chase-inland cascade. Source: 20_scrape_drawdown_nohead.
+**Figure 8.** Modelled steady-state drawdown field around the 2015 CEH36 scrape --- edge magnitude empirically anchored, reach modelled. The edge drawdown is set to the *measured* CEH36 scraping response (≈0.13 m; Script 09a, Pure-Scraping era vs CEH4), not an assumed value; the surrounding field is a steady-state radial-drain decay along a flow-weighted cost-distance (leaky-aquifer length λ = √(K·b/(Sₐ·β₃)) ≈ 170 m), with the excavation interior masked because the slack itself rises. The excavation depth (≈0.35 m) is the *inferred* output, d_ex = H₀/Sₐ, not a survey input. In the model, the elevated displacement head at the scrape steepens drainage gradients and draws the surrounding water table down (not resolved in the record; Section 4.1.3) --- the same mechanism as coastal erosion, underlying the chase-inland cascade. Source: 20_scrape_drawdown_nohead.
 
 Underlying all three is the binding constraint. The summer trough has deepened; where the slack floor is surveyed, at the van Willegen quadrats, it now lies deeper than when Curreli et al. (2013) measured the communities, and none of those quadrats remains above the SD15b community mean (Hollingham, 2026d). The projected climate, redistributing rainfall toward wetter winters and drier summers, continues in that direction. This ordering is borne out when the interventions are placed on a common site-integrated footing with the site's background drivers (Hollingham, 2026d).
 

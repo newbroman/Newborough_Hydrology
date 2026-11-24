@@ -78,7 +78,9 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM reference is Model B: a sixth
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-24 (T-220, D-334). Figure 51_07 panel (a) draws the Model B
+#   SSM run and no longer the Model A fixed-floor column; Model A stays in the CSV and report numbers as reference.
+# "1.2.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM reference is Model B: a sixth
 #   rule ssm_model_b (fit_ssm intercept=True, beta_3 bounded below, run freely with its alpha) beside ssm_model_a,
 #   which is kept unchanged because report10 / Paper M compare the adopted rule against it. New keys
 #   gapfill_*_ssm_model_b_* and gapfill_<pooled|early|late>_adopted_to_model_b_msl_err_ratio; no existing key moves
@@ -127,6 +129,9 @@ from utils.console_utils import banner, done, info, phase, result, saved, step, 
 
 RULES = ("nearest", "best_r", "nearest_cluster", "cluster_median", "ssm_model_b", "ssm_model_a")
 DONOR_RULES = ("nearest", "best_r", "nearest_cluster")
+# 1.3.0 (T-220, D-334): the figure draws Model B's run only; Model A (the fixed floor) stays computed and written to the
+# CSV and report numbers as reference, but no longer stands beside Model B in a figure.
+FIG_RULES = tuple(r for r in RULES if r != "ssm_model_a")
 TWINS = ("excluded", "allowed")
 
 
@@ -599,15 +604,15 @@ def plot(ho, cdt, cd) -> None:
     a = ax[0]
     h = ho[ho["twins"] == "excluded"]
     for j, (wname, col) in enumerate((("early", "#b2182b"), ("late", "#2166ac"))):
-        for i, rule in enumerate(RULES):
+        for i, rule in enumerate(FIG_RULES):
             v = h[(h["window"] == wname) & (h["rule"] == rule)]["msl_abs_err"].dropna() * 1000
             x = i + (j - 0.5) * 0.3
             a.plot(np.full(len(v), x), v, "o", ms=2.5, color=col, alpha=0.4)
             if len(v):
                 a.plot([x - 0.12, x + 0.12], [v.median()] * 2, color=col, lw=2,
                        label=f"{wname} window" if i == 0 else None)
-    a.set_xticks(range(len(RULES)))
-    a.set_xticklabels([r.replace("_", " ") for r in RULES], rotation=20, ha="right", fontsize=7)
+    a.set_xticks(range(len(FIG_RULES)))
+    a.set_xticklabels([r.replace("_", " ") for r in FIG_RULES], rotation=20, ha="right", fontsize=7)
     a.set_ylabel("held-out spring level (MSL) error, |mm|")
     a.set_yscale("log")
     a.set_title("(a) each rule, both windows, twins excluded; bars are medians", loc="left", fontsize=8)

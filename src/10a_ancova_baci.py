@@ -33,7 +33,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-11-24 (J-16 §4.6; Martin: "bind the 4 fields"). Four p-values
+#   report9 quotes get rows of their own: ancova_{forest,climate}_impact_cwb_x_fell_p, ancova_climate_edge_cwb_x_fell_p
+#   and ancova_forest_impact_curv_jointF_p. They were in Notes only, and the text showed them through unrelated
+#   fields that happened to display the same digits (ANCOVA_Combined_Impact_Oct2023_step, ...). Emit-only.
+# 1.26.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.25.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). paired_attribution():
@@ -2380,6 +2384,15 @@ def main():
         rpt.add("ancova_forest_edge_cwb_x_fell_p", _fe['p'][_i], unit="", well="Edge",
                 note="p of the CWB x clearfell interaction coefficient, monthly ANCOVA, "
                      f"forest control, edge zone, ordinary OLS errors, n={_fe['n']} months")
+    # 1.27.0 (J-16 §4.6, Martin 2026-11-24 "bind the 4 fields"): the same p for the other three contrasts report9
+    # quotes; until now they lived only in a Note and the text borrowed unrelated fields that showed the same digits.
+    for _ctrl, _zone in (("Forest", "Impact"), ("Climate", "Impact"), ("Climate", "Edge")):
+        _r = results.get((_ctrl, _zone))
+        if _r is not None and 'cwb_x_fell' in _r['col_names']:
+            _j = _r['col_names'].index('cwb_x_fell')
+            rpt.add(f"ancova_{_ctrl.lower()}_{_zone.lower()}_cwb_x_fell_p", _r['p'][_j], unit="", well=_zone,
+                    note="p of the CWB x clearfell interaction coefficient, monthly ANCOVA, "
+                         f"{_ctrl.lower()} control, {_zone.lower()} zone, ordinary OLS errors, n={_r['n']} months")
     _fi = results.get(SUMMER_KEY)
     if _fi is not None and len(_fi['resid']) > 2:
         _e = np.asarray(_fi['resid'], dtype=float)
@@ -2516,11 +2529,11 @@ def main():
                 well=zone_label,
                 note=f"joint F-test, cwb2_c + cwb2_x_fell, p={format_p(fc['joint_F_p'])}")
         # Emit-first (report9): the joint-F p at the edge zone as its own value.
-        if zone_label == 'Edge':
-            rpt.add("ancova_forest_edge_curv_jointF_p", fc['joint_F_p'], unit="",
+        if zone_label in ('Edge', 'Impact'):   # 1.27.0: Impact too ("bind the 4 fields")
+            rpt.add(f"ancova_forest_{zone_label.lower()}_curv_jointF_p", fc['joint_F_p'], unit="",
                     well=zone_label,
                     note="p of the joint F-test that both CWB-squared terms (cwb2_c, cwb2_x_fell) "
-                         f"are zero, curvature variant, forest control, edge zone, n={fc['n']} months")
+                         f"are zero, curvature variant, forest control, {zone_label.lower()} zone, n={fc['n']} months")
 
     # Sensitivity results
     for _, row in sensitivity_df.iterrows():

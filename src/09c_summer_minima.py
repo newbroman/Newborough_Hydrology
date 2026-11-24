@@ -52,7 +52,20 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-11-24. CEH18 and CEH21 get TWO tests, three eras (J-16 §4.5
+#   Q2, Martin: "ceh 18 and 21 weren't scrapped in 2015 ... however the areas near ceh 18 and 21 were scrapped
+#   so there may be a detectable" effect). Until now every well was split at the April 2015 CEH36 scrape alone,
+#   with 2024-25 (after each well's OWN October 2023 scrape) counted as "post". Now, for a well in
+#   SCRAPE_WELLS_CENSORED: (1) the nearby-2015 test, pre-2015 vs 2015 up to its own scrape - the existing rows
+#   and keys, censored; (2) the own-scrape test, 2015..own scrape vs after it - new rows, Control
+#   "<ctrl> (own scrape)" and Parameter "<param_shift>_own_scrape". _post_year(): a scrape after the season's
+#   last month counts from the next year (Oct 2023 -> 2024). CEH36 and every other well: unchanged.
+#   The nearby 2015 scrape differs by well (distance to the GPS-traced outlines in data/geo, measured 2026-11-24):
+#   CEH18 is 56 m from the CEH36 footprint; CEH21 is 130 m from Scrape A and 188 m from Scrape B (391 m from
+#   CEH36's). All three were cut in the one April 2015 campaign (report8), so SCRAPING_DATE serves both wells.
+#   Also writes 09c_09_summer_minima_baci_table.csv (report9 §4.5 Table B): the summer shifts, one row per well
+#   and test, paired and climate side by side.
+# 1.9.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the p of the CEH36 paired summer-minimum BACI shift, which lived only inside a
 #   Note; new row summer_min_baci_p_ceh36_paired (full-precision Welch p). Emit-only.
 # 1.8.0  # Hollingham (2026) — 2026-10-01. Each later era's mean against the well's
@@ -100,14 +113,14 @@ from utils.console_utils import (
 
 from utils.paths import (
     make_all_dirs,
-    OUT_09C_SUMMER_MINIMA, OUT_09C_SUMMER_SHIFTS, OUT_09C_REPORT_NUMBERS,
+    OUT_09C_SUMMER_MINIMA, OUT_09C_SUMMER_SHIFTS, OUT_09C_REPORT_NUMBERS, OUT_09C_SUMMER_BACI_TABLE,
     OUT_09C_FIG_CLIMATE, OUT_09C_FIG_PAIRED,
     OUT_09C_SPRING_MEANS, OUT_09C_SPRING_SHIFTS,
     OUT_09C_FIG_SPRING_CLIMATE, OUT_09C_FIG_SPRING_PAIRED,
 )
 from utils.scraping_common import (
     SCRAPING_DATE, CLEARFELL_DATE, SCRAPING_DATE_2, CLIMATE_CONTROLS, SUMMER_MONTHS,
-    TIER1_WELLS, TIER2_WELLS, PAIRED_CONTROLS_MAP, WELL_ERAS,
+    TIER1_WELLS, TIER2_WELLS, PAIRED_CONTROLS_MAP, WELL_ERAS, SCRAPE_WELLS_CENSORED,
     MPL_DEFAULTS,
     load_scraping_data, format_p_value, significance_stars,
 )
@@ -237,6 +250,35 @@ _METRICS = [
         "show_thresholds": False,
     },
 ]
+
+
+def _post_year(well, months):
+    """First post-scrape season year for ``well`` (1.10.0). A well in SCRAPE_WELLS_CENSORED is split at its
+    own scrape; every other well at the April 2015 CEH36 scrape, as before. A scrape dated after the season's
+    last month falls outside that year's season, so its first post-scrape season is the following year."""
+    d = SCRAPE_WELLS_CENSORED.get(well, SCRAPING_DATE)
+    return d.year + (1 if d.month > max(months) else 0)
+
+
+def _write_baci_table(shift_df):
+    """report9 §4.5 Table B (1.10.0): one row per well and test, paired and climate side by side. The long
+    09c_02 holds the same values; this only lays them out, so a table can be generated from a CSV."""
+    rows = []
+    for well in ["CEH36", "CEH18", "CEH21", "CEH4"]:
+        for suffix, test in [("", "April 2015 scrape"), (" (own scrape)", "October 2023 scrape (own)")]:
+            sub = shift_df[(shift_df["Well"] == well) & shift_df["Control"].isin(["Paired" + suffix, "Climate" + suffix])]
+            if sub.empty:
+                continue
+            row = {"Well": well, "Test": test}
+            for ctrl in ("Paired", "Climate"):
+                r = sub[sub["Control"] == ctrl + suffix]
+                row[f"{ctrl}_shift_mm"] = float(r["Shift_mm"].iloc[0]) if len(r) else None
+                row[f"{ctrl}_p"] = float(r["p_value"].iloc[0]) if len(r) else None
+                if len(r):
+                    row["N_pre"], row["N_post"] = int(r["N_pre"].iloc[0]), int(r["N_post"].iloc[0])
+            rows.append(row)
+    pd.DataFrame(rows).to_csv(OUT_09C_SUMMER_BACI_TABLE, index=False)
+    saved(f"{OUT_09C_SUMMER_BACI_TABLE.name} ({len(rows)} rows)")
 
 
 def main():
@@ -376,48 +418,65 @@ def _run_metric(spec, wells, wells_provenance, all_wells,
         ]:
             if not centroid_mins:
                 continue
-            gaps_pre, gaps_post = [], []
-            for yr, val in well_mins[w].items():
-                if yr not in centroid_mins:
+            own_year = _post_year(w, spec["months"])
+            base_year = SCRAPING_DATE.year
+            # (suffix, first post year, first excluded year, first included year) - 1.10.0
+            tests = [("", base_year, own_year if own_year > base_year else None, None)]
+            if own_year > base_year:          # a well with its own, later scrape: test that too
+                tests.append((" (own scrape)", own_year, None, base_year))
+            for suffix, post_year, stop_year, lo_year in tests:
+                gaps_pre, gaps_post = [], []
+                for yr, val in well_mins[w].items():
+                    if yr not in centroid_mins:
+                        continue
+                    if (lo_year is not None and yr < lo_year) or (stop_year is not None and yr >= stop_year):
+                        continue
+                    gap = val - centroid_mins[yr]
+                    (gaps_pre if yr < post_year else gaps_post).append(gap)
+                if len(gaps_pre) < 2 or len(gaps_post) < 2:
                     continue
-                gap = val - centroid_mins[yr]
-                (gaps_pre if yr < POST_YEAR else gaps_post).append(gap)
-            if len(gaps_pre) < 2 or len(gaps_post) < 2:
-                continue
-            pre_mean = np.mean(gaps_pre)
-            post_mean = np.mean(gaps_post)
-            shift = post_mean - pre_mean
-            t_stat, p_val = sp_stats.ttest_ind(gaps_post, gaps_pre, equal_var=False)
-            shift_rows.append({
-                "Well": w.upper(), "Control": ctrl_label,
-                "N_pre": len(gaps_pre), "N_post": len(gaps_post),
-                "Pre_mean_gap_m": round(pre_mean, 4),
-                "Post_mean_gap_m": round(post_mean, 4),
-                "Shift_m": round(shift, 4), "Shift_mm": round(shift * 1000, 1),
-                "t_stat": round(t_stat, 3), "p_value": p_val,
-                "Sig": significance_stars(p_val),
-            })
-            report_rows.append({
-                "Parameter": spec["param_shift"], "Well": w.upper(),
-                "Control": ctrl_label, "Value": round(shift, 4), "Unit": "m",
-                "Note": f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}, p={format_p_value(p_val)}",
-            })
-            # Emit-first (report9): the p of the CEH36 paired summer-minimum shift as its own value.
-            if spec["key"] == "summer_min" and w == "ceh36" and ctrl_label == "Paired":
-                report_rows.append({
-                    "Parameter": "summer_min_baci_p_ceh36_paired", "Well": w.upper(),
-                    "Control": ctrl_label, "Value": float(p_val), "Unit": "-",
-                    "Note": ("two-sided Welch t-test p of the CEH36 summer-minimum BACI shift "
-                             "against its paired control (post- vs pre-scrape annual gaps), "
-                             f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}"),
+                pre_mean = np.mean(gaps_pre)
+                post_mean = np.mean(gaps_post)
+                shift = post_mean - pre_mean
+                t_stat, p_val = sp_stats.ttest_ind(gaps_post, gaps_pre, equal_var=False)
+                shift_rows.append({
+                    "Well": w.upper(), "Control": ctrl_label + suffix,
+                    "N_pre": len(gaps_pre), "N_post": len(gaps_post),
+                    "Pre_mean_gap_m": round(pre_mean, 4),
+                    "Post_mean_gap_m": round(post_mean, 4),
+                    "Post_from_year": post_year,
+                    "Shift_m": round(shift, 4), "Shift_mm": round(shift * 1000, 1),
+                    "t_stat": round(t_stat, 3), "p_value": p_val,
+                    "Sig": significance_stars(p_val),
                 })
+                note = f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}, p={format_p_value(p_val)}, split at {post_year}"
+                if lo_year is not None:
+                    note += f", years from {lo_year}"
+                if stop_year is not None:
+                    note += f", censored from {stop_year} (own scrape)"
+                report_rows.append({
+                    "Parameter": spec["param_shift"] + ("_own_scrape" if suffix else ""), "Well": w.upper(),
+                    "Control": ctrl_label, "Value": round(shift, 4), "Unit": "m",
+                    "Note": note,
+                })
+                # Emit-first (report9): the p of the CEH36 paired summer-minimum shift as its own value.
+                if spec["key"] == "summer_min" and w == "ceh36" and ctrl_label == "Paired" and not suffix:
+                    report_rows.append({
+                        "Parameter": "summer_min_baci_p_ceh36_paired", "Well": w.upper(),
+                        "Control": ctrl_label, "Value": float(p_val), "Unit": "-",
+                        "Note": ("two-sided Welch t-test p of the CEH36 summer-minimum BACI shift "
+                                 "against its paired control (post- vs pre-scrape annual gaps), "
+                                 f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}"),
+                    })
 
     shift_df = pd.DataFrame(shift_rows)
     shift_df.to_csv(spec["out_shifts"], index=False)
     saved(f"{spec['out_shifts'].name} ({len(shift_df)} rows)")
+    if spec["key"] == "summer_min":
+        _write_baci_table(shift_df)
 
     print(f"\n   {spec['name'].capitalize()} shifts (mm):")
-    for ctrl_label in ["Climate", "Paired"]:
+    for ctrl_label in ["Climate", "Paired", "Climate (own scrape)", "Paired (own scrape)"]:
         ctrl_shifts = shift_df[shift_df["Control"] == ctrl_label]
         if ctrl_shifts.empty:
             continue

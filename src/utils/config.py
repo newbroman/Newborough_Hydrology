@@ -3689,6 +3689,7 @@ WB_DRY_RAIN_QUANTILE    = 0.25                # a dry month is one in the lowest
 #   (D9: one gauge, so one set of dry months for every well), chosen on RAINFALL ONLY - dh sits inside the
 #   residual, so selecting months because the level fell would select on the outcome.
 WB_RISE_MARGIN_M        = 0.02                # a rise in a dry month counts as real above this (reading error)
+WB_INFLOW_LAPLACE_STEP_M = 100.0             # T-215 Stage K: the stencil step (m) for the curvature of the kriged mean head
 WB_DRY_WINTER_MONTHS    = (11, 12, 1, 2, 3)   # the dry-winter subset of Stage H (D9: March included, to give the
 #   subset enough months per well). Deliberately not WB_WINTER_MONTHS.
 # Stage I reuses WINTER_RECESSION_MONTHS (Nov-Feb), so Script 16 and this step share one winter definition (D10).

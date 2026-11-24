@@ -18,7 +18,9 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.45.0 - 2026-11-24   ledger_lint --selftest gated (R44's new committed witness, the independent review).
+# VERSION 1.46.0 - 2026-11-24   run_scope --selftest gated (D-340, the scoped run); review_page --selftest (the
+#   default review page, CLAUDE.md §7).
+# 1.45.0 - 2026-11-24   ledger_lint --selftest gated (R44's new committed witness, the independent review).
 # VERSION 1.44.0 - 2026-11-24   witness_lint (T-202, D-325) gated in the records section, with the selftests of
 #                               ship_stage (T-203, D-326) and gate_inputs (T-204, D-327).
 # VERSION 1.43.0 - 2026-11-24   one run per tree (T-146): scratch/check_all.lock refuses a second concurrent
@@ -765,6 +767,10 @@ python3 tools/witness_lint.py || rc=1
 python3 tools/ship_stage.py --selftest >/dev/null || { echo "  ship_stage --selftest: FAIL"; rc=1; }
 # D-327 (T-204): the shared input declaration the gates use.
 python3 tools/gate_inputs.py --selftest >/dev/null || { echo "  gate_inputs --selftest: FAIL"; rc=1; }
+# D-340 (draft): the scoped run - its plan, propagation by hash, settle loop and refusals.
+python3 tools/run_scope.py --selftest >/dev/null || { echo "  run_scope --selftest: FAIL"; rc=1; }
+# The default review page (CLAUDE.md §7): mirror -> blocks, captions, figures from the ODT.
+python3 tools/review_page.py --selftest >/dev/null || { echo "  review_page --selftest: FAIL"; rc=1; }
 # D-213: the ship rebuilds every derived artefact this script gates, before
 # the gate. This keeps that list paired with the gates above and below.
 python3 tools/ship_regen_lint.py --selftest >/dev/null || rc=1

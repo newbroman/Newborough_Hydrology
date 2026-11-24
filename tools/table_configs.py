@@ -115,7 +115,11 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-11-24 (J-15, T-208). paperM/Table3's r50 source is 50a's report numbers.
+__version__ = "1.25.0"  # Hollingham (2026) — 2026-11-24 (J-16). report9 §4.6's four tables: TableClearfellFourZone
+#   (10k_01 + 10l_01), TableClearfellSeasonal (run_10's 10_16), TableClearfellRobustness (run_10's 10_17),
+#   TableClearfellEraSplit (10a_13); and §4.5's three: TableScrapeSummerMinEras (09c report numbers),
+#   TableScrapeSummerMinBACI (09c 1.10.0's 09c_09), TableScrapeScenarios (09d_01 + 09d_02). report9/Table9 (Table 19): the scraping p is Scraping_p_hac (Q4).
+# 1.24.0  # Hollingham (2026) — 2026-11-24 (J-15, T-208). paperM/Table3's r50 source is 50a's report numbers.
 # "1.23.0"  # Hollingham (2026) — 2026-11-23 (J-29, T-226). paper1_si/S12_3 retired: S12 moved to Paper C's SI (2026f),
 #   whose Table S1 carries the panel-fit parameters as number fields.
 # 1.22.0  # Hollingham (2026) — 2026-11-18 (J-19, T-110, D-334). paper1/Table7 (the per-cluster
@@ -343,14 +347,15 @@ TABLES = [
         "id": "report9/Table9",
         "doc": 9,
         "table_name": "Table9",
-        "caption": "Table 1.19 — ANCOVA-BACI clearfell and scraping steps by control and zone",
+        "caption": "Table 1.22 — ANCOVA-BACI clearfell and scraping steps by control and zone",
         "sources": {"anc": "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv"},
         "rows": {"source": "anc",
                  "filter": {"Control": ["Forest", "Climate", "Combined"]}},  # FarField rows not shown
         # D-240: the clearfell CI, p and Sig are the autocorrelation-robust (Newey-West)
-        # values; the scraping p stays on ordinary errors, as the header says.
+        # values. 2026-11-24 (J-16 §4.6 Q4, Martin): the scraping p is the robust one too, as the
+        # text quotes it (Scraping_p_hac); until then it was on ordinary errors, labelled "(OLS)".
         "header": ["Control", "Zone", "Clearfell step (m)", "95% CI (m), robust", "p, robust", "Sig",
-                   "Scraping step (m)", "Scraping p (OLS)", "R²", "n"],
+                   "Scraping step (m)", "Scraping p, robust", "R²", "n"],
         "columns": [
             {"col": "Control", "fmt": "text"},
             {"col": "Zone",    "fmt": "text"},
@@ -359,7 +364,7 @@ TABLES = [
             {"col": "Clearfell_p_hac",   "fmt": "pvalue", "dp": 3},
             {"col": "Clearfell_sig_hac", "fmt": "text"},
             {"col": "Scraping_step_m", "fmt": "fixed", "dp": 3, "sign": True},
-            {"col": "Scraping_p",    "fmt": "pvalue", "dp": 3},
+            {"col": "Scraping_p_hac",    "fmt": "pvalue", "dp": 3},
             {"col": "R2",            "fmt": "fixed", "dp": 3},
             {"col": "N",             "fmt": "int"},
         ],
@@ -368,7 +373,7 @@ TABLES = [
         "id": "report9/Table10",
         "doc": 9,
         "table_name": "Table10",
-        "caption": "Table 1.20 — BACI corroboration of the coastal differential (Script 25)",
+        "caption": "Table 1.23 — BACI corroboration of the coastal differential (Script 25)",
         "sources": {"cor": "outputs/25_coastal_gradient/25_04_baci_corroboration.csv"},
         "rows": {"source": "cor"},
         "header": ["Control tier", "Impact zone", "Coastal differential (mm yr⁻¹)",
@@ -389,7 +394,7 @@ TABLES = [
         "id": "report9/Table11",
         "doc": 9,
         "table_name": "Table11",
-        "caption": "Table 1.21 — summer-minimum shifts at the Impact and Edge wells vs the Forest control",
+        "caption": "Table 1.25 — summer-minimum shifts at the Impact and Edge wells vs the Forest control",
         "sources": {"sm": "outputs/10_clearfell_baci/10d_02_summer_minima_shifts.csv"},
         "rows": {"source": "sm",
                  "filter": {"Control": "Forest", "Tier": ["Impact", "Edge"]}},
@@ -412,7 +417,7 @@ TABLES = [
         "id": "report9/Table13",
         "doc": 9,
         "table_name": "Table13",
-        "caption": "Table 1.23 — before/after-clearfell SSM coefficients for the BACI network",
+        "caption": "Table 1.28 — before/after-clearfell SSM coefficients for the BACI network",
         "sources": {"cs": "outputs/10_clearfell_baci/10e_01_coefficient_shifts.csv"},
         "rows": {"source": "cs",
                  "filter": {"Tier": ["Impact", "Edge", "Forest Ctrl",
@@ -437,7 +442,7 @@ TABLES = [
         "id": "report9/Table14",
         "doc": 9,
         "table_name": "Table14",
-        "caption": "Table 1.24 — winter transfer functions per block (Script 11)",
+        "caption": "Table 1.31 — winter transfer functions per block (Script 11)",
         "sources": {"tf": "outputs/11_forecasting_thresholds/11_forecast_winter_transfer_functions.csv"},
         "rows": {"source": "tf"},
         "header": ["Block", "Equation", "R²", "n", "p(P_winter)", "p(h_min)"],
@@ -459,7 +464,7 @@ TABLES = [
         "id": "report9/Table15",
         "doc": 9,
         "table_name": "Table15",
-        "caption": "Table 1.25 — summer transfer functions per block (Script 11)",
+        "caption": "Table 1.32 — summer transfer functions per block (Script 11)",
         "sources": {"tf": "outputs/11_forecasting_thresholds/11_forecast_summer_transfer_functions.csv"},
         "rows": {"source": "tf"},
         "header": ["Block", "Equation", "R²", "p(P_summer)", "p(h_max)"],
@@ -668,7 +673,7 @@ TABLES = [
         "id": "report9/Table12",
         "doc": 9,
         "table_name": "Table12",
-        "caption": "Table 1.22 — pooled mixed-effects clearfell step by tier vs the Forest control (Script 10d)",
+        "caption": "Table 1.26 — pooled mixed-effects clearfell step by tier vs the Forest control (Script 10d)",
         "sources": {"mm": "outputs/10_clearfell_baci/10d_03_mixed_model_results.csv"},
         "rows": {"source": "mm",
                  "filter": {"Control": "Forest",
@@ -691,7 +696,7 @@ TABLES = [
         "id": "report9/Table17",
         "doc": 9,
         "table_name": "Table17",
-        "caption": "Table 1.27 — cluster-specific P_flood linear forms and recharge-horizon Σ P_clim (Script 11)",
+        "caption": "Table 1.34 — cluster-specific P_flood linear forms and recharge-horizon Σ P_clim (Script 11)",
         "sources": {"pf": "outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv"},
         "rows": {"source": "pf"},
         "header": ["Cluster", "Label", "Horizon", "P_flood equation (mm)", "Σ P_clim (mm)"],
@@ -865,7 +870,7 @@ TABLES = [
         "id": "report9/Table19",
         "doc": 9,
         "table_name": "Table19",
-        "caption": "Table 1.28 — cluster MSL5 and four-year mean annual minimum at the latest "
+        "caption": "Table 1.35 — cluster MSL5 and four-year mean annual minimum at the latest "
                    "window-end (Script 26; D-296: no community-level counts)",
         "sources": {"th": "outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv"},
         # the headline window only; the five-year sensitivity rows stay in the CSV
@@ -1035,11 +1040,176 @@ TABLES = [
                         "where": {"Parameter": "depth_dependent_pet_L_E_m"}}, "fmt": "fixed", "dp": 2},
         ],
     },
+    # 2026-11-24 (J-16): report9 §4.5's three tables (Martin: "approve 4.5 and 4.6"; Q2: CEH18 and CEH21 are tested
+    # against the nearby April 2015 scrape AND their own October 2023 scrape, 09c 1.10.0).
+    {
+        "id": "report9/TableScrapeSummerMinEras",
+        "doc": 9,
+        "table_name": "TableScrapeSummerMinEras",
+        "caption": "Table 1.19 — era mean of the annual summer minimum at the scraping wells (Script 09c)",
+        "sources": {"r": "outputs/09_scraping_intervention/09c_report_numbers.csv"},
+        "rows": {"source": "r", "filter": {"Parameter": "Summer_min_era_mean",
+                                           "Well": ["CEH36", "CEH4", "CEH18", "CEH21"]},
+                 "order": {"col": "Well", "values": ["CEH36", "CEH4", "CEH18", "CEH21"]}},
+        "header": ["Well", "Era", "Years", "Mean summer minimum (m)", "Summers"],
+        "columns": [
+            {"col": "Well", "fmt": "text"},
+            {"col": "Era", "fmt": "text", "re": [[r"^\d_", ""], [r"_", " "]]},
+            {"col": "Note", "fmt": "text", "re": [r"^.*, (\d{4})-(\d{4})$", r"\1–\2"]},
+            {"col": "Value", "fmt": "fixed", "dp": 3},
+            {"fmt": "template", "template": "{n:.0f}",
+             "params": {"n": {"source": "r", "param": "Summer_min_era_n",
+                              "where": {"Well": "{Well}", "Era": "{Era}"}}}},
+        ],
+    },
+    {
+        "id": "report9/TableScrapeSummerMinBACI",
+        "doc": 9,
+        "table_name": "TableScrapeSummerMinBACI",
+        "caption": "Table 1.20 — BACI shift in the annual summer minimum at the scraping wells (Script 09c)",
+        "sources": {"t": "outputs/09_scraping_intervention/09c_09_summer_minima_baci_table.csv"},
+        "rows": {"source": "t"},
+        "header": ["Well", "Scrape tested", "Paired control (mm)", "p", "Climate control (mm)", "p",
+                   "Summers before / after"],
+        "columns": [
+            {"col": "Well", "fmt": "text"},
+            {"col": "Test", "fmt": "text"},
+            {"col": "Paired_shift_mm", "fmt": "fixed", "dp": 0, "sign": True, "unless": {"Paired_shift_mm": [""]},
+             "else": "— (the control)"},
+            {"col": "Paired_p", "fmt": "pvalue", "dp": 3, "unless": {"Paired_p": [""]}},
+            {"col": "Climate_shift_mm", "fmt": "fixed", "dp": 0, "sign": True},
+            {"col": "Climate_p", "fmt": "pvalue", "dp": 3},
+            {"fmt": "template", "template": "{N_pre:.0f} / {N_post:.0f}"},
+        ],
+    },
+    {
+        "id": "report9/TableScrapeScenarios",
+        "doc": 9,
+        "table_name": "TableScrapeScenarios",
+        "caption": "Table 1.21 — equilibrium volumetric water-table change at CEH36 by scenario (Script 09d)",
+        "sources": {"a": "outputs/09_scraping_intervention/09d_01_scenario_comparison.csv",
+                    "s": "outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv"},
+        "rows": {"source": "a",
+                 "order": {"col": "Scenario",
+                           "values": ["Scraping (observed)", "Clearfell (hypothetical)", "Thinning 50% (hypothetical)",
+                                      "Broadleaf (hypothetical)", "Climate wet", "Climate dry",
+                                      "Scraping (off-site 100 m)", "Scraping (off-site 250 m)"]}},
+        "header": ["Scenario", "Kind", "Annual-mean forcing", "Summer forcing"],
+        "columns": [
+            {"col": "Scenario", "fmt": "map", "map": {
+                "Scraping (observed)": "Scraping", "Clearfell (hypothetical)": "Clearfell",
+                "Thinning 50% (hypothetical)": "Thinning 50%", "Broadleaf (hypothetical)": "Broadleaf",
+                "Climate wet": "Climate wet", "Climate dry": "Climate dry",
+                "Scraping (off-site 100 m)": "Scraping, 100 m away", "Scraping (off-site 250 m)": "Scraping, 250 m away"}},
+            {"col": "Scenario", "fmt": "map", "map": {
+                "Scraping (observed)": "observed", "Clearfell (hypothetical)": "hypothetical",
+                "Thinning 50% (hypothetical)": "hypothetical", "Broadleaf (hypothetical)": "hypothetical",
+                "Climate wet": "climate projection", "Climate dry": "climate projection",
+                "Scraping (off-site 100 m)": "off-site drawdown", "Scraping (off-site 250 m)": "off-site drawdown"}},
+            {"col": "Delta_vol_mm_per_month", "fmt": "fixed", "dp": 1, "sign": True},
+            {"lookup": {"source": "s", "key": "Scenario", "col": "Delta_vol_summer_mm_per_month"}, "fmt": "fixed",
+             "dp": 1, "sign": True},
+        ],
+    },
+    # 2026-11-24 (J-16): report9 §4.6's four tables (Martin: "approve 4.5 and 4.6"). Caption numbers are the
+    # ones they take once §4.5's three tables are in too; the one renumber pass sets them.
+    {
+        "id": "report9/TableClearfellFourZone",
+        "doc": 9,
+        "table_name": "TableClearfellFourZone",
+        "caption": "Table 1.24 — four-zone pooled-panel clearfell contrasts against the Forest control (Scripts 10k, 10l)",
+        "sources": {"m": "outputs/10_clearfell_baci/10k_01_four_zone_results.csv",
+                    "s": "outputs/10_clearfell_baci/10l_01_four_zone_summer_results.csv"},
+        "rows": {"source": "m", "filter": {"vs_reference": "Forest", "zone": ["Impact", "Edge", "C3/Warren"]},
+                 "order": {"col": "zone", "values": ["Impact", "Edge", "C3/Warren"]}},
+        "header": ["Zone − Forest", "Monthly step (m)", "95% CI (m)", "p", "Summer-minimum step (mm)",
+                   "95% CI (mm)", "p"],
+        "columns": [
+            {"col": "zone", "fmt": "text"},
+            {"col": "clearfell_step_m", "fmt": "fixed", "dp": 3, "sign": True},
+            {"fmt": "ci", "cols": ["clearfell_ci_lo_m", "clearfell_ci_hi_m"], "dp": 3, "sign": True},
+            {"col": "clearfell_p", "fmt": "pvalue", "dp": 3},
+            {"lookup": {"source": "s", "key": "zone", "col": "clearfell_step_m"}, "fmt": "fixed", "dp": 0,
+             "scale": 1000, "sign": True},
+            {"fmt": "template", "template": "[{slo:+.0f}, {shi:+.0f}]",
+             "params": {"slo": {"source": "s", "param": "{zone}", "key": "zone", "col": "clearfell_ci_lo_m",
+                                "scale": 1000},
+                        "shi": {"source": "s", "param": "{zone}", "key": "zone", "col": "clearfell_ci_hi_m",
+                                "scale": 1000}}},
+            {"lookup": {"source": "s", "key": "zone", "col": "clearfell_p"}, "fmt": "pvalue", "dp": 3},
+        ],
+    },
+    {
+        "id": "report9/TableClearfellSeasonal",
+        "doc": 9,
+        "table_name": "TableClearfellSeasonal",
+        "caption": "Table 1.27 — the clearfell step by season, Impact tier against the Forest control (Script 10a)",
+        "sources": {"t": "outputs/10_clearfell_baci/10_16_seasonal_step_table.csv"},
+        "rows": {"source": "t"},
+        "header": ["Window", "Specification", "Step (mm)", "95% CI (mm)", "p", "Errors", "R²", "Months"],
+        "columns": [
+            {"col": "Window", "fmt": "text"},
+            {"col": "Specification", "fmt": "text"},
+            {"col": "Step_mm", "fmt": "fixed", "dp": 0, "sign": True},
+            {"fmt": "template", "template": "[{CI_lo_mm:+.0f}, {CI_hi_mm:+.0f}]", "unless": {"CI_lo_mm": [""]}},
+            {"col": "p", "fmt": "pvalue", "dp": 3},
+            {"col": "p_errors", "fmt": "text"},
+            {"col": "R2", "fmt": "fixed", "dp": 2, "unless": {"R2": [""]}},
+            {"col": "Months", "fmt": "int", "unless": {"Months": [""]}},
+        ],
+    },
+    {
+        "id": "report9/TableClearfellRobustness",
+        "doc": 9,
+        "table_name": "TableClearfellRobustness",
+        "caption": "Table 1.29 — the clearfell step under each robustness method, against the Forest control (run_10)",
+        "sources": {"t": "outputs/10_clearfell_baci/10_17_robustness_table.csv"},
+        "rows": {"source": "t"},
+        "header": ["Method", "Impact (WMC3), mm", "95% CI (mm)", "p", "Edge, mm", "p"],
+        "columns": [
+            {"col": "Method", "fmt": "text"},
+            {"col": "Impact_mm", "fmt": "fixed", "dp": 0, "sign": True},
+            {"fmt": "template", "template": "[{Impact_CI_lo_mm:+.0f}, {Impact_CI_hi_mm:+.0f}]",
+             "unless": {"Impact_CI_lo_mm": [""]}},
+            {"col": "Impact_p", "fmt": "pvalue", "dp": 3, "unless": {"Impact_p": [""]}},
+            {"col": "Edge_mm", "fmt": "fixed", "dp": 0, "sign": True, "unless": {"Edge_mm": [""]}},
+            {"col": "Edge_p", "fmt": "pvalue", "dp": 3, "unless": {"Edge_p": [""]}},
+        ],
+    },
+    {
+        "id": "report9/TableClearfellEraSplit",
+        "doc": 9,
+        "table_name": "TableClearfellEraSplit",
+        "caption": "Table 1.30 — the clearfell step before and after January 2021 (Script 10a)",
+        "sources": {"e": "outputs/10_clearfell_baci/10a_13_era_split.csv"},
+        "rows": {"source": "e",
+                 "filter": {"era": "2017-12..2020-12",
+                            "contrast": ["WMC3-Forest5", "Edge-Forest5", "WMC3-Edge", "(CEH32+CEH33)-(CEH34+CEH2)"]},
+                 "exclude": [{"contrast": ["Edge-Forest5", "WMC3-Edge", "(CEH32+CEH33)-(CEH34+CEH2)"],
+                              "drift_mode": ["none", "free_global", "free_per_era"]}],
+                 "order": {"col": "contrast",
+                           "values": ["WMC3-Forest5", "Edge-Forest5", "WMC3-Edge", "(CEH32+CEH33)-(CEH34+CEH2)"]}},
+        "header": ["Contrast", "Drift treatment", "Early, Dec 2017 – Dec 2020 (mm)", "Late, Jan 2021 onward (mm)"],
+        "columns": [
+            {"col": "contrast", "fmt": "map", "map": {"WMC3-Forest5": "WMC3 − Forest control",
+                                                      "Edge-Forest5": "Edge − Forest control",
+                                                      "WMC3-Edge": "WMC3 − Edge",
+                                                      "(CEH32+CEH33)-(CEH34+CEH2)":
+                                                          "In-block pair (CEH32, CEH33) − outside pair (CEH34, CEH2)"}},
+            {"col": "drift_mode", "fmt": "map", "map": {"fixed_s25": "Script 25 field (published)",
+                                                        "none": "No drift", "free_global": "Free global slope",
+                                                        "free_per_era": "Free per-era slope"}},
+            {"col": "step_mm", "fmt": "fixed", "dp": 0, "sign": True},
+            {"fmt": "template", "template": "{late:+.0f}",
+             "params": {"late": {"source": "e", "param": "{contrast}", "key": "contrast", "col": "step_mm",
+                                 "where": {"drift_mode": "{drift_mode}", "era": "2021-01..2026-02"}}}},
+        ],
+    },
     {
         "id": "report9/T140087",
         "doc": 9,
         "table_name": "T140087",
-        "caption": "Table 1.29 — between-well prediction of mean Ellenberg-F by observed MSL5 "
+        "caption": "Table 1.36 — between-well prediction of mean Ellenberg-F by observed MSL5 "
                    "and by the equilibrium wetness index (Script 26)",
         "sources": {"ebf": "outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv"},
         # the CSV is one row per METRIC and the table shows metrics ACROSS with
@@ -1061,7 +1231,7 @@ TABLES = [
         "id": "report9/T140087_1",
         "doc": 9,
         "table_name": "T140087_1",
-        "caption": "Table 1.30 — Ellenberg-F prediction accuracy by match band, MSL5 versus "
+        "caption": "Table 1.37 — Ellenberg-F prediction accuracy by match band, MSL5 versus "
                    "the equilibrium wetness index (Script 26)",
         "sources": {"bd": "outputs/26_van_willegen_msl/26_ebf_band_summary.csv"},
         "rows": {"source": "bd"},
@@ -1080,7 +1250,7 @@ TABLES = [
         "id": "report9/Table18",
         "doc": 9,
         "table_name": "Table18",
-        "caption": "Table 1.32 - per-cluster decomposition of the summer-minimum decline "
+        "caption": "Table 1.39 - per-cluster decomposition of the summer-minimum decline "
                    "under the forest-free linear-capped panel regression (Script 25)",
         "sources": {"dec": "outputs/25_coastal_gradient/25_03_cluster_partition.csv"},
         "rows": {"source": "dec"},
@@ -1103,7 +1273,7 @@ TABLES = [
         "id": "report9/Table20",
         "doc": 9,
         "table_name": "Table20",
-        "caption": "Table 1.31 - per-well spatial predictors of SSM coefficient "
+        "caption": "Table 1.38 - per-well spatial predictors of SSM coefficient "
                    "variation in the forest zone (Script 10c)",
         "sources": {"fz": "outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv"},
         # the CSV packs the correlation block and an R2 block (blank separator);
@@ -1575,7 +1745,7 @@ TABLES = [
         "id": "report9/Table16",
         "doc": 9,
         "table_name": "Table16",
-        "caption": "Table 1.26 \u2014 per-cluster P_flood summary across the 88-well classified network (Script 11b)",
+        "caption": "Table 1.33 \u2014 per-cluster P_flood summary across the 88-well classified network (Script 11b)",
         "sources": {"pf": "outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv"},
         "rows": {"source": "pf"},
         "header": ["Cluster", "n", "P_flood range (mm)", "Median (mm)", "m_P"],

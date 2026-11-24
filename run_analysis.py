@@ -202,7 +202,9 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.32.0"  # Hollingham (2026) - 2026-11-24 (Fable review). After each successful step, record the code
+__version__ = "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
+#   pass token from NRG_RUN_SCOPE_ID when tools/run_scope.py sets it, so a scoped run of several steps is one pass.
+# 2.32.0  # Hollingham (2026) - 2026-11-24 (Fable review). After each successful step, record the code
 #   that ran (tools/code_signature.py -> outputs/pipeline_code_signatures.json); output_lag 1.2.0 judges by it.
 # "2.31.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 is the suite 50a-50e: five Step rows in
 #   Phase 19 in place of one (all tier X, opt-in, Martin 2026-11-24). _DOCUMENTED_COUNTS: total_registered 64 -> 68,
@@ -2402,7 +2404,11 @@ def main() -> None:
     # producers took the token from the existing file instead, a standalone run
     # would copy the previous pass's token forward and the pollution would be
     # invisible — which is exactly the failure this guards (D-101).
-    os.environ["NRG_RUN_ID"] = (
+    # 2.33.0 (D-340 draft): tools/run_scope.py runs several --step invocations as ONE pass and hands its token
+    # down as NRG_RUN_SCOPE_ID. Only that variable is honoured - NRG_RUN_ID itself is still always minted here, so
+    # a producer can never inherit a stale token from the shell (D-101).
+    _scope = os.environ.get("NRG_RUN_SCOPE_ID", "")
+    os.environ["NRG_RUN_ID"] = (_scope if _scope.startswith("run:") else
         f"run:{datetime.datetime.now().strftime('%Y%m%dT%H%M%S')}"
         f"-{uuid.uuid4().hex[:6]}")
 

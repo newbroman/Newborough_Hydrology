@@ -67,7 +67,12 @@ Dependencies
        It is a display figure and runs last in the suite.
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): "10c_" joins pattern_prefixes in
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-24. J-16 (report9 §4.6, Martin: "approve 4.5 and 4.6"):
+#   after consolidating, write_section_tables() writes two table CSVs from it - 10_16_seasonal_step_table.csv
+#   (the clearfell step by season, Table B) and 10_17_robustness_table.csv (the step under each robustness
+#   method, Table C) - because a report table needs a CSV and their rows come from four sub-scripts' numbers.
+#   Values only re-laid out; nothing is computed except Impact minus Forest Control for the SSM residual row.
+# 1.2.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): "10c_" joins pattern_prefixes in
 #   consolidate_report_numbers() - Script 10c 1.3.0 now writes 10c_report_numbers.csv (forest-zone n, easting
 #   R2, NW10 z; report9 SS4.4), so its rows reach 10_consolidated_report_numbers.csv. The docstring's
 #   "10c is supplementary" exclusion is amended to match.
@@ -190,8 +195,69 @@ def consolidate_report_numbers():
         out_path = DIR_10 / "10_consolidated_report_numbers.csv"
         combined.to_csv(out_path, index=False)
         print(f"\n  -> Consolidated: {out_path.name} ({len(combined)} rows)")
+        write_section_tables(combined)
     else:
         skipped("No report numbers found to consolidate.")
+
+
+def write_section_tables(combined):
+    """report9 §4.6 Tables B and C (1.3.0): re-lay values already in the consolidation, one row per method."""
+    import pandas as pd
+    from utils.paths import OUT_10_SEASONAL_TABLE, OUT_10_ROBUSTNESS_TABLE
+    val = {}
+    for r in combined.itertuples():
+        val.setdefault(r.Parameter, r.Value)
+
+    def g(k, scale=1.0):
+        v = val.get(k)
+        return None if v is None or pd.isna(v) else float(v) * scale
+
+    F = "ANCOVA_Forest_Impact_clearfell_step"
+    seasonal = [
+        dict(Window="All months", Specification="full", Step_mm=g(F, 1000),
+             CI_lo_mm=g(F + "_ci_lo_hac", 1000), CI_hi_mm=g(F + "_ci_hi_hac", 1000), p=g(F + "_p_hac"),
+             p_errors="robust", R2=None, Months=None),
+        dict(Window="Jun–Sep", Specification="full", Step_mm=g(F + "_summer", 1000),
+             CI_lo_mm=g(F + "_summer_ci_lo_hac", 1000), CI_hi_mm=g(F + "_summer_ci_hi_hac", 1000),
+             p=g(F + "_summer_p_hac"), p_errors="robust", R2=g("ANCOVA_Forest_Impact_summer_R2"),
+             Months=g("ANCOVA_Forest_Impact_summer_N")),
+        dict(Window="Jun–Sep", Specification="CWB terms dropped", Step_mm=g(F + "_summer_noCWB", 1000),
+             CI_lo_mm=g("ancova_forest_impact_summer_nocwb_ci_lo_mm"),
+             CI_hi_mm=g("ancova_forest_impact_summer_nocwb_ci_hi_mm"), p=g("ancova_forest_impact_summer_nocwb_p"),
+             p_errors="ordinary", R2=g("ANCOVA_Forest_Impact_summer_noCWB_R2"),
+             Months=g("ANCOVA_Forest_Impact_summer_noCWB_N")),
+        dict(Window="Oct–Mar", Specification="full", Step_mm=g(F + "_winter", 1000),
+             CI_lo_mm=g(F + "_winter_ci_lo_hac", 1000), CI_hi_mm=g(F + "_winter_ci_hi_hac", 1000),
+             p=g(F + "_winter_p_hac"), p_errors="robust", R2=g("ANCOVA_Forest_Impact_winter_R2"),
+             Months=g("ANCOVA_Forest_Impact_winter_N")),
+        dict(Window="Oct–Mar minus Jun–Sep", Specification="—", Step_mm=g(F + "_winter_minus_summer", 1000),
+             CI_lo_mm=None, CI_hi_mm=None, p=g(F + "_winter_minus_summer_p_hac"), p_errors="robust",
+             R2=None, Months=None),
+    ]
+
+    def ab(tag, key):
+        return dict(Impact_mm=g(f"ANCOVA_{tag}_Forest_clearfell_step", 1000),
+                    Impact_CI_lo_mm=g(f"ANCOVA_{tag}_Forest_clearfell_ci_lo_hac", 1000),
+                    Impact_CI_hi_mm=g(f"ANCOVA_{tag}_Forest_clearfell_ci_hi_hac", 1000),
+                    Impact_p=g(f"ANCOVA_{tag}_Forest_clearfell_p_hac"), Edge_mm=None, Edge_p=None)
+    E = "ANCOVA_Forest_Edge_clearfell_step"
+    imp, fc = g("SSM_Resid_Impact_mean_step", 1000), g("SSM_Resid_Forest_Ctrl_mean_step", 1000)
+    robust = [
+        dict(Method="ANCOVA, WMC3 alone (headline)", Impact_mm=g(F, 1000), Impact_CI_lo_mm=g(F + "_ci_lo_hac", 1000),
+             Impact_CI_hi_mm=g(F + "_ci_hi_hac", 1000), Impact_p=g(F + "_p_hac"), Edge_mm=g(E, 1000),
+             Edge_p=g(E + "_p_hac")),
+        dict(Method="SSM residual, minus the Forest Control drift",
+             Impact_mm=None if imp is None or fc is None else imp - fc, Impact_CI_lo_mm=None, Impact_CI_hi_mm=None,
+             Impact_p=None, Edge_mm=None, Edge_p=None),
+        dict(Method="Synthetic control (six donors), gross", Impact_mm=g("Synth_Impact_step", 1000),
+             Impact_CI_lo_mm=None, Impact_CI_hi_mm=None, Impact_p=g("Synth_Impact_step_p_hac"),
+             Edge_mm=g("Synth_Edge_step", 1000), Edge_p=g("Synth_Edge_step_p_hac")),
+        dict(Method="Synthetic FE extension, WMC3 + FE2", **ab("B_WMC3+FE2", "")),
+        dict(Method="Synthetic FE extension, WMC3 + FE1 + FE2", **ab("A_WMC3+FE1+FE2", "")),
+    ]
+    pd.DataFrame(seasonal).to_csv(OUT_10_SEASONAL_TABLE, index=False)
+    pd.DataFrame(robust).to_csv(OUT_10_ROBUSTNESS_TABLE, index=False)
+    print(f"  -> {OUT_10_SEASONAL_TABLE.name} ({len(seasonal)} rows), {OUT_10_ROBUSTNESS_TABLE.name} ({len(robust)} rows)")
 
 
 def main():

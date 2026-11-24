@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_6.odt — do not edit. source-sha256=b08cf4ffc5a0a764 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_7.odt — do not edit. source-sha256=740479dc1a1bc000 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What felling and scraping did to the water table: a plain-language guide to the dune-restoration paper
@@ -31,7 +31,7 @@ The study rests on 88 **dipwells** read by hand at the end of each month for 21 
 
 ## []{#anchor}The scrape
 
-In April 2015 the ground surface of one slack, watched by the dipwell CEH36, was dug out to bring the summer water table closer to the surface. The depth dug was not surveyed; working back from how the water responded, the paper infers a lowering of about 0.43 m. CEH36 was scraped again in October 2023, when two further slacks (CEH18 and CEH21) were scraped for the first time. The unscraped slack at CEH4, and CEH22 nearer the coast, serve as the comparison wells.
+In April 2015 the ground surface of one slack, watched by the dipwell CEH36, was dug out to bring the summer water table closer to the surface. The depth dug was not surveyed; working back from how the water responded, the paper infers a lowering of about 0.35 m. CEH36 was scraped again in October 2023, when two further slacks (CEH18 and CEH21) were scraped for the first time. The unscraped slack at CEH4, and CEH22 nearer the coast, serve as the comparison wells.
 
 ## []{#anchor}The felling
 

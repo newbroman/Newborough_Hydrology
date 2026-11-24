@@ -713,7 +713,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 12 — 11_forecasting_thresholds
 
-**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 18, 19, 20), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
+**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 18, 22, 23), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
 
 Section 5 is the predictive companion to Script 26's observational MSL5 monitoring metric. For each cluster, an OLS-with-intercept fit on `03_regional_averages.csv` produces an equation of the form
 

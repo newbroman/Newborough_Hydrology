@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=1b44a70e685e7520 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=fde1d89475fe5e25 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -274,11 +274,11 @@ The storage coefficient Sₐ (the \'apparent specific yield\' of Healy and Cook,
 **A second estimate: the seasonal recession (Table 9)**
 
 -   **Method.** Winter decline (November--February, when PET is small) divided by summer decline (June--September) estimates the drainage fraction of summer losses (Section 3.7.2). Both are head declines, so Sₐ cancels: the estimate does not depend on Section 4.2.4.
--   **Agreement.** Across Model B, the depth-dependent model and the recession ratio the spread is 10 percentage points at C2 and C3 and 12 at C5. It widens to 22 at C1 and C4, where the recession ratio puts more of the loss into drainage than either model.
+-   **Agreement.** Between Model B and the recession ratio the spread is 10 percentage points at C2 and C3 and 11 at C5. It widens to 22 at C1 and C4, where the recession ratio puts more of the loss into drainage than Model B. The depth-dependent model lies inside this range at every cluster and is kept as a record (Table 9).
 -   **C4 matters most.** Model B makes it the most evapotranspiration-dominated cluster (drainage fraction 0.29); the recession ratio places it second-lowest of five (0.51).
 -   **The recession ratio leans high.** Winter PET is small but not zero, and drainage is faster at the high heads of winter. Both inflate its drainage fraction.
 -   **Model B\'s fractions** (the split is quoted from these): C1 0.38, C2 0.45, C3 0.56, C4 0.29, C5 0.61.
--   **What is carried forward.** The range of the three estimators is the partition uncertainty in Table 10 and the hatched band of Figure 11b.
+-   **What is carried forward.** The range between Model B and the recession ratio is the partition uncertainty in Table 10 and the hatched band of Figure 11b.
 
   --------------------- --------------------------- --------------------------- --------------------------------- -------------------------- ------------------------------- ---------------------------------------------------
   Cluster               Winter decline (mm/month)   Summer decline (mm/month)   ET = summer − winter (mm/month)   n months (winter/summer)   Drainage fraction (recession)   Drainage fraction: Model B; depth-dependent model
@@ -296,10 +296,10 @@ The storage coefficient Sₐ (the \'apparent specific yield\' of Healy and Cook,
 -   **Rainfall** is 889--893 mm/yr at every cluster, over its own fitted months.
 -   **Interception** at the forest clusters (C4, C5) is 214 mm/yr (24%; Freeman, 2008), leaving 678--679 mm/yr at the ground.
 -   **Interception is part of evaporation, not added to it.** The model is fitted on gross rainfall and above-canopy PET, so its evaporation term already includes the intercepted rain.
--   **The split is Model B\'s**, and its range spans the three estimators of Table 9. At steady state total losses equal rainfall; the hatched band in Figure 11b spans that range.
+-   **The split is Model B\'s**, and its range runs from Model B to the recession ratio (Table 9). At steady state total losses equal rainfall; the hatched band in Figure 11b spans that range.
 -   **C4\'s evaporative loss** (I + ET) under Model B is 633 mm/yr, 97% of its PET (655 mm/yr), against 488 mm/yr at C2. Soil evaporation and transpiration after interception make up 419 mm/yr of it.
 -   **C5\'s evaporative loss** under Model B is 347 mm/yr, and drainage takes the larger share.
--   **Drainage share across the three estimators:** C1 38--60%, C2 35--45%, C3 56--66%, C4 29--51%, C5 61--73%.
+-   **Drainage share, Model B to the recession ratio:** C1 38--60%, C2 35--45%, C3 56--66%, C4 29--51%, C5 61--73%.
 
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
 | Cluster | Label            | P        | I (    | P_net   | ET, Model B ( | I + ET, Model B  | Drainage, Model B  |
@@ -534,19 +534,50 @@ The count measures how much of each hydrograph the clusters share (the rainfall 
 
 ### []{#anchor-12}**Background Environmental Drift**
 
-Three dipwells within the dune slack system --- CEH36, CEH18 and CEH21 --- were subject to ground surface lowering by mechanical scraping, with CEH36 scraped in April 2015 and CEH18 and CEH21 scraped in October 2023. The analysis uses a two-tier CUSUM-BACI framework (Section 3.5) to isolate the scraping signal from background environmental drift, with CEH4 and CEH22 serving as paired controls. Tier 1 analyses at CEH4 and CEH22 both show accelerating negative CUSUM trajectories across the monitoring period, reaching −10.61 m and −19.46 m respectively by early 2026 (Section 3.5.3; Figure 19). Both controls --- CEH22 and CEH4 near the coast --- deteriorate independently of any management action (Section 5.4.3). CEH22\'s trajectory is the more severe, accelerating markedly from 2021 onwards.
+**Both control wells are deepening on their own, before any scraping effect is looked for.** Three dune-slack dipwells had their ground surface lowered by mechanical scraping:
+
+-   **CEH36**, scraped in April 2015;
+-   **CEH18** and **CEH21**, scraped in October 2023.
+
+CEH4 and CEH22 are the paired controls. The analysis has two tiers (Section 3.5): Tier 1 measures each control\'s drift against the regional mean; Tier 2 then compares each treatment well with its control.
+
+Tier 1 result (Section 3.5.3; Figure 19):
+
+-   Both controls show an accelerating negative CUSUM over the monitoring period.
+-   By early 2026 the CUSUM reaches −10.61 m at CEH4 and −19.46 m at CEH22.
+-   CEH22 is the more severe, accelerating markedly from 2021 onwards.
+-   Both deteriorate independently of any management action (Section 5.4.3).
+-   CEH4 sits on the eroding coastal margin. Its deepening is consistent with coastal retreat together with the warren-wide decline; the record cannot separate the two, and no felling pulse is resolved at CEH4.
 
 ![**Figure : **Tier 1 background environmental drift analysis. CUSUM time series for control wells CEH4 (left) and CEH22 (right) decomposed by management era relative to the regional mean. Upper panels show monthly Δ water level (control well minus regional mean) with era mean levels indicated by dashed horizontal lines. Lower panels show cumulative CUSUM trajectories. A rising CUSUM indicates the well is performing above the regional mean (shallower water table); a falling CUSUM indicates below-average performance (deeper water table). The accelerating negative CUSUM at both control wells is consistent with a system-wide deterioration trend independent of local management interventions. (Source: 09_scrape_05_tier1_background_drift.png)](Pictures/100000010000076A000005D7F202093E.png "fig:"){width="6.2110in" height="4.8922in"}
 
-CEH4 sits on the eroding coastal margin; its deepening is consistent with coastal retreat together with the warren-wide decline, the record cannot separate the two, and no felling pulse is resolved at CEH4. These Tier 1 trajectories establish that both local controls are experiencing substantial background decline that must be accounted for before any scraping benefit can be assessed.
+Any scraping benefit therefore has to be measured after allowing for this background decline.
 
 ### []{#anchor-13}Paired BACI and Robustness
 
-In this context, Tier 2 paired analysis shows a modest positive signal at CEH36 during the Pure Scraping era (April 2015 to December 2017), the only well and era combination to show a net benefit after Tier 1 correction. Three independent methods all return a positive scraping benefit: the two control-differenced methods agree closely --- raw BACI vs CEH4 (+0.128 m) and synthetic control from 11 donor wells (+0.141 m) --- while the SSM forward residual, an autonomous-forecast estimator and the most conservative of the three, is lower at +0.100 m (Figure 21c). The cumulative CUSUM for CEH36 rises from April 2015 and more steeply from 2018 onwards, as CEH4 deteriorates (Figure 20); the synthetic control separates the scraping signal from CEH4\'s own trajectory (Figure 21). CEH18 sits consistently negative relative to CEH4 throughout the full record including the pre-scraping baseline; only a modest recovery is visible after the October 2023 scraping. CEH21\'s rising CUSUM from 2022 onwards is read against a control, CEH22, that is itself deteriorating (Section 4.5.1), which inflates the apparent relative improvement; these results are noted for completeness only.
+**CEH36 in the Pure Scraping era (April 2015 to December 2017) is the only well and era to show a net benefit after Tier 1 correction.** The benefit is modest, and three independent methods all find it (Figure 21c):
 
-After Tier 1 correction for background drift, the net benefit at CEH36 against the CEH21 coastal benchmark reversed to −0.055 m during the Felling Pulse era (against CEH4 the paired step fell to +0.023 m but did not reverse), as the deepening at CEH4 (consistent with coastal retreat together with the warren-wide decline) progressively eroded the scraping gain. The raw Tier 2 CUSUM tells a different story, with CEH36 rising strongly relative to CEH4 through this period --- but as established above, this reflects CEH4\'s own deterioration rather than genuine improvement at CEH36. At CEH18 and CEH21, scraped in October 2023, no scraping-specific response survived Tier 1 correction for background drift. CEH18\'s corrected net benefit was −0.075 m after scraping; CEH21\'s paired control (CEH22) is itself on a coastal erosion trajectory, so a net benefit cannot be reliably estimated. The monitoring window for both wells is short (two post-scraping summers) and the analysis is likely underpowered to detect benefits of the magnitude observed at CEH36.
+-   **Raw BACI against CEH4:** +0.128 m.
+-   **Synthetic control** from 11 donor wells: +0.141 m.
+-   **SSM forward residual:** +0.100 m. This is an autonomous-forecast estimator and the most conservative of the three.
 
-The annual summer minimum records for all three treatment wells, partitioned by management era and plotted against the Curreli et al. (2013) SD15b / SD16 community-mean levels, are presented in Figure 23. The deepening of the CEH4 control well after the Pure Scraping era (era mean summer minima of 1.075 m at baseline, 1.053 m during the Pure Scraping era and 1.148 m during the Felling Pulse) is consistent with coastal retreat at this eroding-margin well together with the warren-wide decline documented in Section 4.8.1; the record cannot separate the two, and no felling pulse is resolved at CEH4. It indicates that management benefit must be assessed against this background trajectory rather than in absolute terms.
+The two control-differenced methods (the first two) agree closely.
+
+**The Tier 2 CUSUMs, well by well (Figure 20):**
+
+-   **CEH36** rises from April 2015, and more steeply from 2018 onwards as CEH4 deteriorates. The synthetic control separates the scraping signal from CEH4\'s own trajectory (Figure 21).
+-   **CEH18** sits consistently negative relative to CEH4 throughout the record, including the pre-scraping baseline. Only a modest recovery is visible after the October 2023 scraping.
+-   **CEH21** rises from 2022 onwards, but it is read against CEH22, a control that is itself deteriorating (Section 4.5.1). That inflates the apparent relative improvement, so these results are noted for completeness only.
+
+**After Tier 1 correction, the CEH36 gain is eroded in the Felling Pulse era, and nothing survives at CEH18 or CEH21.**
+
+-   **CEH36, Felling Pulse era:** the net benefit against the CEH21 coastal benchmark reverses to −0.055 m. Against CEH4 the paired step falls to +0.023 m but does not reverse. The deepening at CEH4 (consistent with coastal retreat together with the warren-wide decline) progressively erodes the scraping gain.
+-   The raw Tier 2 CUSUM shows CEH36 rising strongly relative to CEH4 through this period. As above, that reflects CEH4\'s own deterioration, not a genuine improvement at CEH36.
+-   **CEH18:** no scraping-specific response survives Tier 1 correction; the corrected net benefit after scraping is −0.075 m.
+-   **CEH21:** its paired control (CEH22) is itself on a coastal erosion trajectory, so a net benefit cannot be reliably estimated.
+-   For both CEH18 and CEH21 the monitoring window is short (two post-scraping summers). The analysis is likely underpowered to detect a benefit the size of CEH36\'s.
+
+**The control CEH4 also deepens in summer.** Figure 23 shows the annual summer minima of all three treatment wells by management era, against the SD15b / SD16 community-mean levels of Curreli et al. (2013). CEH4\'s era mean summer minima are −1.075 m at baseline, −1.053 m in the Pure Scraping era and −1.147 m in the Felling Pulse (Table 19). As at Tier 1, this is consistent with coastal retreat at an eroding-margin well together with the warren-wide decline documented in Section 4.8.1; the record cannot separate the two, and no felling pulse is resolved at CEH4. Management benefit must therefore be assessed against this background trajectory, not in absolute terms.
 
 ![**Figure :** Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 (centre) and CEH21 (bottom), differenced against matched controls (CEH36 and CEH18 vs CEH4; CEH21 vs CEH22). Left panels: monthly Δ water level relative to control with era means as dashed lines. Right panels: cumulative BACI CUSUM --- rising indicates the treatment well becoming shallower relative to control, falling indicates deepening. CEH36 shows a rising CUSUM from April 2015, steepening from 2018, though this partly reflects the progressive deterioration of CEH4 rather than genuine improvement at CEH36. Neither CEH18 nor CEH21 shows a scraping response that survives Tier 1 correction; CEH21\'s apparent post-2022 rise reflects deterioration of its control (CEH22) through coastal erosion rather than a scraping benefit. (Source: 09_scrape_06_tier2_scraping_signal.png).](Pictures/1000000100000757000009FE336AFF1F.png "fig:"){width="5.5826in" height="7.6000in"}
 
@@ -554,7 +585,15 @@ The annual summer minimum records for all three treatment wells, partitioned by 
 
 ### []{#anchor-14}Drainage Coefficient Response
 
-Era-specific β₃ estimates show directional increases at both treatment and control wells (Table 18): CEH36 increased from ****0.084**** at baseline to 0.139 during the Pure Scraping era; CEH4, its unmanipulated control, showed a comparable increase from 0.070 to 0.162 over the same period. CEH18 rises from 0.075 at baseline through 0.098 to 0.146 after the October 2023 scraping, whereas CEH21 falls from 0.103 to 0.052 and recovers to 0.095 (not significant) against a flat CEH22 (0.140, 0.140, 0.155) (Figure 22). The β₃ increase is shared by the unmanipulated CEH4 but not by CEH22. The per-well era estimates are reported in Table 18; their reading is in Section 5.4.3.
+**β₃ rises at the treated well CEH36, but it rises as much at its unscraped control CEH4, so the change is not read as a scraping effect (Table 18; Figure 22).** Era by era:
+
+-   **CEH36** (treatment): 0.084 at baseline → 0.139 in the Pure Scraping era.
+-   **CEH4** (its control): 0.070 → 0.162 over the same period, a comparable increase.
+-   **CEH18** (treatment): 0.075 at baseline → 0.098 → 0.146 after the October 2023 scraping.
+-   **CEH21** (treatment): 0.103 → 0.052 → 0.095, recovering (not significant).
+-   **CEH22** (CEH21\'s control): flat, at 0.140, 0.140 and 0.155.
+
+The β₃ increase is shared by the unmanipulated CEH4 but not by CEH22. The per-well era estimates, with confidence intervals and p-values, are in Table 18; their reading is in Section 5.4.3.
 
   ------- ----------- ------------------ ------- ------------------- --------- --------
   Well    Role        Era                β₃      95% CI              p-value   Sig
@@ -583,13 +622,65 @@ Era-specific β₃ estimates show directional increases at both treatment and co
 
 ### []{#anchor-15}**Summer Minima**
 
-**The annual summer minimum depth records for the three scraping treatment wells and the CEH4 control well, partitioned by management era, are shown in Figure 23. CEH36 shows a clear reduction in summer minimum depth during the Pure Scraping era (April 2015 to December 2017), with the era mean shallowing from −1.115 m (pre-scraping, n = 4 summers) to −0.917 m (2015--17, n = 3 summers) --- a raw improvement of 198 mm (Figure 23). The era mean is −0.986 m in the post-felling era. Neither CEH18 nor CEH21 shows a clearly established summer minimum response to the October 2023 scraping --- the post-scraping record comprises only two summers with high inter-annual variability, and CEH21\'s apparent improvement does not survive background correction against CEH22. The CEH4 control well deepens after the Pure Scraping era (−1.075 m pre-scraping, −1.053 m in 2015--17, −1.147 m during the Felling Pulse).**
+**At CEH36 the summer minimum shallowed by 198 mm in the Pure Scraping era; neither 2023 scrape shows a clear summer response yet (Figure 23; Table 19).**
+
+-   **CEH36:** the era mean summer minimum shallows from −1.115 m (pre-scraping, n = 4 summers) to −0.917 m (2015--17, n = 3 summers), a raw improvement of 198 mm. In the post-felling era it is −0.986 m.
+-   **CEH18 and CEH21:** no clearly established response to the October 2023 scraping. The post-scraping record is only two summers, with high inter-annual variability, and CEH21\'s apparent improvement does not survive background correction against CEH22.
+-   **CEH4** (control) deepens after the Pure Scraping era: −1.075 m pre-scraping, −1.053 m in 2015--17, −1.147 m in the Felling Pulse.
+
+  ------- ------------------ ------------ ------------------------- ---------
+  Well    Era                Years        Mean summer minimum (m)   Summers
+  CEH36   Baseline           2011--2014   −1.115                    4
+  CEH36   Pure Scraping      2015--2017   −0.917                    3
+  CEH36   Felling Pulse      2018--2025   −0.986                    8
+  CEH4    Baseline           2011--2014   −1.075                    4
+  CEH4    Pure Scraping      2015--2017   −1.053                    3
+  CEH4    Felling Pulse      2018--2025   −1.147                    8
+  CEH18   Baseline           2011--2017   −1.249                    7
+  CEH18   Felling Pulse      2018--2023   −1.327                    6
+  CEH18   After Scraping     2024--2025   −1.145                    2
+  CEH21   Baseline           2011--2017   −1.297                    7
+  CEH21   Coastal Drawdown   2018--2023   −1.398                    6
+  CEH21   After Scraping     2024--2025   −1.360                    2
+  ------- ------------------ ------------ ------------------------- ---------
+
+**Table : **Era mean of the annual summer minimum (June--September) at the scraping treatment wells and the control CEH4, m below ground (negative = below ground). The eras follow each well\'s own management history, as in Table 18; Summers is the number of annual minima in the era. The same era means are plotted in Figure 23. (Source: 09c_report_numbers.csv, Summer_min_era_mean and Summer_min_era_n).
 
 ![**Figure :** Annual summer minimum depth below ground surface at scraping treatment wells (CEH36, CEH18, CEH21) and control well (CEH4), partitioned by management era. Each point represents the mean annual summer minimum depth for one year (June--September). Open symbols show era means; vertical bars = ±1 SD. CEH36 was scraped in April 2015 (blue band, 2015--17 Pure Scraping era) and re-scraped in October 2023, to a depth not recorded; CEH18 and CEH21 were scraped in October 2023 (green and purple bands, post-scraping era). Post-scraping era means for CEH18 and CEH21 are based on two summers (2024 and 2025) only. CEH18 and CEH21 were not scraped in 2015 --- their 2015--17 records represent unscraped monitoring. CEH4 (grey) is the unscraped control, plotted uncorrected; it sits on the eroding coastal margin, and its deepening in the Felling Pulse era is consistent with coastal retreat together with the warren-wide decline; the record cannot separate the two, and no felling pulse is resolved at CEH4. Zone colouring is bounded by the SD15b / SD16 community-mean levels of Curreli et al. (2013), 0.61 m and 0.98 m below ground, with a further band to 1.20 m marking the planning depth reachable by a deeper scrape: SD15b wet slack (0--0.61 m), SD16 dry slack (0.61--0.98 m), SD16 recovery (0.98--1.20 m). (Source: 21_forestry_03_scraping_eras.png).](Pictures/10000001000006CB0000046F8FF26229.png "fig:"){width="6.1390in" height="4.0068in"}
 
-**The paired BACI summer minima analysis (09c) shows the scraping benefit at CEH36 to be statistically significant against the paired control CEH4 (+195 mm, p = 0.00**4**) and also significant against the climate control centroid (+161 mm, p = 0.006; Figures 24 and 25). Neither CEH18 (+56 mm, p = 0.20) nor CEH21 (−8 mm, p = 0.89) showed significant paired shifts. CEH4 showed a non-significant change against the climate centroid (−34 mm, p = 0.33); the background drying trajectory is evidenced instead by the Tier-1 CUSUM decline and the era-mean progression (Section 4.5.1; Figures 19 and 23) and, in climate-corrected anomaly terms, by the divergence of the two wells after April 2015 (Figure 26). The distributional view (Figure 35) is consistent with this pattern: Impact and Edge tier summer minima track the Forest Control trajectory without detectable divergence after felling, while the Coastal Control summer minima show no progressive deepening across the record.**
+**Against its paired control, CEH36\'s summer-minimum gain is statistically significant; no other well\'s is (Table 20; Figures 24 and 25).** The paired BACI summer-minima analysis (Script 09c) tests CEH18 and CEH21 twice: against the nearby April 2015 scrape, using the summers before their own scrape, and against their own October 2023 scrape. The nearby 2015 scrape is CEH36\'s for CEH18 (56 m away) and Scrapes A and B for CEH21 (130 and 188 m); all three were cut in the one 2015 campaign.
 
-**The same paired comparison on the five-year mean spring water level (MSL5; Section 4.8.3) corroborates the benefit on the baseline vegetation metric. MSL5 at CEH36 shallows from −0.64 m at window-end 2015 to between −0.42 and −0.55 m (mean −0.49) across window-ends 2017--2023, opening a sustained separation of +0.03 to +0.09 m (mean +0.07) from the paired control CEH4, which sits between −0.45 and −0.62 m over the same window-ends and recovers slightly in the two latest. Because MSL5 is a rolling five-year mean, the scraping signal enters the metric gradually as post-scrape springs populate the window rather than as a discrete step, and part of the 2015--2017 shallowing is shared with CEH4 as the wet springs of that period enter both wells\' windows; the sustained CEH36-minus-CEH4 separation that persists through the post-scrape record is, however, consistent in direction, though smaller in magnitude, with the +195 mm paired summer-minimum benefit (Figure 25) and the +128 mm BACI-corrected monthly benefit (Section 4.5.2). The benefit is thus present on all three metrics --- the monthly mean, the summer minimum and the five-year spring baseline (Section 5.4.1).**
+-   **CEH36:** +194 mm against the paired control CEH4 (p = 0.004), and +161 mm against the climate control centroid (p = 0.006).
+-   **CEH18:** no detectable response to the nearby 2015 scrape (+19 mm, p = 0.55), nor yet to its own (+204 mm, p = 0.35, from two post-scrape summers).
+-   **CEH21:** likewise none to the nearby 2015 scrapes (−16 mm, p = 0.78), nor yet to its own (+43 mm, p = 0.36).
+-   **CEH4:** −34 mm against the climate centroid (p = 0.33), not significant. CEH4\'s background drying is shown instead by the Tier 1 CUSUM decline and the era-mean progression (Section 4.5.1; Figures 19 and 23), and, in climate-corrected anomaly terms, by the divergence of CEH36 and CEH4 after April 2015 (Figure 26).
+
+  ------- --------------------------- --------------------- ------- ---------------------- ------- ------------------------
+  Well    Scrape tested               Paired control (mm)   p       Climate control (mm)   p       Summers before / after
+  CEH36   April 2015 scrape           +194                  0.004   +161                   0.006   4 / 11
+  CEH18   April 2015 scrape           +19                   0.552   +9                     0.818   4 / 9
+  CEH18   October 2023 scrape (own)   +204                  0.350   +72                    0.544   9 / 2
+  CEH21   April 2015 scrape           −16                   0.778   −48                    0.492   4 / 9
+  CEH21   October 2023 scrape (own)   +43                   0.361   −66                    0.549   9 / 2
+  CEH4    April 2015 scrape           --- (the control)     ---     −34                    0.332   4 / 11
+  ------- --------------------------- --------------------- ------- ---------------------- ------- ------------------------
+
+**Table : **BACI shift in the annual summer minimum (positive = shallower), against the paired control (CEH4 for CEH36 and CEH18; CEH22 for CEH21) and against the climate control centroid, with Welch t-test p-values. CEH18 and CEH21 are tested against the nearby April 2015 scrape, using the summers before their own scrape, and against their own October 2023 scrape, using the summers from 2015 on. (Source: 09c_09_summer_minima_baci_table.csv).
+
+**The five-year mean spring level (MSL5; Section 4.8.3) shows the same benefit, smaller.**
+
+-   **CEH36:** MSL5 shallows from −0.64 m at window-end 2015 to between −0.42 and −0.55 m (mean −0.49) across window-ends 2017--2023.
+-   **CEH4:** between −0.45 and −0.62 m over the same window-ends, recovering slightly in the two latest.
+-   **The gap (CEH36 minus CEH4):** a sustained +0.03 to +0.09 m (mean +0.07).
+
+Two things to bear in mind when reading it:
+
+-   MSL5 is a rolling five-year mean, so the scraping signal enters gradually, as post-scrape springs fill the window, not as a step.
+-   Part of the 2015--2017 shallowing is shared with CEH4, as the wet springs of that period enter both wells\' windows.
+
+The separation that persists through the post-scrape record matches, in direction though smaller in magnitude, the +194 mm paired summer-minimum benefit (Figure 25) and the +128 mm BACI-corrected monthly benefit (Section 4.5.2).
+
+**So the benefit at CEH36 appears on all three metrics:** the monthly mean, the summer minimum and the five-year spring baseline (Section 5.4.1).
 
 ![](Pictures/1000000100000755000007609EBFD31E.png){width="5.4126in" height="5.4425in"}**Figure :** Summer minima analysis for the scraping intervention against the climate control centroid. (a) Raw annual summer minimum (June--September) for treatment and control wells. (b) Impact well gaps vs climate control centroid, pre/post scraping. (c) Control well gaps vs climate control centroid (diagnostic). (Source: 09c_03_summer_minima_climate_ctrl.png)
 
@@ -599,17 +690,62 @@ Era-specific β₃ estimates show directional increases at both treatment and co
 
 ### []{#anchor-16}**Scraping Propagation into the Surrounding Aquifer**
 
-**A supplementary analysis tested whether the CEH36 scraping signal propagated uphill into the surrounding aquifer, comparing split-window SSM fits at ten wells between 250 m and 780 m from CEH36, with BACI correction against seven distant C3 control wells. Under Model B one of the eight wells within 575 m returned a positive BACI-corrected change in the drainage coefficient (t = −3.94, p = 0.006). The sign of that change reverses with a fixed drainage floor, so the scrape\'s propagation into β₃ is not established. The scrape is detected instead by the paired BACI level step (Section 4.5). Its interpretation is in Section 5.4.3.**
+**There is no established sign that the CEH36 scrape spread uphill into the drainage coefficient.** A supplementary analysis:
 
-The uphill wells traverse pre-existing spatial gradients in the drainage coefficient. The wells nearer CEH36 lie mostly within the C3 Western Residual cluster (the nearest, CEH31, is C5), which carries a weak internal β₃ gradient along the south-west to north-east axis (Section 4.9.2; β₃ increasing inland), not significant under Model B (r = +0.34, p = 0.134); the higher uphill wells lie mostly within the C4 forest zone (CEH9 and CEH1 are C3), where β₃ shows a significant elevation dependence (Section 4.9.4; r = −0.818, p \< 0.001). The BACI-corrected Δβ₃ does not decay with distance from CEH36, its sign reverses with a fixed drainage floor, and it is not used as evidence.
+-   compared split-window SSM fits at ten wells between 250 m and 780 m from CEH36;
+-   corrected them (BACI) against seven distant C3 control wells.
 
-The aquifer diffusivity timescale L_B²Sₐ/(Kb) exceeds seven years at a separation of 570 m (Fetter, 2001), against a 31-month post-scraping record. The inferred ground surface lowering at CEH36 is approximately 0.43 m (back-calculated as d_ex = H₀/Sₐ from the measured BACI step H₀ ≈ 0.13 m and open-dune Sₐ ≈ 0.30), consistent with field observation of the cut. The water-table shallowing partially re-equilibrates over approximately two years, retaining +128 mm as the BACI-corrected benefit during the pure scraping era (Section 4.5.2). The SSM forward residual (Figure 21b) stays positive through this period (+0.100 m over the Pure Scraping era; Figure 21c), consistent with a lasting lowering of the ground surface.
+Result under Model B:
+
+-   One of the eight wells within 575 m returned a positive BACI-corrected change in β₃; across the eight, the mean change is negative (t = −3.94, p = 0.006).
+-   The sign of that change reverses with a fixed drainage floor, so propagation into β₃ is not established.
+-   The scrape is detected instead by the paired BACI level step (Section 4.5.2). Its interpretation is in Section 5.4.3.
+
+**The uphill wells also cross drainage-coefficient gradients that were there before the scrape:**
+
+-   The nearer wells lie mostly in C3 Western Residual (the nearest, CEH31, is C5). C3 carries a weak internal β₃ gradient along the south-west to north-east axis (β₃ increasing inland), not significant under Model B (r = +0.34, p = 0.134; Section 4.9.2).
+-   The higher uphill wells lie mostly in the C4 forest zone (CEH9 and CEH1 are C3), where β₃ depends significantly on elevation (r = −0.818, p \< 0.001; Section 4.9.4).
+
+The BACI-corrected Δβ₃ does not decay with distance from CEH36, its sign reverses with a fixed drainage floor, and it is not used as evidence.
+
+**The record is too short to see propagation, and the local step fits the depth of the cut:**
+
+-   **Timescale.** The aquifer diffusivity timescale L_B²Sₐ/(Kb) exceeds seven years at a separation of 570 m (Fetter, 2001), against a 31-month post-scraping record.
+-   **Depth of cut.** The inferred ground surface lowering at CEH36 is approximately 0.35 m, back-calculated as d_ex = H₀/Sₐ from the measured BACI step H₀ ≈ 0.13 m and CEH36\'s own Sₐ ≈ 0.37, the value the scenarios of Section 4.5.6 also use. This is consistent with field observation of the cut.
+-   **Re-equilibration.** The water-table shallowing partially re-equilibrates over approximately two years, leaving +128 mm as the BACI-corrected benefit in the Pure Scraping era (Section 4.5.2).
+-   **Lasting effect.** The SSM forward residual (Figure 21b) stays positive through this period (+0.100 m over the Pure Scraping era; Figure 21c), consistent with a lasting lowering of the ground surface.
 
 ![**Figure :** Climate-corrected spatial step-change map for the scraping era (April 2015 -- November 2017). Each well\'s step relative to its pre-scraping mean, corrected by subtracting the C3 control centroid step. The localized response at CEH36 and absence of a spatial gradient uphill at well distances of 250--780 m within the 31-month observation window are consistent with the scraping effect being either spatially confined or propagating on timescales longer than the available record (Section 5.4.3). (Source: 10b_spatial_scrape_corrected.png)](Pictures/10000001000007240000058047B77BB4.png "fig:"){width="6.2217in" height="4.7922in"}
 
 ### []{#anchor-17}**Scenario Contextualization**
 
-> To contextualize the observed scraping benefit at CEH36, five alternative interventions were compared at the same well under two climate forcings (09d). The clearfell bar returns as recharge the share of the canopy's interception that reproduces the step observed at the felled well (Section 4.13); 50% thinning returns at most half of it. Under annual-mean forcing (Figure 28), the observed scraping benefit (+46.9 mm w.e./month) exceeds every alternative: clearfell +3.0, thinning +1.5, broadleaf −2.0 and climate wet +7.7 mm/month, against −13.9 mm/month under climate dry. Evaluated under summer forcing (Figure 29) scraping still exceeds every alternative (clearfell +2.7, thinning +1.4, broadleaf −3.4, climate wet +8.0), and the climate-dry penalty is marginally larger (−15.2); both figures report the same equilibrium volumetric quantity and are directly comparable. Both figures also show the modelled off-site neighbour drawdown the scrape imposes on the surrounding water table (−27.8 mm w.e./month at 100 m, decaying to −11.6 at 250 m): scraping raises the slack locally but draws its neighbours down; the canopy-management scenarios carry no off-site term. The raw level steps at WMC3, the nearest long-record uphill well, are examined in Section 4.6.3, where none is resolved against its month-to-month variability. (For reference, the observed paired-BACI summer-minimum shift at CEH36 was +195 mm; the equilibrium framework does not resolve summer minima, so it is not plotted.)
+**The observed scrape raises the water table at CEH36 more than any of the alternatives modelled, under either forcing (Table 21; Figures 28 and 29).** Five alternative interventions were compared at CEH36 under two climate forcings (Script 09d):
+
+-   **Clearfell:** returns as recharge the share of the canopy\'s interception that reproduces the step observed at the felled well (Section 4.13).
+-   **50% thinning:** returns at most half of it.
+-   **Broadleaf**, **climate wet** and **climate dry**.
+
+  ---------------------- -------------------- --------------------- ----------------
+  Scenario               Kind                 Annual-mean forcing   Summer forcing
+  Scraping               observed             +46.9                 +46.9
+  Clearfell              hypothetical         +3.0                  +2.7
+  Thinning 50%           hypothetical         +1.5                  +1.4
+  Broadleaf              hypothetical         −2.0                  −3.4
+  Climate wet            climate projection   +7.7                  +8.0
+  Climate dry            climate projection   −13.9                 −15.2
+  Scraping, 100 m away   off-site drawdown    −27.8                 −27.8
+  Scraping, 250 m away   off-site drawdown    −11.6                 −11.6
+  ---------------------- -------------------- --------------------- ----------------
+
+**Table : **Equilibrium volumetric water-table change at CEH36 by scenario, mm water-equivalent per month, under annual-mean forcing (Figure 28) and summer forcing (Figure 29), from CEH36\'s own SSM coefficients. The two off-site rows are the modelled drawdown the scrape imposes on its neighbours. (Source: 09d_01_scenario_comparison.csv; 09d_02_summer_scenario_comparison.csv).
+
+Reading the table:
+
+-   Under both forcings scraping exceeds every alternative. Under summer forcing the climate-dry penalty is marginally larger.
+-   Both figures report the same equilibrium volumetric quantity, so they are directly comparable.
+-   **Scraping raises the slack locally but draws its neighbours down:** the modelled off-site drawdown is −27.8 mm w.e./month at 100 m, decaying to −11.6 at 250 m. The canopy-management scenarios carry no off-site term.
+-   The raw level steps at WMC3, the nearest long-record uphill well, are examined in Section 4.6.3, where none is resolved against its month-to-month variability.
+-   For reference, the observed paired-BACI summer-minimum shift at CEH36 was +194 mm. The equilibrium framework does not resolve summer minima, so it is not plotted.
 
 ![](Pictures/1000000000000704000003E9307F9580.jpg){width="6.2217in" height="3.4088in"}**Figure :** Scenario comparison at CEH36 (scraped site) --- annual-mean forcing. Equilibrium volumetric water table change (mm water-equivalent per month) under each scenario. Observed scraping benefit (+46.9) compared with hypothetical forestry scenarios (clearfell +3.0, thinning +1.5, broadleaf −2.0 --- 'what if CEH36 had pine canopy?') and UKCP18 RCP8.5 climate projections (wet +7.7, dry −13.9). A second scraping bar shows the modelled off-site neighbour drawdown at 100 m (−27.8), with a reference line marking the milder drawdown at 250 m (−11.6), from the drain-cone model of Section 4.11. The clearfell bar returns the share of the interception that reproduces the observed step at the felled well, and thinning half of it; broadleaf applies its seasonal β₂ profile with no interception term. Converting a volumetric bar to a head change requires dividing by an appropriate, uncertain Sₐ and is only approximate. All computed using CEH36's own SSM coefficients (β₁ = 2.42, β₂ = 1.36, β₃ = 0.140) and Sₐ = 0.37. (Source: 09d_01_scenario_comparison.jpg)
 
@@ -619,48 +755,117 @@ The aquifer diffusivity timescale L_B²Sₐ/(Kb) exceeds seven years at a separa
 
 ### []{#anchor-19}**Interpretive Context**
 
-Three features of the monitoring record bear on interpretation of the clearfell results. First, wells within or at the edge of the clearfell footprint (FE1--FE4, LIS1) and the scraping treatment well CEH36 were excluded from the BACI design on the grounds of insufficient or confounded pre-felling baselines (Section 3.5.4). FE1 and FE2, which have 29 months of pre-felling record but no pre-scraping baseline, were excluded from the primary BACI design because their late start dates create an unstable impact centroid when pooled with WMC3 --- the changing well composition introduces spurious level shifts that the ANCOVA conflates with the intervention steps. These wells were instead included as a robustness check via donor-regression synthetic extension, which provides a stable-composition centroid across all three eras (Section 4.6.7). Second, all clearfell analyses use the period from January 2011 onwards as the effective baseline, because only three of nine C4 wells were operational before mid-2010 and these are unrepresentative of the cluster (Section 4.2.1). Third, the April 2015 scraping event at CEH36 produced a significant level shift 32 months before the clearfell; the ANCOVA\'s distance-weighted scraping covariate absorbs this, but the post-scraping, pre-felling window (2015--17) encompasses only three summer minima, limiting baseline power.
+**Three features of the monitoring record limit how the clearfell results can be read.**
+
+-   **Some wells are left out of the BACI design** (Section 3.5.4). The wells within or at the edge of the clearfell footprint (FE1--FE4, LIS1) and the scraping treatment well CEH36 are excluded, because their pre-felling baselines are too short or confounded.
+-   FE1 and FE2 have 29 months of pre-felling record but no pre-scraping baseline. Pooled with WMC3, their late start dates make the impact centroid unstable: the changing well composition introduces spurious level shifts that the ANCOVA conflates with the intervention steps. They are used instead as a robustness check, extended backwards by donor regression, which gives a centroid of stable composition across all three eras (Section 4.6.7).
+-   **The effective baseline starts in January 2011.** Every clearfell analysis uses the record from January 2011 onwards, because only three of nine C4 wells were operational before mid-2010, and these are unrepresentative of the cluster (Section 4.2.1).
+-   **The April 2015 scraping at CEH36 came 32 months before the clearfell** and produced a significant level shift. The ANCOVA\'s distance-weighted scraping covariate absorbs it, but the post-scraping, pre-felling window (2015--17) holds only three summer minima, which limits baseline power.
 
 ### []{#anchor-20}**Climate Sensitivity**
 
-The CWB × clearfell interaction was non-significant in the Forest control models (Impact p = 0.58, Edge p = 0.26), indicating that the rate at which the BACI gap responds to cumulative water balance deficit did not detectably change after felling when that response is modelled as a single linear slope. The relationship is shown in Figure 30: the fitted pre-felling and post-felling climate-response lines are effectively parallel, offset by the clearfell step (Section 4.6.3).
+**After felling, the BACI gap responds to the water balance at the same rate as before (Figure 30).**
 
-A non-linear extension of the headline model tested whether the response is concentrated at the tails of the water-balance range (the buffering hypothesis, Section 5.5.1), adding a centred CWB² term and a CWB² × clearfell interaction to the full ANCOVA specification. The extension does not support the hypothesis. The CWB² × clearfell interaction is negative at both zones --- the direction a dry-tail buffering effect would produce --- but reaches significance at neither (Impact −14.4 mm per (100 mm CWB)², p = 0.22; Edge −8.4 mm per (100 mm CWB)², p = 0.36). The joint F-test of the two added curvature terms is non-significant at Impact (p = 0.20) and at Edge (p = 0.079), and the curvature model is not preferred over the linear one by AIC at Impact (ΔAIC +0.7); at Edge it is, narrowly (ΔAIC −1.4). The CWB² main effect is non-significant at both zones. The negative interaction sign means the post-felling response is concave in cumulative water balance: the felling-attributable rise in the water table is larger in dry, low-water-balance conditions than in wet ones.
+-   In the Forest-control models the CWB × clearfell interaction is non-significant: Impact p = 0.58, Edge p = 0.26.
+-   So, modelled as a single linear slope, the rate at which the BACI gap responds to cumulative water balance deficit did not detectably change after felling.
+-   In Figure 30 the fitted pre- and post-felling climate-response lines are effectively parallel, offset by the clearfell step (Section 4.6.3).
 
-This is reported as a preliminary finding. It rests on a single interacted quadratic term and one felling event at one site, and it is a sensitivity variant only: the headline clearfell step and the linear ANCOVA model of Section 4.6.3 are unchanged. The point estimates place the felling-attributable rise in dry periods; the alternative explanations and the buffering reading are in Section 5.5.1.
+**A curved version of the model does not support the buffering hypothesis.** The buffering hypothesis (Section 5.5.1) is that the response is concentrated at the tails of the water-balance range. To test it, a centred CWB² term and a CWB² × clearfell interaction were added to the full ANCOVA specification.
 
-The Climate-control models --- which contrast the felled wells against the unforested Climate control (CEH9, NW5, NW6, NW7, WMC2, all C3 Western Residual wells) --- return non-significant CWB × clearfell interactions (Impact p = 0.47, Edge p = 0.22). The Forest-control comparison is the position-matched test and its results, linear and non-linear, are the headline findings; the Climate-control interactions are not interpreted as a clearfell-specific change in canopy water-balance physics.
+-   **CWB² × clearfell interaction:** negative at both zones --- the direction a dry-tail buffering effect would produce --- but significant at neither: Impact −14.4 mm per (100 mm CWB)², p = 0.22; Edge −8.4 mm per (100 mm CWB)², p = 0.36.
+-   **Joint F-test of the two added curvature terms:** non-significant at Impact (p = 0.20) and at Edge (p = 0.079).
+-   **AIC:** the curvature model is not preferred over the linear one at Impact (ΔAIC +0.7); at Edge it is, narrowly (ΔAIC −1.4).
+-   **CWB² main effect:** non-significant at both zones.
+-   **What the sign means:** a negative interaction makes the post-felling response concave in cumulative water balance. The felling-attributable rise in the water table is then larger in dry, low-water-balance conditions than in wet ones.
+
+**This is a preliminary finding, and a sensitivity variant only.**
+
+-   It rests on a single interacted quadratic term and one felling event at one site.
+-   The headline clearfell step and the linear ANCOVA model of Section 4.6.3 are unchanged by it.
+-   The point estimates place the felling-attributable rise in dry periods. The alternative explanations and the buffering reading are in Section 5.5.1.
+
+**Against the Climate control the interaction is also non-significant**, and it is not interpreted.
+
+-   The Climate control is CEH9, NW5, NW6, NW7 and WMC2, all C3 Western Residual wells, unforested.
+-   Its CWB × clearfell interactions: Impact p = 0.47, Edge p = 0.22.
+-   The Forest-control comparison is the position-matched test. Its results, linear and non-linear, are the headline findings. The Climate-control interactions are not read as a clearfell-specific change in canopy water-balance physics.
 
 ![](Pictures/1000000100000632000002BFE353007F.png){width="6.2217in" height="2.7701in"}**Figure :** Climate sensitivity: cumulative water balance (CWB) vs BACI displacement against the Forest control, pre-felling (circles) and post-felling (crosses), for Impact (left) and Edge (right) zones. Solid and dashed lines are the ANCOVA-fitted climate-response lines for the post- and pre-felling eras respectively; their near-parallel form reflects the non-significant linear CWB × clearfell interaction. (Source: 10a_06_climate_sensitivity.png).
 
 ### []{#anchor-21}**ANCOVA-BACI Results**
 
-****The ANCOVA-BACI model (Section 3.5.4) was run three times with different control centroids (Table 19).****
+**Against the unfelled forest, the felled well rose by +108 mm and the Edge tier by +31 mm, but neither step is significant on its own once autocorrelation is allowed for (Table 22; Figures 32 and 33).** The ANCOVA-BACI model (Section 3.5.4) was run three times, each with a different control centroid.
 
-  ---------- -------- -------- -------------------- ------- ---- -------- --------- ------- -----
-  Forest     Impact   +0.108   \[−0.021, +0.237\]   0.100   ns   +0.316   0.005     0.232   162
-  Forest     Edge     +0.031   \[−0.059, +0.121\]   0.501   ns   +0.562   \<0.001   0.455   156
-  Climate    Impact   −0.019   \[−0.097, +0.058\]   0.624   ns   +0.014   0.914     0.189   140
-  Climate    Edge     −0.106   \[−0.208, −0.004\]   0.042   \*   +0.273   0.513     0.203   136
-  Combined   Impact   +0.066   \[+0.012, +0.119\]   0.016   \*   +0.070   0.376     0.259   138
-  Combined   Edge     −0.021   \[−0.068, +0.026\]   0.391   ns   +0.300   0.019     0.451   134
-  ---------- -------- -------- -------------------- ------- ---- -------- --------- ------- -----
+**Forest control** (the headline comparison):
 
-**Table :** Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports the clearfell step estimate from a separate ANCOVA model fitted to the monthly BACI gap (target tier centroid minus control centroid). Covariates: centred cumulative water balance (CWB), distance-weighted scraping dummy (L_s = 300 m), CWB × clearfell interaction, and coastal-drift term. The Forest control is the most direct test of the clearfell hypothesis: it compares felled wells against unfelled forest sharing the same canopy and substrate, isolating the felling response from the coastal erosion gradient. All comparisons use a record-length-balanced window beginning January 2011 --- the date from which every well in the five-tier comparison network has continuous record. The control centroid is computed on a fixed-membership basis: a month enters the BACI series only when every control-roster well has a reading, so the centroid is not silently re-weighted by control wells going offline mid-record (clearfell_common v1.7.0). Sample sizes therefore differ between comparisons. (Source: 10a_01_ancova_comparison_table.csv)
+-   **Impact:** +108 mm; 95% CI −21 to +237 mm (p = 0.10).
+-   **Edge:** +31 mm; 95% CI −59 to +121 mm (p = 0.50).
+-   These intervals use autocorrelation-robust (Newey--West) errors with 12 monthly lags, because the monthly residuals are strongly autocorrelated (lag-1 0.85).
+-   Ordinary least-squares errors ignore the autocorrelation and overstate significance. They give p = 0.003 (95% CI +37 to +180 mm) for Impact and p = 0.23 for Edge.
+
+**Climate control:**
+
+-   **Impact:** −19 mm (95% CI −97 to +58 mm, p = 0.62).
+-   **Edge:** −106 mm (95% CI −208 to −4 mm, p = 0.042).
+
+**Combined control:**
+
+-   **Impact:** +66 mm (95% CI +12 to +119 mm, p = 0.016).
+-   **Edge:** −21 mm (95% CI −68 to +26 mm, p = 0.39).
+
+Why the Forest, Climate and Combined results differ is taken up in Section 5.
+
+  ---------- -------- -------- -------------------- ------- ---- -------- ------- ------- -----
+  Forest     Impact   +0.108   \[−0.021, +0.237\]   0.100   ns   +0.316   0.019   0.232   162
+  Forest     Edge     +0.031   \[−0.059, +0.121\]   0.501   ns   +0.562   0.002   0.455   156
+  Climate    Impact   −0.019   \[−0.097, +0.058\]   0.624   ns   +0.014   0.921   0.189   140
+  Climate    Edge     −0.106   \[−0.208, −0.004\]   0.042   \*   +0.273   0.571   0.203   136
+  Combined   Impact   +0.066   \[+0.012, +0.119\]   0.016   \*   +0.070   0.355   0.259   138
+  Combined   Edge     −0.021   \[−0.068, +0.026\]   0.391   ns   +0.300   0.131   0.451   134
+  ---------- -------- -------- -------------------- ------- ---- -------- ------- ------- -----
+
+**Table :** Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports the clearfell step estimate from a separate ANCOVA model fitted to the monthly BACI gap (target tier centroid minus control centroid). Covariates: centred cumulative water balance (CWB), distance-weighted scraping dummy (L_s = 300 m), CWB × clearfell interaction, and coastal-drift term. The Forest control is the most direct test of the clearfell hypothesis: it compares felled wells against unfelled forest sharing the same canopy and substrate, isolating the felling response from the coastal erosion gradient. All comparisons use a record-length-balanced window beginning January 2011 --- the date from which every well in the five-tier comparison network has continuous record. The control centroid is computed on a fixed-membership basis: a month enters the BACI series only when every control-roster well has a reading, so the centroid is not silently re-weighted by control wells going offline mid-record. Sample sizes therefore differ between comparisons. (Source: 10a_01_ancova_comparison_table.csv)
 
 **
 
-Against the Forest control, the clearfell step was +108 mm for Impact and +31 mm for Edge (Figure 32, Figure 33). The monthly residuals are strongly autocorrelated (lag-1 0.85), so inference uses autocorrelation-robust (Newey--West) errors with 12 monthly lags: the Impact step has a 95% CI of −21 to +237 mm (p = 0.10) and the Edge step −59 to +121 mm (p = 0.50), so neither is significant on its own. Ordinary least-squares errors, which ignore the autocorrelation and overstate significance, give p = 0.003 (95% CI +37 to +180 mm) for Impact and p = 0.23 for Edge. Against the Climate control, the clearfell step was −19 mm for Impact (95% CI −97 to +58 mm, p = 0.62) and −106 mm for Edge (95% CI −208 to −4 mm, p = 0.042). Against the Combined control, the clearfell step was +66 mm for Impact (95% CI +12 to +119 mm, p = 0.016) and −21 mm for Edge (95% CI −68 to +26 mm, p = 0.39). The interpretation of the contrasting Forest, Climate and Combined results is taken up in Section 5.
+**The scraping covariate is large, but it is not a measure of the scraping effect.**
 
-The scraping covariate was significant in both Forest-control models: +316 mm at Impact (p = 0.019) and +562 mm at Edge (p = 0.002), with autocorrelation-robust errors. Sensitivity analysis across three decay length scales (L_s = 200, 300, 500 m) produced consistent clearfell coefficients, so the scraping and clearfell terms are temporally well-separated. These covariate coefficients index the temporal separation of the two interventions in the model; they are not a physical estimate of the scraping effect on the impact well. In the raw, uncorrected BACI gap the era mean falls at each scraping event, whereas the climate-corrected covariate carries the opposite sign because it is estimated jointly with the cumulative-water-balance and coastal-drift terms; neither raw scraping step is distinguishable from the gap\'s month-to-month variability (below). Figure 31 shows the raw gap and its per-era steps directly.
+-   In both Forest-control models it is significant, with autocorrelation-robust errors: +316 mm at Impact (p = 0.019) and +562 mm at Edge (p = 0.002).
+-   Across three decay length scales (L_s = 200, 300, 500 m) the clearfell coefficients were consistent, so the scraping and clearfell terms are temporally well-separated.
+-   These covariate coefficients index the temporal separation of the two interventions in the model. They are not a physical estimate of the scraping effect on the impact well.
+-   In the raw, uncorrected BACI gap the era mean falls at each scraping event. The climate-corrected covariate carries the opposite sign because it is estimated jointly with the cumulative-water-balance and coastal-drift terms.
+-   Neither raw scraping step is distinguishable from the gap\'s month-to-month variability (next paragraph; Figure 31).
 
-The raw before-and-after evidence for all three interventions is shown in Figure 31. In the uncorrected WMC3-minus-forest-control gap, the December 2017 clearfell registers a +40 mm difference-in-differences step --- the raw counterpart to the +108 mm climate-corrected ANCOVA step above, the two differing because the raw step retains the drier-than-average pre-felling climate the ANCOVA removes. The gap\'s era mean also falls at each scraping event (−46 mm in 2015, −53 mm in 2023). None of the three raw steps is distinguishable from the gap\'s month-to-month variability. Against autocorrelation-robust standard errors each lies within one standard error of zero (−46 ± 63 mm at the 2015 scraping, +40 ± 57 mm at the clearfell, −53 ± 68 mm at the 2023 re-scraping), and sliding the break date across the record with the same era lengths returns a step at least as large in 73%, 78% and 65% of positions respectively. The 2015 step also depends on the baseline era, whose mean is set largely by the 2010--2012 excursion visible in Figure 31b. The raw steps therefore do not resolve an off-site scraping effect at WMC3, 262 m from CEH36; this agrees with the essentially zero BACI-corrected Δβ₃ WMC3 returned in Section 4.5.5 and with the absence of any distance-decay in the whole-array step map (Figure 27). The clearfell rests on the climate-corrected ANCOVA, not on the raw step. WMC3 is retained as the sole impact well, while CEH36 and the FE wells are excluded, because it alone has a pre-2015 record against which the scraping era can be separated from the pre-felling baseline (Section 4.6.1).
+**In the raw gap, no step stands out from the gap\'s own month-to-month variability (Figure 31).** Figure 31 shows the uncorrected WMC3-minus-forest-control gap across all three interventions. The consecutive-era steps:
+
+-   **2015 scraping:** the era mean falls, −46 ± 63 mm; a step at least as large in 73% of positions.
+-   **December 2017 clearfell:** +40 ± 57 mm; at least as large in 78% of positions.
+-   **2023 re-scraping:** the era mean falls, −53 ± 68 mm; at least as large in 65% of positions.
+
+How to read these:
+
+-   "±" is the autocorrelation-robust standard error; each step lies within one standard error of zero.
+-   "Positions": the break date was slid across the record with the same era lengths, and the percentage is the share of positions returning a step at least as large.
+-   The raw clearfell step (+40 mm) is the raw counterpart to the +108 mm climate-corrected ANCOVA step. The two differ because the raw step retains the drier-than-average pre-felling climate that the ANCOVA removes.
+-   The 2015 step also depends on the baseline era, whose mean is set largely by the 2010--2012 excursion visible in Figure 31b.
+
+What follows from them:
+
+-   The raw steps do not resolve an off-site scraping effect at WMC3, 262 m from CEH36. This agrees with the absence of any distance-decay in the whole-array step map (Figure 27). WMC3\'s BACI-corrected Δβ₃, by contrast, is not near zero (−76 %; Script 09b).
+-   The clearfell result rests on the climate-corrected ANCOVA, not on the raw step.
+-   WMC3 is kept as the sole impact well, and CEH36 and the FE wells are excluded, because WMC3 alone has a pre-2015 record against which the scraping era can be separated from the pre-felling baseline (Section 4.6.1).
 
 ![**Figure :** WMC3 (Impact well) and the forest-control mean across the three interventions, in water-table displacement (h_disp = datum + depth). (a) Six-month rolling means (bold) over faint monthly values, with the WMC3-minus-forest-control gap shaded and per-era mean bars; vertical lines mark April 2015 scraping (grey dashed), December 2017 clearfell (black solid) and October 2023 re-scraping (grey dotted). The boxed note reconciles the raw and climate-corrected clearfell steps. (b) The BACI gap (WMC3 minus forest control) as a six-month rolling mean over faint monthly values, with per-era mean bars; annotations give the consecutive-era difference-in-differences steps with their autocorrelation-robust standard errors (−46 ± 63 mm at the 2015 scraping, +40 ± 57 mm at the clearfell, −53 ± 68 mm at the 2023 re-scraping). None is distinguishable from the gap\'s month-to-month variability, so the scraping steps are not evidence of an off-site drawdown (Section 4.6.3). These raw difference-in-differences steps are uncorrected for climate and are not a substitute for the climate-corrected ANCOVA step of Section 4.6.3. (Source: 10m_02_wmc3_baci_dual.png)](Pictures/100000010000063B000003FFAFFEE89D.png "fig:"){width="6.2217in" height="3.9902in"}
 
-![**Figure :** Forest control BACI timeseries and CUSUM for the Impact tier (WMC3). Upper panel: monthly BACI gap (WMC3 minus Forest control centroid) with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; sustained positive accumulation after December 2017 is consistent with the clearfell step. Vertical lines: April 2015 scraping (grey dashed), December 2017 clearfell (black solid), October 2023 re-scraping (grey dotted). (Source: 10a_07_cusum_impact.png).](Pictures/100000010000063A000003E6B8A3B563.png "fig:"){width="6.0102in" height="3.7634in"}![**Figure : **Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, CEH20, CEH30, CEH16). Upper panel: monthly BACI gap (Edge centroid minus Forest control centroid) with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; the positive accumulation after December 2017 is consistent with the Edge-tier clearfell step of +31 mm \[−59, +121\] (p = 0.50, not significant; Table 19). Vertical lines: April 2015 scraping (grey dashed), December 2017 clearfell (black solid), October 2023 re-scraping (grey dotted). (Source: 10a_08_cusum_edge.png)](Pictures/100000010000063E000003E63FD81EC9.png "fig:fig:"){width="6.0972in" height="3.8075in"}
+![**Figure :** Forest control BACI timeseries and CUSUM for the Impact tier (WMC3). Upper panel: monthly BACI gap (WMC3 minus Forest control centroid) with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; sustained positive accumulation after December 2017 is consistent with the clearfell step. Vertical lines: April 2015 scraping (grey dashed), December 2017 clearfell (black solid), October 2023 re-scraping (grey dotted). (Source: 10a_07_cusum_impact.png).](Pictures/100000010000063A000003E6B8A3B563.png "fig:"){width="6.0102in" height="3.7634in"}![**Figure : **Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, CEH20, CEH30, CEH16). Upper panel: monthly BACI gap (Edge centroid minus Forest control centroid) with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; the positive accumulation after December 2017 is consistent with the Edge-tier clearfell step of +31 mm \[−59, +121\] (p = 0.50, not significant; Table 22). Vertical lines: April 2015 scraping (grey dashed), December 2017 clearfell (black solid), October 2023 re-scraping (grey dotted). (Source: 10a_08_cusum_edge.png)](Pictures/100000010000063E000003E63FD81EC9.png "fig:fig:"){width="6.0972in" height="3.8075in"}
 
-The coastal-drift covariate in Table 19\'s ANCOVA design absorbs progressive divergence between impact and control wells across the post-felling era, and Table 20 reports the differential each contrast absorbs. Table 20 also carries the far-field control tier (NW4b, WMC1, CEH5, L7, CEH6), which Script 10a fits beside the three counterfactuals of Table 19, and has no Combined rows. The covariate is the fitted coastal profile of Section 4.10.2, averaged over each tier's wells at their own distances from the shore (not evaluated at the tier\'s mean distance) and differenced between target and control, so its coefficient ξ is the fraction of that field the contrast feels and ξ = 1 is exactly the amplitude fitted network-wide. What the covariate does is keep that drift from being attributed to the felling step, which is the use made of it in Section 4.6.3; the residual coastal-retreat decline it absorbs is discussed in Section 5.5.
+**The coastal-drift covariate stops coastal decline being counted as part of the felling step (Table 23).**
+
+-   It absorbs progressive divergence between impact and control wells across the post-felling era. Table 23 reports the differential each contrast absorbs.
+-   **What it is:** the fitted coastal profile of Section 4.10.2, averaged over each tier\'s wells at their own distances from the shore (not evaluated at the tier\'s mean distance), and differenced between target and control.
+-   **Its coefficient ξ** is the fraction of that field the contrast feels; ξ = 1 is exactly the amplitude fitted network-wide.
+-   **Far-field tier:** Table 23 also carries the far-field control tier (NW4b, WMC1, CEH5, L7, CEH6), which Script 10a fits beside the three counterfactuals of Table 22. Table 23 has no Combined rows.
+-   The residual coastal-retreat decline it absorbs is discussed in Section 5.5.
 
   ----------- -------- -------- --------- -------- --------- -------------
   Forest      Impact   −10.68   +1.513    0.447    \<0.001   −16.1 ± 4.8
@@ -671,21 +876,72 @@ The coastal-drift covariate in Table 19\'s ANCOVA design absorbs progressive div
   Far-field   Edge     −12.02   −1.741    0.742    0.020     +20.9 ± 8.9
   ----------- -------- -------- --------- -------- --------- -------------
 
-**Table : ** The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude of the network-scale coastal gradient that each target-minus-control contrast feels, and is dimensionless: ξ = 1 is exactly the field fitted independently in Section 4.10.2. The absorbed differential is ξ × the tier\'s coastal differential (mm yr⁻¹), with ±1 SE propagated from the coefficient SE. Because the covariate is the fitted gradient field itself, the comparison with the model prediction is an internal consistency check rather than independent corroboration: it asks, in effect, whether ξ = 1. It is a drift control, not a measurement of a spatial gradient. (Source: 25_04_baci_corroboration.csv)
+**Table : ** The coastal-drift term fitted in each ANCOVA contrast. ξ is the amplitude of the network-scale coastal gradient that each target-minus-control contrast feels, and is dimensionless: ξ = 1 is exactly the field fitted independently in Section 4.10.2. The absorbed differential is ξ × the tier\'s coastal differential (mm yr⁻¹), with ±1 SE propagated from the coefficient SE. Because the covariate is the fitted gradient field itself, the comparison with the model prediction is an internal consistency check rather than independent corroboration: it asks, in effect, whether ξ = 1. It is a drift control, not a measurement of a spatial gradient. (Source: 25_04_baci_corroboration.csv)
 
 ******
 
-****Four-zone pooled-panel cross-check.**** The three-counterfactual ANCOVA above fits the felling step six times --- once per (control, zone) pair --- and each fit has its own dependent variable, because the BACI gap is the target centroid minus a control centroid and the control centroid differs between the Forest, Climate and Combined configurations. The six steps therefore do not share a covariance matrix and are not subtractable. As a cross-check, a four-zone pooled-panel model (Script 10k) was fitted: the Forest control, a second western-dune control (C3/Warren: CEH1, NW1, NW2 and NW11, open-dune C3 Western Residual wells all at least 370 m from the edge of the felled compartment), the Edge tier and the Impact well are stacked into one long-form panel, and every zone contrast is read off a single internally-consistent joint fit. This supplements, and does not replace, the three-counterfactual ANCOVA, which remains the principal clearfell analysis.****
+**Four-zone pooled-panel cross-check: the felled well still rises against the forest, by less (Table 24).**
 
-The joint fit returns three primary zone-versus-Forest monthly contrasts: Impact−Forest +0.027 m (95% CI \[+0.003, +0.051\], p = 0.025), Edge−Forest −0.040 m (p = 0.055, ns), and C3/Warren−Forest +0.008 m (p = 0.526, ns); joint model R² = 0.848, N = 2492 well-months. The four-zone result is consistent with the principal analysis. The joint-fit Impact−Forest step (+0.027 m) is smaller in magnitude than the three-counterfactual Forest × Impact step (+0.108 m); the two estimators partition climate variance differently --- the joint panel estimates climate sensitivity from the full cross-zone monthly record, so a portion of the monthly variance the separately-fitted ANCOVA attributes to the felling step is attributed to climate in the joint fit. The felling response is positive under both estimators, though the three-counterfactual Impact step is not significant on its own once autocorrelation is allowed for (p = 0.10); the magnitude is sensitive to the partitioning choice. Dropping the easting × time covariate moves the joint-fit Impact step only from +0.027 m to +0.029 m, significance unchanged.
+Why a cross-check is needed:
 
-The Impact−Edge difference of +0.067 m is an exact arithmetic combination of two primary contrasts; its standard error is covariance-dependent and not comparable to a primary contrast, so it is not cited with a p-value here. It is instead corroborated independently by the two-zone Impact-versus-Edge estimator (Script 10j), which returns a monthly Impact−Edge step of +0.070 m (p = 0.0001) --- the close agreement between the two estimators is the warrant for the contrast.
+-   The three-counterfactual ANCOVA fits the felling step six times, once per (control, zone) pair.
+-   Each fit has its own dependent variable, because the BACI gap is the target centroid minus a control centroid, and the control centroid differs between the Forest, Climate and Combined configurations.
+-   So the six steps do not share a covariance matrix and cannot be subtracted from one another.
+
+What was done (Script 10k): four zones were stacked into one long-form panel, and every zone contrast is read off a single, internally consistent joint fit. The four zones:
+
+-   the Forest control;
+-   a second western-dune control, **C3/Warren**: CEH1, NW1, NW2 and NW11, open-dune C3 Western Residual wells all at least 370 m from the edge of the felled compartment;
+-   the Edge tier;
+-   the Impact well.
+
+This supplements, and does not replace, the three-counterfactual ANCOVA, which remains the principal clearfell analysis.
+
+The three primary zone-versus-Forest monthly contrasts (joint model R² = 0.848, N = 2492 well-months; Table 24):
+
+-   **Impact−Forest:** +0.027 m (95% CI \[+0.003, +0.051\], p = 0.025).
+-   **Edge−Forest:** −0.040 m (p = 0.055, ns).
+-   **C3/Warren−Forest:** +0.008 m (p = 0.526, ns).
+
+  ----------- -------- -------------------- ------- ----- -------------- -------
+  Impact      +0.027   \[+0.003, +0.051\]   0.025   −7    \[−23, +8\]    0.358
+  Edge        −0.040   \[−0.080, +0.001\]   0.055   −29   \[−69, +12\]   0.162
+  C3/Warren   +0.008   \[−0.017, +0.033\]   0.526   +12   \[−9, +33\]    0.257
+  ----------- -------- -------------------- ------- ----- -------------- -------
+
+**Table : **Four-zone pooled-panel clearfell contrasts against the Forest control: one joint fit across the Forest control, C3/Warren (CEH1, NW1, NW2, NW11), the Edge tier and the Impact well. Monthly mean level (Script 10k; joint model R² = 0.848, N = 2492 well-months) and annual summer minimum (Script 10l; R² = 0.724, N = 181 well-years). 95% confidence intervals in brackets. (Source: 10k_01_four_zone_results.csv; 10l_01_four_zone_summer_results.csv).
+
+How it compares with the principal analysis:
+
+-   The four-zone result is consistent with it. The felling response is positive under both estimators.
+-   The joint-fit Impact−Forest step (+0.027 m) is smaller than the three-counterfactual Forest × Impact step (+0.108 m). The two estimators partition climate variance differently: the joint panel estimates climate sensitivity from the full cross-zone monthly record, so part of the monthly variance that the separately fitted ANCOVA attributes to the felling step is attributed to climate in the joint fit.
+-   The three-counterfactual Impact step is not significant on its own once autocorrelation is allowed for (p = 0.10), and the magnitude is sensitive to the partitioning choice.
+-   Dropping the easting × time covariate moves the joint-fit Impact step only from +0.027 m to +0.029 m; significance is unchanged.
+
+**The felled well sits above the Edge tier: +0.067 m in the joint fit, +0.070 m in an independent estimator.**
+
+-   The Impact−Edge difference of +0.067 m is an exact arithmetic combination of two primary contrasts. Its standard error depends on their covariance and is not comparable to a primary contrast, so it is not cited with a p-value.
+-   The two-zone Impact-versus-Edge estimator (Script 10j) returns a monthly Impact−Edge step of +0.070 m (p = 0.0001).
+-   The close agreement between the two estimators is the warrant for the contrast.
 
 ### []{#anchor-22}**Summer Minima**
 
-The annual summer minimum depth (June--September) --- the quantity whose four-year mean defines the SD15b and SD16 community-mean levels (Curreli et al. 2013) --- was analysed for each of the 22 wells --- the 17-well BACI network and the five far-field control wells. Four complementary analyses are reported: per-well Welch t-tests on the annual summer-minimum gap (Table 21); a mixed-effects model pooling within-tier (Table 22); a directly-fitted Jun--Sep ANCOVA on monthly observations, using the same three-counterfactual specification as the annual analysis (Section 3.5.4) restricted to the June--September window; and a four-zone pooled-panel cross-check fitted on the annual summer-minimum series (Section 3.5.4). The two ANCOVA-based analyses differ in estimator and in unit of observation: the Jun--Sep ANCOVA estimates the felling step from monthly observations as a differenced centroid, while the four-zone model estimates every zone contrast from a single joint fit on annual summer-minimum well-years --- the annual deepest point rather than the summer-window mean.
+**No analysis finds a clearfell effect on the summer minimum.** The quantity is the annual summer minimum depth (June--September), whose four-year mean defines the SD15b and SD16 community-mean levels (Curreli et al. 2013). It was analysed for each of the 22 wells --- the 17-well BACI network and the five far-field control wells --- in four ways:
 
-**Per-well summer-minimum shifts.** Pre- vs post-felling Welch t-tests on the annual summer-minimum gap (well minus Forest control centroid) found no significant clearfell effect at any well in the Impact or Edge tier (Table 21). The Impact well WMC3 showed a shift of −7 mm (p = 0.91). Individual Edge well shifts ranged from −9 mm at CEH30 to −97 mm at CEH16, all non-significant.
+-   **per-well Welch t-tests** on the annual summer-minimum gap (Table 25);
+-   **a mixed-effects model** pooling within tier (Table 26);
+-   **a directly fitted Jun--Sep ANCOVA** on monthly observations, using the same three-counterfactual specification as the annual analysis (Section 3.5.4), restricted to the June--September window (Table 27);
+-   **a four-zone pooled-panel cross-check** fitted on the annual summer-minimum series (Section 3.5.4; Table 24).
+
+The two ANCOVA-based analyses differ in estimator and in unit of observation:
+
+-   the Jun--Sep ANCOVA estimates the felling step from monthly observations, as a differenced centroid;
+-   the four-zone model estimates every zone contrast from a single joint fit on annual summer-minimum well-years --- the annual deepest point rather than the summer-window mean.
+
+**Per-well shifts: none significant (Table 25).** Pre- vs post-felling Welch t-tests on the annual summer-minimum gap (well minus Forest control centroid):
+
+-   **WMC3** (Impact): −7 mm (p = 0.91).
+-   **Edge wells:** from −9 mm at CEH30 to −97 mm at CEH16, all non-significant.
 
   ------- -------- -------- --- --- -------- -------- ----- ------- ----
   WMC3    Impact   Forest   6   7   +0.127   +0.120   −7    0.905   ns
@@ -699,7 +955,10 @@ The annual summer minimum depth (June--September) --- the quantity whose four-ye
 
 **
 
-**Pooled mixed-effects model.** A mixed-effects model with random intercept per well and fixed effects for post-felling and post-scraping indicators, fitted to the same Forest-control centroid gap series (Table 22), produced non-significant clearfell-step estimates across all five tiers. The Forest × Edge pooled estimate was −64 mm (p = 0.12); the Forest × Coastal Control estimate of −176 mm (p = 0.06) sits just outside conventional significance.
+**Pooled mixed-effects model: no tier significant (Table 26).** The model has a random intercept per well and fixed effects for post-felling and post-scraping indicators, and is fitted to the same Forest-control centroid gap series. Its clearfell-step estimates are non-significant across all five tiers:
+
+-   **Forest × Edge:** −64 mm (p = 0.12).
+-   **Forest × Coastal Control:** −176 mm (p = 0.06), just outside conventional significance.
 
   -------- -------------- ------------------- -------- ------- ------- ----
   Forest   Impact         OLS (single well)   −0.001   0.078   0.991   13
@@ -713,15 +972,49 @@ The annual summer minimum depth (June--September) --- the quantity whose four-ye
 
 **
 
-**Directly-fitted Jun--Sep ANCOVA.** A directly-fitted summer-window ANCOVA was run on the same five-tier specification as the annual analysis (Section 3.5), restricted to June--September observations (n = 50 months). Against the Forest control, the Jun--Sep clearfell step at the Impact tier was −1 mm (95% CI \[−118, +116\], p = 0.99), with R² = 0.34. A sensitivity variant dropping the CWB covariate and the CWB × clearfell interaction from the design matrix produced an estimate of +91 mm (95% CI \[−35, +218\], p = 0.16, ordinary errors), with R² = 0.07. The contrast between the full-specification and CWB-dropped estimates is discussed in Section 5. The same specification fitted to October--March observations (n = 84 months) gives a winter step of +128 mm (95% CI \[+1, +254\], p = 0.048, with autocorrelation-robust errors and 6 monthly lags), with R² = 0.34; the winter-minus-summer difference of +129 mm is not itself significant (p = 0.059).
+**Directly fitted Jun--Sep ANCOVA: no summer step at the Impact tier; the rise is in winter (Table 27).** The same three-counterfactual specification as the annual analysis (Section 3.5.4) was fitted to June--September observations only (n = 50 months), and, for contrast, to October--March (n = 84 months).
 
-**Distributional comparison.** Figure 35 shows the distribution of summer minima across the five BACI tiers across three phases: pre-scraping baseline (2011 to April 2015), the 2015--17 era, and post-felling 2018 onwards. The Forest Control group shows stable summer minima throughout. The Impact and Edge tiers track the Forest Control trajectory across the three phases. The Coastal Control tier (CEH19, CEH17) shows progressive deepening across all three phases. The two coastal controls stand 120--180 m from a strip of foreshore pine cleared between October 2014 and March 2015, inside the before period, and the comparison carries that clearance as a confound.
+-   **Jun--Sep, full specification:** −1 mm (95% CI \[−118, +116\], p = 0.99), R² = 0.34.
+-   **Jun--Sep, CWB covariate and CWB × clearfell interaction dropped** (a sensitivity variant): +91 mm (95% CI \[−35, +218\], p = 0.16, ordinary errors), R² = 0.07. The contrast between this and the full specification is discussed in Section 5.
+-   **Oct--Mar, full specification:** +128 mm (95% CI \[+1, +254\], p = 0.048, autocorrelation-robust errors with 6 monthly lags), R² = 0.34.
+-   **Winter minus summer:** +129 mm, not itself significant (p = 0.059).
 
-**Four-zone pooled-panel cross-check (summer minimum).** Whereas the directly-fitted Jun--Sep ANCOVA above estimates the felling step from monthly observations in the Jun--Sep window as a differenced centroid, the four-zone pooled-panel model (Section 3.5.4) estimates every zone contrast from a single joint fit on the annual summer-minimum series (Script 10l) --- the annual deepest point rather than the summer-window mean. The three primary zone-versus-Forest contrasts were Impact−Forest −7 mm (95% CI \[−23, +8\], p = 0.36), Edge−Forest −29 mm (p = 0.16) and C3/Warren−Forest +12 mm (p = 0.26); joint model R² = 0.724, N = 181 well-years. No zone contrast resolves a significant differential felling response at the summer minimum.
+  ------------------------- ------------------- ----------- ---------------- ------- ---------- ------ --------
+  Window                    Specification       Step (mm)   95% CI (mm)      p       Errors     R²     Months
+  All months                full                +108        \[−21, +237\]    0.100   robust     ---    ---
+  Jun--Sep                  full                −1          \[−118, +116\]   0.987   robust     0.34   50
+  Jun--Sep                  CWB terms dropped   +91         \[−35, +218\]    0.163   ordinary   0.07   50
+  Oct--Mar                  full                +128        \[+1, +254\]     0.048   robust     0.34   84
+  Oct--Mar minus Jun--Sep   ---                 +129        ---              0.059   robust     ---    ---
+  ------------------------- ------------------- ----------- ---------------- ------- ---------- ------ --------
 
-The four summer-window analyses converge: the per-well Welch tests, the pooled mixed-effects model, the directly-fitted Jun--Sep ANCOVA and the four-zone pooled-panel cross-check all return non-significant clearfell steps at the Impact and Edge tiers. The felling was followed by a winter rise in the felled compartment\'s water table and a monthly-mean rise that is not significant on its own once autocorrelation is allowed for (Section 4.6.3), but no detectable change at the summer minimum --- the driest point of the year, and the quantity whose four-year mean defines the Curreli SD15b and SD16 community-mean levels.
+**Table : **The clearfell step by season, Impact tier (WMC3) against the Forest control (Script 10a). The all-months row is the headline step of Table 22. p-values use autocorrelation-robust (Newey--West) errors, with 6 monthly lags in the seasonal windows, except where the Errors column says ordinary. (Source: 10_16_seasonal_step_table.csv, from 10a_report_numbers.csv).
 
-Five-year mean spring water level. The same absence of a discrete felling response is seen in the five-year mean spring water level (MSL5; Section 4.8.3), the baseline metric most directly tied to dune-slack vegetation (van Willegen et al. 2025). At the Impact well WMC3, MSL5 carried no step at the December 2017 felling: the window-end values deepen through the post-felling years (−1.01 m at window-end 2018, −1.14 m at 2019, between −1.02 and −1.12 m through 2023) before recovering to −0.89 m at window-end 2024. The four Edge wells (CEH16, CEH20, CEH30, CEH31) show the same pattern --- deepening by 0.14--0.17 m at window-end 2019 and staying deeper than their 2018 values through 2023, then a recovery first appearing at window-end 2024. The 2024 recovery is not clearfell-attributable: it appears synchronously across the felled wells, the unfelled Forest control, and every other cluster in the network (Section 4.8.3, Figure 45), six years after the intervention, and reflects the 2023--24 hydrological year entering the rolling five-year window rather than a delayed canopy-removal response. On the baseline metric, as on the summer minimum, the clearfell produced no detectable step against the background climate signal (Figure 34 shows the summer-minimum result by tier). The mean-monthly rise estimated by the ANCOVA (Section 4.6.3) is thus specific to the monthly-mean level; it is not expressed in either of the two ecologically referenced metrics --- the summer minimum or the five-year spring baseline --- to which the dune-slack community levels are tied.
+**Distributional view: the felled tiers track the forest (Figure 35).** Figure 35 shows the distribution of summer minima for the five BACI tiers across three phases: the pre-scraping baseline (2011 to April 2015), the 2015--17 era, and post-felling 2018 onwards.
+
+-   **Forest Control:** stable summer minima throughout.
+-   **Impact and Edge tiers:** track the Forest Control trajectory across the three phases.
+-   **Coastal Control tier** (CEH19, CEH17): progressive deepening across all three phases. The two coastal controls stand 120--180 m from a strip of foreshore pine cleared between October 2014 and March 2015, inside the before period, and the comparison carries that clearance as a confound.
+
+**Four-zone cross-check on the summer minimum: no zone contrast significant (Table 24).** The four-zone pooled-panel model (Section 3.5.4; Script 10l) was refitted on the annual summer-minimum series. The three primary zone-versus-Forest contrasts (joint model R² = 0.724, N = 181 well-years):
+
+-   **Impact−Forest:** −7 mm (95% CI \[−23, +8\], p = 0.36).
+-   **Edge−Forest:** −29 mm (p = 0.16).
+-   **C3/Warren−Forest:** +12 mm (p = 0.26).
+
+**So the four summer-window analyses agree:** the per-well Welch tests, the pooled mixed-effects model, the directly fitted Jun--Sep ANCOVA and the four-zone cross-check all return non-significant clearfell steps at the Impact tier, and at the Edge tier where it was tested. After the felling there was:
+
+-   a winter rise in the felled compartment\'s water table;
+-   a monthly-mean rise that is not significant on its own once autocorrelation is allowed for (Section 4.6.3);
+-   no detectable change at the summer minimum --- the driest point of the year, and the quantity whose four-year mean defines the Curreli SD15b and SD16 community-mean levels.
+
+**The five-year mean spring level shows no felling step either.** The five-year mean spring water level (MSL5; Section 4.8.3) is the baseline metric most directly tied to dune-slack vegetation (van Willegen et al. 2025).
+
+-   **WMC3:** no step at the December 2017 felling. The window-end values deepen through the post-felling years (−1.01 m at window-end 2018, −1.14 m at 2019, between −1.02 and −1.12 m through 2023), then recover to −0.89 m at window-end 2024.
+-   **The four Edge wells** (CEH16, CEH20, CEH30, CEH31): the same pattern. They deepen by 0.14--0.17 m at window-end 2019, stay deeper than their 2018 values through 2023, and first recover at window-end 2024.
+-   **The 2024 recovery is not clearfell-attributable.** It appears at the same time in the felled wells, the unfelled Forest control and every other cluster in the network (Section 4.8.3, Figure 45); it comes six years after the intervention; and it reflects the 2023--24 hydrological year entering the rolling five-year window, not a delayed canopy-removal response.
+
+**So the ANCOVA rise is confined to the monthly-mean level.** On the baseline metric, as on the summer minimum, the clearfell produced no detectable step against the background climate signal (Figure 34 shows the summer-minimum result by tier). The mean-monthly rise estimated by the ANCOVA (Section 4.6.3) is not expressed in either of the two ecologically referenced metrics --- the summer minimum and the five-year spring baseline --- to which the dune-slack community levels are tied.
 
 ![**Figure : **Summer minima analysis against the Forest control. (a) Raw annual summer minimum depth (June--September) by tier. (b) Impact well gap (WMC3 minus Forest control centroid) by year, before and after felling; era means are not drawn. (c) Edge well gaps vs Forest control centroid. No significant clearfell effect on summer minima was detected at the Impact or Edge tier; the mixed-effects Edge estimate (−64 mm, p = 0.12) is non-significant. (Source: 10d_04_summer_minima_forest_ctrl.png).](Pictures/1000000100000659000007EA5028A6FA.png "fig:"){width="5.9602in" height="5.6598in"}******
 
@@ -731,23 +1024,45 @@ Five-year mean spring water level. The same absence of a discrete felling respon
 
 ### []{#anchor-23}**Spatial Step-Change Maps**
 
-Climate-corrected step-change maps for the clearfell era are shown in Figure 36. Each well\'s step is computed relative to its own pre-intervention mean, corrected by subtracting the median step of four western C3 Western Residual wells (NW5, NW6, NW7, CEH1) to remove the background climate signal. This correction removes shared climate forcing but does not account for the coastal erosion gradient, which produces a systematic east--west trend in the corrected steps. The map shows no clear distance-decay from the felling compartment (Figure 36). The transect analysis does not detect a distance gradient either (Figure 38). The ANCOVA (Section 4.6.3), which explicitly models the coastal-retreat gradient, provides a cleaner estimate of the clearfell-specific effect.
+**The map shows no distance-decay from the felling compartment (Figure 36).**
+
+-   **How each step is computed:** relative to the well\'s own pre-intervention mean, corrected by subtracting the median step of four western C3 Western Residual wells (NW5, NW6, NW7, CEH1) to remove the background climate signal.
+-   **What the correction does not remove:** the coastal erosion gradient, which produces a systematic east--west trend in the corrected steps.
+-   **Agreement:** the transect analysis does not detect a distance gradient either (Figure 38).
+-   The ANCOVA (Section 4.6.3), which explicitly models the coastal-retreat gradient, gives a cleaner estimate of the clearfell-specific effect.
 
 ![**Figure : **Climate-corrected spatial step-change map for the clearfell era (December 2017 -- end of record). Each well\'s step is computed relative to its pre-felling mean, corrected by subtracting the median step of four western C3 Western Residual wells (NW5, NW6, NW7, CEH1) to remove the background climate signal. Step changes show no gradient consistent with a localized felling response; the most negative steps lie along the south-western coastal margin. The absence of a distance-decay from the felling compartment centroid is supported by the transect analysis, which detects no gradient (Figure 38). Source: 10b_spatial_fell_corrected.png.](Pictures/1000000100000724000005807CE1C78C.png "fig:"){width="6.2217in" height="4.7922in"}
 
 ### **Coefficient Decomposition**
 
-The SSM was fitted independently to Before (record-length-balanced pre-felling window) and After (felling to end of record) windows for each well in the 17-well network, yielding per-well coefficient shifts Δβ₁, Δβ₂ and Δβ₃ (Script 10e). This decomposition is a mechanistic diagnostic: it characterizes *which* SSM pathway --- recharge, atmospheric draw or drainage --- shifted between eras and in *what direction*. It is not an estimate of the clearfell magnitude; the clearfell magnitude is the BACI step reported in Section 4.6.3. The per-era fits use the canonical no-intercept SSM (Section 3.5), consistent with Script 03 and the master coefficient table.
+**The model coefficients shifted between the before and after windows, but not in a pattern that singles out the clearfell (Table 28; Figure 37).** The SSM was fitted separately to a Before window (record-length-balanced, pre-felling) and an After window (felling to end of record) at each well in the 17-well network, giving per-well shifts Δβ₁, Δβ₂ and Δβ₃ (Script 10e).
 
-β₁ (recharge) declined at most wells across all five tiers: mean Δβ₁ = −0.20 at Impact, −0.33 at Edge (p = 0.060), 0.00 at Forest Control, −0.30 at Coastal Control and −0.01 at Climate Control (Table 23). The network-mean shift across the seventeen-well BACI network is Δβ₁ = −0.13, a 4.7% reduction against a pre-felling network mean of 2.70. Under Model B the decline is negligible at both unfelled inland control tiers, Forest Control (−0.8%, three of five wells) and Climate Control (−0.3%, three of five), and sits at the Edge, Coastal Control and Impact wells. Its candidacy as a mechanism for the network-wide summer-minimum decline is taken up in Section 5.5.
+-   **What it is for:** a mechanistic diagnostic. It shows which SSM pathway --- recharge, atmospheric draw or drainage --- shifted between eras, and in what direction.
+-   **What it is not:** an estimate of the clearfell magnitude. That is the BACI step of Section 4.6.3.
+-   The per-era fits use the canonical no-intercept SSM (Section 3.5), consistent with Script 03 and the master coefficient table.
 
-β₂ (atmospheric draw) increased at four of the five unfelled Forest-Control wells (mean Δβ₂ = +0.02; NW10 fell by 0.38) with no comparable rise at the non-forest tiers. Refitting β₂ on a common PET support across the two eras leaves the Forest-Control increase positive while the Climate-Control tier remains negative (Section 5.5). The Impact-tier β₂ shift (Δβ₂ = −0.06) is a single-well estimate lying within one standard error of zero and is not significant on its own; it is nonetheless the only measured response of a felled well at this site. The forest-management scenarios no longer take it as their anchor; they are built on the observed step (Section 4.13). Edge-tier shifts were near zero in the mean (−0.03) and negative at three of the four wells.
+**β₁ (recharge) fell at most wells, but not at the unfelled inland controls.** Mean Δβ₁ by tier (Table 28):
 
-β₃ (drainage) shifts were small across all tiers (mean Δβ₃ between −0.03 and 0.02 at every tier) but negative at thirteen of the seventeen wells.
+-   Impact −0.20;
+-   Edge −0.33 (p = 0.060);
+-   Forest Control 0.00;
+-   Coastal Control −0.30;
+-   Climate Control −0.01.
 
-Individual wells departed from these tier means. Within the Forest Control, NW10 and CEH2 showed β₁ increases (Δβ₁ = +0.55 and +0.10) against a network of general decline. These departures are retained: the per-well era coefficients carry wide confidence intervals (Figure 37) and exclusion would not be justified on physical grounds.
+Across the seventeen-well BACI network the mean shift is Δβ₁ = −0.13, a 4.7% reduction against a pre-felling network mean of 2.70. Under Model B the decline is negligible at both unfelled inland control tiers --- Forest Control (−0.8%, three of five wells) and Climate Control (−0.3%, three of five) --- and sits at the Edge, Coastal Control and Impact wells. Whether it explains the network-wide summer-minimum decline is taken up in Section 5.5.
 
-The decomposition therefore identifies a recharge decline across the BACI network, negligible at the Climate Control tier, and an atmospheric-draw rise at the forest controls, consistent with canopy maturation or, in part, with a fitting artefact, but does not by itself isolate a clearfell-specific coefficient signature; the clearfell effect is quantified by the BACI analysis of Section 4.6.3.
+**β₂ (atmospheric draw) rose at the forest controls only.**
+
+-   **Forest Control:** increased at four of the five unfelled wells (mean Δβ₂ = +0.02; NW10 fell by 0.38). No comparable rise at the non-forest tiers.
+-   Refitting β₂ on a common PET support across the two eras leaves the Forest-Control increase positive, while the Climate-Control tier remains negative (Section 5.5).
+-   **Impact:** Δβ₂ = −0.06, a single-well estimate within one standard error of zero and not significant on its own. It is nonetheless the only measured response of a felled well at this site. The forest-management scenarios do not take it as their anchor; they are built on the observed step (Section 4.13).
+-   **Edge:** near zero in the mean (−0.03), negative at three of the four wells.
+
+**β₃ (drainage) barely moved:** mean Δβ₃ is between −0.03 and 0.02 at every tier, though negative at thirteen of the seventeen wells.
+
+**Two Forest Control wells went the other way on β₁, and are kept.** NW10 and CEH2 showed β₁ increases (Δβ₁ = +0.55 and +0.10) against a network of general decline. The per-well era coefficients carry wide confidence intervals (Figure 37), and exclusion would not be justified on physical grounds.
+
+**In sum:** the decomposition finds a recharge decline across the BACI network, negligible at the Climate Control tier, and an atmospheric-draw rise at the forest controls (consistent with canopy maturation or, in part, with a fitting artefact). It does not by itself isolate a clearfell-specific coefficient signature; the clearfell effect is quantified by the BACI analysis of Section 4.6.3.
 
 ![](Pictures/100000010000064700000B412E14D308.png){width="4.2392in" height="7.6000in"}**Figure :** Before- and after-clearfell SSM coefficient estimates with 95% CI for all 17 wells in the BACI network, grouped by tier. (a) β₁ recharge: declined at most wells, negligibly at the Climate Control tier. (b) β₂ atmospheric draw: increased at Forest Control wells, consistent with canopy maturation. (c) β₃ drainage: small, spatially incoherent shifts. (d) Per-tier mean coefficient shift Δβ₁, Δβ₂ and Δβ₃, as a percentage of the before-clearfell value, with the p-value of each tier-mean shift against zero; most shifts are not significantly different from zero. (Source: 10e_03_coefficient_shifts.png).
 
@@ -778,25 +1093,92 @@ The decomposition therefore identifies a recharge decline across the BACI networ
 
 ### []{#anchor-24}**Robustness**
 
-Four methods were applied to test whether a clearfell-specific signal could be detected once the ANCOVA assumptions were relaxed.
+**None of the four alternative methods finds a clearfell-specific step distinguishable from zero (Table 29).** Each was applied to see whether a clearfell-specific signal could be detected once the ANCOVA assumptions were relaxed.
 
-**SSM residual normalization.** The SSM was calibrated on the pre-felling record for each well and run forward iteratively into the post-felling era. The Impact well WMC3 showed a +8 mm normalized step --- its post-felling water table 11 mm above the pre-felling SSM prediction. The Forest Control wells drifted upward by a mean of +72 mm over the same period, so against the Forest-control drift the Impact-specific component is about −63 mm: on this method the felled well rose less than the unfelled forest controls, and the method attaches no uncertainty to the difference. Its sign reverses with a fixed drainage floor, so the residual normalization gives no clearfell signal that holds under both; the clearfell is detected by the paired BACI step (Section 4.6.3).
+  ---------------------------------------------- ------------------- --------------- ------- ---------- -------
+  Method                                         Impact (WMC3), mm   95% CI (mm)     p       Edge, mm   p
+  ANCOVA, WMC3 alone (headline)                  +108                \[−21, +237\]   0.100   +31        0.501
+  SSM residual, minus the Forest Control drift   −63                 ---             ---     ---        ---
+  Synthetic control (six donors), gross          +101                ---             0.002   +44        0.273
+  Synthetic FE extension, WMC3 + FE2             +94                 \[−24, +212\]   0.117   ---        ---
+  Synthetic FE extension, WMC3 + FE1 + FE2       +78                 \[−16, +172\]   0.104   ---        ---
+  ---------------------------------------------- ------------------- --------------- ------- ---------- -------
 
-**Synthetic control.** A synthetic counterfactual for WMC3 constructed from six optimally weighted donor wells showed an Impact step of +101 mm (p = 0.002 with autocorrelation-robust errors); the corresponding Edge synthetic-control step was +44 mm (p = 0.27), non-significant. The synthetic-control and SSM-residual methods agree that WMC3\'s gross post-felling step is of order +80 to +100 mm; they differ on how much survives normalization against the unfelled forest controls, and neither, after that normalization, resolves a clearfell-specific step distinguishable from zero.
+**Table : **The clearfell step under each robustness method, against the Forest control. The SSM-residual row is the Impact step minus the Forest Control mean drift, and the method attaches no uncertainty to it; the synthetic control is the gross step, not normalized against the forest drift. 95% confidence intervals and p-values with autocorrelation-robust errors. (Source: 10_17_robustness_table.csv, from Scripts 10a, 10f and 10h).
 
-**Clearfell transect.** Step changes across a transect from the plantation interior to the felling core showed no significant spatial gradient (−0.5 mm per 100 m, p = 0.14). A distance-decay response would be strongest at WMC3 and diminish outward; the observed pattern is statistically uniform (Figure 38). The post-felling spread in the transect hydrographs is wider than in the 2015--17 scraping era, though no wider than in the 2012 trough (Figure 38, panel a); WMC3 sits above the other transect wells in the post-felling troughs but not at the winter peaks (Section 5.5).
+**SSM residual normalization: the felled well rose less than the unfelled forest.**
 
-**Synthetic FE-well extension.** FE1 and FE2 --- which sit inside or at the immediate edge of the clearfell compartment but lack pre-scraping baselines --- were extended backwards using OLS donor regression calibrated on Forest Control wells (calibration R² \> 0.99, RMSE 18--25 mm; Section 3.5.4). Against the Forest control, the centroid of WMC3 + FE2 produced a clearfell step of +94 mm (95% CI \[−24, +212\], p = 0.12, R² = 0.30), consistent with the WMC3-only ANCOVA estimate of +108 mm (Section 4.6.3). FE2\'s post-felling divergence from its own donor counterfactual was +29 mm (p \< 0.001, ordinary errors), consistent with a within-compartment response. Extending the centroid to WMC3 + FE1 + FE2 returned a Forest-control clearfell step of +78 mm (95% CI \[−16, +172\], p = 0.10). FE1 sits approximately 46 m outside the felling boundary in standing forest, so including it attenuates the step magnitude --- from +108 mm (WMC3 alone) through +94 mm (WMC3 + FE2) to +78 mm --- and none of the three centroids resolves a step that is significant on its own once autocorrelation is allowed for.
+-   The SSM was calibrated on each well\'s pre-felling record and run forward iteratively into the post-felling era.
+-   **WMC3:** a +8 mm normalized step: the change, across the felling, in how far its water table sits above the SSM prediction.
+-   **Forest Control wells:** drifted upward by a mean of +72 mm over the same period.
+-   **So, against the Forest-control drift, the Impact-specific component is about −63 mm.** On this method the felled well rose less than the unfelled forest controls, and the method attaches no uncertainty to the difference.
+-   Its sign reverses with a fixed drainage floor, so the residual normalization gives no clearfell signal that holds under both. The clearfell is detected by the paired BACI step (Section 4.6.3).
+
+**Synthetic control: a gross step at WMC3, nothing at Edge.**
+
+-   A synthetic counterfactual for WMC3, built from six optimally weighted donor wells, shows an Impact step of +101 mm (p = 0.002 with autocorrelation-robust errors).
+-   The corresponding Edge step is +44 mm (p = 0.27), non-significant.
+-   The synthetic-control and SSM-residual methods do not agree on WMC3\'s gross post-felling step, +101 mm against +8 mm; and neither, after normalization against the unfelled forest controls, resolves a clearfell-specific step distinguishable from zero.
+
+**Clearfell transect: no spatial gradient (Figure 38).**
+
+-   Step changes across a transect from the plantation interior to the felling core show no significant gradient (−0.5 mm per 100 m, p = 0.14).
+-   A felling response would be strongest at WMC3 and diminish outward; the observed pattern is statistically uniform.
+-   The post-felling spread in the transect hydrographs is wider than in the 2015--17 scraping era, though no wider than in the 2012 trough (Figure 38, panel a). WMC3 sits above the other transect wells in the post-felling troughs but not at the winter peaks (Section 5.5).
+
+**Synthetic FE-well extension: adding the FE wells shrinks the step, and none is significant.** FE1 and FE2 sit inside or at the immediate edge of the clearfell compartment but lack pre-scraping baselines. They were extended backwards by OLS donor regression calibrated on Forest Control wells (calibration R² \> 0.99, RMSE 18--25 mm; Section 3.5.4). Against the Forest control:
+
+-   **WMC3 + FE2:** +94 mm (95% CI \[−24, +212\], p = 0.12, R² = 0.30), consistent with the WMC3-only ANCOVA estimate of +108 mm (Section 4.6.3).
+-   **FE2 against its own donor counterfactual:** a post-felling divergence of +29 mm (p \< 0.001, ordinary errors), consistent with a within-compartment response.
+-   **WMC3 + FE1 + FE2:** +78 mm (95% CI \[−16, +172\], p = 0.10).
+-   FE1 sits approximately 46 m outside the felling boundary, in standing forest, so including it attenuates the step: +108 mm (WMC3 alone) → +94 mm (WMC3 + FE2) → +78 mm.
+-   None of the three centroids resolves a step that is significant on its own once autocorrelation is allowed for.
 
 ![**Figure :** Clearfell transect. (a) Monthly depth anomaly against each well\'s scrape-era mean (rising = shallowing) for the seven transect wells, WMC3 at 45 m to CEH2 at 428 m from the felling-compartment centroid; the shaded bands are the 2015--17 scraping era and the post-felling era, the vertical lines the April 2015 scrape, the December 2017 clearfell and the October 2023 re-scrape. (b) The same anomalies as zone means (Impact, Edge, control/reference) relative to the transect mean, individual wells faint. (c) Post-felling step change against distance from the centroid: gradient −0.5 mm/100 m (p = 0.14, ns) against the control baseline of +0.089 m. No spatial decay consistent with a localized clearfell response; the uniform pattern indicates a common climate signal. (Source: 10g_02_clearfell_transect.png)](Pictures/10000001000006F7000005106F37F833.png "fig:"){width="6.2217in" height="4.5223in"}
 
 ### **Temporal decay of the clearfell step and the canopy setting**
 
-The Forest-control clearfell step is not stationary across the record. Split at January 2021, the Impact-well recovery against the Forest control falls from +152 mm in the early era (December 2017 to December 2020) to +39 mm in the late era (January 2021 onward), no longer distinguishable from zero. The Edge-tier contrast falls similarly, from +66 mm to −6 mm over the same split. The Impact well nonetheless remains significantly elevated relative to the Edge tier in both eras (+87 mm early, +57 mm late). The relaxation is not an artefact of the coastal-drift correction: refitting each contrast under the four drift treatments of Section 3.5.5 leaves the early step above the late step in every case (Impact +152 to +39 with the Script 25 field, +120 to −36 with no drift, and +120 to −37 with a free per-era slope), and the per-era treatment, the direct test of an accelerating retreat, widens the gap rather than closing it (Figure 40; 10a_13_era_split.csv).
+**The step against the forest is largest in the first three years and then fades (Table 30; Figure 40).** Split at January 2021:
 
-The step is robust to the composition of the Forest control. Estimated against only the two control wells lying outside any 1998 replant block (CEH34 and CEH2) it is +110 mm, essentially the +108 mm headline, so the two controls lying inside a replant block do not inflate it; a contrast between the in-block pair (CEH32, CEH33) and the outside pair is flat and non-significant in both eras (−21 mm early, −9 mm late) (10a_12_control_subset_sensitivity.csv for the +110 mm; 10a_13_era_split.csv for the in-block contrast).
+-   **Impact against the Forest control:** +152 mm in the early era (December 2017 to December 2020), +39 mm in the late era (January 2021 onward), no longer distinguishable from zero.
+-   **Edge tier against the Forest control:** falls similarly, from +66 mm to −6 mm.
+-   **Impact against the Edge tier:** still significantly elevated in both eras (+87 mm early, +57 mm late).
 
-The canopy trajectories give the setting (Figure 39; Section 3.5.5). Across the felling itself the index falls from 1.243 in the frame of 22 April 2017 to 0.130 in that of 28 June 2018 over the felled compartment, and from 1.248 to 0.123 over the felling experiment, while the unfelled conifer control holds at 1.005. The felled compartment falls from a mature-conifer texture to about 0.13 of the reference at felling and is held there by grazing, reaching only 0.14 by 2020 and 0.09 by 2026: it does not regenerate. The three 1998 replant blocks rise from near-bare in 2006 (0.15, 0.36 and −0.05 relative to the mature-conifer reference) to 0.77 to 0.90 by 2020 and 1.01 to 1.30 by 2026 --- a developing canopy across the study window, on a trend present whether or not the isolated 2026 frame is included. The pooled untouched-forest control drifts gently from 1.47 in 2006 to about 1.15 and is flat across the BACI window, remaining dense and above the reference: the control forest was neither felled nor heavily thinned. The broadleaf restock grew in by about 2012, and the vegetated warren sits near zero throughout, the open-dune end of the scale. The replant reads above the reference by 2026 because it is unthinned whereas the reference stand has been thinned.
+**The fading is not an artefact of the coastal-drift correction.** Each contrast was refitted under the four drift treatments of Section 3.5.5. The early step stays above the late step in every case:
+
+-   Impact +152 to +39 with the Script 25 field;
+-   +120 to −36 with no drift;
+-   +120 to −37 with a free per-era slope.
+
+The per-era treatment, the direct test of an accelerating retreat, widens the gap rather than closing it.
+
+**The step does not depend on which forest wells form the control.**
+
+-   Against only the two control wells outside any 1998 replant block (CEH34 and CEH2) the step is +110 mm, essentially the +108 mm headline. So the two controls inside a replant block do not inflate it.
+-   The contrast between the in-block pair (CEH32, CEH33) and the outside pair is flat and non-significant in both eras (−21 mm early, −9 mm late).
+
+  ----------------------------------------------------------- ----------------------------- ---------------------------------- ----------------------------
+  Contrast                                                    Drift treatment               Early, Dec 2017 -- Dec 2020 (mm)   Late, Jan 2021 onward (mm)
+  WMC3 − Forest control                                       Script 25 field (published)   +152                               +39
+  WMC3 − Forest control                                       No drift                      +120                               −36
+  WMC3 − Forest control                                       Free global slope             +73                                −153
+  WMC3 − Forest control                                       Free per-era slope            +120                               −37
+  Edge − Forest control                                       Script 25 field (published)   +66                                −6
+  WMC3 − Edge                                                 Script 25 field (published)   +87                                +57
+  In-block pair (CEH32, CEH33) − outside pair (CEH34, CEH2)   Script 25 field (published)   −21                                −9
+  ----------------------------------------------------------- ----------------------------- ---------------------------------- ----------------------------
+
+**Table : **The clearfell step before and after January 2021, mm, by contrast and coastal-drift treatment (Section 3.5.5). The Script 25 field is the published drift; the other three treatments are the sensitivity of Figure 40. (Source: 10a_13_era_split.csv).
+
+**The canopy setting (Figure 39; Section 3.5.5).** Two quantities are used. The canopy-texture index places each region between open ground (0) and mature conifer (1), both measured in the same frame. The ratio divides a region\'s index by that of the unfelled conifer control, the forest outside the managed blocks, in the same frame (Script 41).
+
+-   **Across the felling itself** (frame of 22 April 2017 to frame of 28 June 2018), as the index: over the felled compartment 1.243 → 0.130; over the felling experiment 1.248 → 0.123; the unfelled conifer control holds at 1.005.
+-   **Felled compartment afterwards**, as the ratio to the conifer control: about 0.13 at felling, held there by grazing --- 0.14 by 2020 and 0.09 by 2026. It does not regenerate.
+-   **The three 1998 replant blocks**, as the ratio: near-bare in 2006 (0.15, 0.36 and −0.05), 0.77 to 0.90 by 2020, 1.01 to 1.30 by 2026 --- a developing canopy across the study window, on a trend present whether or not the isolated 2026 frame is included.
+-   **Pooled untouched-forest control** (four plantation patches, a different area from the conifer control), as the ratio: drifts gently from 1.47 in 2006 to about 1.15 and is flat across the BACI window, staying dense and above the conifer control. The control forest was neither felled nor heavily thinned.
+-   **Broadleaf restock:** grown in by about 2012.
+-   **Vegetated warren:** near zero throughout, the open-dune end of the scale.
+-   The replant reads above the conifer control by 2026 because it is unthinned, whereas the control stand has been thinned.
 
 ![**Figure : **Canopy-texture trajectories from the dated aerial series, 2006 to 2026, relative to the unfelled mature-conifer canopy. The 2017 clearfell compartment is held clear by grazing; the three 1998 replant blocks develop across the study window; the pooled untouched-forest control stays dense and flat; the broadleaf restock is grown in; and the vegetated warren marks the open-dune end. Solid lines fit the frames before 2026, dotted lines include the isolated 2026 frame; cloud- and shadow-contaminated 2020 frames are withheld. (Source: 41_05_canopy_trajectory.png)](Pictures/1000000100000883000005C2744A7231.png "fig:"){width="6.2201in" height="4.1728in"}
 
@@ -810,7 +1192,7 @@ The cluster-level state-space equations (Section 3.6.1), fitted with a free inte
 
 ### []{#anchor-27}**Seasonal Prediction Equations**
 
-The prediction equations were fitted at hydrological-year resolution, one equation per cluster under the k = 5 partition (Table 24). The two predictor terms --- winter rainfall total (P_winter) and antecedent summer minimum (h_min) --- show a clear spatial partitioning of dominance across the site.
+The prediction equations were fitted at hydrological-year resolution, one equation per cluster under the k = 5 partition (Table 31). The two predictor terms --- winter rainfall total (P_winter) and antecedent summer minimum (h_min) --- show a clear spatial partitioning of dominance across the site.
 
 In the Eastern Block, winter rainfall is the dominant predictor. P_winter is significant at Lake Edge (p = 0.002) and Dune (p = 0.011), while h_min is non-significant in both (p = 0.823 and 0.398 respectively).
 
@@ -831,7 +1213,7 @@ Two individual coefficients require comment. The negative h_min coefficient at L
 
 ### []{#anchor-28}Summer Drought Prediction Equations              
 
-The summer drought prediction equations performed better than the winter peak functions at four of the five blocks (Lake Edge is the exception) (Section 3.6.2). Both predictors --- antecedent winter peak (h_max_winter) and cumulative summer precipitation (P_summer) --- were significant in all five blocks (p \< 0.05), except summer precipitation at Coastal Forest, which is marginal (p = 0.018). Model fit was highest for the Forest (R² = 0.930) and Coastal Forest (R² = 0.900) blocks, high for the Western Residual (R² = 0.689), moderate-to-high for the Dune (R² = 0.537), and moderate for the Lake Edge cluster (R² = 0.419). The equations are given in Table 25.
+The summer drought prediction equations performed better than the winter peak functions at four of the five blocks (Lake Edge is the exception) (Section 3.6.2). Both predictors --- antecedent winter peak (h_max_winter) and cumulative summer precipitation (P_summer) --- were significant in all five blocks (p \< 0.05), except summer precipitation at Coastal Forest, which is marginal (p = 0.018). Model fit was highest for the Forest (R² = 0.930) and Coastal Forest (R² = 0.900) blocks, high for the Western Residual (R² = 0.689), moderate-to-high for the Dune (R² = 0.537), and moderate for the Lake Edge cluster (R² = 0.419). The equations are given in Table 32.
 
   ----------------------- ------------------------------------------------------- ------- ------------- ----------
   Block                   Equation                                                R²      p(P_summer)   p(h_max)
@@ -850,7 +1232,7 @@ Application of the cluster-level P_flood equations derived in Section 3.6.3 to e
 
 The summer minimum depth map (Figure 41; Section 3.6.5) classifies each well\'s depth into the five bands set at the Curreli et al. (2013) community-mean depths and the two scrape-recovery limits (Section 2); a well\'s band is its depth below its own ground: SD15b wet slack (\<0.61 m), SD15b-recoverable (0.61--0.75 m), SD16 dry slack (0.75--0.98 m), SD16-recoverable (0.98--1.20 m), and beyond-recoverable (\>1.20 m). The two forest clusters (C4 and C5) show the deepest mean summer minima across the network, consistently below 0.98 m. All 24 C4 and C5 wells fall in the SD16-recoverable (6 wells) or beyond-recoverable (18 wells) bands. By contrast, none of the nine C1 Lake Edge wells is within the SD15b wet slack band: two lie in the SD15b-recoverable band, six in the SD16 dry slack band and one is beyond recoverable. Of the 88 wells in the classified network, 48 have mean summer minima (August--September, below the DEM ground surface) at or deeper than 0.98 m --- the SD16 community-mean level --- of which 28 are at or deeper than the SD16 recovery limit of 1.20 m.
 
-The P_flood map (Figure 51) quantifies the rainfall demand implied by these summer minima and reveals a progressive, cluster-ordered closure of the operational window (Table 26). Under Model B, 84 of the 87 wells in the classified network require winter rainfall above their climatological mean to reach the slack floor (CEH14 is left out: its implied drainage base lies above ground). The three that do not are lake-edge wells, CEH6 (m_P = 0.92), CEH25 (0.96) and CEH27 (0.98), which flood in an average winter. Under mildly wet winters ****(1.0 ≤ m_P \< 1.5), 58 wells (67%)**** become reachable; ****a further 24 (28%) require wet winters of varying rarity (1.5 ≤ m_P \< 2.5). The remaining 5 wells (6%) have m_P ≥ 2.5 --- they require at least 2.5 times the climatological mean winter rainfall, a total well beyond the wettest winter in the \~95-year RAF Valley record. For these wells the slack floor is not reachable under any winter rainfall yet observed: the wettest October--February on record (701 mm, in 1959/60, 1.52× the climatological mean over the same months) delivers only 61% of the m_P = 2.5 demand.****
+The P_flood map (Figure 51) quantifies the rainfall demand implied by these summer minima and reveals a progressive, cluster-ordered closure of the operational window (Table 33). Under Model B, 84 of the 87 wells in the classified network require winter rainfall above their climatological mean to reach the slack floor (CEH14 is left out: its implied drainage base lies above ground). The three that do not are lake-edge wells, CEH6 (m_P = 0.92), CEH25 (0.96) and CEH27 (0.98), which flood in an average winter. Under mildly wet winters ****(1.0 ≤ m_P \< 1.5), 58 wells (67%)**** become reachable; ****a further 24 (28%) require wet winters of varying rarity (1.5 ≤ m_P \< 2.5). The remaining 5 wells (6%) have m_P ≥ 2.5 --- they require at least 2.5 times the climatological mean winter rainfall, a total well beyond the wettest winter in the \~95-year RAF Valley record. For these wells the slack floor is not reachable under any winter rainfall yet observed: the wettest October--February on record (701 mm, in 1959/60, 1.52× the climatological mean over the same months) delivers only 61% of the m_P = 2.5 demand.****
 
   --------------------- ---- ------------ ------- ------
   C1 Lake Edge          9    375--500     413     1.03
@@ -880,7 +1262,7 @@ On these bands the Eastern Block (C1 and C2) lies within the reach of current sc
 
 ### []{#anchor-30}Critical Rainfall Threshold Equations (P_flood)
 
-The structural difference between clusters is immediately apparent from the threshold equations (Table 27; Section 3.6.3). The coefficients from Table 4, together with the cluster-specific recharge horizons from October to each cluster\'s historical peak month (four months for C1 and C2, five months for C3, C4 and C5) and the long-term monthly RAF Valley rainfall and PET climatology, propagate through the iterated closed form of Section 3.6.3 to produce a linear relationship between observed summer-minimum depth and required winter rainfall. The C4 recharge horizon endpoint is marginal --- the cluster\'s historical mean peak falls between February and March depending on the treatment of partial monitoring years --- and the shorter February horizon is adopted as the conservative choice; the C1, C2, C3 and C5 horizons are unambiguous.
+The structural difference between clusters is immediately apparent from the threshold equations (Table 34; Section 3.6.3). The coefficients from Table 4, together with the cluster-specific recharge horizons from October to each cluster\'s historical peak month (four months for C1 and C2, five months for C3, C4 and C5) and the long-term monthly RAF Valley rainfall and PET climatology, propagate through the iterated closed form of Section 3.6.3 to produce a linear relationship between observed summer-minimum depth and required winter rainfall. The C4 recharge horizon endpoint is marginal --- the cluster\'s historical mean peak falls between February and March depending on the treatment of partial monitoring years --- and the shorter February horizon is adopted as the conservative choice; the C1, C2, C3 and C5 horizons are unambiguous.
 
 The iterated derivation reduces to the form P_flood = A · d_w + B for each cluster, where d_w is the observed summer-minimum depth below ground (m, positive) and P_flood is the cumulative winter rainfall required over the cluster\'s recharge horizon (mm). The slope A represents the marginal rainfall demand per additional metre of summer drawdown, and the intercept B represents the rainfall demand required even for a well already at the surface --- non-zero because accumulated winter PET continues to draw down the water table through the recharge season. Both terms express the cluster gradient directly: A rises from 85 mm per metre at C1 through 168 (C2) and 204 (C3) to 358 (C5) and 378 (C4), and B ranges from 262 mm (C4) to 411 mm (C5).
 
@@ -921,9 +1303,9 @@ The observed winter flooding record shows a strong spatial contrast between stru
 
 The cluster-level summer-minimum trajectories examined in Sections 4.8.1--4.8.2 describe stress events --- single annual values capturing the deepest water-table excursion of each year. A vegetation community\'s response is not driven by stress events alone; it integrates the long-term baseline water level over which it grows. The 5-year mean spring water level (MSL5), as defined in Section 3.7.5 and implemented per van Willegen et al. (2025), is the metric that captures this baseline. It is the rolling 5-year mean of the cluster-mean March--May water table, taken at the end of each hydrological year. Where the summer-minimum metric is sensitive to single dry years, MSL5 is sensitive to sustained hydrological state --- the regime within which dune-slack vegetation establishes and persists.
 
-The cluster MSL5 trajectories for window-ends 2014--2025 are shown in Figure 45(a). Figure 45(b) shows, over the same window-ends, the cluster four-year mean annual minimum water level, the summer-trough counterpart of MSL5 and the quantity on which Curreli et al. (2013) reported their slack communities (Section 5.8.2), and Table 28 gives both at window-end 2025.
+The cluster MSL5 trajectories for window-ends 2014--2025 are shown in Figure 45(a). Figure 45(b) shows, over the same window-ends, the cluster four-year mean annual minimum water level, the summer-trough counterpart of MSL5 and the quantity on which Curreli et al. (2013) reported their slack communities (Section 5.8.2), and Table 35 gives both at window-end 2025.
 
-On the four-year mean annual minimum the open-dune clusters stand above the forest clusters at every window-end from 2014 to 2025, as on the annual summer minimum (Table 28): C1 Lake Edge between −0.83 and −0.91 m, C2 Dune between −0.96 and −1.06 m, C3 Western Residual (−1.10 to −1.26 m), C4 Main Forest (−1.48 to −1.86 m) and C5 Coastal Forest (−1.65 to −1.89 m). Both metrics describe the trough of the year.
+On the four-year mean annual minimum the open-dune clusters stand above the forest clusters at every window-end from 2014 to 2025, as on the annual summer minimum (Table 35): C1 Lake Edge between −0.83 and −0.91 m, C2 Dune between −0.96 and −1.06 m, C3 Western Residual (−1.10 to −1.26 m), C4 Main Forest (−1.48 to −1.86 m) and C5 Coastal Forest (−1.65 to −1.89 m). Both metrics describe the trough of the year.
 
 Where the slack floor is surveyed the record can be read against the communities directly. Van Willegen et al.\'s quadrats lie on the slack floor beside their piezometers, and each quadrat\'s ground is known from its datum offset (Supplementary Table S7.2), so each quadrat\'s four-year mean annual minimum can be placed on its own ground. Over Curreli et al.\'s own window (window-end 2010), 11 of the 64 quadrats at 12 piezometers lay above the SD15b community mean, 42 between SD15b and SD16 and 11 below SD16. At window-end 2025 none of the 72 quadrats at 16 piezometers lies above SD15b, 48 lie between the two and 24 below SD16.
 
@@ -965,7 +1347,7 @@ The headline reading of Figure 45 is therefore twofold. MSL5 orders the clusters
 
 MSL5 (Section 4.8.3; defined Section 3.7.5) follows van Willegen et al. (2025), who identified it as the strongest single hydrological correlate of dune-slack vegetation moisture at Newborough. Van Willegen et al.\'s published per-quadrat spring levels are this network\'s own readings re-referenced to each quadrat\'s ground surface, so recomputing them from the pipeline checks that the processing matches theirs; it is not an independent validation. After one constant offset per quadrat the two agree to within millimetres (Supplementary Table S7.2). The offsets span several decimetres, so a level in this report cannot be compared with one referenced to quadrat ground without applying that quadrat\'s offset. Between wells, MSL5 predicts mean Ellenberg-F --- the moisture indicator value (wetness scale 1--12; Hill et al., 1999) --- strongly (r = +0.83, n = 18). These wells lie in the lake-edge, open-dune and western-residual clusters, van Willegen having placed no quadrats in the forest interior.
 
-The state-space coefficients afford a structurally derived estimate of the same wetness. Setting the mean monthly change to zero in the fitted model (Section 3.4) and inverting the head-dependent drainage term yields an equilibrium water-table level, h_eq = (β₁P̄ − β₂PET̄)/β₃ − z₀ (z₀ = 3.7 m), from each well\'s coefficients and the long-term annual-mean climate. Tested directly against Ellenberg-F this equilibrium index performs as well as observed MSL5: the two are statistically indistinguishable as vegetation predictors (Figure 48; Table 29), their correlation confidence intervals overlapping almost entirely and a Williams test for the difference between the two dependent correlations returning p = 0.70. The equivalence holds not only in aggregate but well by well: binned by prediction accuracy, the two metrics are broadly comparable across match bands, the equilibrium index placing marginally more wells in the closest band but also more in the poorest (Table 30). That coefficients calibrated purely on month-to-month dynamics predict vegetation moisture as well as the direct spring-level metric is the result; eighteen wells give limited statistical power, so this is equivalence within the data rather than proven identity. Because the equilibrium index is computed from the coefficients and climate alone, this comparison is independent of MSL5 --- each metric is regressed on Ellenberg-F separately, so the equivalence tests two independent predictors rather than restating the spring-level metric. No single state-space coefficient predicts Ellenberg-F nearly as well (best \|r\| = 0.53, versus 0.81 for the equilibrium index), the vegetation signal residing in the equilibrium level rather than any individual rate or storage term.
+The state-space coefficients afford a structurally derived estimate of the same wetness. Setting the mean monthly change to zero in the fitted model (Section 3.4) and inverting the head-dependent drainage term yields an equilibrium water-table level, h_eq = (β₁P̄ − β₂PET̄)/β₃ − z₀ (z₀ = 3.7 m), from each well\'s coefficients and the long-term annual-mean climate. Tested directly against Ellenberg-F this equilibrium index performs as well as observed MSL5: the two are statistically indistinguishable as vegetation predictors (Figure 48; Table 36), their correlation confidence intervals overlapping almost entirely and a Williams test for the difference between the two dependent correlations returning p = 0.70. The equivalence holds not only in aggregate but well by well: binned by prediction accuracy, the two metrics are broadly comparable across match bands, the equilibrium index placing marginally more wells in the closest band but also more in the poorest (Table 37). That coefficients calibrated purely on month-to-month dynamics predict vegetation moisture as well as the direct spring-level metric is the result; eighteen wells give limited statistical power, so this is equivalence within the data rather than proven identity. Because the equilibrium index is computed from the coefficients and climate alone, this comparison is independent of MSL5 --- each metric is regressed on Ellenberg-F separately, so the equivalence tests two independent predictors rather than restating the spring-level metric. No single state-space coefficient predicts Ellenberg-F nearly as well (best \|r\| = 0.53, versus 0.81 for the equilibrium index), the vegetation signal residing in the equilibrium level rather than any individual rate or storage term.
 
 ![**Figure :** Between-well prediction of mean Ellenberg-F moisture by three water-table metrics, across the eighteen van Willegen et al. (2025) piezometers carrying a valid state-space fit. (a) Observed five-year mean spring water level (MSL5); (b) equilibrium wetness index on the annual-climate basis; (c) equilibrium wetness index on the spring-climate basis. Points are coloured by hydrogeological cluster (C1 lake-edge, C2 open-dune, C3 western-residual); the dashed line is the ordinary-least-squares fit, with Pearson r and sample size annotated on each panel. The annual-basis index (b, r = +0.81) predicts vegetation moisture almost as well as observed MSL5 (a, r = +0.83). Under Model B the spring basis does as well (c, r = +0.81). Ellenberg-F from van Willegen et al. (2024); per-well β from Script 03. Source: 26_ebf_prediction_scatter.png.](Pictures/10000001000007530000028329BE07AD.png "fig:"){width="6.2217in" height="2.1311in"}
 
@@ -985,7 +1367,7 @@ The state-space coefficients afford a structurally derived estimate of the same 
   D --- poor        \> 0.50                              2              4
   ----------------- ------------------------------------ -------------- -------------
 
-**Table :** Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index (n = 18 wells). Each band counts wells by the absolute prediction error \|predicted − observed\| in Ellenberg-F units. The two metrics distribute similarly across bands, corroborating the aggregate equivalence of Table 29. Source: 26_ebf_band_summary.csv.
+**Table :** Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index (n = 18 wells). Each band counts wells by the absolute prediction error \|predicted − observed\| in Ellenberg-F units. The two metrics distribute similarly across bands, corroborating the aggregate equivalence of Table 36. Source: 26_ebf_band_summary.csv.
 
 Beyond predicting vegetation, the equilibrium index can be calibrated onto the MSL5 scale itself by ordinary least squares. Consistent with MSL5\'s own open-dune character (Section 4.8.3) and with the forest coefficients being the least constrained on the site (Section 4.9.2), this calibration is scoped to the open-dune network (clusters C1--C3, reference and extended wells): MSL5 = 0.273 + 0.886·EWI (n = 61, r = 0.95, RMSE = 84 mm). Every open-dune well is reconstructed within 211 mm, and the relationship carries beyond the vegetation-calibrated subset without loss of accuracy: a root-mean-square error of 80 mm across the 41 open-dune wells outside van Willegen\'s set, against 84 mm at the 20 wells of their seventeen stations (their T41 station is the four-well T41a--d transect, each of its quadrats read from its own well). The C4/C5 forest wells are predicted but held out of scope (n = 21, RMSE 166 mm): there the coefficients are least constrained and the estimate is too coarse to place a well against the SD15b / SD16 community-mean levels. Calibrated instead on the nine-year mean spring level of the Dune Managers Handbook (MSL9; Supplementary Material Note S11), the index gives MSL9 = 0.254 + 0.979·EWI (n = 57, r = 0.98, RMSE = 52 mm), a closer fit than MSL5 on the same 57 wells (r = 0.97, RMSE = 72 mm), while MSL9 predicts Ellenberg-F no better than MSL5 (r = +0.80 against +0.83, n = 18). MSL5 remains the calibration target, as van Willegen et al.'s metric. The full per-well reconstruction, with the out-of-scope forest wells flagged, is given in Table S7.1 of the Supplementary Material.
 
@@ -1073,7 +1455,7 @@ The model benchmarking diagnostic (Section 4.4; Figure 18) complements the half-
 
 The spatial coefficient atlas (Figure 54b--d) shows that the C4 and C5 forest wells span nearly the full site-wide range of β₂ values despite sharing the same Corsican pine canopy. To test whether this within-forest variation tracks topographic position (a proxy for the uncored substrate) or canopy differences, per-well SSM coefficients for the 14 forest-zone wells (9 in C4, 5 in C5) were regressed against elevation, distance from the ridge and easting (Section 3.4.4).
 
-Elevation is overwhelmingly the dominant spatial predictor (Table 31). The atmospheric draw coefficient β₂ shows the strongest relationship (r = 0.964, p \< 0.001; R² = 0.929; leave-one-out predicted R² = 0.880, the out-of-sample check for n = 14), with higher-elevation wells on the ridge returning systematically higher β₂ values. Adding distance from the ridge contributes virtually no additional explanatory power (R² = 0.934). The drainage coefficient β₃ shows a significant but weaker elevation dependence (r = −0.818, p \< 0.001; R² = 0.669), but under Model B distance from the ridge adds almost nothing (combined R² = 0.670): wells further from the ridge and at lower elevation drain faster. The recharge coefficient β₁ shows no significant relationship with elevation (r = 0.142, p = 0.627); Easting is the best single predictor (r = 0.479, p = 0.083) but explains only 24% of variance. This elevation--drainage relationship is visible directly in the drainage decay half-life map (Figure 55), where under Model B C4 wells reach t½ values of up to 51 months compared with 7--12 months at C5.
+Elevation is overwhelmingly the dominant spatial predictor (Table 38). The atmospheric draw coefficient β₂ shows the strongest relationship (r = 0.964, p \< 0.001; R² = 0.929; leave-one-out predicted R² = 0.880, the out-of-sample check for n = 14), with higher-elevation wells on the ridge returning systematically higher β₂ values. Adding distance from the ridge contributes virtually no additional explanatory power (R² = 0.934). The drainage coefficient β₃ shows a significant but weaker elevation dependence (r = −0.818, p \< 0.001; R² = 0.669), but under Model B distance from the ridge adds almost nothing (combined R² = 0.670): wells further from the ridge and at lower elevation drain faster. The recharge coefficient β₁ shows no significant relationship with elevation (r = 0.142, p = 0.627); Easting is the best single predictor (r = 0.479, p = 0.083) but explains only 24% of variance. This elevation--drainage relationship is visible directly in the drainage decay half-life map (Figure 55), where under Model B C4 wells reach t½ values of up to 51 months compared with 7--12 months at C5.
 
 C4 and C5 form two clearly distinct groups rather than a continuum. They separate almost entirely on the β₂ axis: C4 wells cluster at β₂ = 2.2--4.2 while C5 wells sit at β₂ = 1.1--1.9, with zero overlap. Mean elevations differ significantly (C4: 10.6 m, C5: 5.6 m; p \< 0.001), with a clean gap between 6.3 m and 8.6 m containing no wells (Source: 10c_forest_zone_cluster_summary.csv). This corresponds to the transition from the elevated ridge and plateau terrain to the low-lying coastal fringe. Both zones carry Corsican pine canopy; C4 sits on the flank of the bedrock ridge (which outcrops within the forest), C5 on the lower coastal sand (Section 5.6.1).
 
@@ -1140,7 +1522,7 @@ The coordinate replaces easting as the spatial variable for questions about coas
 
 The third candidate mechanism for the C5 anomaly --- progressive coastal boundary retreat --- can be tested quantitatively at network scale. A non-linear panel regression was fitted to the full 21-year monthly record (11,982 observations across 67 wells; FE wells, the scraped well CEH36, the BACI clearfell-zone wells and the bedrock-ridge well CEH12 excluded) to test whether the C5 anomaly is quantitatively consistent with coastal boundary retreat operating site-wide, against the cross-shore distance d of Section 4.10.1. The headline fit is the forest-free panel (the wells under canopy on the land-cover flag dropped; 61 wells, 10,909 observations), giving a Dupuit--Forchheimer steady-state strip-aquifer form. The headline coast-edge trend is quoted at the 150 m reference distance, which sits inside the observed range of well positions: −26.4 ± 3.5 mm yr⁻¹ (95 % CI −33.2 to −19.5, well basis). The fitted decay amplitude at the shoreline, δ₀ = −31.3 ± 4.8 mm yr⁻¹, is reported as a model parameter and not as the headline: no well sits at the shoreline, so d = 0 lies beyond the network and is the one distance at which the linear-capped and exponential forms disagree materially --- a spread of 9.3 mm yr⁻¹ there against 1.6 mm yr⁻¹ at 150 m. The two forms also imply inland reaches of 902 ± 144 m for the linear-capped strip and a decay length of 498 ± 225 m for the exponential, which the record does not separate firmly. The amplitude carries one well\'s leverage: withholding CEH3, the second-nearest well to the shore at 176 m, moves δ₀ by 3.1 mm yr⁻¹ and the 150 m rate by 2.4 mm yr⁻¹, 1.9 times the next-largest single-well shift (each well withheld in turn over the 61-well panel; 25_16_delta0_leave_one_out.csv). Uncertainties on the coastal gradient are quoted on the well basis: the standard error is estimated from those refits, because consecutive monthly readings within a well are not independent observations, and the fitted standard errors from the monthly rows remain in 25_01_panel_fit_parameters.csv as the nominal precision of the model and are not quoted as uncertainties. On that basis δ₀ is more than six standard errors from zero, and the leverage of CEH3 lies inside the error --- a property of a network with few wells inside 300 m rather than an instability of the fit. The fit gives an inland reach L_cg of about 900 m (± 144 m, well basis) beyond which the gradient effect vanishes, and a far-field asymptote c_far of −0.3 ± 1.5 mm yr⁻¹ (well basis), which is not a climate rate and is not quoted as one (Section 4.10.3). Model selection by AIC favours the exponential form (ΔAIC = −6.0); the linear-with-cutoff form is retained on physical grounds, as the Dupuit--Forchheimer steady-state solution for a strip aquifer with a fixed inland reach, and because the exponential's far-field asymptote takes the opposite sign to the observed far-field trend --- not on the AIC margin, which points the other way. The fit is robust to forest-cover exclusion: it is itself the forest-free panel, and the full-network and C3-only fits shift no parameter beyond sampling uncertainty (Script 25; Figure 60).
 
-Applied to C5\'s four wells, each at its own distance from the shore, and averaged, the model predicts a gradient contribution of −17.1 mm yr⁻¹; all four lie within the fitted reach, so this equals the gradient at the cluster's mean distance. The decomposition is computed against a balanced observed basis --- the slope of the annual cross-well mean of the per-well summer minima, −32.0 mm yr⁻¹ --- rather than against the fixed-effects cluster slope of −29.1 mm yr⁻¹, because a mean taken over per-well fits reports the composition of record lengths as though it were a rate: within C5 the two wells with twenty years of record average −32.4 mm yr⁻¹ while the two ten- and eleven-year records average −25.3. On that basis the gradient accounts for about half of C5\'s decline (53 %), leaving −17.6 mm yr⁻¹ unexplained. The attribution is sensitive to which wells the cluster contains: before the current partition, when the extended well NW8B was assigned to C3 rather than C5, the same decomposition left −0.7 mm yr⁻¹ unexplained. The panel\'s climate term is +2.9 mm yr⁻¹, acting against the decline rather than adding to it, and the far-field offset is −0.3 mm yr⁻¹; the two are not separately identified and only their sum, +2.6 mm yr⁻¹, is recovered. ****This attribution should be read against the sampling base of the forest-free fit. The forest-free panel that anchors δ₀ and L_cg excludes most C4 and C5 wells; of the C5 wells, only three of the five reference wells and the extended well NW8B meet the per-well summer-minimum slope criterion that enters the cluster's coastal term. The observed decline it is set against is the balanced annual mean over the same four wells (Table 32), so the direction of the C5 result is clear --- C5 is the most coastal-affected cluster on this fit --- but the precise magnitude remains sensitive to which C5 wells enter the forest-free filter.**** The coastal term is evaluated at each well's own distance and averaged over the cluster, so a cluster that straddles the fitted inland reach L_cg carries the share of its wells inside it. C2 has no well inside the reach and carries no coastal term, and C1 has one (CEH11, 783 m) and carries −0.6 mm yr⁻¹. C3\'s mean distance, 906 m, falls just beyond the 902 m reach, but eleven of its twenty-two wells lie inside it, including the four nearest the shore, and it carries −7.0 mm yr⁻¹, most of its balanced decline (93 %; 87--102 % across delete-one-well refits of the headline gradient, which move δ₀ and L_cg together); C4 has three of its four wells inside the reach and carries −4.8 mm yr⁻¹, 74 % (58--91 %) of a decline the record does not resolve. The model leaves more than the whole of the observed decline unexplained at C1 and C2, about two-fifths of it at C3 (−3.2 mm yr⁻¹), two-thirds at C4 (−4.3 mm yr⁻¹) and about half at C5 --- and what is left is not the same at each. Taking the balanced observed decline less the modelled coastal gradient, the three open-dune clusters return −10.4 (C1), −14.6 (C2) and −0.5 mm yr⁻¹ (C3), across seven, twenty-two and twenty-two wells on different substrates and at different distances from the sea: a mean of −8.5 mm yr⁻¹ with a spread of 14.1 mm yr⁻¹. The independent site-mean trend of Section 5.7.5 gives −13.0 mm yr⁻¹ over the same record. At that spread, with the residual largest at C2 and close to zero at C3, the decomposition indicates that the residual decline is not spatially uniform, and it does not resolve its rate either, because the clusters share the same year-to-year weather and their errors are therefore common-mode rather than independent, leaving −8.5 inside the ±28.5 mm yr⁻¹ minimum detectable rate. The mean is carried forward as the unexplained residual decline, applied uniformly by assumption, a central estimate rather than a climate rate (Section 5.7.5). ****The per-cluster decomposition is tabulated in Table 32 (and visualized in Figure 60) and itemizes each cluster\'s observed decline on the balanced basis, partitioned into the climate and far-field term, the coastal-retreat gradient contribution averaged over the cluster's wells at their own distances (not at the cluster\'s mean coast-proximity), and the unattributed residual.**** The weighing of this result against the other candidate mechanisms for the C5 anomaly is in Section 5.7.2.
+Applied to C5\'s four wells, each at its own distance from the shore, and averaged, the model predicts a gradient contribution of −17.1 mm yr⁻¹; all four lie within the fitted reach, so this equals the gradient at the cluster's mean distance. The decomposition is computed against a balanced observed basis --- the slope of the annual cross-well mean of the per-well summer minima, −32.0 mm yr⁻¹ --- rather than against the fixed-effects cluster slope of −29.1 mm yr⁻¹, because a mean taken over per-well fits reports the composition of record lengths as though it were a rate: within C5 the two wells with twenty years of record average −32.4 mm yr⁻¹ while the two ten- and eleven-year records average −25.3. On that basis the gradient accounts for about half of C5\'s decline (53 %), leaving −17.6 mm yr⁻¹ unexplained. The attribution is sensitive to which wells the cluster contains: before the current partition, when the extended well NW8B was assigned to C3 rather than C5, the same decomposition left −0.7 mm yr⁻¹ unexplained. The panel\'s climate term is +2.9 mm yr⁻¹, acting against the decline rather than adding to it, and the far-field offset is −0.3 mm yr⁻¹; the two are not separately identified and only their sum, +2.6 mm yr⁻¹, is recovered. ****This attribution should be read against the sampling base of the forest-free fit. The forest-free panel that anchors δ₀ and L_cg excludes most C4 and C5 wells; of the C5 wells, only three of the five reference wells and the extended well NW8B meet the per-well summer-minimum slope criterion that enters the cluster's coastal term. The observed decline it is set against is the balanced annual mean over the same four wells (Table 39), so the direction of the C5 result is clear --- C5 is the most coastal-affected cluster on this fit --- but the precise magnitude remains sensitive to which C5 wells enter the forest-free filter.**** The coastal term is evaluated at each well's own distance and averaged over the cluster, so a cluster that straddles the fitted inland reach L_cg carries the share of its wells inside it. C2 has no well inside the reach and carries no coastal term, and C1 has one (CEH11, 783 m) and carries −0.6 mm yr⁻¹. C3\'s mean distance, 906 m, falls just beyond the 902 m reach, but eleven of its twenty-two wells lie inside it, including the four nearest the shore, and it carries −7.0 mm yr⁻¹, most of its balanced decline (93 %; 87--102 % across delete-one-well refits of the headline gradient, which move δ₀ and L_cg together); C4 has three of its four wells inside the reach and carries −4.8 mm yr⁻¹, 74 % (58--91 %) of a decline the record does not resolve. The model leaves more than the whole of the observed decline unexplained at C1 and C2, about two-fifths of it at C3 (−3.2 mm yr⁻¹), two-thirds at C4 (−4.3 mm yr⁻¹) and about half at C5 --- and what is left is not the same at each. Taking the balanced observed decline less the modelled coastal gradient, the three open-dune clusters return −10.4 (C1), −14.6 (C2) and −0.5 mm yr⁻¹ (C3), across seven, twenty-two and twenty-two wells on different substrates and at different distances from the sea: a mean of −8.5 mm yr⁻¹ with a spread of 14.1 mm yr⁻¹. The independent site-mean trend of Section 5.7.5 gives −13.0 mm yr⁻¹ over the same record. At that spread, with the residual largest at C2 and close to zero at C3, the decomposition indicates that the residual decline is not spatially uniform, and it does not resolve its rate either, because the clusters share the same year-to-year weather and their errors are therefore common-mode rather than independent, leaving −8.5 inside the ±28.5 mm yr⁻¹ minimum detectable rate. The mean is carried forward as the unexplained residual decline, applied uniformly by assumption, a central estimate rather than a climate rate (Section 5.7.5). ****The per-cluster decomposition is tabulated in Table 39 (and visualized in Figure 60) and itemizes each cluster\'s observed decline on the balanced basis, partitioned into the climate and far-field term, the coastal-retreat gradient contribution averaged over the cluster's wells at their own distances (not at the cluster\'s mean coast-proximity), and the unattributed residual.**** The weighing of this result against the other candidate mechanisms for the C5 anomaly is in Section 5.7.2.
 
   ----------------------- ---- -------- -------- ------- -------- --------
   C1 (Lake Edge)          7    1819 m   −10.97   +2.65   −0.59    −13.03
@@ -1210,7 +1592,7 @@ The spatial reach of forest management perturbations is shown directly by the dr
 
 ![**Figure : **Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimated steady-state head perturbation (mm) attributable to Corsican pine canopy interception. Drawdown at each well is modelled as an exponential decay with flow-weighted cost-distance from the forest boundary, using a characteristic length scale λ ≈ 170 m. The background is the DEM hillshade; the coloured bands are the modelled drawdown (mm) by flow-weighted cost-distance from the forest edge, with the forest boundary, the clearfell zone, paths and Llyn Rhos-Ddu overlaid. Labelled wells show estimated drawdown in parentheses: the signal exceeds 50 mm out to about 190 m of flow-weighted cost-distance from the forest edge (CEH27: 58 mm, CEH26: 29 mm), falls to 22 mm at D15, 14 mm at CEH23 and 3 mm at CEH6, and is ≤2 mm at CEH24, CEH10 and CEH11. With a 150 mm forest-edge deficit decaying at λ ≈ 170 m, the 50 mm contour lies at roughly 190 m of cost-distance from the forest boundary and the 10 mm contour at roughly 470 m. Forest management perturbations are concentrated in the forest zone and its margins and decline steeply eastwards across the six eastern C1 Lake Edge wells, from 58 mm at CEH27 to 3 mm at CEH6; the seventh, CEH11, lies 1.7--2.0 km south of that group rather than further east, 1600 m from the forest, and carries 0.1 mm. Well markers coloured by cluster. LiDAR data: © NRW & OS; see Section 11 for full attribution. (Source: 20_drawdown_propagation_nohead.png).](Pictures/100000010000074F000004F93DEE7E83.png "fig:"){width="6.2217in" height="4.2335in"}****
 
-The dune scraping of Section 4.5 can be placed on the same spatial footing as the forest and coastal fields. Figure 67 renders the April 2015 CEH36 scrape as a steady-state drain, with edge magnitude anchored to the measured CEH36 response (128 mm) and the same leaky-aquifer decay length as the forest field (λ ≈ 170 m). On this anchoring the unsurveyed excavation depth is recovered as an inferred ≈ 0.43 m. Modelled drawdown exceeds 50 mm out to about 160 m from the CEH36 excavation on its own and about 390 m where the fields of all the mapped cuts combine, falling to 10 mm at about 430 m and 610 m respectively. As with the forest field these are steady-state values: the equilibration time at these distances is years to decades (Section 5.4.3), which is why the uphill propagation is not resolved as a distance-decay signal within the 31-month BACI window (Section 4.5).
+The dune scraping of Section 4.5 can be placed on the same spatial footing as the forest and coastal fields. Figure 67 renders the April 2015 CEH36 scrape as a steady-state drain, with edge magnitude anchored to the measured CEH36 response (128 mm) and the same leaky-aquifer decay length as the forest field (λ ≈ 170 m). On this anchoring the unsurveyed excavation depth is recovered as an inferred ≈ 0.35 m. Modelled drawdown exceeds 50 mm out to about 160 m from the CEH36 excavation on its own and about 390 m where the fields of all the mapped cuts combine, falling to 10 mm at about 430 m and 610 m respectively. As with the forest field these are steady-state values: the equilibration time at these distances is years to decades (Section 5.4.3), which is why the uphill propagation is not resolved as a distance-decay signal within the 31-month BACI window (Section 4.5).
 
 ![**Figure :** Dune-scrape drawdown across all eight mapped cuts, Newborough Warren (Feb 2013, Apr 2015, Oct 2023), on the DEM hillshade base. All cuts are treated as permanent co-active features; the displayed field is the long-term equilibrium superposition Σᵢ H₀,ᵢ · \[exp(−dᵢ/λ) − exp(−dᵢ′/λ)\] where dᵢ is Euclidean distance to cut i\'s footprint, dᵢ′ is distance to its mirror image reflected across the OS High Water Mark coastline (method of images; enforces zero drawdown at the fixed-head sea boundary), and λ≈170 m is the leaky-aquifer decay length (live C3 Sₐ and β₃; K=6 m d−1, Betson & Bristow 2002; b=5 m). Edge magnitude H_0,i is the measured BACI response for three monitored cuts (CEH36 +128 mm, CEH21 +81 mm, CEH18 +6 mm; Section 4.5) and assumed equal to the CEH36 value for the five cuts with no record from before they were cut. Scrape interiors are masked --- each cut slack rises (Section 5.4.1) --- so the field shown is the surrounding drawdown, the dipole counterpart of the slack rise. The modelled drawdown reach is not independently resolved: across the ten uphill wells the BACI-corrected change in β₃ shows no decay with distance (r = 0.06, p = 0.88; Script 09b), and its sign within 575 m depends on the model form. Steady-state construction; equilibration over years to decades (Section 5.4.3). Clipped to the study-area outline; well markers coloured by cluster. (Source: 20_scrape_drawdown_nohead.png).](Pictures/10000001000008D200000512689F7357.png "fig:"){width="6.0827in" height="3.4965in"}
 

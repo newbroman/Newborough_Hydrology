@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "2.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 split into the suite 50a-50e:
+__version__ = "2.2.0"  # Hollingham (2026) - 2026-11-24. OUT_10_SEASONAL_TABLE, OUT_10_ROBUSTNESS_TABLE (run_10 1.3.0),
+#   OUT_09C_SUMMER_BACI_TABLE (09c 1.10.0), OUT_55_LATERAL_INFLOW (55 1.5.0). Additive.
+# 2.1.0  # Hollingham (2026) - 2026-11-24 (T-215). OUT_55_SAMEBASIS. Additive.
+# "2.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 split into the suite 50a-50e:
 #   DIR_50A..DIR_50E and OUT_50A..E_REPORT_NUMBERS; every OUT_50_* constant keeps its name and file and moves to
 #   its step's folder; DIR_50 and OUT_50_REPORT_NUMBERS retire (major: two names removed).
 # 1.90.0  # Hollingham (2026) - 2026-11-23 (J-25). OUT_50_DECISION_FIG (50_54_decision_tree.png, Paper M Figure 7).
@@ -707,6 +710,7 @@ OUT_09B_REPORT_NUMBERS      = DIR_09 / "09b_report_numbers.csv"
 # Script 09c — Summer minima (scraping)
 OUT_09C_SUMMER_MINIMA       = DIR_09 / "09c_01_summer_minima.csv"
 OUT_09C_SUMMER_SHIFTS       = DIR_09 / "09c_02_summer_minima_shifts.csv"
+OUT_09C_SUMMER_BACI_TABLE   = DIR_09 / "09c_09_summer_minima_baci_table.csv"   # 2026-11-24: report9 §4.5 Table B
 OUT_09C_REPORT_NUMBERS      = DIR_09 / "09c_report_numbers.csv"
 OUT_09C_FIG_CLIMATE         = DIR_09 / "09c_03_summer_minima_climate_ctrl.png"
 OUT_09C_FIG_PAIRED          = DIR_09 / "09c_04_summer_minima_paired.png"
@@ -774,6 +778,9 @@ OUT_10A_CONTROL_WELL_SPREAD = DIR_10 / "10a_09_control_well_spread.csv"
 OUT_10A_REPLANT_PROXIMITY   = DIR_10 / "10a_11_replant_proximity.csv"
 OUT_10A_CONTROL_SUBSET      = DIR_10 / "10a_12_control_subset_sensitivity.csv"
 OUT_10A_ERA_SPLIT           = DIR_10 / "10a_13_era_split.csv"
+# 2026-11-24 (J-16, report9 §4.6 Tables B and C): run_10 1.3.0 assembles them from the consolidation.
+OUT_10_SEASONAL_TABLE       = DIR_10 / "10_16_seasonal_step_table.csv"
+OUT_10_ROBUSTNESS_TABLE     = DIR_10 / "10_17_robustness_table.csv"
 OUT_10A_ERA_FIG             = DIR_10 / "10a_14_era_split_decay.png"
 OUT_10A_PAIRED_ATTRIBUTION  = DIR_10 / "10a_15_paired_attribution.csv"   # 10a 1.25.0 (T-209, D-333)
 
@@ -1814,4 +1821,6 @@ OUT_55_DRY_LAW_BY_CLUSTER = DIR_55 / "55_12_dry_month_law_by_cluster.csv"
 OUT_55_WINTER_SY_PER_WELL = DIR_55 / "55_13_winter_sy_per_well.csv"        # I: winter joint fit of Sy and drainage
 OUT_55_WINTER_SY_CLUSTER  = DIR_55 / "55_14_winter_sy_by_cluster.csv"
 OUT_55_WINTER_SY_FIG      = DIR_55 / "55_13_winter_sy_bracket.png"
+OUT_55_SAMEBASIS          = DIR_55 / "55_15_samebasis_per_well.csv"      # J: WB vs Model B drainage share, same basis (T-215)
+OUT_55_LATERAL_INFLOW     = DIR_55 / "55_16_lateral_inflow_tests.csv"     # K: the C3 surplus, S_a against lateral inflow (T-215)
 OUT_55_REPORT_NUMBERS     = DIR_55 / "55_report_numbers.csv"               # wb_*

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_69.odt — do not edit. source-sha256=eddab1eee663a3f8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_70.odt — do not edit. source-sha256=aa16332e22746b9f pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -761,7 +761,7 @@ Script 34 (two-window sensitivity), reading the committed per-well annual spring
 
 ## S12.1 Why the values do not yet exist
 
-Van Willegen et al. (2025) established the five-year mean spring water level as the hydrological metric most strongly related to dune-slack community moisture at Newborough --- mean Ellenberg F, with Pearson r of 0.84 to 0.89 across their relevés --- and named reference values, or a community \"status\", on the five-year MSL as the next step. Curreli et al. (2013) supplied community reference values, but for a different quantity: their Table 4 gives, for each National Vegetation Classification community, the mean, standard error and range of the four-year (2006--09) average annual minimum and maximum water level across the quadrats assigned to that community, over a 1 June--31 May hydrological year. The report applies those values to the annual-minimum series (report Sections 4.8.1 and 4.8.3, Table 28, Figure 45b) and not to MSL5. No published source gives a community reference value for a spring mean, and the report does not construct one by transfer. This note specifies how such values would be derived on the same footing as Curreli\'s, what is already in hand, and the one input that is not.
+Van Willegen et al. (2025) established the five-year mean spring water level as the hydrological metric most strongly related to dune-slack community moisture at Newborough --- mean Ellenberg F, with Pearson r of 0.84 to 0.89 across their relevés --- and named reference values, or a community \"status\", on the five-year MSL as the next step. Curreli et al. (2013) supplied community reference values, but for a different quantity: their Table 4 gives, for each National Vegetation Classification community, the mean, standard error and range of the four-year (2006--09) average annual minimum and maximum water level across the quadrats assigned to that community, over a 1 June--31 May hydrological year. The report applies those values to the annual-minimum series (report Sections 4.8.1 and 4.8.3, Table 35, Figure 45b) and not to MSL5. No published source gives a community reference value for a spring mean, and the report does not construct one by transfer. This note specifies how such values would be derived on the same footing as Curreli\'s, what is already in hand, and the one input that is not.
 
 ## S12.2 What would be computed
 

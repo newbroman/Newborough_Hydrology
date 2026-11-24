@@ -17,18 +17,25 @@ number,document,title
 16,report9.odt,"Iterative NSE by cluster, traditional linear model (TLM) against the state-space model (SS"
 17,report9.odt,"Depth-dependent PET grid search by cluster (Script 15, Model B): iterative NSE of the clus"
 18,report9.odt,Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95
-19,report9.odt,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
-20,report9.odt,The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude 
-21,report9.odt,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
-22,report9.odt,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
-23,report9.odt,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
-24,report9.odt,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
-25,report9.odt,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
-26,report9.odt,Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood / Σ P_cli
-27,report9.odt,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
-28,report9.odt,Cluster five-year mean spring water level (MSL5) and four-year mean annual minimum water l
-29,report9.odt,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
-30,report9.odt,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
-31,report9.odt,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
-32,report9.odt,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
-33,report9.odt,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si
+19,report9.odt,Era mean of the annual summer minimum (June–September) at the scraping treatment wells and
+20,report9.odt,"BACI shift in the annual summer minimum (positive = shallower), against the paired control"
+21,report9.odt,"Equilibrium volumetric water-table change at CEH36 by scenario, mm water-equivalent per mo"
+22,report9.odt,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
+23,report9.odt,The coastal-drift term fitted in each ANCOVA contrast. ξ is the amplitude of the network-s
+24,report9.odt,Four-zone pooled-panel clearfell contrasts against the Forest control: one joint fit acros
+25,report9.odt,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
+26,report9.odt,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
+27,report9.odt,"The clearfell step by season, Impact tier (WMC3) against the Forest control (Script 10a). "
+28,report9.odt,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
+29,report9.odt,"The clearfell step under each robustness method, against the Forest control. The SSM-resid"
+30,report9.odt,"The clearfell step before and after January 2021, mm, by contrast and coastal-drift treatm"
+31,report9.odt,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
+32,report9.odt,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
+33,report9.odt,Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood / Σ P_cli
+34,report9.odt,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
+35,report9.odt,Cluster five-year mean spring water level (MSL5) and four-year mean annual minimum water l
+36,report9.odt,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
+37,report9.odt,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
+38,report9.odt,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
+39,report9.odt,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
+40,report9.odt,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si

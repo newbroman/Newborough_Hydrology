@@ -31,8 +31,8 @@ water_balance_closure_max_pct,,,1.6990968695892696,%,Model B (D-332): largest pe
 water_balance_closure_max_pct_model_a,,,1.6952918584015584,%,Model A at DRAINAGE_DATUM: largest per-cluster residual as a share of total losses (C5 (Coastal Forest))
 water_balance_drain_share_pct,C1 (Lake Edge),,38.02336372505524,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C1 (Lake Edge),,61.97663627494477,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C1 (Lake Edge),,38.02336372505524,%,"lowest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
-water_balance_drain_share_hi_pct,C1 (Lake Edge),,59.772919476372465,%,"highest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
+water_balance_drain_share_lo_pct,C1 (Lake Edge),,38.02336372505524,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,C1 (Lake Edge),,59.772919476372465,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
 water_balance_drain_share_A_pct,C1 (Lake Edge),,85.10577303036742,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
 water_balance_drain_share_B_pct,C1 (Lake Edge),,38.02336372505524,%,drainage share of the modelled loss under Model B (the headline)
 water_balance_drain_mm_yr,C1 (Lake Edge),,339.5756839719954,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
@@ -43,8 +43,8 @@ water_balance_et_total_over_pet,C1 (Lake Edge),,0.8455972215955532,ratio,total e
 water_balance_residual_B_pct,C1 (Lake Edge),,0.06748458742428008,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
 water_balance_drain_share_pct,C2 (Dune),,45.09417889825761,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C2 (Dune),,54.90582110174239,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C2 (Dune),,34.841973026338685,%,"lowest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
-water_balance_drain_share_hi_pct,C2 (Dune),,45.09417889825761,%,"highest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
+water_balance_drain_share_lo_pct,C2 (Dune),,34.841973026338685,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,C2 (Dune),,45.09417889825761,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
 water_balance_drain_share_A_pct,C2 (Dune),,66.40853534102965,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
 water_balance_drain_share_B_pct,C2 (Dune),,45.09417889825761,%,drainage share of the modelled loss under Model B (the headline)
 water_balance_drain_mm_yr,C2 (Dune),,401.0397116770232,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
@@ -55,8 +55,8 @@ water_balance_et_total_over_pet,C2 (Dune),,0.7481682463051714,ratio,total evapor
 water_balance_residual_B_pct,C2 (Dune),,0.0009450369718092142,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
 water_balance_drain_share_pct,C3 (Western Residual),,56.44312410312812,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C3 (Western Residual),,43.55687589687188,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C3 (Western Residual),,56.44312410312812,%,"lowest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
-water_balance_drain_share_hi_pct,C3 (Western Residual),,66.3588513002869,%,"highest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
+water_balance_drain_share_lo_pct,C3 (Western Residual),,56.44312410312812,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,C3 (Western Residual),,66.3588513002869,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
 water_balance_drain_share_A_pct,C3 (Western Residual),,64.62100539462718,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
 water_balance_drain_share_B_pct,C3 (Western Residual),,56.44312410312812,%,drainage share of the modelled loss under Model B (the headline)
 water_balance_drain_mm_yr,C3 (Western Residual),,501.97020479163376,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
@@ -67,8 +67,8 @@ water_balance_et_total_over_pet,C3 (Western Residual),,0.5935230691461324,ratio,
 water_balance_residual_B_pct,C3 (Western Residual),,0.5865360377815398,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
 water_balance_drain_share_pct,C4 (Main Forest),,29.13294693037689,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C4 (Main Forest),,70.86705306962311,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C4 (Main Forest),,29.13294693037689,%,"lowest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
-water_balance_drain_share_hi_pct,C4 (Main Forest),,50.693714344660854,%,"highest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
+water_balance_drain_share_lo_pct,C4 (Main Forest),,29.13294693037689,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,C4 (Main Forest),,50.693714344660854,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
 water_balance_drain_share_A_pct,C4 (Main Forest),,24.775290089793696,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
 water_balance_drain_share_B_pct,C4 (Main Forest),,29.13294693037689,%,drainage share of the modelled loss under Model B (the headline)
 water_balance_drain_mm_yr,C4 (Main Forest),,260.17793826809054,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
@@ -79,8 +79,8 @@ water_balance_et_total_over_pet,C4 (Main Forest),,0.966896346431175,ratio,total 
 water_balance_residual_B_pct,C4 (Main Forest),,0.24713277885174514,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
 water_balance_drain_share_pct,C5 (Coastal Forest),,61.109518930364274,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C5 (Coastal Forest),,38.890481069635726,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C5 (Coastal Forest),,61.03185002793449,%,"lowest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
-water_balance_drain_share_hi_pct,C5 (Coastal Forest),,72.57936645817894,%,"highest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"
+water_balance_drain_share_lo_pct,C5 (Coastal Forest),,61.109518930364274,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,C5 (Coastal Forest),,72.57936645817894,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
 water_balance_drain_share_A_pct,C5 (Coastal Forest),,61.06777812327283,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
 water_balance_drain_share_B_pct,C5 (Coastal Forest),,61.109518930364274,%,drainage share of the modelled loss under Model B (the headline)
 water_balance_drain_mm_yr,C5 (Coastal Forest),,545.3362756051988,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"

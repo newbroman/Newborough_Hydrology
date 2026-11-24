@@ -1,17 +1,16 @@
 kind,old,new,title
-table,16,18,Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95
-table,17,19,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
-table,18,20,The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude 
-table,19,21,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
-table,20,22,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
-table,21,23,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
-table,22,24,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
-table,23,25,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
-table,24,26,Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood / Σ P_cli
-table,25,27,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
-table,26,28,Cluster five-year mean spring water level (MSL5) and four-year mean annual minimum water l
-table,27,29,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
-table,28,30,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
-table,29,31,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
-table,30,32,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
-table,31,33,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si
+table,19,22,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
+table,20,23,The coastal-drift term fitted in each ANCOVA contrast. ξ is the amplitude of the network-s
+table,21,25,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
+table,22,26,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
+table,23,28,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
+table,24,31,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
+table,25,32,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
+table,26,33,Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood / Σ P_cli
+table,27,34,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
+table,28,35,Cluster five-year mean spring water level (MSL5) and four-year mean annual minimum water l
+table,29,36,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
+table,30,37,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
+table,31,38,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
+table,32,39,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
+table,33,40,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si

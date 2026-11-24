@@ -37,7 +37,10 @@ bash tools/check_all.sh                               # must end "check_all: OK"
 ```
 
 **`--with-supplementary` is not optional before a commit** (D-102) — gated by `output_lag` (R01): when it
-fails, re-run the script it names; never skip the check.
+fails, re-run the script it names; never skip the check. **Or, under D-340, a scoped run:**
+`python3 tools/run_scope.py` (the plan), then `--run` — only the steps a change reaches, judged by the same
+`check_all`. A full run is still required before a PDF ship, when Script 01 or 03 is in reach (it refuses), when the
+step list has changed, and whenever Martin asks.
 
 The gates are the sections `check_all` prints — read them from the run, never
 from a list here (this file said "sixteen" while the script ran twenty-seven).
@@ -261,7 +264,7 @@ declared claim or derived must be in `paths`, and a changed `tools/*.csv` regist
 ## 4e. The ledgers are keyed by OUTPUT FILE (2026-09-20)
 
 `PROVENANCE_LEDGER.md` and `VALUE_REGISTER.md` answer *this script's output changed — what has to be re-read?*
-**A table cannot have no CSV** (Martin) — gated by `table_provenance_lint` (R23). All <!--PL:report_tables-->33<!--/PL:report_tables--> report tables trace to an output.
+**A table cannot have no CSV** (Martin) — gated by `table_provenance_lint` (R23). All <!--PL:report_tables-->40<!--/PL:report_tables--> report tables trace to an output.
 
 **When auditing references, relate them to the CSV.** The report, Paper 1 and
 Paper 2 each number tables from 1. Prose similarity left 150 of 211 references
@@ -413,5 +416,14 @@ credential helper populated; if not, hand him the one line.
 LibreOffice, different Python, missing libraries. Read, search, edit text, run
 the text-only linters; anything that produces a published artefact runs where the
 environment is built: the laptop, or a cloud session (D-227).
+
+**A document goes to Martin for review as a review page, by default** (Martin, 2026-11-24: the Paper 1 editing
+copy "is the clearest you have shown me for a document edit … please add this to the project as the default way to
+present docs for review"). `python3 tools/review_page.py report_edits/text/report9.md` (any document's mirror) builds it, with
+every figure pulled from the ODT and shown beside its caption; publish it as an Artifact with the `db` capability
+(the command prints the call). He edits paragraphs and captions in place, and each edit is saved to the page's
+`edits` collection; read them with ArtifactData and apply them through `odt_edit` as the next version, with the
+block's source from `working/updates/review_pages/<doc>_blocks_src.json`. Numbers stay fields: an edited number
+is a flag, never written in. A draft that is not yet in the ODT still goes as markdown for approval first.
 
 Show your working. He checks.

@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**154 exhibit(s)** across the corpus, drawing on **155 output file(s)**.
+**161 exhibit(s)** across the corpus, drawing on **164 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -74,39 +74,48 @@
 | `09c_03_summer_minima_climate_ctrl.png` | report9.odt | Figure 24 | Figure 1.20: Summer minima analysis for the scraping intervention against the cl |
 | `09c_04_summer_minima_paired.png` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 |  | report9.odt | Figure 25 | Figure 1.21: Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (contr |
+| `09c_09_summer_minima_baci_table.csv` | report9.odt | Table 1.20 | BACI shift in the annual summer minimum (positive = shallower), against the pair |
+| `09c_report_numbers.csv` | report9.odt | Table 1.19 | Era mean of the annual summer minimum (June–September) at the scraping treatment |
+| `09d_01_scenario_comparison.csv` | report9.odt | Table 1.21 | Equilibrium volumetric water-table change at CEH36 by scenario, mm water-equival |
 | `09d_01_scenario_comparison.jpg` | report9.odt | Figure 28 | Figure 1.24: Scenario comparison at CEH36 (scraped site) — annual-mean forcing. |
+| `09d_02_summer_scenario_comparison.csv` | report9.odt | Table 1.21 | Equilibrium volumetric water-table change at CEH36 by scenario, mm water-equival |
 | `09d_02_summer_scenario_comparison.png` | report9.odt | Figure 29 | Figure 1.25: Scenario comparison at CEH36 (scraped site) — summer (July–Septembe |
 | `09f_management_effects.png` | report10.odt | Figure 83 | Figure 1.2: Spatial reach and development timescale of the management interventi |
 | `09g_coastal_vs_climate_reach.png` | Paper 1 | Figure 20 | Conceptual coastal-vs-climate reach |
 | `09g_mechanism_grid.png` | report10.odt | Figure 84 | Figure 1.3: Three drivers of water-table change and the undisturbed state — sche |
-| `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.19 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
+| `10_16_seasonal_step_table.csv` | report9.odt | Table 1.27 | The clearfell step by season, Impact tier (WMC3) against the Forest control (Scr |
+| `10_17_robustness_table.csv` | report9.odt | Table 1.29 | The clearfell step under each robustness method, against the Forest control. The |
+| `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.22 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
 | `10a_06_climate_sensitivity.png` | report9.odt | Figure 30 | Figure 1.26: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
 | `10a_07_cusum_impact.png` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
 |  | report9.odt | Figure 32 | Figure 1.28: Forest control BACI timeseries and CUSUM for the Impact tier (WMC3) |
 | `10a_08_cusum_edge.png` | report9.odt | Figure 33 | Figure 1.29: Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, |
+| `10a_13_era_split.csv` | report9.odt | Table 1.30 | The clearfell step before and after January 2021, mm, by contrast and coastal-dr |
 | `10a_14_era_split_decay.png` | report9.odt | Figure 40 | Figure 1.36: Early versus late clearfell BACI step against the Forest control, s |
 | `10a_report_numbers.csv` | Paper 2 | Table 1 | Three-counterfactual ANCOVA-BACI clearfell-step estimates (Forest/Climate/Combin |
 | `10b_spatial_fell_corrected.png` | report9.odt | Figure 36 | Figure 1.32: Climate-corrected spatial step-change map for the clearfell era (De |
 | `10b_spatial_scrape_corrected.png` | report9.odt | Figure 27 | Figure 1.23: Climate-corrected spatial step-change map for the scraping era (Apr |
 | `10c_forest_zone_correlations.csv` | Paper 1 | Table 6 | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r ( |
-|  | report9.odt | Table 1.31 | Per-well spatial predictors of SSM coefficient variation within the forest zone |
-| `10d_02_summer_minima_shifts.csv` | report9.odt | Table 1.21 | Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well mi |
-| `10d_03_mixed_model_results.csv` | report9.odt | Table 1.22 | Mixed-effects model results: pooled clearfell step by tier against Forest contro |
+|  | report9.odt | Table 1.38 | Per-well spatial predictors of SSM coefficient variation within the forest zone |
+| `10d_02_summer_minima_shifts.csv` | report9.odt | Table 1.25 | Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well mi |
+| `10d_03_mixed_model_results.csv` | report9.odt | Table 1.26 | Mixed-effects model results: pooled clearfell step by tier against Forest contro |
 | `10d_04_summer_minima_forest_ctrl.png` | report9.odt | Figure 34 | Figure 1.30: Summer minima analysis against the Forest control. (a) Raw annual s |
-| `10e_01_coefficient_shifts.csv` | report9.odt | Table 1.23 | Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BA |
+| `10e_01_coefficient_shifts.csv` | report9.odt | Table 1.28 | Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BA |
 | `10e_03_coefficient_shifts.png` | Paper 2 | Figure 5 | Before/after SSM coefficient dumbbells by tier; β₁/β₂ %-shift summary |
 |  | report9.odt | Figure 37 | Figure 1.33: Before- and after-clearfell SSM coefficient estimates with 95% CI f |
 | `10g_02_clearfell_transect.png` | report9.odt | Figure 38 | Figure 1.34: Clearfell transect. (a) Monthly depth anomaly against each well&apo |
+| `10k_01_four_zone_results.csv` | report9.odt | Table 1.24 | Four-zone pooled-panel clearfell contrasts against the Forest control: one joint |
+| `10l_01_four_zone_summer_results.csv` | report9.odt | Table 1.24 | Four-zone pooled-panel clearfell contrasts against the Forest control: one joint |
 | `10m_02_wmc3_baci_dual.png` | report9.odt | Figure 31 | Figure 1.27: WMC3 (Impact well) and the forest-control mean across the three int |
-| `11_forecast_pflood_summary.csv` | report9.odt | Table 1.27 | Cluster-specific linear forms derived from the iterated closed-form P_flood solu |
-| `11_forecast_summer_transfer_functions.csv` | report9.odt | Table 1.25 | Summer drought prediction equations (Section 3.6.2). P_summer = total April–Sept |
-| `11_forecast_winter_transfer_functions.csv` | report9.odt | Table 1.24 | Winter peak prediction equations fitted at hydrological-year resolution (Section |
+| `11_forecast_pflood_summary.csv` | report9.odt | Table 1.34 | Cluster-specific linear forms derived from the iterated closed-form P_flood solu |
+| `11_forecast_summer_transfer_functions.csv` | report9.odt | Table 1.32 | Summer drought prediction equations (Section 3.6.2). P_summer = total April–Sept |
+| `11_forecast_winter_transfer_functions.csv` | report9.odt | Table 1.31 | Winter peak prediction equations fitted at hydrological-year resolution (Section |
 | `11b_01_summer_minima_depth.png` | report9.odt | Figure 41 | Figure 1.37: Spatial distribution of mean annual summer minimum (August–Septembe |
 | `11b_02_winter_maxima_depth.png` | report9.odt | Figure 43 | Figure 1.39: Spatial distribution of mean annual winter maximum water table dept |
 | `11b_03_pflood.png` | report9.odt | Figure 42 | Figure 1.38: Spatial distribution of P_flood — the minimum cumulative winter rai |
-| `11b_03_pflood_per_well.csv` | report9.odt | Table 1.26 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
+| `11b_03_pflood_per_well.csv` | report9.odt | Table 1.33 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
 | `11b_04_flood_frequency.png` | report9.odt | Figure 44 | Figure 1.40: Winter flooding frequency across the full dipwell network (66 refer |
-| `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.26 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
+| `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.33 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
 | `11c_pflood_achievability.png` | report10.odt | Figure 85 | Figure 1.4: Per-well achievability categorization against the P_flood rainfall m |
 | `12_01_dem_site_overview.png` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | report7.odt | Figure 1 | Figure 1.1: Site topography and hydrogeological features. Digital elevation mode |
@@ -156,17 +165,17 @@
 | `25_01_panel_fit_parameters.csv` | Paper 1 | Figure 20 | Conceptual coastal-vs-climate reach |
 | `25_03_cluster_partition.csv` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Table 7 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate ( |
-|  | report9.odt | Table 1.32 | Per-cluster decomposition of the observed summer-minimum decline under the fores |
-| `25_04_baci_corroboration.csv` | report9.odt | Table 1.20 | The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the |
+|  | report9.odt | Table 1.39 | Per-cluster decomposition of the observed summer-minimum decline under the fores |
+| `25_04_baci_corroboration.csv` | report9.odt | Table 1.23 | The coastal-drift term fitted in each ANCOVA contrast. ξ is the amplitude of the |
 | `25_05_fit_diagnostic.jpg` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | report9.odt | Figure 60 | Figure 1.56: Network-scale coastal-retreat gradient. (a) Per-well summer-minimum |
 | `25_13_rolling_window.png` | report9.odt | Figure 61 | Figure 1.57: Fixed-length rolling-window sensitivity of the cross-shore decay fi |
 | `25_report_numbers.csv` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Figure 19 | Episodic coastal-retreat reach |
-| `26_curreli_min_cluster_threshold_summary.csv` | report9.odt | Table 1.28 | Cluster five-year mean spring water level (MSL5) and four-year mean annual minim |
-| `26_ebf_band_summary.csv` | report9.odt | Table 1.30 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
+| `26_curreli_min_cluster_threshold_summary.csv` | report9.odt | Table 1.35 | Cluster five-year mean spring water level (MSL5) and four-year mean annual minim |
+| `26_ebf_band_summary.csv` | report9.odt | Table 1.37 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
 | `26_ebf_prediction_scatter.png` | report9.odt | Figure 48 | Figure 1.45: Between-well prediction of mean Ellenberg-F moisture by three water |
-| `26_ebf_prediction_summary.csv` | report9.odt | Table 1.29 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
+| `26_ebf_prediction_summary.csv` | report9.odt | Table 1.36 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
 | `26_msl_5yr_map.png` | report9.odt | Figure 46 | Figure 1.42: Spatial pattern of the latest available 5-year mean spring water le |
 | `30_c4_centroid_sensitivity.csv` | report9.odt | Table 1.6 | C4 Main Forest centroid refitted without the ridge-flank wells (Script 30). The |
 | `30_c4_identifiability_by_cluster.csv` | report9.odt | Table 1.5 | Collinearity of the drainage predictor at each cluster centroid (Script 30). VIF |
@@ -176,7 +185,7 @@
 | `33_dry_spring_depth.png` | report9.odt | Figure 76 | Figure 1.72: The climate-response envelope of the spring water table: Dry-year s |
 | `36_absolute_climate_trend_2005_2025.png` | report9.odt | Figure 74 | Figure 1.70: Absolute climate-removed secular trend of the spring (March, April, |
 | `37_implied_delta0_trajectory.png` | report9.odt | Figure 77 | Figure 1.73: Independent test of the chronic coastal-drying assumption: implied |
-| `37b_driver_footing.csv` | report9.odt | Table 1.33 | Site-wide footing of each water-table driver. Equivalent depth averaged over the |
+| `37b_driver_footing.csv` | report9.odt | Table 1.40 | Site-wide footing of each water-table driver. Equivalent depth averaged over the |
 | `37b_driver_footing.png` | report9.odt | Figure 78 | Figure 1.74: Comparative footing of the drivers over the 2005–2025 horizon, on t |
 | `38_coast_inland_difference.jpg` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | report9.odt | Figure 62 | Figure 1.58: Independent, model-free estimate of the coastal drawdown rate. The |
@@ -201,7 +210,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (570)
+## Outputs no exhibit renders (566)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -322,9 +331,6 @@
 - `09c_06_spring_means_shifts.csv`
 - `09c_07_spring_means_climate_ctrl.png`
 - `09c_08_spring_means_paired.png`
-- `09c_report_numbers.csv`
-- `09d_01_scenario_comparison.csv`
-- `09d_02_summer_scenario_comparison.csv`
 - `09d_report_numbers.csv`
 - `09e_report_numbers.csv`
 - `09f_01_reach_profile.csv`
@@ -342,7 +348,6 @@
 - `10a_10_coastal_fixed1_sensitivity.csv`
 - `10a_11_replant_proximity.csv`
 - `10a_12_control_subset_sensitivity.csv`
-- `10a_13_era_split.csv`
 - `10a_15_paired_attribution.csv`
 - `10a_S1_baci_timeseries_impact_3panel.png`
 - `10a_S2_baci_timeseries_edge_3panel.png`
@@ -391,11 +396,9 @@
 - `10j_01_monthly_contrast_results.csv`
 - `10j_02_summer_contrast_results.csv`
 - `10j_report_numbers.csv`
-- `10k_01_four_zone_results.csv`
 - `10k_02_pairwise_contrasts.csv`
 - `10k_03_easting_sensitivity.csv`
 - `10k_report_numbers.csv`
-- `10l_01_four_zone_summer_results.csv`
 - `10l_02_summer_pairwise_contrasts.csv`
 - `10l_03_c3warren_summer_minima.csv`
 - `10l_06_four_zone_spring_results.csv`
@@ -605,3 +608,9 @@
 - `39_01_hindcast_per_well.csv`
 - `39_02_hindcast_series.csv`
 - `39_03_beta1_sensitivity.csv`
+- `39_04_hindcast.png`
+- `39_05_full_hindcast_site.csv`
+- `39_06_full_hindcast_decadal.csv`
+- `39_07_full_hindcast.png`
+- `39_08_fit_window_scorecard.csv`
+- `39_09_fit_windows.png`

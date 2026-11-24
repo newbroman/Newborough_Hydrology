@@ -79,7 +79,12 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.18.1"  # Hollingham (2026) — 2026-11-24 (T-221, Martin: "approve"). The *_lo/_hi key Notes said
+#   "the three estimators"; they now name the two that set the range. Notes only; no value changes.
+# 1.18.0  # Hollingham (2026) — 2026-11-24 (T-221, D-334). The partition range (Lo/Hi_drain_frac, the
+#   *_lo/_hi keys, Figure 11b's hatched band) spans Model B and the recession ratio only; the depth-dependent estimator,
+#   floor-dependent like Model A, stays in DDP_* as a record.
+# "1.17.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.16.0"  # Hollingham (2026) - 2026-11-22. Drainage by difference (recharge - atmospheric draw) beside
@@ -516,7 +521,9 @@ def partition_estimates(s: dict, r: dict, ddp_frac=np.nan) -> dict:
     Model A's fraction stays in est["A"] (the robustness record) but no longer widens the range."""
     est = {"A": s["drain_pct"] / 100.0, "B": s.get("drain_pct_B", np.nan) / 100.0,
            "DDP": ddp_frac, "Rec": r.get("drain_frac", np.nan)}
-    vals = [v for k, v in est.items() if k != "A" and pd.notna(v)]
+    # 1.18.0 (T-221, D-334): the depth-dependent estimator is a floor-dependent reading, so like Model A it stays in
+    # est["DDP"] and the DDP_* columns as a record but no longer widens the range: the band is Model B and the recession.
+    vals = [v for k, v in est.items() if k not in ("A", "DDP") and pd.notna(v)]
     head = est["B"] if pd.notna(est["B"]) else est["A"]
     return dict(est=est, mid=head, lo=min(vals), hi=max(vals))
 
@@ -951,7 +958,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
     ax2.set_ylabel("Annual flux (mm/yr)", fontsize=11)
     ax2.set_title("(b) Volumetric water balance: ET/drainage partition from Model B, "
-                  "bracketed by three estimators",
+                  "bracketed by the recession ratio",
                   fontsize=12, fontweight='bold')
     ax2.set_xlim(-0.8, len(cids) + 1.2)
     ax2.set_ylim(0, max(P_by_cid.values()) * 1.12)
@@ -964,7 +971,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
              f"Rainfall P = {min(P_by_cid.values()):.0f}–{max(P_by_cid.values()):.0f} mm/yr by cluster "
              f"(each over its own months). At steady state, "
              f"total losses = P. The bars split the losses by Model B, interception counted within evaporation; the hatched band spans the ET/drainage\nboundary "
-             f"across Model B, the depth-dependent model and seasonal recession analysis. "
+             f"between Model B and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
              f"is shown inside the evaporation, not added to it.",
              transform=ax2.transAxes, ha='center', va='top', fontsize=8.5,
@@ -1053,9 +1060,9 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
             ("water_balance_et_share_pct", 100 * (1 - pe["mid"]), "%",
              "evaporation share of the modelled loss, the headline (Model B, D-283)"),
             ("water_balance_drain_share_lo_pct", 100 * pe["lo"], "%",
-             "lowest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"),
+             "lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"),
             ("water_balance_drain_share_hi_pct", 100 * pe["hi"], "%",
-             "highest drainage share of the three estimators (Model B, depth-dependent, recession; D-334)"),
+             "highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"),
             ("water_balance_drain_share_A_pct", 100 * pe["est"]["A"], "%",
              "drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)"),
             ("water_balance_drain_share_B_pct", 100 * pe["est"]["B"], "%",

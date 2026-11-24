@@ -172,6 +172,9 @@ ANCOVA_FarField_Edge_absorbed_minus_predicted_drift,Edge,,32.9369799451712,mm/yr
 ANCOVA_FarField_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.0204486876496521,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.6724; moves the headline by +177.5 mm",10a
 ANCOVA_FarField_Edge_Oct2023_step,Edge,Oct2023,-0.3464739393822519,m,"p=0.2263, dAIC=0.47",10a
 ancova_forest_edge_cwb_x_fell_p,Edge,,0.2552499054248318,,"p of the CWB x clearfell interaction coefficient, monthly ANCOVA, forest control, edge zone, ordinary OLS errors, n=156 months",10a
+ancova_forest_impact_cwb_x_fell_p,Impact,,0.5836608937150863,,"p of the CWB x clearfell interaction coefficient, monthly ANCOVA, forest control, impact zone, ordinary OLS errors, n=162 months",10a
+ancova_climate_impact_cwb_x_fell_p,Impact,,0.4686745061445211,,"p of the CWB x clearfell interaction coefficient, monthly ANCOVA, climate control, impact zone, ordinary OLS errors, n=140 months",10a
+ancova_climate_edge_cwb_x_fell_p,Edge,,0.217324805712543,,"p of the CWB x clearfell interaction coefficient, monthly ANCOVA, climate control, edge zone, ordinary OLS errors, n=136 months",10a
 ancova_forest_impact_resid_lag1_autocorr,Impact,,0.8453703647124329,,"lag-1 autocorrelation (Pearson, consecutive rows) of the monthly ANCOVA residuals, forest control x impact zone, n=162 months; why the Newey-West errors are used",10a
 ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,-0.0009739263551823,m,"p=0.9871, CI=[-0.1181,0.1161], Jun-Sep subset, full ANCOVA spec",10a
 ANCOVA_Forest_Impact_clearfell_step_summer_se_hac,Impact,Post_felling_Jun-Sep,0.0598060978451256,m,"Newey-West (Bartlett), 4 lags",10a
@@ -209,6 +212,7 @@ ANCOVA_Forest_Impact_curv_clearfell_step,Impact,Post_felling,0.1212777544916236,
 ANCOVA_Forest_Impact_curv_R2,Impact,,0.2471927077170879,,Curvature model R²,10a
 ANCOVA_Forest_Impact_curv_dAIC,Impact,,0.6618045874832887,,AIC(curvature) − AIC(linear); negative = curvature preferred,10a
 ANCOVA_Forest_Impact_curv_jointF,Impact,,1.6031336039653126,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.2046",10a
+ancova_forest_impact_curv_jointF_p,Impact,,0.2046051758916408,,"p of the joint F-test that both CWB-squared terms (cwb2_c, cwb2_x_fell) are zero, curvature variant, forest control, impact zone, n=162 months",10a
 ANCOVA_Forest_Edge_coeff_cwb2_x_fell,Edge,,-8.385440044863905,mm per (100mm CWB)^2,"native=-8.385440e-07 m/mm^2, SE_native=9.225046e-07, p=0.3648, curvature variant — buffering term",10a
 ANCOVA_Forest_Edge_coeff_cwb2_x_fell_p,Edge,,0.364835244484293,,"p-value of ANCOVA_Forest_Edge_coeff_cwb2_x_fell (CWB² × felling interaction, curvature variant), n=156 months",10a
 ANCOVA_Forest_Edge_coeff_cwb2_c,Edge,,-6.037563594204695,mm per (100mm CWB)^2,"native=-6.037564e-07 m/mm^2, SE_native=5.609566e-07, p=0.2835, curvature variant — CWB² main effect",10a

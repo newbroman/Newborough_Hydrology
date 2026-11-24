@@ -70,7 +70,18 @@ Run directly:  python3 src/55_water_balance_drainage.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Stage G admits CCW codes with
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-11-24 (T-215; Martin: "approve both tests"). Stage K tests the C3
+#   surplus (S_a * beta_1 > 1) for lateral inflow against an S_a overestimate. (a) Spatial: inflow per unit area is
+#   T * laplacian(h), so inflow predicts the surplus is largest where the kriged mean head (01b) is concave up; the
+#   Spearman of S_a*beta_1 on the curvature across C3 wells. (b) Dry summers: inflow keeps arriving when rain stops, so
+#   it drives the dry-summer residual (P_eff - PET - S_a*dh) NEGATIVE, while an S_a overestimate drives it positive;
+#   C3's median against C2's (the other open-dune cluster), beside the inflow the surplus would need. Within-cluster
+#   correlations of (b) are not used: wells with a high beta_1 fall further in dry summers, which correlates them
+#   mechanically. Writes 55_16_lateral_inflow_tests.csv and wb_inflow_* keys.
+# 1.4.0  # Hollingham (2026) - 2026-11-24 (T-215). Stage J: the water-balance drainage share
+#   against Model B's on the same basis (all losses of rain), per well (55_15_samebasis_per_well.csv) and per cluster
+#   (wb_samebasis_* keys), with the well-by-well Spearman. The C3 lateral-inflow test is left for Martin's choice of measure.
+# "1.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Stage G admits CCW codes with
 #   usable_codes(..., datum_col="implied_datum_m"), the rule Scripts 39 and 53 apply: 03_master_data's triple is now Model
 #   B, whose beta_3 is bounded positive, so the "non-positive drainage coefficient" screen no longer bites and a well
 #   whose implied base is not below ground is left out instead. The admitted set is unchanged (the same 9 codes).
@@ -110,13 +121,14 @@ from utils.paths import (                                     # noqa: E402
     OUT_55_WINTER_SY_PER_WELL, OUT_55_WINTER_SY_CLUSTER, OUT_55_WINTER_SY_FIG,
     OUT_55_REPORT_NUMBERS, INT_CLIMATE, INT_WELLS_REFERENCE, INT_MASTER_DATA,
     OUT_18_WELL_SY_TABLE, OUT_18_WELL_SY_BY_WINDOW, OUT_17_SY_TABLE, OUT_48_MODEL_AB,
+    OUT_48_PER_WELL, OUT_55_SAMEBASIS, OUT_55_LATERAL_INFLOW, out_01b_surface,
 )
 from utils.config import (                                    # noqa: E402
     WB_WINTER_MONTHS, WB_SUMMER_MONTHS, WB_HINGE_GRID_PCT, WB_HINGE_GRID_N, WB_BIC_MARGIN,
     WB_MIN_MONTHS, WB_MIN_WINTER_MONTHS, WB_MIN_WELLS_PER_MONTH, WB_INTERCEPTION_SCAN,
     WB_DRY_RAIN_QUANTILE, WB_RISE_MARGIN_M, WB_DRY_WINTER_MONTHS, WINTER_RECESSION_MONTHS,
     FOREST_INTERCEPTION, FOREST_CIDS, CLUSTER_LABELS, MODEL_AB_SPLIT_DATE,
-    MODEL_AB_MIN_TEST_MONTHS,
+    MODEL_AB_MIN_TEST_MONTHS, WB_INFLOW_LAPLACE_STEP_M,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import simulate_water_balance          # noqa: E402
@@ -810,6 +822,82 @@ def stage_h(frames: dict, sy: pd.DataFrame, dry: set, thr: float):
 
 
 # ── Stage I: the winter joint fit of Sy and the drainage law ──────────────────────────────────────
+def stage_j(dper: pd.DataFrame):
+    """1.4.0 (T-215): the water-balance drainage share against Model B's ON THE SAME BASIS. Script 48's
+    drainage_share_B = drain / (drain + beta_2*PET) counts water-table losses only; this step's drainage_share counts
+    every loss of P_eff. Model B on the same footing is S_a * beta_1 * drainage_share_B, where S_a * beta_1 is the
+    fraction of rain the model sends to the water table (its recharge fraction). Per well and per cluster; the
+    well-by-well Spearman says whether either share predicts the other."""
+    from scipy.stats import spearmanr
+    if not (OUT_48_MODEL_AB.is_file() and OUT_48_PER_WELL.is_file()):
+        warn("Script 48's per-well outputs are absent - the same-basis comparison is skipped")
+        return None, None, None
+    ab = pd.read_csv(OUT_48_MODEL_AB)[["well", "drainage_share_B"]]
+    pw = pd.read_csv(OUT_48_PER_WELL)[["well", "ssmB_beta_1_recharge"]]
+    m = ab.merge(pw, on="well")
+    m["key"] = m["well"].astype(str).apply(normalize_well_name)
+    d = dper[["Well", "Cluster", "Sy", "drainage_share"]].copy()
+    d["key"] = d["Well"].astype(str).apply(normalize_well_name)
+    j = d.merge(m.drop(columns="well"), on="key", how="inner").drop(columns="key")
+    j = j.rename(columns={"Sy": "S_a", "drainage_share": "share_wb", "drainage_share_B": "share_B_watertable",
+                          "ssmB_beta_1_recharge": "beta_1_B"})
+    j["recharge_fraction_B"] = j["S_a"] * j["beta_1_B"]
+    j["share_B_samebasis"] = j["recharge_fraction_B"] * j["share_B_watertable"]
+    j["gap"] = j["share_wb"] - j["share_B_samebasis"]
+    j = j.sort_values(["Cluster", "Well"]).reset_index(drop=True)
+    by = (j.groupby("Cluster")[["share_wb", "share_B_samebasis", "recharge_fraction_B", "gap"]]
+          .median().add_suffix("_median").reset_index())
+    by["n_wells"] = j.groupby("Cluster").size().values
+    ok = j[["share_wb", "share_B_samebasis"]].dropna()
+    rho = spearmanr(ok["share_wb"], ok["share_B_samebasis"]) if len(ok) > 3 else (np.nan, np.nan)
+    return j, by, (float(rho[0]), float(rho[1]), int(len(ok)))
+
+
+def stage_k(jper: pd.DataFrame | None, frames: dict, sy: pd.DataFrame, dry: set):
+    """1.5.0 (T-215): the C3 surplus - lateral inflow or an S_a overestimate. Per well: the recharge fraction
+    S_a * beta_1 (Stage J), the curvature of the kriged mean head at the well, and the mean residual over dry summer
+    months. Returns (per-well frame, summary dict) or (None, None) when Stage J or the head surface is absent."""
+    from scipy.stats import spearmanr
+    surf = out_01b_surface("mean")
+    if jper is None or not surf.is_file():
+        warn("Stage K needs Stage J's same-basis table and 01b's mean head surface - skipped")
+        return None, None
+    import rasterio
+    L = float(WB_INFLOW_LAPLACE_STEP_M)
+    xy = {(int(r.Cluster), r.Well): (float(r.Easting), float(r.Northing)) for r in sy.itertuples()}
+    rf = {normalize_well_name(r.Well): float(r.recharge_fraction_B) for r in jper.itertuples()}
+    rows = []
+    with rasterio.open(surf) as src:
+        def h(x, y):
+            v = float(next(src.sample([(x, y)]))[0])
+            return np.nan if src.nodata is not None and v == src.nodata else v
+        for key in sorted(frames):
+            if key not in xy:
+                continue
+            x, y = xy[key]
+            hs = [h(x + L, y), h(x - L, y), h(x, y + L), h(x, y - L), h(x, y)]
+            lap = (sum(hs[:4]) - 4 * hs[4]) / L ** 2 if not any(np.isnan(hs)) else np.nan
+            df = frames[key]
+            ds = df[[(i in dry) and (i.month in WB_SUMMER_MONTHS) for i in df.index]]
+            rows.append(dict(Well=key[1], Cluster=key[0], Cluster_Label=CLUSTER_LABELS.get(key[0], ""),
+                             recharge_fraction_B=rf.get(normalize_well_name(key[1]), np.nan),
+                             head_curvature_per_km=lap * 1e3 if pd.notna(lap) else np.nan,
+                             n_dry_summer=len(ds),
+                             dry_summer_resid_mm=float(ds["D_residual"].mean() * 1000) if len(ds) else np.nan,
+                             p_eff_mean_mm=float(df["P_eff"].mean() * 1000)))
+    per = pd.DataFrame(rows).sort_values(["Cluster", "Well"]).reset_index(drop=True)
+    c3 = per[per["Cluster"] == 3].dropna(subset=["recharge_fraction_B", "head_curvature_per_km"])
+    rho = spearmanr(c3["recharge_fraction_B"], c3["head_curvature_per_km"]) if len(c3) > 3 else (np.nan, np.nan)
+    med = per.groupby("Cluster")[["recharge_fraction_B", "head_curvature_per_km", "dry_summer_resid_mm",
+                                  "p_eff_mean_mm"]].median()
+    c3m = med.loc[3] if 3 in med.index else None
+    need = (float(c3m["recharge_fraction_B"]) - 1) * float(c3m["p_eff_mean_mm"]) if c3m is not None else np.nan
+    gap = (float(med.loc[3, "dry_summer_resid_mm"]) - float(med.loc[2, "dry_summer_resid_mm"])
+           if {2, 3} <= set(med.index) else np.nan)
+    return per, dict(rho=float(rho[0]), p=float(rho[1]), n=int(len(c3)), med=med, need_mm_month=need,
+                     gap_c3_c2_mm=gap)
+
+
 def stage_i(wells, cl, sy):
     """With ET taken as zero, S_a*Delta_h = P_eff - D(h) has two unknowns, so the winter months
     estimate S_a and the drainage law TOGETHER and borrow nothing from Script 18.
@@ -1071,6 +1159,15 @@ def main() -> int:
 
     phase(6, "Stage D — the winter law, ET, and the drainage share of the annual loss")
     dper, dby, et = stage_d(frames, sy, iper)
+    jper, jby, jrho = stage_j(dper)                     # 1.4.0 (T-215)
+    if jper is not None:
+        jper.to_csv(OUT_55_SAMEBASIS, index=False)
+        saved(f"{OUT_55_SAMEBASIS.name} ({len(jper)} wells)")
+        for r in jby.itertuples():
+            step(f"C{r.Cluster}  same basis: WB {r.share_wb_median:.2f}, Model B {r.share_B_samebasis_median:.2f}, "
+                 f"recharge fraction S_a*beta_1 {r.recharge_fraction_B_median:.2f}")
+        result("Spearman, WB share against Model B's same-basis share, per well",
+               f"{jrho[0]:.3f} (p = {jrho[1]:.3f}, n = {jrho[2]})")
     dper.to_csv(OUT_55_WINTER_LAW_ET, index=False)
     saved(f"{OUT_55_WINTER_LAW_ET.name} ({len(dper)} wells)")
     et.to_csv(OUT_55_ET_MONTHLY, index_label="month")
@@ -1151,6 +1248,14 @@ def main() -> int:
              f"(R² {r.r2_dry_winter_median:.3f})")
     result("summer share of the dry months", f"{hper['dry_summer_share'].median():.3f}")
 
+    kper, kres = stage_k(jper, frames, sy, dry)                # 1.5.0 (T-215)
+    if kper is not None:
+        kper.to_csv(OUT_55_LATERAL_INFLOW, index=False)
+        saved(f"{OUT_55_LATERAL_INFLOW.name} ({len(kper)} wells)")
+        result("C3: Spearman of S_a*beta_1 on head curvature", f"{kres['rho']:+.2f} (p = {kres['p']:.3f}, n = {kres['n']})")
+        result("C3 minus C2 dry-summer residual", f"{kres['gap_c3_c2_mm']:+.1f} mm/month "
+               f"(inflow the C3 surplus would need: {kres['need_mm_month']:.1f} mm/month)")
+
     if not args.no_fig:
         plot_surplus(wells, cl, sy, a); saved(OUT_55_SURPLUS_FIG.name)
         plot_law(bper); saved(OUT_55_LAW_FIG.name)
@@ -1196,6 +1301,39 @@ def main() -> int:
                     f"({int(r.n_wells)} wells). Above 1 at C4, so that cluster has no "
                     f"characteristic surface rate; the CONTRAST with the open clusters is what "
                     f"the reading rests on; D-311; {SPEC}")
+    if jper is not None:                               # 1.4.0 (T-215)
+        SB = ("T-215: the drainage share on the SAME basis - all losses of rain - for the water balance "
+              "(this step) and for Model B (S_a * beta_1 * Script 48's water-table drainage_share_B)")
+        for r in jby.itertuples():
+            k = int(r.Cluster)
+            rr.add(f"wb_samebasis_wb_share_C{k}", r.share_wb_median, unit="",
+                   note=f"water-balance drainage share of all losses; {MED}; {SB}")
+            rr.add(f"wb_samebasis_b_share_C{k}", r.share_B_samebasis_median, unit="",
+                   note=f"Model B's drainage share on the same basis; {MED}; {SB}")
+            rr.add(f"wb_samebasis_recharge_fraction_C{k}", r.recharge_fraction_B_median, unit="",
+                   note=f"Model B's recharge fraction S_a * beta_1 (above 1 = more water-table rise than rain "
+                        f"explains: S_a overestimated, or lateral inflow); {MED}; {SB}")
+            rr.add(f"wb_samebasis_n_wells_C{k}", int(r.n_wells), unit="count", note=SB)
+        rr.add("wb_samebasis_rho_wells", jrho[0], unit="",
+               note=f"Spearman of the two same-basis shares across wells (n = {jrho[2]}); near zero means "
+                    f"neither predicts the other well by well; {SB}")
+    if kres is not None:                                    # 1.5.0 (T-215 Stage K)
+        KN = ("T-215 Stage K: lateral inflow predicts a positive Spearman (surplus where the head surface is concave "
+              "up) and a C3 dry-summer residual below C2's by about the inflow the surplus needs; an S_a overestimate "
+              "predicts neither")
+        rr.add("wb_inflow_rho_curvature_C3", kres["rho"], unit="", note=f"Spearman of S_a*beta_1 on the curvature of the "
+               f"kriged mean head (stencil {WB_INFLOW_LAPLACE_STEP_M:g} m) across C3 wells; {KN}")
+        rr.add("wb_inflow_rho_curvature_p_C3", kres["p"], unit="", note=KN)
+        rr.add("wb_inflow_n_wells_C3", kres["n"], unit="count", note=KN)
+        rr.add("wb_inflow_needed_mm_month_C3", kres["need_mm_month"], unit="mm/month",
+               note=f"(median S_a*beta_1 - 1) x median mean monthly P_eff, C3: the inflow the surplus needs; {KN}")
+        rr.add("wb_inflow_dry_summer_gap_C3_vs_C2_mm", kres["gap_c3_c2_mm"], unit="mm/month",
+               note=f"median dry-summer residual, C3 minus C2; {KN}")
+        for c, r in kres["med"].iterrows():
+            rr.add(f"wb_inflow_dry_summer_resid_mm_C{int(c)}", r["dry_summer_resid_mm"], unit="mm/month",
+                   note=f"median over wells of the mean residual P_eff - PET - S_a*dh in dry summer months; {KN}")
+            rr.add(f"wb_inflow_head_curvature_per_km_C{int(c)}", r["head_curvature_per_km"], unit="1/km",
+                   note=f"median curvature of the kriged mean head at the wells; positive = concave up; {KN}")
     for r in dby.itertuples():
         k = int(r.Cluster)
         rr.add(f"wb_et_pet_summer_C{k}", r.et_pet_summer_median, unit="",

@@ -142,11 +142,11 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | ANCOVA_Climate_Edge_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 44.2041 |  | report9 | ok |
 | ANCOVA_Climate_Edge_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.273005 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | ANCOVA_Climate_Edge_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.273005 |  | Hollingham_2026_Paper2_amended, report9 | ok |
-| ANCOVA_Climate_Edge_scraping_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.513094 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Edge_scraping_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.513094 |  | Hollingham_2026_Paper2_amended | ok |
 | ANCOVA_Climate_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.18876 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report9 | ok |
 | ANCOVA_Climate_Impact_clearfell_step_p_hac |  |  | `10_consolidated_report_numbers.csv` | 0.624294 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | ANCOVA_Climate_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | -8.71257 |  | report9 | ok |
-| ANCOVA_Climate_Impact_scraping_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.914114 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Impact_scraping_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.914114 |  | Hollingham_2026_Paper2_amended | ok |
 | ANCOVA_Climate_Impact_scraping_step_se_hac |  |  | `10_consolidated_report_numbers.csv` | 0.139663 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | ANCOVA_Combined_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.451478 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | ANCOVA_Combined_Edge_clearfell_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.145948 |  | report9 | ok |
@@ -159,7 +159,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | ANCOVA_Combined_Impact_clearfell_step_ci_hi_hac |  |  | `10_consolidated_report_numbers.csv` | 0.118844 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | ANCOVA_Combined_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 1.12901 |  | Newborough_Methods_Supplement, report11 | ok |
 | ANCOVA_Combined_Impact_s_coast |  |  | `10_consolidated_report_numbers.csv` | 1.12901 |  | Newborough_Methods_Supplement, report11 | ok |
-| ANCOVA_Combined_Impact_scraping_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.376429 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Combined_Impact_scraping_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.376429 |  | Hollingham_2026_Paper2_amended | ok |
 | ANCOVA_FarField_Edge_clearfell_step_p |  |  | `10_consolidated_report_numbers.csv` | 0.0200345 |  | report9 | ok |
 | ANCOVA_FarField_Impact_scraping_step_se_hac |  |  | `10_consolidated_report_numbers.csv` | 0.192162 |  | Paper1, report9 | ok |
 | ANCOVA_Forest_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.454687 |  | Newborough_Methods_Supplement | ok |
@@ -194,8 +194,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | BROADLEAF_B2_MONTHLY_MULT[8] |  |  | `config.py` | 1.1 |  | Newborough_Methods_Supplement | ok |
 | BROADLEAF_B2_SUMMER |  |  | `config.py` | 1.075 |  | INTERCEPTION_TREATMENT, NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, readme, report10, report9 | ok |
 | BROADLEAF_B2_WINTER |  |  | `config.py` | 0.8817 |  | INTERCEPTION_TREATMENT, NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, readme | ok |
-| C (WMC3 only) / Climate / scraping · p |  |  | `10h_03_ancova_full_coefficients.csv` | 0.914114 |  | Hollingham_2026_Paper2_amended, report9 | ok |
-| C (WMC3 only) / Combined / scraping · p |  |  | `10h_03_ancova_full_coefficients.csv` | 0.376429 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| C (WMC3 only) / Climate / scraping · p |  |  | `10h_03_ancova_full_coefficients.csv` | 0.914114 |  | Hollingham_2026_Paper2_amended | ok |
+| C (WMC3 only) / Combined / scraping · p |  |  | `10h_03_ancova_full_coefficients.csv` | 0.376429 |  | Hollingham_2026_Paper2_amended | ok |
 | C1 (Lake Edge) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.817575 |  | Newborough_Methods_Supplement, Paper1, report8, report9 | ok |
 | C1 (Lake Edge) / 2014 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.23522 |  | Supplementary_Material | ok |
 | C1 (Lake Edge) / 2015 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.269333 |  | Supplementary_Material | ok |
@@ -943,7 +943,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | CEH21 / 2016 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | -0.208 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | CEH21 / 2_Coastal_Drawdown · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.109444 |  | report9 | ok |
 | CEH21 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.208466 |  | report9 | ok |
-| CEH21 / Climate · t_stat |  |  | `09c_02_summer_minima_shifts.csv` | -0.952 |  | report10 | ok |
+| CEH21 / Climate · t_stat |  |  | `09c_02_summer_minima_shifts.csv` | -0.729 |  | report10 | ok |
 | CEH21 · EWI_m_bg |  |  | `26_ewi_msl5_comparison.csv` | -1.12558 |  | Supplementary_Material | ok |
 | CEH21 · MSL5_obs_m_bg |  |  | `26_ewi_msl5_comparison.csv` | -0.848 |  | Supplementary_Material | ok |
 | CEH21 · MSL5_pred_m_bg |  |  | `26_ewi_msl5_comparison.csv` | -0.724623 |  | Supplementary_Material | ok |
@@ -1118,7 +1118,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Climate / Edge · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.6244 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | Climate / Edge · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 44.2041 |  | report9 | ok |
 | Climate / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 16.2098 |  | report9 | ok |
-| Climate / Impact · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.784978 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Climate / Impact · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.784978 |  | Hollingham_2026_Paper2_amended | ok |
 | Climate / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | -8.71257 |  | report9 | ok |
 | Climate / Impact · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 3.52099 |  | report9 | ok |
 | Climate Ctrl (CEH9, NW / Post-fell 2018+ · Mean_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.1828 |  | report9 | ok |
@@ -1201,7 +1201,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | CoeffShift_CEH9_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.373 |  | report9 | ok |
 | CoeffShift_Climate Ctrl_mean_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.01216 |  | report9 | ok |
 | CoeffShift_Climate Ctrl_mean_db1_p |  |  | `10_consolidated_report_numbers.csv` | 0.943439 |  | report10 | ok |
-| CoeffShift_Climate Ctrl_mean_db3_p |  |  | `10_consolidated_report_numbers.csv` | 0.512698 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CoeffShift_Climate Ctrl_mean_db3_p |  |  | `10_consolidated_report_numbers.csv` | 0.512698 |  | Hollingham_2026_Paper2_amended | ok |
 | CoeffShift_L7_b2_after |  |  | `10_consolidated_report_numbers.csv` | 3.1369 |  | Newborough_Methods_Supplement, report10, report12, report9 | ok |
 | CoeffShift_NW10_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.6353 |  | report9 | ok |
 | CoeffShift_NW10_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.0825 |  | report9 | ok |
@@ -1250,7 +1250,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | CoeffShift_WMC3_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1957 |  | report9 | ok |
 | Combined / Edge · Clearfell_p |  |  | `10a_01_ancova_comparison_table.csv` | 0.145948 |  | report9 | ok |
 | Combined / Impact · Clearfell_CI_hi_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.102588 |  | report9 | ok |
-| Combined / Impact · Scraping_p |  |  | `10a_01_ancova_comparison_table.csv` | 0.376429 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Combined / Impact · Scraping_p |  |  | `10a_01_ancova_comparison_table.csv` | 0.376429 |  | Hollingham_2026_Paper2_amended | ok |
 | Combined / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 1.12901 |  | Newborough_Methods_Supplement, report11 | ok |
 | Combined / Impact · s_coast_fitted | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_10_coastal_fixed1_sensitivity.csv` | 1.12901 |  | Newborough_Methods_Supplement, report11 | ok |
 | D10 · EWI_m_bg |  |  | `26_ewi_msl5_comparison.csv` | -0.412639 |  | Supplementary_Material | ok |
@@ -2960,7 +2960,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | scenario_flux_sensitivity_storage_mm · C5 (Coastal Forest) · thinning_50pct · summer · lo |  |  | `21_report_numbers.csv` | 0.242976 |  | Supplementary_Material | ok |
 | scenario_sy_used · C4 (Main Forest) |  |  | `21_report_numbers.csv` | 0.252638 |  | Supplementary_Material | ok |
 | scenario_sy_used · C5 (Coastal Forest) |  |  | `21_report_numbers.csv` | 0.308275 |  | Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, academic_Summary, crynodeb_academaidd, report9 | ok |
-| scrape_inferred_cut_depth_m |  |  | `20_scrape_report_numbers.csv` | 0.429534 |  | report12, report7, report9 | ok |
+| scrape_inferred_cut_depth_m |  |  | `20_scrape_report_numbers.csv` | 0.349982 |  | report12, report7, report9 | ok |
 | scrape_offsite · peak_mm | Δh | water-level change / amplitude | `37b_driver_footing.csv` | -29.6 |  | Newborough_Methods_Supplement | ok |
 | scrape_propagation_near_db3_t |  |  | `09b_report_numbers.csv` | -3.93628 |  | report9 | ok |
 | scrape_propagation_near_n_positive |  |  | `09b_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement | ok |

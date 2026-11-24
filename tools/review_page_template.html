@@ -1,0 +1,248 @@
+<title>__TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* tools/review_page_template.html — the project's default page for a document review (Martin, 2026-11-24: the Paper 1
+   editing copy "is the clearest you have shown me for a document edit ... the figures arent visible"). Built by
+   tools/review_page.py. One manuscript column under a sticky toolbar; edits marked in the left margin like a proof
+   mark; figures shown with their captions. */
+:root {
+  --bg: #f5f6f4; --sheet: #ffffff; --ink: #1c2226; --muted: #5d676d; --rule: #d9ddda;
+  --accent: #1f6a66; --accent-soft: #e2efed; --edit: #a35a14; --edit-soft: #fbf0e4; --done: #2f7a3a;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15191b; --sheet: #1c2124; --ink: #e3e7e5; --muted: #99a3a8; --rule: #33393c;
+  --accent: #6cc0b8; --accent-soft: #1d3331; --edit: #e6a35c; --edit-soft: #33281c; --done: #7cc98a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #15191b; --sheet: #1c2124; --ink: #e3e7e5; --muted: #99a3a8; --rule: #33393c;
+  --accent: #6cc0b8; --accent-soft: #1d3331; --edit: #e6a35c; --edit-soft: #33281c; --done: #7cc98a; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--serif); margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--rule);
+  font-family: var(--sans); font-size: 13px; }
+.bar-in { max-width: 54rem; margin: 0 auto; display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center;
+  padding-block: .6rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.doc-id { font-weight: 600; letter-spacing: .02em; }
+.doc-id small { font-weight: 400; color: var(--muted); margin-left: .4rem; font-family: var(--mono); font-size: 12px; }
+.count { color: var(--edit); font-weight: 500; }
+.state { color: var(--muted); }
+.state.warn { color: var(--edit); }
+.state.ok { color: var(--done); }
+.spacer { flex: 1; }
+select, button { font: 13px var(--sans); color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: .3rem .55rem; cursor: pointer; }
+select { max-width: 15rem; }
+button:hover, select:hover { border-color: var(--accent); }
+button:focus-visible, select:focus-visible, [contenteditable]:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+main { max-width: 54rem; margin: 0 auto; padding-block: 1.5rem 6rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.how { font-family: var(--sans); font-size: 13.5px; line-height: 1.5; color: var(--muted); max-width: 42rem; margin: 0 0 1.75rem 2.25rem; }
+.how b { color: var(--ink); font-weight: 600; }
+.orphans { font-family: var(--sans); font-size: 13px; background: var(--edit-soft); border-left: 3px solid var(--edit); padding: .6rem .8rem; margin: 0 0 1.5rem 2.25rem; }
+.blk { position: relative; display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); }
+.gut { font-family: var(--sans); font-size: 11px; color: var(--muted); padding-top: .45rem; text-align: right; padding-right: .7rem; user-select: none; }
+.txt { min-width: 0; max-width: 66ch; }
+h1, h2, h3, h4 { font-family: var(--sans); text-wrap: balance; color: var(--ink); line-height: 1.25; margin: 2.2rem 0 .6rem; }
+h1 { font-size: 1.35rem; font-weight: 600; } h2 { font-size: 1.1rem; font-weight: 600; } h3, h4 { font-size: 1rem; font-weight: 500; }
+.p, .li, .cap { font-size: 17px; line-height: 1.62; margin: .35rem 0; padding: .3rem .5rem; border-radius: 3px; border-left: 3px solid transparent; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cap { font-family: var(--sans); font-size: 14px; line-height: 1.5; color: var(--ink); }
+.li { padding-left: 1.5rem; position: relative; }
+.li::before { content: "•"; position: absolute; left: .6rem; color: var(--muted); }
+.p:hover, .li:hover, .cap:hover { background: var(--accent-soft); }
+.p:focus, .li:focus, .cap:focus { background: var(--sheet); box-shadow: 0 0 0 1px var(--rule); outline: none; }
+.blk.edited .p, .blk.edited .li, .blk.edited .cap { border-left-color: var(--edit); background: var(--edit-soft); }
+.blk.edited .gut { color: var(--edit); font-weight: 600; }
+.blk.applied .p, .blk.applied .li, .blk.applied .cap { border-left-color: var(--done); }
+.tools { display: none; gap: .4rem; flex-wrap: wrap; align-items: center; font-family: var(--sans); font-size: 12px; margin: 0 0 .5rem .5rem; }
+.blk.edited .tools, .blk.noted .tools, .blk:focus-within .tools { display: flex; }
+.tools button { font-size: 12px; padding: .15rem .45rem; }
+.tools .lbl { color: var(--muted); }
+.note { width: 100%; max-width: 40rem; font: 13px var(--sans); color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: .3rem .5rem; }
+.ro { font-family: var(--sans); font-size: 12px; color: var(--muted); margin: .9rem 0 .2rem 2.25rem; letter-spacing: .04em; text-transform: uppercase; }
+figure.fig { margin: 1.4rem 0 .2rem 2.25rem; max-width: 66ch; }
+figure.fig img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--rule); border-radius: 4px; cursor: zoom-in; }
+figure.fig.missing { font-family: var(--sans); font-size: 13px; color: var(--muted); border: 1px dashed var(--rule); border-radius: 4px; padding: .7rem .9rem; }
+figure.fig.wide { max-width: none; }
+.tbl { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; margin: .3rem 0 .8rem 2.25rem; }
+.tbl pre { font: 12px/1.45 var(--mono); margin: 0; padding: .6rem .8rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.only-edited .blk:not(.edited):not(.noted) { display: none; }
+.only-edited .ro, .only-edited figure.fig, .only-edited .tbl { display: none; }
+.loading { font-family: var(--sans); color: var(--muted); }
+@media (max-width: 560px) { .blk { grid-template-columns: 1.4rem minmax(0,1fr); } .how, .orphans, figure.fig, .tbl, .ro { margin-left: 0; } .p, .li { font-size: 16.5px; } .gut { padding-right: .35rem; } }
+@media (prefers-reduced-motion: no-preference) { .p, .li, .cap { transition: background-color .15s; } }
+</style>
+
+<div class="bar"><div class="bar-in">
+  <span class="doc-id">__DOCNAME__ <small id="ver">loading…</small></span>
+  <span class="count" id="count">0 paragraphs edited</span>
+  <span class="state" id="state">connecting…</span>
+  <span class="spacer"></span>
+  <select id="jump" aria-label="Go to section"><option value="">Go to section…</option></select>
+  <button id="only" aria-pressed="false" type="button">Show edited only</button>
+</div></div>
+
+<main id="main">
+  <p class="how">Click into any paragraph or figure caption and type. Each change is <b>saved as you go</b> and kept in this page for Claude to apply to the ODT as the next version, through the project's editing tool. Numbers are pipeline fields: change one here only to say it is wrong, and add a note. Headings and tables are shown for reference and are not edited here; click a figure to open it full size.</p>
+  <div id="orphans" class="orphans" hidden></div>
+  <div id="doc"><p class="loading">Loading __DOCNAME__…</p></div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let DATA = null, coll = null;
+const saved = {};
+const timers = {};
+const LKEY = "__LKEY__";
+
+function lget() { try { return JSON.parse(localStorage.getItem(LKEY) || "{}"); } catch (e) { return {}; } }
+function lset(o) { try { localStorage.setItem(LKEY, JSON.stringify(o)); } catch (e) {} }
+function setState(t, cls) { const s = $("state"); s.textContent = t; s.className = "state" + (cls ? " " + cls : ""); }
+
+function updateCount() {
+  const n = Object.values(saved).filter(e => e && e.status !== "applied" && (e.text !== undefined || e.note)).length;
+  $("count").textContent = n === 1 ? "1 paragraph edited" : n + " paragraphs edited";
+}
+
+function readText(el) { return el.innerText.replace(/ /g, " ").replace(/\n+$/, ""); }
+
+function markBlock(b, wrap) {
+  const e = saved[b.id];
+  const changed = e && e.text !== undefined && e.text !== b.t;
+  wrap.classList.toggle("edited", !!changed);
+  wrap.classList.toggle("noted", !!(e && e.note));
+  wrap.classList.toggle("applied", !!(e && e.status === "applied"));
+  const st = wrap.querySelector(".lbl");
+  if (st) st.textContent = !e ? "" : e.status === "applied" ? "applied to the ODT" : changed ? "edited · saved" : e.note ? "note saved" : "";
+}
+
+async function persist(b, wrap) {
+  const el = wrap.querySelector(".p, .li, .cap"), note = wrap.querySelector(".note");
+  const text = readText(el), nv = note ? note.value.trim() : "";
+  const changed = text !== b.t;
+  const rec = { id: b.id, sec: b.sec, kind: b.k, orig: b.t, ts: new Date().toISOString(), status: "open", version: DATA.version };
+  if (changed) rec.text = text;
+  if (nv) rec.note = nv;
+  const empty = !changed && !nv;
+  setState("saving…");
+  try {
+    if (coll) {
+      if (empty) await coll.doc(b.id).delete(); else await coll.doc(b.id).set(rec);
+    } else {
+      const o = lget(); if (empty) delete o[b.id]; else o[b.id] = rec; lset(o);
+    }
+    if (empty) delete saved[b.id]; else saved[b.id] = rec;
+    setState(coll ? "all changes saved" : "saved in this browser only", coll ? "ok" : "warn");
+  } catch (err) {
+    setState("not saved: " + (err && err.message ? err.message : "the store refused the write"), "warn");
+  }
+  markBlock(b, wrap); updateCount();
+}
+
+function schedule(b, wrap, ms) { clearTimeout(timers[b.id]); timers[b.id] = setTimeout(() => persist(b, wrap), ms); }
+
+function editableBlock(b, n, doc) {
+  const wrap = document.createElement("div"); wrap.className = "blk"; wrap.dataset.id = b.id;
+  const gut = document.createElement("div"); gut.className = "gut"; gut.textContent = b.k === "cap" ? "" : n;
+  const txt = document.createElement("div"); txt.className = "txt";
+  const el = document.createElement("div"); el.className = b.k === "li" ? "li" : b.k === "cap" ? "cap" : "p";
+  try { el.contentEditable = "plaintext-only"; if (el.contentEditable !== "plaintext-only") el.contentEditable = "true"; } catch (e) { el.contentEditable = "true"; }
+  el.spellcheck = true; el.setAttribute("role", "textbox"); el.setAttribute("aria-multiline", "true");
+  el.setAttribute("aria-label", (b.k === "cap" ? "Figure caption in " : "Paragraph " + n + " of ") + b.sec);
+  const e = saved[b.id];
+  el.textContent = e && e.text !== undefined ? e.text : b.t;
+  el.addEventListener("paste", ev => { if (el.contentEditable === "true") { ev.preventDefault(); const t = (ev.clipboardData || window.clipboardData).getData("text/plain"); document.execCommand("insertText", false, t); } });
+  el.addEventListener("input", () => { setState("editing…"); schedule(b, wrap, 1200); });
+  el.addEventListener("blur", () => schedule(b, wrap, 0));
+  const tools = document.createElement("div"); tools.className = "tools";
+  const lbl = document.createElement("span"); lbl.className = "lbl";
+  const nb = document.createElement("button"); nb.type = "button"; nb.textContent = "Add note";
+  const rb = document.createElement("button"); rb.type = "button"; rb.textContent = "Revert to " + DATA.short;
+  tools.append(lbl, nb, rb);
+  let note = null;
+  const addNote = (val) => {
+    if (note) { note.focus(); return; }
+    note = document.createElement("input"); note.className = "note"; note.type = "text";
+    note.setAttribute("aria-label", "Note to Claude");
+    note.placeholder = "Note to Claude about this " + (b.k === "cap" ? "figure" : "paragraph") + " (e.g. cut it, move it, check this number)";
+    note.value = val || ""; note.addEventListener("input", () => schedule(b, wrap, 1200)); note.addEventListener("blur", () => schedule(b, wrap, 0));
+    tools.appendChild(note); nb.hidden = true;
+  };
+  nb.addEventListener("click", () => { addNote(""); note.focus(); });
+  rb.addEventListener("click", () => { el.textContent = b.t; if (note) { note.value = ""; } schedule(b, wrap, 0); });
+  if (e && e.note) addNote(e.note);
+  txt.append(el, tools); wrap.append(gut, txt); doc.appendChild(wrap);
+  markBlock(b, wrap);
+}
+
+function render() {
+  const doc = $("doc"); doc.textContent = "";
+  const jump = $("jump");
+  jump.length = 1;
+  let n = 0;
+  for (const b of DATA.blocks) {
+    if (b.k === "h") {
+      const h = document.createElement("h" + Math.min(4, b.lvl));
+      h.textContent = b.t; h.id = "s-" + b.id; doc.appendChild(h);
+      const o = document.createElement("option"); o.value = h.id; o.textContent = (b.lvl > 1 ? " " : "") + b.t; jump.appendChild(o);
+      continue;
+    }
+    if (b.k === "fig") {
+      const f = document.createElement("figure"); f.className = "fig";
+      if (b.img) {
+        const a = document.createElement("a"); a.href = b.img; a.target = "_blank"; a.rel = "noopener";
+        const im = document.createElement("img"); im.src = b.img; im.loading = "lazy"; im.decoding = "async";
+        im.alt = b.alt || "Figure"; if (b.w && b.h) { im.width = b.w; im.height = b.h; }
+        a.appendChild(im); f.appendChild(a);
+      } else { f.classList.add("missing"); f.textContent = "Figure image not found in the ODT (" + (b.name || "?") + ")"; }
+      doc.appendChild(f); continue;
+    }
+    if (b.k === "table") {
+      const l = document.createElement("div"); l.className = "ro"; l.textContent = "Table — read only"; doc.appendChild(l);
+      const t = document.createElement("div"); t.className = "tbl"; const pre = document.createElement("pre"); pre.textContent = b.t; t.appendChild(pre); doc.appendChild(t); continue;
+    }
+    if (b.k !== "cap") n++;
+    editableBlock(b, n, doc);
+  }
+  updateCount();
+}
+
+function showOrphans() {
+  const ids = new Set(DATA.blocks.map(b => b.id));
+  const lost = Object.values(saved).filter(e => e && !ids.has(e.id) && e.status !== "applied");
+  const box = $("orphans");
+  if (!lost.length) { box.hidden = true; return; }
+  box.hidden = false; box.textContent = lost.length + " saved edit(s) belong to paragraphs that have since changed in a newer version. They are kept in the store and Claude will reconcile them.";
+}
+
+$("jump").addEventListener("change", ev => { const t = document.getElementById(ev.target.value); if (t) t.scrollIntoView({ block: "start" }); window.scrollBy(0, -60); ev.target.value = ""; });
+$("only").addEventListener("click", ev => { const on = ev.currentTarget.getAttribute("aria-pressed") !== "true"; ev.currentTarget.setAttribute("aria-pressed", String(on)); document.body.classList.toggle("only-edited", on); });
+
+(async () => {
+  try {
+    const r = await fetch("__JSON__", { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    DATA = await r.json();
+  } catch (err) { $("doc").textContent = "Could not load the text (" + err.message + "). Reload the page to try again."; setState(""); return; }
+  $("ver").textContent = DATA.short + " · ODT " + DATA.sha.slice(0, 8);
+  render();
+  setState("connecting to the store…");
+  let db = null;
+  try { db = window.claude && claude.use ? await claude.use("db") : null; } catch (e) { db = null; }
+  if (db) {
+    coll = db.collection("edits");
+    try {
+      const got = await coll.limit(1000).get();
+      got.docs.forEach(d => { saved[d.id] = d.data(); });
+      setState(got.docs.length ? "saved edits loaded" : "ready — changes save as you type", "ok");
+    } catch (err) { setState("could not read saved edits: " + (err.message || err), "warn"); }
+  } else {
+    Object.assign(saved, lget());
+    setState("saving in this browser only — Claude cannot read these", "warn");
+  }
+  render(); showOrphans();
+})();
+</script>

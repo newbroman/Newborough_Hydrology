@@ -4548,7 +4548,7 @@
 | τ | `tau_storage` | storage-drainage index S_a/beta_3, a per-well aquifer-archit | `00_01_annual_climate_summary.csv`, `00_01_annual_climate_summary_short.csv`, `01_dist_coast_validation.csv`, `02_11_month_stability.csv`, `05_pear_membership_audit.csv`, `06_pear_membership_audit_sitewide.csv` … |
 | φ | `phi_ar1` | lag-1 autocorrelation coefficient | `22_05_ssm_residual_autocorrelation.csv`, `22_06_ssm_cluster_mean_inference.csv`, `22_model_b_fits.csv` |
 | ψ | `psi_easting` | coefficient on the per-well Easting x Time interaction in th | `10a_01_ancova_comparison_table.csv`, `10a_02_ancova_full_coefficients.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv`, `10a_09_control_well_spread.csv` … |
-| ψ | `psi_paired_easting` | coefficient on Easting(t) in the PAIRED BACI ANCOVA (Script  | `09c_01_summer_minima.csv`, `09c_05_spring_means.csv`, `44_09_slack_floor_datum.csv` |
+| ψ | `psi_paired_easting` | coefficient on Easting(t) in the PAIRED BACI ANCOVA (Script  | `09c_01_summer_minima.csv`, `09c_05_spring_means.csv`, `09c_09_summer_minima_baci_table.csv`, `44_09_slack_floor_datum.csv` |
 
 ## Symbols with no output column (21)
 

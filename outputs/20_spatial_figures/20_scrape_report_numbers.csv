@@ -1,6 +1,7 @@
 Parameter,Well,Era,Value,Unit,Note
 scrape_H0_mm,,,128.0873724489796,mm,edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)
-scrape_inferred_cut_depth_m,,,0.42953413104984983,m,"inferred, not surveyed: H0 / Sy (C3 median per-well Sy)"
+scrape_inferred_cut_depth_m,,,0.3499822689272968,m,"inferred, not surveyed: H0 / Sy, with CEH36's own WTF Sy (1.67.0; was the C3 median)"
+scrape_sy_ceh36,CEH36,,0.3659824620303485,-,"CEH36's own WTF Sy_median (18_wtf_01_well_sy_estimates.csv), used for the inferred cut depth"
 scrape_sy_c3_median,C3,,0.29820068578930775,-,open-dune specific yield used for the inferred cut depth: median of the C3 wells' per-well WTF Sy_median (18_wtf_01_well_sy_estimates.csv)
 scrape_lambda_m,,,172.1281885586266,m,decay length of the scrape field
 scrape_reach_50mm_m,,,385.15762378735656,m,largest distance from a cut edge at which the field is >= 50 mm

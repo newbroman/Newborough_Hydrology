@@ -108,7 +108,11 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.66.1"  # Hollingham (2026) - 2026-11-23 (J-33 follow-up). The coastal_h0 note prints the event to
+__version__ = "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
+#   inferred CEH36 cut depth divides by CEH36's own Sy (0.366) instead of the C3 median (0.298): 0.43 -> 0.35 m. CEH36's
+#   own S_a x beta_1 is 0.89, so the C3 surplus (T-215) gives no reason to lower it. New key scrape_sy_ceh36; the C3
+#   median stays for lambda. Moves one published number (scrape_inferred_cut_depth_m).
+# 1.66.1  # Hollingham (2026) - 2026-11-23 (J-33 follow-up). The coastal_h0 note prints the event to
 #   0.1 m ("8.9 m retreat", was "9 m"), as the labels already did; the combined-figure docstring no longer says ~6 m.
 # 1.66.0  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
 #   MEASURED: COAST_RETREAT_M is bound from coastal_utils.load_measured_event_retreat (Script 40's 2019-20
@@ -4900,7 +4904,11 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     # D = H0 / Sy.
     H0_m       = _measured_ceh36_response()      # m, live Script 09a CEH36 Pure_Scraping
     H0         = H0_m * 1000.0                    # mm
-    D_inferred = H0_m / Sy                        # m, inferred cut depth
+    # 1.67.0: the cut is at CEH36, so its depth uses CEH36's own Sy (36 events, High confidence; its
+    # interquartile range lies above the C3 median). The C3 median stays for lambda, the surrounding aquifer.
+    _c36       = _sy_df[_sy_df['Well'].astype(str).str.lower().str.strip() == 'ceh36']
+    Sy_cut     = float(_c36['Sy_median'].iloc[0]) if len(_c36) else Sy
+    D_inferred = H0_m / Sy_cut                    # m, inferred cut depth
     _mech_df = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     BETA3_M  = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
     BETA3_D  = BETA3_M / DAYS_PER_MONTH
@@ -4909,7 +4917,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
 
     print(f"  λ = {quote_reach_m(lam):.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
           f"b={b}, β₃={BETA3_M:.4f}/month [C3 SSM]);  "
-          f"H0 = {H0:.0f} mm (measured CEH36 response) → inferred cut {D_inferred:.2f} m")
+          f"H0 = {H0:.0f} mm (measured CEH36 response) → inferred cut {D_inferred:.2f} m (Sy {Sy_cut:.3f}, CEH36)")
 
     # ── Scrape footprint: real GPS-traced outline (data/ceh36_scrape.kml),
     #    reprojected to OSGB36; fall back to the constructed box if absent ──
@@ -5050,7 +5058,9 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     srpt.add("scrape_H0_mm", float(H0), unit="mm",
              note="edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)")
     srpt.add("scrape_inferred_cut_depth_m", float(D_inferred), unit="m",
-             note="inferred, not surveyed: H0 / Sy (C3 median per-well Sy)")
+             note="inferred, not surveyed: H0 / Sy, with CEH36's own WTF Sy (1.67.0; was the C3 median)")
+    srpt.add("scrape_sy_ceh36", float(Sy_cut), unit="-", well="CEH36",
+             note="CEH36's own WTF Sy_median (18_wtf_01_well_sy_estimates.csv), used for the inferred cut depth")
     srpt.add("scrape_sy_c3_median", float(Sy), unit="-", well="C3",
              note="open-dune specific yield used for the inferred cut depth: median of the C3 wells' "
                   "per-well WTF Sy_median (18_wtf_01_well_sy_estimates.csv)")

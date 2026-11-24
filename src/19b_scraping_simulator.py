@@ -18,7 +18,10 @@ Usage:
     python 19b_scraping_simulator.py
 """
 
-__version__ = "1.3.0"   # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B forward run: 03_master_data now
+__version__ = "1.4.0"   # Hollingham (2026) - 2026-11-24 (T-210). Forest-well rain is no longer cut by the canopy
+#   interception factor: beta_1 was fitted on GROSS rain (D-238), so multiplying by (1 - interception) counted it twice and
+#   drove forest wells metres too dry (ceh13 to -18.6 m, J-9 phase 2b).
+# "1.3.0"   # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B forward run: 03_master_data now
 #   carries Model B (free intercept alpha), so each well carries its implied datum zd = DRAINAGE_DATUM - alpha/beta_3
 #   (implied_datum_m) and the page's drainage term is b3*max(0, zd + depth) - drainage to the well's own implied base,
 #   clamped at that base - in place of DAT = DRAINAGE_DATUM. Model B is exactly Model A at zd. A well whose zd is not
@@ -44,7 +47,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.config import (
-    DRAINAGE_DATUM, FOREST_INTERCEPTION,
+    DRAINAGE_DATUM,
     CLUSTER_COLOURS, CLUSTER_LABELS,
     SD15b, SD16, SD15b_WINTER,
 )
@@ -284,7 +287,7 @@ footer{{text-align:center;padding:1rem;font-size:.65rem;color:var(--text-light);
 <script>
 var W={wells_json},CL={climate_json},MY={mean_year_json},DT={dates_json},PO={polys_json};
 var EMIN={emin},EMAX={emax},NMIN={nmin},NMAX={nmax};
-var SD15b={sd15b},SD16={sd16},FI={forest_i},SCN={s_coast_n},WCE={w_coast_e};
+var SD15b={sd15b},SD16={sd16},SCN={s_coast_n},WCE={w_coast_e};
 var CC={{1:'#1a6faf',2:'#2ca02c',3:'#d62728',4:'#7f77dd',5:'#8B4513'}};
 var CL_L={{1:'C1 Lake',2:'C2 Dune',3:'C3 Western',4:'C4 Forest',5:'C5 Coastal'}};
 var MW=0,MH=0,tsCh=null,WSM={{}};
@@ -334,7 +337,7 @@ function fwd(well,sd,cOn,cRate,K,nM,cm){{
   var res=[];
   for(var t=0;t<nM;t++){{
     var hp=h,hd=zd+(hp-dO),P=cs[t].P,PET=cs[t].PET;
-    var Pe=iF?P*(1-FI):P;var dh=b1*Pe-b2*PET-b3*Math.max(0,hd);h=hp+dh;
+    var Pe=P;var dh=b1*Pe-b2*PET-b3*Math.max(0,hd);h=hp+dh;
     var cdh=0;
     if(cOn&&cRate>0&&well.cd>0){{var td=(t+1)*30.44,D=K/(well.sy||.12),L=well.cd;cdh=-(cRate/1000)*(td/365.25)*erfc(L/(2*Math.sqrt(D*Math.max(td,1))));h+=cdh;}}
     res.push({{m:t,h:h,dn:dN-h,do_:dO-h,cd:cdh}});
@@ -549,7 +552,6 @@ def main():
         emin=VIEWER_EMIN, emax=VIEWER_EMAX,
         nmin=VIEWER_NMIN, nmax=VIEWER_NMAX,
         datum=DRAINAGE_DATUM, sd15b=SD15b, sd16=SD16,
-        forest_i=FOREST_INTERCEPTION,
         s_coast_n=S_COAST_N, w_coast_e=W_COAST_E,
     )
     out_path.write_text(html, encoding="utf-8")

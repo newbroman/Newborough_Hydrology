@@ -91,7 +91,9 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-24 (T-200, D-324). AREAS gains "ship", the right to push; and the
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-24 (T-138). REGISTRATION_REQUIRED = True: an unregistered chat's
+#   take is refused (Martin: "chats now register themselves out of habit"); selftest 10a-d swapped round.
+# 1.9.0  # Hollingham (2026) - 2026-11-24 (T-200, D-324). AREAS gains "ship", the right to push; and the
 #   stale second `__version__ = "1.5.1"` assignment below, which overrode this line so the module reported 1.5.1 since
 #   1.6.0, is now a comment like the other history lines.
 # 1.8.0  # Hollingham (2026) - 2026-11-23 (J-32). ALIASES: doc:PaperC covers PaperC and PaperC_SI.
@@ -189,7 +191,8 @@ WORKING_GIT = ".git-working"  # the private repository's git directory, over thi
 # refusal waits: spec §11 conditions it on "registration having run for a few days", because a
 # refusal that fires on every chat before the habit exists is a tool nobody uses. The mechanism is
 # below and warns; flipping this to True is the whole of phase 4, and T-138 checks for the flip.
-REGISTRATION_REQUIRED = False
+# Flipped 2026-11-24 (1.10.0, T-138), Martin: "chats now register themselves out of habit".
+REGISTRATION_REQUIRED = True
 
 OVERRIDES = "working/claim_overrides.csv"     # R7: append-only, merged row by row by register_io
 PUBLISH_OWED = "working/.board_publish_owed"  # R6(a): a take/release leaves this; a session republishes
@@ -878,7 +881,10 @@ def registration_note(chat: str | None) -> tuple[bool, list[str]]:
         import chat_register
     except Exception:                                                 # pragma: no cover
         return True, []
-    if not chat or chat_register.is_registered(chat):
+    # 1.10.0: a tree with NO register has never had one (chat_register.is_registered's own docstring): telling
+    # that tree "you are not registered" would be a lie, and with REGISTRATION_REQUIRED on it would refuse a
+    # first claim nothing could satisfy. Only a register that exists and lacks the chat is a refusal.
+    if not chat or not chat_register.REGISTER.exists() or chat_register.is_registered(chat):
         return True, []
     lines = [f"  chat {chat!r} is not in {chat_register.REGISTER.name} — registration is compulsory"
              f" (D-301). Register it with:",
@@ -1213,12 +1219,17 @@ def _selftest() -> int:
         # 10 (1.5.0, D-301). Registration warns and does not refuse; a release names the jobs it
         # made ready. The refusal itself is phase 4 and is exercised by flipping the switch.
         t10 = _mktree(T / "d301", private=True, lock={"holder": None, "claims": {}})
+        # a register that exists and does not name the chat (1.10.0): a missing one refuses nothing
+        (t10 / "working/chat_register.csv").write_text(
+            "chat,kind,claim,mode,link,opened,touched,status,purpose,outcome,registered_by,hq_row\r\n"
+            "Someone Else,tools,,,,,,active,,,Someone Else,\r\n", encoding="utf-8")
         rc, out = _run(["doc_lock.py", "take", "tools", "--chat", "Unregistered"], t10)
-        check("10a an unregistered chat is warned", rc == 0 and "is not in chat_register.csv" in out, out)
-        check("10b and the warning gives the register command", "chat_register.py register" in out, out)
+        # 1.10.0 (T-138): the refusal is the default path now; the warning is the flipped copy
+        check("10a an unregistered chat is REFUSED", rc == 1 and "REFUSED" in out and "is not in chat_register.csv" in out, out)
+        check("10b and the refusal gives the register command", "chat_register.py register" in out, out)
         rc, out = _run(["doc_lock.py", "release", "tools", "--chat", "Unregistered"], t10)
-        check("10c release works", rc == 0, out)
-        # the same take with the switch flipped is a refusal, which is all phase 4 is (T-138)
+        check("10c release of an untaken claim does not crash", rc in (0, 1) and "Traceback" not in out, out)
+        # the same take with the switch off is only a warning (phase 3, before T-138)
         src = (HERE / "tools/doc_lock.py").read_text(encoding="utf-8")
         (t10 / "tools").mkdir(exist_ok=True)
         for mod in ("register_io.py", "chat_register.py", "job_queue.py", "doc_tier.py"):
@@ -1226,13 +1237,13 @@ def _selftest() -> int:
             if f.exists():
                 (t10 / "tools" / mod).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
         (t10 / "tools/doc_lock.py").write_text(
-            src.replace("REGISTRATION_REQUIRED = False", "REGISTRATION_REQUIRED = True"),
+            src.replace("REGISTRATION_REQUIRED = True", "REGISTRATION_REQUIRED = False"),
             encoding="utf-8")
         r = subprocess.run([sys.executable, str(t10 / "tools/doc_lock.py"), "take", "tools",
                             "--chat", "Unregistered"], capture_output=True, text=True,
                            env=dict(os.environ, NRG_REPO_ROOT=str(t10)), cwd=str(t10))
-        check("10d with REGISTRATION_REQUIRED the same take is REFUSED",
-              r.returncode == 1 and "REFUSED" in (r.stdout + r.stderr), r.stdout + r.stderr)
+        check("10d without REGISTRATION_REQUIRED the same take is only warned",
+              r.returncode == 0 and "WARNING" in (r.stdout + r.stderr), r.stdout + r.stderr)
 
         # a release that frees a claim a queued job waits for names that job
         t11 = _mktree(T / "d301b", private=True, lock={

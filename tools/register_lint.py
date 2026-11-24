@@ -47,7 +47,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-09. Check 4: a row
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
+#   SKIP when they are absent by design, FAIL on zero subjects.
+# "1.1.0"  # Hollingham (2026) — 2026-09-09. Check 4: a row
 #   whose ID cell names more than one work item. Found by Martin, who noticed
 #   the ledger showed more open items than the count claimed: one row read
 #   `W1, W2, W3, W4, W7, W8, W10`, so the lane counted 6 open and named 12.
@@ -140,6 +142,11 @@ def main(argv: list[str]) -> int:
         print("  selftest:", "OK" if ok else "FAILED")
         return 0 if ok else 1
 
+    sys.path.insert(0, str(REPO / "tools"))
+    from gate_inputs import declare_inputs          # T-204, D-327: it crashed in a public-only clone
+    inp = declare_inputs("register_lint", work_register=str(REGISTER.relative_to(REPO)))
+    if inp.absent:
+        return inp.skip()
     text = REGISTER.read_text(encoding="utf-8")
     tasks = task_states()
     ca = check_all_invokes()
@@ -213,7 +220,11 @@ def main(argv: list[str]) -> int:
         else:
             print("  Run with --counts to list them.")
 
-    print(f"\nregister_lint: {'OK' if bad == 0 else 'FAIL'}")
+    examined = sum(1 for _l, _r, st, _ in rows(text) if st)
+    floor = inp.floor_fault(examined, "status row(s)")
+    if floor:
+        return floor
+    print(f"\nregister_lint: {'OK' if bad == 0 else 'FAIL'} ({examined} status row(s))")
     return 1 if bad else 0
 
 

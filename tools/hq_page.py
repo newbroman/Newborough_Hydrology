@@ -52,7 +52,10 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-22 (J-28; Martin's ruling on the brief's open
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-11-24 (T-144). The page carries <meta name="nrg-hq-shell">; --live FILE
+#   records the version a LIVE copy carries (saved by a session with Artifact read), and --check believes it over
+#   the local record, so a page AHEAD of the repo reads as ahead, not as current.
+# "1.6.0"  # Hollingham (2026) — 2026-11-22 (J-28; Martin's ruling on the brief's open
 #   question: option 3, "stop seeding"). The start console NO LONGER WRITES A ROW to the chats store. Every
 #   press of "Copy brief and open the project" used to seed `chats/starting-<base36>`, and a press that never
 #   became a chat left that row behind with nothing to collect it: 9 seeded rows on 2026-11-21, 7 of them
@@ -112,6 +115,7 @@ import datetime
 import json
 import os
 import pathlib
+import re
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parents[1]
@@ -953,7 +957,19 @@ def render() -> str:
               .replace("__RULES__", json.dumps(RULES)))
     return ("<title>NRG HQ</title>\n"
             '<meta name="claude:viewport-fit-sides" content="cover">\n'
+            + f'<meta name="nrg-hq-shell" content="{__version__}">\n'      # 1.7.0 (T-144): read back by --live
             + FONTS + "\n" + CSS + BODY + js)
+
+
+def published_shell_read(path: str) -> str | None:
+    """1.7.0 (T-144): the shell version a LIVE page carries, from a copy a session saved with the Artifact
+    tool's read action. None when the page predates the stamp (published before 1.7.0)."""
+    m = re.search(r'<meta name="nrg-hq-shell" content="([0-9.]+)"', pathlib.Path(path).read_text(encoding="utf-8"))
+    return m.group(1) if m else None
+
+
+def _vkey(v: str) -> tuple:
+    return tuple(int(x) for x in re.findall(r"\d+", v or "0"))
 
 
 def state() -> dict:
@@ -980,10 +996,21 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--published", metavar="URL")
     ap.add_argument("--url", action="store_true")
+    ap.add_argument("--live", metavar="FILE", help="a saved copy of the LIVE page (Artifact read): record its shell")
     a = ap.parse_args()
 
     if a.url:
         print(state().get("url") or "(no HQ page recorded yet)")
+        return 0
+
+    if a.live:
+        st = state()
+        live = published_shell_read(a.live)
+        st.update({"live_shell": live or "unstamped", "live_read_at": datetime.datetime.now(datetime.timezone.utc)
+                   .strftime("%Y-%m-%dT%H:%M:%SZ")})
+        STATE.parent.mkdir(parents=True, exist_ok=True)
+        STATE.write_text(json.dumps(st, indent=2) + "\n", encoding="utf-8")
+        print(f"  recorded: the live page carries shell {live or '(no stamp: published before 1.7.0)'}")
         return 0
 
     if a.published:
@@ -1003,6 +1030,20 @@ def main() -> int:
             print("  hq_page: the HQ page has not been published yet — publish it as a PRIVATE "
                   "artifact, then: python3 tools/hq_page.py --published <URL>")
             return 0
+        # 1.7.0 (T-144): the LIVE page's own stamp, when a session has read it, outranks the record - the record
+        # is only what this tree last wrote, and a page published from another clone is invisible to it.
+        live = st.get("live_shell")
+        if live and live != "unstamped" and _vkey(live) > _vkey(__version__):
+            print(f"  hq_page: the LIVE page is AHEAD of this repo (live shell {live}, here {__version__}, read "
+                  f"{st.get('live_read_at')}) - pull before anything; republishing from here would go backwards")
+            return 1
+        if live and live != "unstamped" and _vkey(live) < _vkey(__version__):
+            print(f"  hq_page: the live page carries shell {live}, this is {__version__} - republish it ({st['url']})")
+            return 1
+        if not live or live == "unstamped":
+            print("  hq_page: note - the live page's own version is unread"
+                  + (" (it predates the stamp)" if live == "unstamped" else "")
+                  + "; a session can save it (Artifact read) and run --live FILE")
         if st.get("shell_version") != __version__:
             print(f"  hq_page: the published shell is {st.get('shell_version')}, this is "
                   f"{__version__} — republish it ({st['url']})")

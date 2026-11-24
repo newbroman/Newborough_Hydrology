@@ -46,7 +46,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-23 (J-31; Martin 2026-11-21: "all dates should be fields!"). A DATE
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
+#   SKIP when they are absent by design, FAIL on zero subjects.
+# "1.3.0"  # Hollingham (2026) — 2026-11-23 (J-31; Martin 2026-11-21: "all dates should be fields!"). A DATE
 #   field: a `date` column holds a format (%B %Y -> "January 2018", %y -> "96"), and its value is an ISO date a
 #   report-numbers row carries as a string (dates()). The number path is unchanged: a row with `date` empty renders
 #   exactly as 1.2.0 did. --selftest added.
@@ -69,6 +71,7 @@ import zipfile
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
+from gate_inputs import declare_inputs  # noqa: E402  (T-204, D-327)
 
 REGISTER = REPO / "tools" / "number_fields.csv"
 COLUMNS = ["field", "source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands", "note", "date"]
@@ -358,6 +361,10 @@ def main() -> int:
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    inp = declare_inputs("field_sync", documents=["docs/**/*.odt", "report_edits/odt/*.odt"],
+                         register="tools/number_fields.csv")
+    if inp.absent and (a.check or a.write):
+        return inp.skip()
     reg = load_register()
     docs = [p for p in documents() if not a.doc or a.doc in p.name]
     if a.list:
@@ -373,6 +380,9 @@ def main() -> int:
     faults, plans = audit(reg, docs)
     n_fields = sum(len(fields_in(read_xml(p))[0]) for p in docs)
     if a.check:
+        bad = inp.floor_fault(n_fields, "field declaration(s) across the documents")
+        if bad:
+            return bad
         for p, kind, name, det in faults:
             print(f"  FAIL  {p.name}: {kind} {name}: {det}")
         print(f"field_sync: {'OK' if not faults else 'FAIL'} — {len(reg)} registered field(s), "

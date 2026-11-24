@@ -18,6 +18,8 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.44.0 - 2026-11-24   witness_lint (T-202, D-325) gated in the records section, with the selftests of
+#                               ship_stage (T-203, D-326) and gate_inputs (T-204, D-327).
 # VERSION 1.43.0 - 2026-11-24   one run per tree (T-146): scratch/check_all.lock refuses a second concurrent
 #                               run and names the holding chat; the summary JSON records NRG_CHAT as "chat".
 #                               decision_register --check joins task_register's (T-187): one D-number, one title.
@@ -755,6 +757,13 @@ python3 tools/session_handover.py --check || rc=1
 # dont have adequate checks to ensure the project rules are followed" - after
 # a CLAUDE.md rule with no gate was broken six times in a morning.
 python3 tools/rule_gate_lint.py --quiet || rc=1
+# D-325 (T-202): every gated rule names its witness in tools/gate_witness.csv; the ones naming none are listed.
+python3 tools/witness_lint.py --selftest >/dev/null || { echo "  witness_lint --selftest: FAIL"; rc=1; }
+python3 tools/witness_lint.py || rc=1
+# D-326 (T-203): the ship's before/after comparison of what its regenerate changed.
+python3 tools/ship_stage.py --selftest >/dev/null || { echo "  ship_stage --selftest: FAIL"; rc=1; }
+# D-327 (T-204): the shared input declaration the gates use.
+python3 tools/gate_inputs.py --selftest >/dev/null || { echo "  gate_inputs --selftest: FAIL"; rc=1; }
 # D-213: the ship rebuilds every derived artefact this script gates, before
 # the gate. This keeps that list paired with the gates above and below.
 python3 tools/ship_regen_lint.py --selftest >/dev/null || rc=1

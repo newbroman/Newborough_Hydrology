@@ -34,7 +34,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-23 (J-31 follow-up). Also compares the tables found here with the
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py); SKIP when they are absent by
+#   design, FAIL on zero subjects.
+# "1.1.0"  # Hollingham (2026) — 2026-11-23 (J-31 follow-up). Also compares the tables found here with the
 #   tables notes/ledgers/PROVENANCE_LEDGER.md lists: 92c20fa5's ledger dropped Table 1.11 while this lint traced it,
 #   and nothing compared the two (CLAUDE.md's count, stamped from the ledger, followed it to 32).
 # 1.0.1  # Hollingham (2026) — 2026-11-23 (J-31). _first_text_after() looked for a WHOLE paragraph inside
@@ -51,6 +53,7 @@ import zipfile
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
+from gate_inputs import declare_inputs  # noqa: E402  (T-204, D-327)
 
 TAG = re.compile(r"<[^>]+>")
 CAPTION = re.compile(r"\s*Tables?\s+(\d+(?:\.\d+)?)\s*([a-d])?\s*[:.]\s*(.*)", re.S)
@@ -115,6 +118,9 @@ def main() -> int:
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
 
+    inp = declare_inputs("table_provenance_lint", report_chapters="report_edits/odt/report*.odt")
+    if inp.absent:
+        return inp.skip()
     src = source_map()
     have = {p.name for p in (REPO / "outputs").rglob("*.csv")}
     faults, n = [], 0
@@ -161,6 +167,9 @@ def main() -> int:
         print(f"table_provenance_lint: FAIL — {len(faults)} of {n} table(s) "
               f"do not trace to a committed output")
         return 1
+    bad = inp.floor_fault(n, "table(s)")
+    if bad:
+        return bad
     print(f"table_provenance_lint: OK — all {n} table(s) trace to a committed output")
     return 0
 

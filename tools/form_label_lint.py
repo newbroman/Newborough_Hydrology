@@ -28,7 +28,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-05. FORM gains the water-balance basis
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py); SKIP when they are absent by
+#   design, FAIL on zero subjects.
+# "1.1.0"  # Hollingham (2026) - 2026-11-05. FORM gains the water-balance basis
 #   (water balance, fluctuation method, specific yield fixed): Script 55's share fixes Sy from outside
 #   the fit, so it is neither Model A nor Model B, and the gate had no word for a basis the corpus now
 #   uses (T-131 session; D-311). Three of the six Paper M v1_43 failures were sentences that already
@@ -44,6 +46,7 @@ import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
+from gate_inputs import declare_inputs  # noqa: E402  (T-204, D-327)
 EXEMPT = REPO / "tools/form_label_exempt.csv"
 
 FIELD_KEY = re.compile(r"drain(age)?_share|drain_frac|drain_pct|(^|_)ET_(pct|frac|share)|et_share|"
@@ -146,6 +149,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")
     a = ap.parse_args()
+    inp = declare_inputs("form_label_lint", documents=["docs/**/*.odt", "report_edits/odt/*.odt"])
+    if inp.absent:
+        return inp.skip()
     ex = load_exempt()
     ff, fok = field_pass(ex, a.list)
     tf, tok = typed_pass(ex, a.list)
@@ -154,6 +160,9 @@ def main() -> int:
     for doc, hit, ctx in tf:
         print(f"  FAIL  {doc}: typed {hit!r} has no form named in its sentence: …{ctx}…")
     n = len(ff) + len(tf)
+    bad = inp.floor_fault(fok + len(ff) + tok + len(tf), "field(s) and typed value(s)")
+    if bad:
+        return bad
     print(f"form_label_lint: {'OK' if not n else 'FAIL'} — {fok + len(ff)} field(s) and {tok + len(tf)} typed "
           f"value(s) checked; {n} without a form")
     return 1 if n else 0

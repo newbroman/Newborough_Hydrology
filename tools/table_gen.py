@@ -54,7 +54,9 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-22 (2026-11-22f). A "{x:,.1f}" template no longer fails the negative-zero test on its thousands separator
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
+#   SKIP when they are absent by design, FAIL on zero subjects.
+# "1.14.1"  # Hollingham (2026) - 2026-11-22 (2026-11-22f). A "{x:,.1f}" template no longer fails the negative-zero test on its thousands separator
 #   for the excluded rows (Paper 1 Tables 2-3 print C4's drainage by difference, marked; Martin). A string "else" is unchanged.
 __version_prev__ = "1.13.0"  # Hollingham (2026) — 2026-10-12 (D-259). A "params" entry may carry "where":
 #   {column: template} to pick a report number qualified by more than its Parameter (03's partition rows are
@@ -707,6 +709,10 @@ def main() -> int:
                     help="read this ODT instead of the chapter's (for a copy under test)")
     args = ap.parse_args()
 
+    from gate_inputs import declare_inputs          # T-204, D-327
+    inp = declare_inputs("table_gen", documents=["docs/**/*.odt", "report_edits/odt/*.odt"])
+    if inp.absent and not args.src:
+        return inp.skip()
     tables = [table_configs.by_id(args.id)] if args.id else table_configs.TABLES
     if (args.out or args.src) and len(tables) != 1:
         ap.error("--out / --src need exactly one --id")
@@ -715,6 +721,8 @@ def main() -> int:
         worst = max(worst, run(cfg, args.write, args.force,
                                pathlib.Path(args.out) if args.out else None,
                                pathlib.Path(args.src) if args.src else None))
+    if not tables:
+        return inp.floor_fault(0, "table(s)")
     verdict = {0: "OK", 1: "DRIFT", 2: "REFUSED"}[worst]
     print(f"table_gen: {verdict} ({len(tables)} table(s))")
     return worst

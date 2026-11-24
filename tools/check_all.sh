@@ -18,6 +18,8 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.47.0 - 2026-11-24   year_field_lint --selftest and --check in the number-fields section (D-341 draft:
+#                                citation years are fields; the held Paper 1 / Paper C counts sit in an inventory).
 # VERSION 1.46.0 - 2026-11-24   run_scope --selftest gated (D-340, the scoped run); review_page --selftest (the
 #   default review page, CLAUDE.md §7).
 # 1.45.0 - 2026-11-24   ledger_lint --selftest gated (R44's new committed witness, the independent review).
@@ -512,6 +514,10 @@ section "── number fields (does every field in every document equal its comm
 # Gate added 2026-10-01 (D-219): a pipeline number in a document is a user field named in
 # tools/number_fields.csv; the ship sets them (field_sync --write), this proves it happened.
 python3 tools/field_sync.py --check || rc=1
+# 1.47.0 (D-341 draft): a citation of Martin's own work prints its year from a field (src/utils/publication.py);
+# no document may hold more bare self-citation years than tools/year_field_inventory.csv allows.
+python3 tools/year_field_lint.py --selftest >/dev/null || { echo "year_field_lint --selftest: FAIL"; rc=1; }
+python3 tools/year_field_lint.py --check || rc=1
 
 echo
 section "── drift term (does any consumer name 10a's drift column by literal?) ──"

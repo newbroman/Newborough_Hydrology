@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=4a2e43cf9332b5c9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=014d923ec40e5744 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process

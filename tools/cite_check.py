@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.44.0"  # Hollingham (2026) — 2026-11-24 (J-15, T-208). The two Script 50 tables move with the split: 50_36 to
+__version__ = "1.45.0"  # Hollingham (2026) — 2026-11-24 (D-341 draft). CONSTANT_SOURCES gains
+#   src/utils/publication.py, the publication years of the cited works (citation years become fields).
+# 1.44.0  # Hollingham (2026) — 2026-11-24 (J-15, T-208). The two Script 50 tables move with the split: 50_36 to
 #   50e_drier_epochs/, 50_24 to 50d_two_stores/. 1.43.0: 2026-11-23 (J-32). 25_03 n_wells_within_reach and 25_02_per_well_summer_min_slopes.csv
 #   (keyed by well) registered, for Paper C SI S1.5.
 # 1.42.1  # Hollingham (2026) — 2026-11-22 (2026-11-22f). 03_06_leave_one_out.csv registered, keyed (Cluster_Label, Excluded_Well)
@@ -497,7 +499,9 @@ def _excluded(rel: str) -> bool:
 # own fit, which is the thing pipeline_lint --check literals exists to catch.
 # Inputs live in config.py; results live in report-numbers files. That is the
 # same line the report draws between Methods and Results (D-075).
-CONSTANT_SOURCES = ["src/utils/config.py", "src/utils/pipeline_params.py"]
+# 1.45.0 (D-341 draft): src/utils/publication.py holds the publication year of each of Martin's cited works, so a
+# citation year can be a field. No pipeline script imports it, so editing it re-runs nothing (code_signature).
+CONSTANT_SOURCES = ["src/utils/config.py", "src/utils/pipeline_params.py", "src/utils/publication.py"]
 # A constant is a module-level name beginning with a capital that is assigned a
 # bare number. It used to require ALL CAPS, which silently dropped the wet-slack
 # threshold family — `SD15b = 0.61`, `SD15b_REC`, `SD15b_WINTER` — from the value

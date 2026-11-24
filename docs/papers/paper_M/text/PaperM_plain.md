@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_12.odt — do not edit. source-sha256=d16d87257776035f pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_13.odt — do not edit. source-sha256=7ac080948edd3dba pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper

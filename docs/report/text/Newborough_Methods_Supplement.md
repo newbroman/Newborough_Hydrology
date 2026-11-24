@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_150.odt — do not edit. source-sha256=c9c58bdb763cc5cc pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_151.odt — do not edit. source-sha256=042f40b2838d6270 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.150 (November 2026).
+Document version: 2.0.151 (November 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 

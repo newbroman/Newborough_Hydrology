@@ -24,7 +24,10 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-28. Proofread (Martin: "improve
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.5.0"  # Hollingham (2026) - 2026-09-28. Proofread (Martin: "improve
 #   legibility, use call-out lines if necessary"; "Clearfell"): the well labels, and now the
 #   transect distance labels, are repelled from every plotted well position as well as from
 #   each other, and every moved label keeps a call-out line (min_arrow_len=0). The free-standing
@@ -58,6 +61,7 @@ from utils.paths import (
     DATA_LOCATIONS_RAW,
     OUT_13_EXPERIMENTAL_MAP,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.map_utils import add_kml_features
 from utils.clearfell_common import (
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS,
@@ -94,17 +98,7 @@ def main():
     make_all_dirs()
 
     # Publication-quality typography
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-        'pdf.fonttype': 42,
-        'ps.fonttype': 42,
-        'axes.labelsize': 12,
-        'axes.titlesize': 14,
-        'xtick.labelsize': 10,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 10,
-    })
+    apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
     # ==========================================
     # 1. LOAD SPATIAL DATASETS

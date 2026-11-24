@@ -44,7 +44,10 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-22. make_coefficient_map takes extra=callable(ax) -> legend handles,
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.8.0"  # Hollingham (2026) - 2026-11-22. make_coefficient_map takes extra=callable(ax) -> legend handles,
 #   so Scripts 08 and 18 draw Paper 1's Figures 10 and 14 in the atlas style (Martin, reading copy 2026-11-21).
 __version_prev__ = "1.7.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's coefficients are Model B
 #   since Script 03 1.31.0: the map titles, the docstring and the report-number notes say so (the cluster-mean notes
@@ -112,6 +115,7 @@ from utils.paths import (
     OUT_07_REPORT_NUMBERS,
     OUT_07_CLUSTERS_VS_COVARIATES,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.report_numbers_utils import ReportNumbers
 from utils.map_utils import (
     load_dem_hillshade,
@@ -176,14 +180,8 @@ GRID_YI = np.arange(362200, 365800, 50)
 # is scaled to half an A4 page width (210 mm).  Scale factor ≈ 0.69,
 # so 9 pt in-figure → 6.2 pt on page.  Nothing below 9 pt.
 DPI = 200
-plt.rcParams.update({
-    "font.family": "sans-serif",
-    "axes.labelsize": 11,
-    "axes.titlesize": 13,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "legend.fontsize": 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
+plt.rcParams.update({'axes.labelsize': 11, 'axes.titlesize': 13})
 
 
 # ------------------------------------------------------------------

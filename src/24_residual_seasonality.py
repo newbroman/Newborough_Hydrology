@@ -53,7 +53,10 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-10-08. Comment only: the Paper 1 SI
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.4.1"  # Hollingham (2026) — 2026-10-08. Comment only: the Paper 1 SI
 #   section quoting the contrast is S8.2 (was S9.2; SI S7 deleted, D-244). No output changes.
 # 1.4.0  # Hollingham (2026) — 2026-09-29
 #
@@ -92,6 +95,7 @@ from utils.paths import (
     OUT_24_SUMMARY,
     OUT_24_REPORT_NUMBERS,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.report_numbers_utils import ReportNumbers
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
@@ -134,12 +138,7 @@ C3_INTRA_RIDGE_DISTANCE_M = 1000.0  # legacy: under the new partition the forest
 # - drainage uses h_disp_prev (end-of-previous-month displacement above datum)
 MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'axes.labelsize': 12, 'axes.titlesize': 14,
-    'xtick.labelsize': 10, 'ytick.labelsize': 10,
-    'legend.fontsize': 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 # ==========================================

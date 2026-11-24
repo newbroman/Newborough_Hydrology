@@ -14,7 +14,10 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.16.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
 #   (1.131.0) instead of being typed here; values unchanged, no output moves.
 # 1.15.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 02_report_numbers.csv gains
 #   cluster_hydro_window_start / _end, ISO dates (config CLUSTER_HYDRO_WINDOW_START / _END), so the documents'
@@ -124,6 +127,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 del _sys, _os
 
 import sys
@@ -311,7 +315,7 @@ BOOTSTRAP_SEED = CLUSTER_BOOT_SEED   # canonical seed lives in utils.config (val
 LINES = {1: "-", 2: "-", 3: "-", 4: "--", 5: ":", 6: "-."}
 LW    = {1: 1.8, 2: 1.8, 3: 1.8, 4: 1.8, 5: 1.5, 6: 1.5}
 
-plt.rcParams.update({"font.family": "sans-serif", "axes.labelsize": 12})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 def cluster_id_from_value(value) -> int | None:

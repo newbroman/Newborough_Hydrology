@@ -9,7 +9,10 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.5.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
 #   n_ref_reclassified_at_delta, one row per threshold in config.PEARSON_DELTA_SENS (Era = the
 #   threshold) - the reference wells (best match = assigned cluster) whose Core/Fuzzy tier differs
 #   between that threshold and PEARSON_DELTA_THRESH, from the unrounded margins (report8 SS3.3.2,
@@ -80,6 +83,7 @@ from utils.paths import (
     OUT_06_INTEGRATION_MAP,
     OUT_06_REPORT_NUMBERS,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.config import (
     PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH, PEARSON_DELTA_SENS,
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS, BW_MODE,
@@ -123,7 +127,8 @@ DELTA_THRESH = PEARSON_DELTA_THRESH   # config.py is the one home (2026-09-09)
 MCA_THRESH   = PEARSON_MCA_THRESH
 
 # Aesthetics
-plt.rcParams.update({'font.family': 'sans-serif', 'axes.labelsize': 11, 'legend.fontsize': 9})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
+plt.rcParams.update({'axes.labelsize': 11, 'legend.fontsize': 9})
 
 # DEM colour scale is identical across all PEAR map products because
 # map_utils.load_dem_layer() applies config.DEM_VMIN / DEM_VCENTER / DEM_VMAX

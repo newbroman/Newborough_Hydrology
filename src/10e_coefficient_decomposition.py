@@ -73,7 +73,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The era fits are Model B
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.21.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The era fits are Model B
 #   (fit_ssm intercept=True, beta_3 bounded below), as Script 03's coefficient tables: every key and 10e_01 column
 #   keeps its name and now carries Model B. Model A (no intercept, DRAINAGE_DATUM) is fitted beside it on the same
 #   rows: 10e_01 gains *_model_a columns (and alpha_before/after, b3_bound_binds_before/after), 10e_report_numbers
@@ -152,6 +155,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 
 from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, ALL_NETWORK_WELLS,
@@ -270,17 +274,7 @@ def main():
     # ============================================================================
     # MATPLOTLIB DEFAULTS
     # ============================================================================
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-        'pdf.fonttype': 42,
-        'ps.fonttype': 42,
-        'axes.labelsize': 12,
-        'axes.titlesize': 14,
-        'xtick.labelsize': 10,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 10,
-    })
+    apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
     def format_p(p):

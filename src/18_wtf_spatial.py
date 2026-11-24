@@ -54,7 +54,10 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-11-22. 18_wtf_06_mean_reversion_atlas.png: Paper 1 Figure 14 as the mean-
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.21.0"  # Hollingham (2026) - 2026-11-22. 18_wtf_06_mean_reversion_atlas.png: Paper 1 Figure 14 as the mean-
 #   reversion time 1/β₃ (not t½), full-record basis (D-192), drawn by Script 07's make_coefficient_map, C4 marked as
 #   not identified under Model B (Martin, reading copy 2026-11-21).
 __version_prev__ = "1.20.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0's 03_19 and
@@ -153,6 +156,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped, track,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -213,12 +217,8 @@ MIN_EVENTS          = 15         # minimum qualifying events for confidence flag
 # skips that well in that direction (D8).
 MIN_WINDOW_EVENTS   = 5          # qualifying events needed in a window for a windowed Sy
 
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'DejaVu Sans'],
-    'axes.labelsize': 11, 'axes.titlesize': 11,
-    'xtick.labelsize': 9,  'ytick.labelsize': 9,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
+plt.rcParams.update({'font.sans-serif': ['Arial', 'DejaVu Sans'], 'axes.labelsize': 11, 'axes.titlesize': 11, 'xtick.labelsize': 9, 'ytick.labelsize': 9})
 
 
 def load_well_data(out_root):

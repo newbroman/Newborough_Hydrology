@@ -43,6 +43,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 
 import numpy as np
 import pandas as pd
@@ -72,7 +73,10 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.7.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.6.0
 #
@@ -105,17 +109,7 @@ XLIM = (SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
 YLIM = (SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
 
 
-plt.rcParams.update({
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-    "pdf.fonttype": 42,
-    "ps.fonttype": 42,
-    "axes.labelsize": 12,
-    "axes.titlesize": 14,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "legend.fontsize": 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 # ══════════════════════════════════════════════════════════════════════════════

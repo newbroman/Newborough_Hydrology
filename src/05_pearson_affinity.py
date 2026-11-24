@@ -8,7 +8,10 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.7.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.7.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.7.1  # Hollingham (2026) - 2026-10-25. Label correction (Martin 22:01 "fix the k-means
 #   reference"): the confidence map's title and cluster-legend heading said "k-means"; the clusters come from
 #   Script 02's Ward linkage, and no k-means is run anywhere in the pipeline. Figure text only; no data moves.
@@ -59,6 +62,7 @@ from matplotlib.lines import Line2D
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE,
                           LABEL_ADJUST_ITER_LIM,
                           PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH)
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import (make_all_dirs, DATA_DIR,
@@ -74,8 +78,8 @@ from utils.render_utils import render_figure
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
-plt.rcParams.update({"font.family":"sans-serif","axes.labelsize":11,"axes.titlesize":13,
-                     "xtick.labelsize":9,"ytick.labelsize":9,"legend.fontsize":9})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
+plt.rcParams.update({'axes.labelsize': 11, 'axes.titlesize': 13, 'xtick.labelsize': 9, 'ytick.labelsize': 9, 'legend.fontsize': 9})
 
 def safe_pearson(a, b):
     pair = pd.concat([a,b],axis=1, sort=False).dropna()

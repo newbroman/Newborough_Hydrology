@@ -79,7 +79,10 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-11-22. Drainage by difference (recharge - atmospheric draw) beside
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.16.0"  # Hollingham (2026) - 2026-11-22. Drainage by difference (recharge - atmospheric draw) beside
 #   Model B's beta_3 drainage: 16_water_bal_table Drainage_bydiff_B_*, 16_water_bal_vol_table Bydiff_* / *_bydiff_mm_yr.
 #   Paper 1 Tables 2-3 print C4 from these, marked, because Model B does not identify C4's beta_3 (Martin).
 __version_prev__ = "1.15.0"  # Hollingham (2026) - 2026-11-17 (T-213 review Q3; Martin: "Fix Script 16"). The SSM is fitted on
@@ -187,6 +190,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
@@ -732,7 +736,8 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     P_by_cid = {c: summary[c]["P_m"] * 12 * 1000 for c in cids}
 
     if ms:
-        plt.rcParams.update({"font.family": "sans-serif", "axes.labelsize": 10})
+        apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
+        plt.rcParams.update({'axes.labelsize': 10})
         bg_color = "white"
     else:
         bg_color = "#F5F0E8"

@@ -33,7 +33,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). paired_attribution():
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.25.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). paired_attribution():
 #   WMC3 minus each control tier (and every control against the rest of its tier, the placebos) on the monthly
 #   change, HAC; step, Oct-Mar / Apr-Sep, rain- and PET-scaled steps, monthly profile against the rain and PET
 #   climatologies -> 10a_15_paired_attribution.csv and paired_* report keys. Ported from the D-333 review (s3.py),
@@ -252,6 +255,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 
 from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, IMPACT_WELLS, EDGE_WELLS,
@@ -420,17 +424,7 @@ def main():
     # ============================================================================
     # MATPLOTLIB DEFAULTS
     # ============================================================================
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-        'pdf.fonttype': 42,
-        'ps.fonttype': 42,
-        'axes.labelsize': 12,
-        'axes.titlesize': 14,
-        'xtick.labelsize': 10,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 10,
-    })
+    apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
     # Colour-blind-safe palette
     CB_FOREST  = '#4DAC26'

@@ -43,6 +43,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 
 import numpy as np
 import pandas as pd
@@ -65,7 +66,10 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29. T-96: 10g_report_numbers.csv adds
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.4.0"  # Hollingham (2026) — 2026-09-29. T-96: 10g_report_numbers.csv adds
 #   NW10_trend_p (was in the slope row's note only), NW10_mean_anomaly_full_record and
 #   NW10_mean_anomaly_post_felling (summers after CLEARFELL_DATE), which report10 Section 5.6.3
 #   quotes (+249 mm, +268 mm, p = 0.10). Emit-only; no output value moves.
@@ -113,12 +117,7 @@ PINE_INTERIOR = ['ceh2', 'ceh32', 'ceh33', 'ceh34']
 # Rolling window for SSM coefficients
 ROLL_WINDOW = 48  # months
 
-plt.rcParams.update({
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-    "pdf.fonttype": 42,
-    "ps.fonttype": 42,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 # ============================================================================

@@ -108,7 +108,10 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-29. T-96: 23_report_numbers.csv also carries
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.5.0"  # Hollingham (2026) — 2026-09-29. T-96: 23_report_numbers.csv also carries
 #   ridge_lag_n_significant_peak_wells, the n of the Spearman peak-lag test as a value row
 #   (report10 §5.2.1). Emit-only.
 # 1.4.0  # Hollingham (2026) — 2026-09-28. T-91: emit report numbers
@@ -143,6 +146,7 @@ from utils.paths import (
     OUT_23_BETAS_BY_CLUSTER, OUT_23_TEST_SUMMARY,
     OUT_23_REPORT_NUMBERS,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.report_numbers_utils import ReportNumbers
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
@@ -183,12 +187,7 @@ MAX_RIDGE_DISTANCE_M = RIDGE_MAX_DISTANCE_M   # config.py
 # Wells highlighted in the headline CCF figure
 HEADLINE_WELLS = ['ceh14', 'ceh34', 'ceh13', 'ceh2']
 
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'axes.labelsize': 12, 'axes.titlesize': 14,
-    'xtick.labelsize': 10, 'ytick.labelsize': 10,
-    'legend.fontsize': 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 # ==========================================

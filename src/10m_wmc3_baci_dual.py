@@ -66,6 +66,7 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.console_utils import (
     banner, phase, info, saved, warn, done, result, hr,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 
 import numpy as np
 import pandas as pd
@@ -89,7 +90,10 @@ from utils.config import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-25. D-200: each raw era step
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.3.0"  # Hollingham (2026) — 2026-09-25. D-200: each raw era step
 #   gains a Newey-West SE, t and a moving-break placebo share (hac_se_of_mean,
 #   placebo_steps; config.BACI_STEP_HAC_LAG_MONTHS / BACI_PLACEBO_MIN_COVERAGE),
 #   written to 10m_01 and 10m_report_numbers.csv and printed on panel (b) as
@@ -111,17 +115,7 @@ __version__ = "1.3.0"  # Hollingham (2026) — 2026-09-25. D-200: each raw era s
 
 
 # ── House style (matches Script 10a) ─────────────────────────────────────────
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'pdf.fonttype': 42,
-    'ps.fonttype': 42,
-    'axes.labelsize': 12,
-    'axes.titlesize': 14,
-    'xtick.labelsize': 10,
-    'ytick.labelsize': 10,
-    'legend.fontsize': 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 _ROLL_WINDOW = 6          # months, centred
 _ROLL_MINP   = 3

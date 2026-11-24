@@ -78,7 +78,10 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.9.0"  # Hollingham (2026) - 2026-11-18 (J-16). The canonical fits reproduce Script 03 again. Since
+__version__ = "2.10.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "2.9.0"  # Hollingham (2026) - 2026-11-18 (J-16). The canonical fits reproduce Script 03 again. Since
 #   Script 03 1.28.0 (D-281) the centroids are built from the dry-filled frame (fill_dry_members) and every per-well fit
 #   is censored at the well's dry months (dry_bound); this script still averaged the raw levels and fitted the wells
 #   uncensored, so its "canonical" C4 centroid was a different series (beta_3 0.0111, p 0.377, against Script 03's
@@ -151,6 +154,7 @@ from matplotlib.lines import Line2D
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from utils.console_utils import banner, phase, step, info, warn, saved
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.model_utils import fit_ssm, build_ssm_frame, dry_bounds, LCSC_DATA_LIMIT
 from utils.data_utils import normalize_well_name
 from utils.config import (HEADLINE_LAG, DRAINAGE_DATUM, CLUSTER_LABELS,
@@ -163,8 +167,8 @@ from utils.paths import (
 from utils.report_numbers_utils import ReportNumbers
 from utils.render_utils import render_figure
 
-plt.rcParams.update({"font.family": "sans-serif", "axes.labelsize": 10,
-                     "figure.dpi": 110})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
+plt.rcParams.update({'axes.labelsize': 10, 'figure.dpi': 110})
 
 # Per-well fits use the same comparison window as Script 03's per-well loop.
 # LCSC_DATA_LIMIT is imported from model_utils — not redeclared here — so the

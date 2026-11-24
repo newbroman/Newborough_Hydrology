@@ -53,7 +53,10 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-28. T-91: emits network AR(1)/DW
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.5.0"  # Hollingham (2026) — 2026-09-28. T-91: emits network AR(1)/DW
 #   residual-inference statistics (mean/median phi, DW median+IQR, alpha-vs-phi
 #   Pearson r) to OUT_22_REPORT_NUMBERS so the Methods Supplement's residual-
 #   diagnostics numbers can bind to a committed CSV.
@@ -82,6 +85,7 @@ from utils.paths import (
     INT_WELLS_REFERENCE, INT_22_SSM_RESID_INFERENCE,
     INT_22_SSM_CLUSTER_INFERENCE, OUT_22_REPORT_NUMBERS,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
@@ -119,12 +123,7 @@ AR1_DIAG_PVAL = 0.05
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'axes.labelsize': 12, 'axes.titlesize': 14,
-    'xtick.labelsize': 10, 'ytick.labelsize': 10,
-    'legend.fontsize': 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 # ==========================================

@@ -47,7 +47,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "1.14.0"  # Hollingham (2026) - 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
 #   Martin 22:12): each mixed-effects clearfell estimate gains a _p row (the p its Note already
 #   prints), so Paper 2 §4.2.2's p = 0.12 is a field. Emit-only.
 # 1.13.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
@@ -103,6 +106,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 
 from utils.clearfell_common import (
     load_clearfell_data,
@@ -147,17 +151,7 @@ def main():
     # ============================================================================
     # MATPLOTLIB DEFAULTS
     # ============================================================================
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-        'pdf.fonttype': 42,
-        'ps.fonttype': 42,
-        'axes.labelsize': 12,
-        'axes.titlesize': 14,
-        'xtick.labelsize': 10,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 10,
-    })
+    apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
     def format_p(p):

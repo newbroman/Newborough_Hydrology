@@ -36,7 +36,10 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "2.1.0"  # Hollingham (2026) - 2026-11-22. 08_lcsc_05_nse_gain_atlas.png: Paper 1 Figure 10 as the iterative-NSE
+__version__ = "2.2.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+#   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
+#   only the keys where it departs from the house are set after it. Figures move on the next run.
+# "2.1.0"  # Hollingham (2026) - 2026-11-22. 08_lcsc_05_nse_gain_atlas.png: Paper 1 Figure 10 as the iterative-NSE
 #   gain (not R²), drawn by Script 07's make_coefficient_map (IDW over hillshade, ridge-masked). Martin, reading copy.
 __version_prev__ = "2.0.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The headline SSM is Model B: every
 #   *_StateSpace column (one-step and iterative R2/NSE/RMSE, betas, p-values, R2_StateSpace_fit; new Alpha_StateSpace)
@@ -151,6 +154,7 @@ from utils.paths import (
     INT_WELL_ELEVATIONS,
     OUT_01B_REPORT_NUMBERS,
 )
+from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 from utils.model_utils import (get_metrics, get_r2, build_ssm_frame, simulate_ssm,
@@ -195,17 +199,7 @@ EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37'}
 # ==========================================
 # AESTHETICS & PUBLICATION SETTINGS
 # ==========================================
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'pdf.fonttype': 42,
-    'ps.fonttype': 42,
-    'axes.labelsize': 12,
-    'axes.titlesize': 14,
-    'xtick.labelsize': 10,
-    'ytick.labelsize': 10,
-    'legend.fontsize': 10,
-})
+apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 
 
 def mhw_datums() -> dict:

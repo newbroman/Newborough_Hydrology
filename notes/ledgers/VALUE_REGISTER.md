@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**197 output file(s)** supply **4516 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
+**201 output file(s)** supply **4516 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
 
 ## Cited quantities by output file
 
@@ -4010,142 +4010,7 @@
 |  | measured / Thornthwaite / month_12_ratio · value | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
 |  | measured / Thornthwaite / ratio_to_thornthwaite · value | PaperM_plain.md |
 |  | measured / Thornthwaite / trend_p · value | report9.md |
-| `50_report_numbers.csv` | basis_ccw_nse_median_cluster_A | Newborough_Methods_Supplement.md |
-|  | basis_ccw_nse_median_well_A | Newborough_Methods_Supplement.md |
-|  | basis_ccw_nse_median_well_B | PaperM.md |
-|  | basis_ranwell_nse_median_cluster_A | Newborough_Methods_Supplement.md |
-|  | basis_ranwell_nse_median_well_B | report9.md |
-|  | basis_ranwell_range_ratio_median_cluster_A | Paper1.md, PaperM_plain.md |
-|  | basis_ranwell_range_ratio_median_cluster_B | PaperM_plain.md |
-|  | basis_ranwell_range_ratio_median_well_B | Newborough_Methods_Supplement.md |
-|  | change_C5_earns | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, readme.md |
-|  | change_verdict | NRG_Web_Tools_User_Manual.md, readme.md |
-|  | datum_ccw_nse_median_at_D3 | report9.md |
-|  | e13_ea_early_kpa | Newborough_Methods_Supplement.md |
-|  | e13_excess_thornthwaite_full_C3 | Supplementary_Material.md, report9.md |
-|  | e13_excess_thornthwaite_full_C4 | report9.md |
-|  | e13_excess_thornthwaite_full_C5 | report9.md |
-|  | e13_excess_thornthwaite_midas_C3 | Supplementary_Material.md |
-|  | e13_excess_thornthwaite_midas_C4 | Supplementary_Material.md, report9.md |
-|  | e13_excess_thornthwaite_midas_C5 | Supplementary_Material.md |
-|  | e13_fwd_rmse_change_hargreaves_C4 | report10.md |
-|  | e13_fwd_rmse_change_makkink_C5 | report9.md |
-|  | e13_fwd_rmse_change_penman_monteith_C3 | PAPER1_SI_methods.md |
-|  | e13_fwd_rmse_change_penman_monteith_C4 | Supplementary_Material.md |
-|  | e13_fwd_rmse_change_pm_wind_at_its_mean_C3 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | e13_fwd_rmse_change_pm_wind_at_its_mean_C4 | report9.md |
-|  | e13_fwd_rmse_change_pm_wind_at_its_mean_C5 | Supplementary_Material.md |
-|  | e13_share_removed_penman_monteith_C3 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | e13_share_removed_pm_humidity_at_its_mean_C4 | Supplementary_Material.md |
-|  | e13_share_removed_pm_wind_at_its_mean_C3 | Newborough_Methods_Supplement.md, report9.md |
-|  | e13_share_removed_priestley_taylor_C4 | Newborough_Methods_Supplement.md |
-|  | e13b_all_pm_month_10_ratio | report9.md |
-|  | e13b_all_pm_month_11_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_01_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_02_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_03_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_04_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_05_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_06_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_07_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_08_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_09_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_10_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_11_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_month_12_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_all_th_ratio_to_thornthwaite | PaperM_plain.md |
-|  | e13b_measured_pm_month_04_ratio | Supplementary_Material.md |
-|  | e13b_measured_pm_month_06_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_pm_month_08_ratio | report8.md |
-|  | e13b_measured_pm_month_10_ratio | Supplementary_Material.md |
-|  | e13b_measured_pm_ratio_to_thornthwaite | Paper1.md |
-|  | e13b_measured_th_month_01_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_02_mean_mm | report8.md, report9.md |
-|  | e13b_measured_th_month_02_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_03_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_04_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_05_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_06_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_07_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_08_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_09_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_10_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_11_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_month_12_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
-|  | e13b_measured_th_ratio_to_thornthwaite | PaperM_plain.md |
-|  | e13b_measured_th_trend_p | report9.md |
-|  | e13b_resid_thornthwaite_C3_rmse_median | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
-|  | e13b_resid_thornthwaite_C5_smw_p | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
-|  | e13b_resid_thornthwaite_full_C3_rmse_median | report9.md |
-|  | e16_ccw_n_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | e16_ccw_n_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
-|  | e16_ccw_nse_median_C2_at_best | PaperM.md |
-|  | e16_ccw_nse_median_C2_at_depth | report9.md |
-|  | e16_ccw_nse_median_C3_at_best | Supplementary_Material.md |
-|  | e16_ccw_nse_median_C3_at_depth | Supplementary_Material.md |
-|  | e16_ccw_nse_median_C5_at_depth | Newborough_Methods_Supplement.md |
-|  | e16_test_ccw_nse_pass | PaperM.md, VALUE_REGISTER.md, report8.md |
-|  | e17_base_B_C5_m_aod | report9.md |
-|  | e17_ccw_abs_bias_median_m_C2_S | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | e17_ccw_abs_bias_median_m_C2_depth | Supplementary_Material.md |
-|  | e17_ccw_abs_bias_median_m_C3_B | Supplementary_Material.md, report9.md |
-|  | e17_ccw_abs_bias_median_m_C3_R | report9.md |
-|  | e17_ccw_abs_bias_median_m_C3_depth | Supplementary_Material.md |
-|  | e17_ccw_abs_bias_median_m_C5_B | Newborough_Methods_Supplement.md, report9.md |
-|  | e17_ccw_abs_bias_median_m_C5_depth | Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report.md, report10.md, report12.md |
-|  | e17_ccw_n_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | e17_ccw_n_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
-|  | e17_ccw_nse_median_C2_S | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | e17_ccw_nse_median_C2_depth | report9.md |
-|  | e17_ccw_nse_median_C3_depth | Supplementary_Material.md |
-|  | e17_ccw_nse_median_C5_S | report9.md |
-|  | e17_ccw_nse_median_C5_depth | Newborough_Methods_Supplement.md |
-|  | e17_cluster_pass_C1 | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
-|  | e17_ranwell_n_C1 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | e17_ranwell_n_C3 | Supplementary_Material.md, report9.md |
-|  | e17_ranwell_nse_median_C3_B | Supplementary_Material.md, report9.md |
-|  | e17_ranwell_nse_median_C3_R | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | e17_ranwell_nse_median_C3_S | report9.md |
-|  | e17_split_nse_median_C2_R | report9.md |
-|  | e17_split_nse_median_C3_B | Newborough_Methods_Supplement.md |
-|  | e17_split_nse_median_C3_depth | report9.md |
-|  | e17_split_nse_median_C4_S | wtf_interception_methodology.md |
-|  | e17_split_nse_median_C5_R | report9.md |
-|  | e17_split_nse_median_C5_depth | report9.md |
-|  | e8d_check_gauge_agrees | PaperM.md |
-|  | e_qm_nse_raw_cluster | Newborough_Methods_Supplement.md |
-|  | e_qm_nse_raw_well | Newborough_Methods_Supplement.md |
-|  | forest_forcing_best_variant_C4 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report9.md |
-|  | forest_forcing_best_variant_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
-|  | forest_forcing_fwd_nse_F0_median_C4 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | forest_forcing_fwd_nse_best_median_C4 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | forest_forcing_n_identified_B_F0_C5 | report9.md |
-|  | forest_forcing_n_identified_B_best_C5 | report9.md |
-|  | forest_forcing_posthoc_fwd_nse_F0_edge_C5 | Supplementary_Material.md |
-|  | forest_forcing_posthoc_fwd_nse_F0_inner_C4 | report9.md |
-|  | forest_forcing_posthoc_fwd_nse_F2_inner_C4 | report9.md |
-|  | forest_forcing_posthoc_fwd_nse_F2e_inner_C4 | report9.md |
-|  | forest_forcing_posthoc_fwd_nse_F2s_inner_C4 | Supplementary_Material.md |
-|  | forest_forcing_verdict_C4 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report9.md |
-|  | forest_forcing_verdict_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
-|  | placement_L24_split_nse_median_B_rev | report9.md |
-|  | placement_L36_split_nse_median_B_rev | report9.md |
-|  | placement_L60_split_nse_median_B_fwd | Newborough_Methods_Supplement.md, report9.md |
-|  | projection_2080s_summer_room_left_min_at_band_min | Newborough_Methods_Supplement.md |
-|  | projection_2080s_summer_room_left_min_at_supported | Newborough_Methods_Supplement.md |
-|  | ranwell_epoch_cand_pipe_foot_nse_at_k_low | Newborough_Methods_Supplement.md, report9.md |
-|  | ranwell_epoch_swing_ratio_epoch_ceh25 | Supplementary_Material.md |
-|  | ranwell_epoch_swing_ratio_epoch_nw5 | Supplementary_Material.md |
-|  | ranwell_epoch_swing_ratio_modern_ceh25 | Supplementary_Material.md |
-|  | ranwell_epoch_swing_ratio_modern_nw5 | report9.md |
-|  | ranwell_need_joint_nse | report9.md |
-|  | ranwell_need_nse_pipe_foot | Newborough_Methods_Supplement.md |
-|  | ranwell_need_single_k2 | Newborough_Methods_Supplement.md, report7.md, report9.md |
-|  | ranwell_need_single_k3_nse | Newborough_Methods_Supplement.md |
-|  | ranwell_nse_dry_year_median_model_b | Newborough_Methods_Supplement.md, report9.md |
-|  | ranwell_nse_median_at_supported | report9.md |
-|  | ranwell_nse_median_model_b | report9.md |
-|  | reclen_beta3_reldev_A_median_L100_C4 | Supplementary_Material.md |
+| `50a_report_numbers.csv` | reclen_beta3_reldev_A_median_L100_C4 | Supplementary_Material.md |
 |  | reclen_beta3_reldev_A_median_L24_C2 | report9.md |
 |  | reclen_beta3_reldev_A_median_L36_C1 | Newborough_Methods_Supplement.md |
 |  | reclen_beta3_reldev_A_median_L36_C3 | Newborough_Methods_Supplement.md |
@@ -4350,6 +4215,73 @@
 |  | reclen_stable_n_wells_reached_B_C5 | report9.md |
 |  | reclen_stable_n_wells_reached_M_C4 | Supplementary_Material.md |
 |  | reclen_stable_n_wells_reached_M_C5 | report9.md |
+|  | window_full_beta3_ratio_median_C1 | report9.md |
+|  | window_full_beta3_ratio_median_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | window_full_beta3_ratio_median_C3 | Supplementary_Material.md, report9.md |
+|  | window_full_beta3_ratio_median_all | Newborough_Methods_Supplement.md |
+|  | window_full_beta3_ratio_p10_C1 | Newborough_Methods_Supplement.md, report9.md |
+|  | window_full_beta3_ratio_p10_C2 | Newborough_Methods_Supplement.md, report9.md |
+|  | window_full_beta3_ratio_p10_C5 | Supplementary_Material.md |
+|  | window_full_beta3_ratio_p90_C1 | Newborough_Methods_Supplement.md, report9.md |
+|  | window_full_beta3_ratio_p90_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | window_full_beta3_ratio_p90_C3 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | window_full_beta3_ratio_p90_C4 | report9.md |
+|  | window_full_beta3_ratio_p90_C5 | PAPER1_SI_methods.md, PIPELINE_README.md, Paper1.md, report9.md |
+|  | window_full_beta3_ratio_p90_all | Supplementary_Material.md, report9.md |
+| `50b_report_numbers.csv` | datum_ccw_nse_median_at_D3 | report9.md |
+|  | e16_ccw_n_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | e16_ccw_n_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
+|  | e16_ccw_nse_median_C2_at_best | PaperM.md |
+|  | e16_ccw_nse_median_C2_at_depth | report9.md |
+|  | e16_ccw_nse_median_C3_at_best | Supplementary_Material.md |
+|  | e16_ccw_nse_median_C3_at_depth | Supplementary_Material.md |
+|  | e16_ccw_nse_median_C5_at_depth | Newborough_Methods_Supplement.md |
+|  | e16_test_ccw_nse_pass | PaperM.md, VALUE_REGISTER.md, report8.md |
+|  | e17_base_B_C5_m_aod | report9.md |
+|  | e17_ccw_abs_bias_median_m_C2_S | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | e17_ccw_abs_bias_median_m_C2_depth | Supplementary_Material.md |
+|  | e17_ccw_abs_bias_median_m_C3_B | Supplementary_Material.md, report9.md |
+|  | e17_ccw_abs_bias_median_m_C3_R | report9.md |
+|  | e17_ccw_abs_bias_median_m_C3_depth | Supplementary_Material.md |
+|  | e17_ccw_abs_bias_median_m_C5_B | Newborough_Methods_Supplement.md, report9.md |
+|  | e17_ccw_abs_bias_median_m_C5_depth | Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report.md, report10.md, report12.md |
+|  | e17_ccw_n_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | e17_ccw_n_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
+|  | e17_ccw_nse_median_C2_S | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | e17_ccw_nse_median_C2_depth | report9.md |
+|  | e17_ccw_nse_median_C3_depth | Supplementary_Material.md |
+|  | e17_ccw_nse_median_C5_S | report9.md |
+|  | e17_ccw_nse_median_C5_depth | Newborough_Methods_Supplement.md |
+|  | e17_cluster_pass_C1 | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
+|  | e17_ranwell_n_C1 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | e17_ranwell_n_C3 | Supplementary_Material.md, report9.md |
+|  | e17_ranwell_nse_median_C3_B | Supplementary_Material.md, report9.md |
+|  | e17_ranwell_nse_median_C3_R | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | e17_ranwell_nse_median_C3_S | report9.md |
+|  | e17_split_nse_median_C2_R | report9.md |
+|  | e17_split_nse_median_C3_B | Newborough_Methods_Supplement.md |
+|  | e17_split_nse_median_C3_depth | report9.md |
+|  | e17_split_nse_median_C4_S | wtf_interception_methodology.md |
+|  | e17_split_nse_median_C5_R | report9.md |
+|  | e17_split_nse_median_C5_depth | report9.md |
+|  | projection_2080s_summer_room_left_min_at_band_min | Newborough_Methods_Supplement.md |
+|  | projection_2080s_summer_room_left_min_at_supported | Newborough_Methods_Supplement.md |
+|  | ranwell_nse_dry_year_median_model_b | Newborough_Methods_Supplement.md, report9.md |
+|  | ranwell_nse_median_at_supported | report9.md |
+|  | ranwell_nse_median_model_b | report9.md |
+| `50c_report_numbers.csv` | basis_ccw_nse_median_cluster_A | Newborough_Methods_Supplement.md |
+|  | basis_ccw_nse_median_well_A | Newborough_Methods_Supplement.md |
+|  | basis_ccw_nse_median_well_B | PaperM.md |
+|  | basis_ranwell_nse_median_cluster_A | Newborough_Methods_Supplement.md |
+|  | basis_ranwell_nse_median_well_B | report9.md |
+|  | basis_ranwell_range_ratio_median_cluster_A | Paper1.md, PaperM_plain.md |
+|  | basis_ranwell_range_ratio_median_cluster_B | PaperM_plain.md |
+|  | basis_ranwell_range_ratio_median_well_B | Newborough_Methods_Supplement.md |
+|  | e_qm_nse_raw_cluster | Newborough_Methods_Supplement.md |
+|  | e_qm_nse_raw_well | Newborough_Methods_Supplement.md |
+|  | placement_L24_split_nse_median_B_rev | report9.md |
+|  | placement_L36_split_nse_median_B_rev | report9.md |
+|  | placement_L60_split_nse_median_B_fwd | Newborough_Methods_Supplement.md, report9.md |
 |  | transfer_B_d_abs_bias_m_C3 | PaperM.md |
 |  | transfer_B_d_r2_C5 | Newborough_Methods_Supplement.md |
 |  | transfer_B_level_holds_C1 | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
@@ -4370,6 +4302,9 @@
 |  | transfer_B_shape_holds_C2 | PAPER1_SI_methods.md, Supplementary_Material.md, report9.md |
 |  | transfer_B_shape_holds_C3 | Supplementary_Material.md, report9.md |
 |  | transfer_B_wells_n_C5 | report9.md |
+| `50d_report_numbers.csv` | change_C5_earns | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, readme.md |
+|  | change_verdict | NRG_Web_Tools_User_Manual.md, readme.md |
+|  | e8d_check_gauge_agrees | PaperM.md |
 |  | two_store_C2_ccw_bias_double_m | Supplementary_Material.md |
 |  | two_store_C2_early_resid_double_m | wtf_interception_methodology.md |
 |  | two_store_C2_early_resid_single_m | wtf_interception_methodology.md |
@@ -4383,19 +4318,84 @@
 |  | two_store_C5_bic_double_minus_single | Newborough_Methods_Supplement.md |
 |  | two_store_C5_ccw_bias_single_m | report9.md |
 |  | two_store_C5_split_nse_double | Newborough_Methods_Supplement.md |
-|  | window_full_beta3_ratio_median_C1 | report9.md |
-|  | window_full_beta3_ratio_median_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | window_full_beta3_ratio_median_C3 | Supplementary_Material.md, report9.md |
-|  | window_full_beta3_ratio_median_all | Newborough_Methods_Supplement.md |
-|  | window_full_beta3_ratio_p10_C1 | Newborough_Methods_Supplement.md, report9.md |
-|  | window_full_beta3_ratio_p10_C2 | Newborough_Methods_Supplement.md, report9.md |
-|  | window_full_beta3_ratio_p10_C5 | Supplementary_Material.md |
-|  | window_full_beta3_ratio_p90_C1 | Newborough_Methods_Supplement.md, report9.md |
-|  | window_full_beta3_ratio_p90_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | window_full_beta3_ratio_p90_C3 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | window_full_beta3_ratio_p90_C4 | report9.md |
-|  | window_full_beta3_ratio_p90_C5 | PAPER1_SI_methods.md, PIPELINE_README.md, Paper1.md, report9.md |
-|  | window_full_beta3_ratio_p90_all | Supplementary_Material.md, report9.md |
+| `50e_report_numbers.csv` | e13_ea_early_kpa | Newborough_Methods_Supplement.md |
+|  | e13_excess_thornthwaite_full_C3 | Supplementary_Material.md, report9.md |
+|  | e13_excess_thornthwaite_full_C4 | report9.md |
+|  | e13_excess_thornthwaite_full_C5 | report9.md |
+|  | e13_excess_thornthwaite_midas_C3 | Supplementary_Material.md |
+|  | e13_excess_thornthwaite_midas_C4 | Supplementary_Material.md, report9.md |
+|  | e13_excess_thornthwaite_midas_C5 | Supplementary_Material.md |
+|  | e13_fwd_rmse_change_hargreaves_C4 | report10.md |
+|  | e13_fwd_rmse_change_makkink_C5 | report9.md |
+|  | e13_fwd_rmse_change_penman_monteith_C3 | PAPER1_SI_methods.md |
+|  | e13_fwd_rmse_change_penman_monteith_C4 | Supplementary_Material.md |
+|  | e13_fwd_rmse_change_pm_wind_at_its_mean_C3 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | e13_fwd_rmse_change_pm_wind_at_its_mean_C4 | report9.md |
+|  | e13_fwd_rmse_change_pm_wind_at_its_mean_C5 | Supplementary_Material.md |
+|  | e13_share_removed_penman_monteith_C3 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | e13_share_removed_pm_humidity_at_its_mean_C4 | Supplementary_Material.md |
+|  | e13_share_removed_pm_wind_at_its_mean_C3 | Newborough_Methods_Supplement.md, report9.md |
+|  | e13_share_removed_priestley_taylor_C4 | Newborough_Methods_Supplement.md |
+|  | e13b_all_pm_month_10_ratio | report9.md |
+|  | e13b_all_pm_month_11_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_01_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_02_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_03_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_04_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_05_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_06_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_07_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_08_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_09_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_10_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_11_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_month_12_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_all_th_ratio_to_thornthwaite | PaperM_plain.md |
+|  | e13b_measured_pm_month_04_ratio | Supplementary_Material.md |
+|  | e13b_measured_pm_month_06_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_pm_month_08_ratio | report8.md |
+|  | e13b_measured_pm_month_10_ratio | Supplementary_Material.md |
+|  | e13b_measured_pm_ratio_to_thornthwaite | Paper1.md |
+|  | e13b_measured_th_month_01_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_02_mean_mm | report8.md, report9.md |
+|  | e13b_measured_th_month_02_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_03_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_04_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_05_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_06_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_07_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_08_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_09_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_10_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_11_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_month_12_ratio | NRG_Web_Tools_Technical_Note.md, PaperM_plain.md |
+|  | e13b_measured_th_ratio_to_thornthwaite | PaperM_plain.md |
+|  | e13b_measured_th_trend_p | report9.md |
+|  | e13b_resid_thornthwaite_C3_rmse_median | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
+|  | e13b_resid_thornthwaite_C5_smw_p | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
+|  | e13b_resid_thornthwaite_full_C3_rmse_median | report9.md |
+|  | forest_forcing_best_variant_C4 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report9.md |
+|  | forest_forcing_best_variant_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
+|  | forest_forcing_fwd_nse_F0_median_C4 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | forest_forcing_fwd_nse_best_median_C4 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | forest_forcing_n_identified_B_F0_C5 | report9.md |
+|  | forest_forcing_n_identified_B_best_C5 | report9.md |
+|  | forest_forcing_posthoc_fwd_nse_F0_edge_C5 | Supplementary_Material.md |
+|  | forest_forcing_posthoc_fwd_nse_F0_inner_C4 | report9.md |
+|  | forest_forcing_posthoc_fwd_nse_F2_inner_C4 | report9.md |
+|  | forest_forcing_posthoc_fwd_nse_F2e_inner_C4 | report9.md |
+|  | forest_forcing_posthoc_fwd_nse_F2s_inner_C4 | Supplementary_Material.md |
+|  | forest_forcing_verdict_C4 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report9.md |
+|  | forest_forcing_verdict_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
+|  | ranwell_epoch_cand_pipe_foot_nse_at_k_low | Newborough_Methods_Supplement.md, report9.md |
+|  | ranwell_epoch_swing_ratio_epoch_ceh25 | Supplementary_Material.md |
+|  | ranwell_epoch_swing_ratio_epoch_nw5 | Supplementary_Material.md |
+|  | ranwell_epoch_swing_ratio_modern_ceh25 | Supplementary_Material.md |
+|  | ranwell_epoch_swing_ratio_modern_nw5 | report9.md |
+|  | ranwell_need_joint_nse | report9.md |
+|  | ranwell_need_nse_pipe_foot | Newborough_Methods_Supplement.md |
+|  | ranwell_need_single_k2 | Newborough_Methods_Supplement.md, report7.md, report9.md |
+|  | ranwell_need_single_k3_nse | Newborough_Methods_Supplement.md |
 | `51_report_numbers.csv` | gapfill_early_adopted_to_model_b_msl_err_ratio | Supplementary_Material.md |
 |  | gapfill_early_nearest_cluster_excluded_rmse_median | Hollingham_2026_Paper2_amended.md |
 |  | gapfill_early_nearest_excluded_rmse_median | Hollingham_2026_Paper2_amended.md |

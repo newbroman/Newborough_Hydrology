@@ -1,0 +1,154 @@
+Parameter,Well,Era,Value,Unit,Note
+two_store_verdict,,,0.0,code,"not resolved (2 regional field, 1 two stores supported, 0 not resolved; the rule fixed before the run, D-231)"
+two_store_C1_slow_share,,,2.3605478096071157e-10,,"C1: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C1_slow_efold_months,,,,months,"C1: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
+two_store_C1_bic_double_minus_single,,,11.153111945974842,,"C1: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C1_split_nse_single,,,0.8727652141317536,,"C1: median split-test NSE, single exponential (E8, D-231)"
+two_store_C1_split_nse_double,,,0.8730080577268677,,"C1: median split-test NSE, double exponential (E8, D-231)"
+two_store_C1_early_resid_single_m,,,0.055241395582274345,m,"C1: mean residual 2006-2008, single (E8, D-231)"
+two_store_C1_early_resid_double_m,,,0.05532572160237695,m,"C1: mean residual 2006-2008, double (E8, D-231)"
+two_store_C1_ccw_bias_single_m,,,,m,"C1: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C1_ccw_bias_double_m,,,,m,"C1: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C1_test1,,,0.0,flag,"C1: test 1 passed (1) or not (0) (E8, D-231)"
+two_store_C1_test4,,,0.0,flag,"C1: test 4 passed (1) or not (0) (E8, D-231)"
+two_store_C2_slow_share,,,3.088850695542631e-19,,"C2: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C2_slow_efold_months,,,,months,"C2: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
+two_store_C2_bic_double_minus_single,,,11.210390993040619,,"C2: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C2_split_nse_single,,,0.7717561219117359,,"C2: median split-test NSE, single exponential (E8, D-231)"
+two_store_C2_split_nse_double,,,0.7661387649216911,,"C2: median split-test NSE, double exponential (E8, D-231)"
+two_store_C2_early_resid_single_m,,,0.2229237415016623,m,"C2: mean residual 2006-2008, single (E8, D-231)"
+two_store_C2_early_resid_double_m,,,0.22302087209687962,m,"C2: mean residual 2006-2008, double (E8, D-231)"
+two_store_C2_ccw_bias_single_m,,,0.16045687107455325,m,"C2: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C2_ccw_bias_double_m,,,0.16086468467269704,m,"C2: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C2_test1,,,0.0,flag,"C2: test 1 passed (1) or not (0) (E8, D-231)"
+two_store_C2_test4,,,0.0,flag,"C2: test 4 passed (1) or not (0) (E8, D-231)"
+two_store_C3_slow_share,,,9.655073731418128e-19,,"C3: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C3_slow_efold_months,,,,months,"C3: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
+two_store_C3_bic_double_minus_single,,,11.034753871442149,,"C3: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C3_split_nse_single,,,0.7602862562626935,,"C3: median split-test NSE, single exponential (E8, D-231)"
+two_store_C3_split_nse_double,,,0.7466196175617328,,"C3: median split-test NSE, double exponential (E8, D-231)"
+two_store_C3_early_resid_single_m,,,0.16528697098522602,m,"C3: mean residual 2006-2008, single (E8, D-231)"
+two_store_C3_early_resid_double_m,,,0.16551320458921703,m,"C3: mean residual 2006-2008, double (E8, D-231)"
+two_store_C3_ccw_bias_single_m,,,0.38239290770851053,m,"C3: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C3_ccw_bias_double_m,,,0.3818259057734106,m,"C3: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C3_test1,,,0.0,flag,"C3: test 1 passed (1) or not (0) (E8, D-231)"
+two_store_C3_test4,,,0.0,flag,"C3: test 4 passed (1) or not (0) (E8, D-231)"
+two_store_C4_slow_share,,,1.2435194808496038e-21,,"C4: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C4_slow_efold_months,,,,months,"C4: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
+two_store_C4_bic_double_minus_single,,,10.786306081934185,,"C4: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C4_split_nse_single,,,0.4749131148958359,,"C4: median split-test NSE, single exponential (E8, D-231)"
+two_store_C4_split_nse_double,,,-1.5152459374547431,,"C4: median split-test NSE, double exponential (E8, D-231)"
+two_store_C4_early_resid_single_m,,,0.5189671455349875,m,"C4: mean residual 2006-2008, single (E8, D-231)"
+two_store_C4_early_resid_double_m,,,0.52100488474229,m,"C4: mean residual 2006-2008, double (E8, D-231)"
+two_store_C4_ccw_bias_single_m,,,,m,"C4: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C4_ccw_bias_double_m,,,,m,"C4: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C4_test1,,,0.0,flag,"C4: test 1 passed (1) or not (0) (E8, D-231)"
+two_store_C4_test4,,,0.0,flag,"C4: test 4 passed (1) or not (0) (E8, D-231)"
+two_store_C5_slow_share,,,1.5412569404017036e-13,,"C5: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C5_slow_efold_months,,,,months,"C5: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
+two_store_C5_bic_double_minus_single,,,11.001587471916764,,"C5: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C5_split_nse_single,,,-0.13987191819859324,,"C5: median split-test NSE, single exponential (E8, D-231)"
+two_store_C5_split_nse_double,,,-0.1410878295855592,,"C5: median split-test NSE, double exponential (E8, D-231)"
+two_store_C5_early_resid_single_m,,,0.7284645300945369,m,"C5: mean residual 2006-2008, single (E8, D-231)"
+two_store_C5_early_resid_double_m,,,0.7287829359898687,m,"C5: mean residual 2006-2008, double (E8, D-231)"
+two_store_C5_ccw_bias_single_m,,,0.5288804353865724,m,"C5: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C5_ccw_bias_double_m,,,0.5277834436855513,m,"C5: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C5_test1,,,0.0,flag,"C5: test 1 passed (1) or not (0) (E8, D-231)"
+two_store_C5_test4,,,0.0,flag,"C5: test 4 passed (1) or not (0) (E8, D-231)"
+two_store_nw9_winter2007_max_observed_m,,,0.571,m,"nw9: highest level, winter ending 2007 (observed; E8, D-231)"
+two_store_nw9_winter2007_max_single_m,,,-0.4210908510444761,m,"nw9: highest level, winter ending 2007 (single; E8, D-231)"
+two_store_nw9_winter2007_max_double_m,,,-0.420611368451265,m,"nw9: highest level, winter ending 2007 (double; E8, D-231)"
+two_store_nw9_winter2009_max_observed_m,,,0.021,m,"nw9: highest level, winter ending 2009 (observed; E8, D-231)"
+two_store_nw9_winter2009_max_single_m,,,-0.4014033061103638,m,"nw9: highest level, winter ending 2009 (single; E8, D-231)"
+two_store_nw9_winter2009_max_double_m,,,-0.4008583593005123,m,"nw9: highest level, winter ending 2009 (double; E8, D-231)"
+two_store_nw9_winter2014_max_observed_m,,,-0.149,m,"nw9: highest level, winter ending 2014 (observed; E8, D-231)"
+two_store_nw9_winter2014_max_single_m,,,-0.23968562691406448,m,"nw9: highest level, winter ending 2014 (single; E8, D-231)"
+two_store_nw9_winter2014_max_double_m,,,-0.23859935218393458,m,"nw9: highest level, winter ending 2014 (double; E8, D-231)"
+two_store_nw9_winter2016_max_observed_m,,,-0.239,m,"nw9: highest level, winter ending 2016 (observed; E8, D-231)"
+two_store_nw9_winter2016_max_single_m,,,-0.19175299514081356,m,"nw9: highest level, winter ending 2016 (single; E8, D-231)"
+two_store_nw9_winter2016_max_double_m,,,-0.19099459805868368,m,"nw9: highest level, winter ending 2016 (double; E8, D-231)"
+two_store_nw9_winter2024_max_observed_m,,,-0.269,m,"nw9: highest level, winter ending 2024 (observed; E8, D-231)"
+two_store_nw9_winter2024_max_single_m,,,-0.24709983049297246,m,"nw9: highest level, winter ending 2024 (single; E8, D-231)"
+two_store_nw9_winter2024_max_double_m,,,-0.2460687840733048,m,"nw9: highest level, winter ending 2024 (double; E8, D-231)"
+two_store_nw9_single_pass,,,0.0,flag,nw9 winters reproduced by the C5 single model (test 4b)
+two_store_nw9_double_pass,,,0.0,flag,nw9 winters reproduced by the C5 double model (test 4b)
+change_verdict,,,1.0,code,"cluster-specific change (2 site-wide, 1 cluster-specific, 0 none; E8b, rule fixed before the run, D-232)"
+change_common_date,,,,month,midpoint of the overlap of the change dates' 95% intervals across the clusters that need a term (E8b)
+change_C1_earns,,,0.0,flag,C1: a non-climatic term earns its place (E8b)
+change_C1_tstart,,,2009-07,month,"C1: fitted change date, best form step (E8b)"
+change_C2_earns,,,0.0,flag,C2: a non-climatic term earns its place (E8b)
+change_C2_tstart,,,2005-06,month,"C2: fitted change date, best form trend (E8b)"
+change_C3_earns,,,0.0,flag,C3: a non-climatic term earns its place (E8b)
+change_C3_tstart,,,2005-12,month,"C3: fitted change date, best form trend (E8b)"
+change_C4_earns,,,0.0,flag,C4: a non-climatic term earns its place (E8b)
+change_C4_tstart,,,2006-06,month,"C4: fitted change date, best form trend (E8b)"
+change_C5_earns,,,1.0,flag,C5: a non-climatic term earns its place (E8b)
+change_C5_tstart,,,2007-02,month,"C5: fitted change date, best form relax (E8b)"
+surface_verdict,,,0.0,code,"not supported (1 supported at a majority of clusters, 0 not; E8c, D-232)"
+surface_C1_passes,,,0.0,flag,C1: surface flow passes tests 1-3 (E8c)
+surface_C1_threshold_m,,,0.05,m,"C1: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
+surface_C2_passes,,,0.0,flag,C2: surface flow passes tests 1-3 (E8c)
+surface_C2_threshold_m,,,-0.1709574249068384,m,"C2: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+surface_C3_passes,,,0.0,flag,C3: surface flow passes tests 1-3 (E8c)
+surface_C3_threshold_m,,,-0.8844302591140294,m,"C3: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+surface_C4_passes,,,0.0,flag,C4: surface flow passes tests 1-3 (E8c)
+surface_C4_threshold_m,,,-0.6,m,"C4: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
+surface_C5_passes,,,0.0,flag,C5: surface flow passes tests 1-3 (E8c)
+surface_C5_threshold_m,,,-0.7821532436866677,m,"C5: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+e8d_verdict,,,0.0,code,"not supported (2 supported, 1 unusual rain but no explanation, 0 not supported; E8d, D-234)"
+e8d_long_event_threshold_mm,,,48.4,mm,"long-event threshold at alaw_01146: the 90th percentile of multi-day event totals, baseline to 2005"
+e8d_event_share_2006,,,0.5357094821788837,fraction,share of the 2005/06 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2006,,,86.20689655172413,percentile,2005/06 event share against the gauge's own baseline winters
+e8d_event_share_2007,,,0.4172329044383404,fraction,share of the 2006/07 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2007,,,75.86206896551724,percentile,2006/07 event share against the gauge's own baseline winters
+e8d_event_share_2008,,,0.3257042253521127,fraction,share of the 2007/08 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2008,,,62.06896551724138,percentile,2007/08 event share against the gauge's own baseline winters
+e8d_event_share_2014,,,0.4304468568543297,fraction,share of the 2013/14 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2014,,,79.3103448275862,percentile,2013/14 event share against the gauge's own baseline winters
+e8d_event_share_2016,,,0.47582017010935596,fraction,share of the 2015/16 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2016,,,79.3103448275862,percentile,2015/16 event share against the gauge's own baseline winters
+e8d_test1_unusual,,,0.0,flag,E8d test 1: 2005-08 winters unusual in event share
+e8d_test2_later_lower,,,0.0,flag,E8d test 2: later wet winters below 2006/07
+e8d_clusters_earning,,,0.0,count,"E8d test 3: clusters (of 4, C2-C5) where the long-event stress earns its place"
+e8d_check_gauge_agrees,,,1.0,flag,"valley_01145 points the same way on the test winters (reported, not the rule)"
+e8e_verdict,,,1.0,code,"consistent in place, timing not resolved (2 supported, 1 place only, 0 not supported; E8e, D-235)"
+e8e_n_wells,,,29.0,count,wells with at least 12 readings in 2006-08 and a single-store fit
+e8e_rho_felling,,,-0.8907500991323931,rho,"Spearman rho, 2006-08 excess against distance to the nearest 1998 felling"
+e8e_p_felling,,,9.591928713077935e-11,p,its p-value
+e8e_rho_coast,,,-0.786206896551724,rho,"Spearman rho, 2006-08 excess against distance to the coast"
+e8e_p_coast,,,4.303881259060025e-07,p,its p-value
+e8e_median_near_m,,,0.4199816710408013,m,"median 2006-08 excess, wells within 250 m of a 1998 felling (n 10)"
+e8e_median_rest_m,,,0.22652209027632875,m,"median 2006-08 excess, the other wells (n 19)"
+e8e_mw_p,,,7.67432325656018e-05,p,"Mann-Whitney, near greater than the rest (reported, not the rule)"
+e8e_median_far_open_m,,,0.13511641466234459,m,"median 2006-08 excess, open-dune wells beyond 500 m (n 11; test 3, reported)"
+e8e_rho_between_distances,,,0.6412119767814213,rho,"Spearman rho between the two distances over the same wells (check, not the rule)"
+e8e_partial_felling,,,-0.8153154977116565,rho,excess against felling distance with coast distance held fixed (Spearman partial; check)
+e8e_partial_coast,,,-0.6166021343353171,rho,excess against coast distance with felling distance held fixed (Spearman partial; check)
+e8e_rho_open_felling,,,-0.8586466165413533,rho,"excess against felling distance, open-dune wells only (n 20; check)"
+e8e_nw9_half_year,,,2009.0,year,first year NW9's annual mean residual is below half its 2006-07 mean
+e8e_canopy_half_year,,,2017.2967468172412,year,year felling_1998_1's canopy ratio (vp1) is halfway from its first frame to its highest
+e8e_timing_gap_years,,,-7.796746817241228,years,NW9 half year (mid-year) minus the canopy half year
+e8f_verdict,,,2.0,code,"clearance step at the controls (2 step at the controls, 1 none, 0 site-wide shift; E8f, D-236)"
+e8f_n_near,,,16.0,count,wells within 500 m of the shore clearance that could be tested
+e8f_near_with_step,,,11.0,count,"of those, wells with a step by the rule"
+e8f_near_step_wide_in_window,,,0.0,count,"of the near wells with a step, those whose step date profiled over 2008-2020 still lands in the clearance window (check, not the rule)"
+e8f_near_step2,,,2.0,count,"near wells with a clearance-window step IN ADDITION to their wide-window step (check, not the rule)"
+e8f_controls_step2,,,0.0,count,"of ceh19, ceh17, ceh4: controls with that additional step (check, not the rule)"
+e8f_n_placebo,,,42.0,count,placebo wells beyond 1000 m that could be tested
+e8f_placebo_frac_with_step,,,0.047619047619047616,fraction,share of placebo wells with a step (test 2)
+e8f_rho_step_distance,,,0.4647058823529412,rho,"Spearman rho, step size against distance to the clearance, near wells (reported)"
+e8f_step_ceh19_m,,,-0.1529992902573317,m,ceh19: fitted step at 2014-10 (95% -0.185 to -0.121 m)
+e8f_has_step_ceh19,,,1.0,flag,ceh19: step by the rule (BIC and interval)
+e8f_step_ceh17_m,,,-0.2274069463044695,m,ceh17: fitted step at 2014-10 (95% -0.280 to -0.175 m)
+e8f_has_step_ceh17,,,1.0,flag,ceh17: step by the rule (BIC and interval)
+e8f_step_ceh4_m,,,-0.23695442299139152,m,ceh4: fitted step at 2014-10 (95% -0.282 to -0.192 m)
+e8f_has_step_ceh4,,,1.0,flag,ceh4: step by the rule (BIC and interval)
+e8f_step_wmc3_m,,,0.0039994198457909335,m,WMC3 (clearfell impact): fitted step in the clearance window (reported)
+precanopy_verdict_C4,,,0.0,code,"C4: not supported (2 supported, 1 not resolved, 0 not supported); a store drawn down by the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)"
+precanopy_n_cases_pass_C4,,,0.0,count,"C4: cases (of 6, planting year x closure age) in which the pre-canopy two-store fit passes all three tests (E8g)"
+precanopy_dbic_min_C4,,,-10.785077659800834,BIC,"C4: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
+precanopy_dbic_max_C4,,,23.65818907373142,BIC,C4: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)
+precanopy_verdict_C5,,,0.0,code,"C5: not supported (2 supported, 1 not resolved, 0 not supported); a store drawn down by the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)"
+precanopy_n_cases_pass_C5,,,0.0,count,"C5: cases (of 6, planting year x closure age) in which the pre-canopy two-store fit passes all three tests (E8g)"
+precanopy_dbic_min_C5,,,-10.996128598320297,BIC,"C5: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
+precanopy_dbic_max_C5,,,7.417631105543933,BIC,C5: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)

@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.90.0"  # Hollingham (2026) - 2026-11-23 (J-25). OUT_50_DECISION_FIG (50_54_decision_tree.png, Paper M Figure 7).
+__version__ = "2.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 split into the suite 50a-50e:
+#   DIR_50A..DIR_50E and OUT_50A..E_REPORT_NUMBERS; every OUT_50_* constant keeps its name and file and moves to
+#   its step's folder; DIR_50 and OUT_50_REPORT_NUMBERS retire (major: two names removed).
+# 1.90.0  # Hollingham (2026) - 2026-11-23 (J-25). OUT_50_DECISION_FIG (50_54_decision_tree.png, Paper M Figure 7).
 # 1.89.0  # Hollingham (2026) - 2026-11-23 (J-33). OUT_25_FIT_DIAGNOSTIC_A (25_05a_gradient_fits.jpg).
 # 1.88.0  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). OUT_09D_REPORT_NUMBERS (Script 09d
 #   3.13.0): the count of withdrawn scenario rows. Additive.
@@ -1469,65 +1472,75 @@ OUT_48_REPORT_NUMBERS = DIR_48 / "48_report_numbers.csv"
 OUT_48_MODEL_AB       = DIR_48 / "48_04_model_a_b_diagnostics.csv"  # split-sample, model-free memory, identification, loss partition (D-217)
 
 # Script 50 — what the record length decides (D-222)
-DIR_50 = OUT_DIR / "50_record_length"
-OUT_50_PER_WELL       = DIR_50 / "50_01_record_length_per_well.csv"   # well x form x experiment x L x placement
-OUT_50_BY_CLUSTER     = DIR_50 / "50_02_record_length_by_cluster.csv" # medians and p10/p90 by cluster
-OUT_50_CCW            = DIR_50 / "50_03_ccw_hindcast_by_length.csv"   # the CCW 1989-96 hindcast at each L
-OUT_50_STABLE         = DIR_50 / "50_05_stable_length_per_well.csv"   # each well's stable length, in months and mean-reversion times
-OUT_50_FIG            = DIR_50 / "50_04_record_length.png"
-OUT_50_CCW_DATUM      = DIR_50 / "50_06_ccw_hindcast_by_datum.csv"   # D-225: CCW hindcast, Model A at every datum
-OUT_50_SPLIT_DATUM    = DIR_50 / "50_07_split_by_datum.csv"          # D-225: split-sample NSE at every datum
-OUT_50_PROJ_DATUM     = DIR_50 / "50_08_projection_by_datum.csv"     # D-225: UKCP18 response and room left at every datum
-OUT_50_SPLIT_SERIES   = DIR_50 / "50_48_split_series.csv"            # J-6: the Jan-2018 split-sample free run, MONTHLY, Model A and Model B
-OUT_50_SPLIT_FIG      = DIR_50 / "50_49_split_both_models.png"      # J-6: scenario 1 drawn, Model A against Model B
-OUT_50_NEIGHBOUR      = DIR_50 / "50_50_neighbour_transfer.csv"     # T-173: fit on a neighbour, run here, scored r2 and bias
-OUT_50_NEIGHBOUR_FIG  = DIR_50 / "50_51_neighbour_transfer.png"     # T-173: the same, drawn
-OUT_50_TRANSFER_RULE = DIR_50 / "50_52_transfer_rule.csv"          # T-173b, 2026-11-08: WHY
+# J-15 (T-208, 2026-11-24): Script 50 split into the suite 50a-50e, one output folder per step. Every OUT_50_*
+# constant keeps its name and its file name; only its folder moves. DIR_50 and OUT_50_REPORT_NUMBERS retire.
+DIR_50A = OUT_DIR / "50a_record_length"
+DIR_50B = OUT_DIR / "50b_datum_bases"
+DIR_50C = OUT_DIR / "50c_transfer"
+DIR_50D = OUT_DIR / "50d_two_stores"
+DIR_50E = OUT_DIR / "50e_drier_epochs"
+OUT_50A_REPORT_NUMBERS = DIR_50A / "50a_report_numbers.csv"
+OUT_50B_REPORT_NUMBERS = DIR_50B / "50b_report_numbers.csv"
+OUT_50C_REPORT_NUMBERS = DIR_50C / "50c_report_numbers.csv"
+OUT_50D_REPORT_NUMBERS = DIR_50D / "50d_report_numbers.csv"
+OUT_50E_REPORT_NUMBERS = DIR_50E / "50e_report_numbers.csv"
+OUT_50_PER_WELL       = DIR_50A / "50_01_record_length_per_well.csv"   # well x form x experiment x L x placement
+OUT_50_BY_CLUSTER     = DIR_50A / "50_02_record_length_by_cluster.csv" # medians and p10/p90 by cluster
+OUT_50_CCW            = DIR_50A / "50_03_ccw_hindcast_by_length.csv"   # the CCW 1989-96 hindcast at each L
+OUT_50_STABLE         = DIR_50A / "50_05_stable_length_per_well.csv"   # each well's stable length, in months and mean-reversion times
+OUT_50_FIG            = DIR_50A / "50_04_record_length.png"
+OUT_50_CCW_DATUM      = DIR_50B / "50_06_ccw_hindcast_by_datum.csv"   # D-225: CCW hindcast, Model A at every datum
+OUT_50_SPLIT_DATUM    = DIR_50B / "50_07_split_by_datum.csv"          # D-225: split-sample NSE at every datum
+OUT_50_PROJ_DATUM     = DIR_50B / "50_08_projection_by_datum.csv"     # D-225: UKCP18 response and room left at every datum
+OUT_50_SPLIT_SERIES   = DIR_50B / "50_48_split_series.csv"            # J-6: the Jan-2018 split-sample free run, MONTHLY, Model A and Model B
+OUT_50_SPLIT_FIG      = DIR_50B / "50_49_split_both_models.png"      # J-6: scenario 1 drawn, Model A against Model B
+OUT_50_NEIGHBOUR      = DIR_50C / "50_50_neighbour_transfer.csv"     # T-173: fit on a neighbour, run here, scored r2 and bias
+OUT_50_NEIGHBOUR_FIG  = DIR_50C / "50_51_neighbour_transfer.png"     # T-173: the same, drawn
+OUT_50_TRANSFER_RULE = DIR_50C / "50_52_transfer_rule.csv"          # T-173b, 2026-11-08: WHY
 # transfer succeeds or fails, and a screening rule another site could apply. Per well-neighbour
 # pair: the candidate predictors (mean-depth difference, record correlation, distance, the
 # coefficient differences) against the measured change in NSE; plus banded summary rows.
-OUT_50_TRANSFER_FIG  = DIR_50 / "50_53_transfer_rule.png"          # T-173b: the same, drawn
-OUT_50_DECISION_FIG  = DIR_50 / "50_54_decision_tree.png"          # J-25: what the model lets you predict (Paper M 4.6, Figure 7)
-OUT_50_DATUM_FIG      = DIR_50 / "50_09_datum_against_the_drier_past.png"
-OUT_50_RANWELL_DATUM  = DIR_50 / "50_10_ranwell_hindcast_by_datum.csv"   # E9, D-229
-OUT_50_TWO_STORE      = DIR_50 / "50_12_two_store_by_cluster.csv"     # E8, D-231
-OUT_50_TWO_STORE_WELL = DIR_50 / "50_13_two_store_check_well.csv"     # E8, D-231
-OUT_50_TWO_STORE_FIG  = DIR_50 / "50_14_two_store.png"                 # E8, D-231
-OUT_50_CHANGE         = DIR_50 / "50_15_two_store_change.csv"         # E8b, D-232
-OUT_50_SURFACE        = DIR_50 / "50_16_surface_flow.csv"             # E8c, D-232
-OUT_50_CHANGE_SURFACE_FIG = DIR_50 / "50_17_change_and_surface.png"   # E8b/E8c, D-232
-OUT_50_RAIN_EVENTS = DIR_50 / "50_18_rain_events_by_winter.csv"       # E8d, D-234
-OUT_50_EVENT_STRESS = DIR_50 / "50_19_event_stress_by_cluster.csv"     # E8d, D-234
-OUT_50_RAIN_EVENTS_FIG = DIR_50 / "50_20_rain_events.png"              # E8d, D-234
-OUT_50_FELLING_DIST = DIR_50 / "50_21_felling_distance_by_well.csv"     # E8e, D-235
-OUT_50_NW9_TIMING = DIR_50 / "50_22_nw9_regrowth_timing.csv"           # E8e, D-235
-OUT_50_FELLING_FIG = DIR_50 / "50_23_felling_regrowth.png"              # E8e, D-235
-OUT_50_CLEARANCE_STEP = DIR_50 / "50_24_clearance_step_by_well.csv"   # E8f, D-236
-OUT_50_CLEARANCE_FIG = DIR_50 / "50_25_clearance_step.png"             # E8f, D-236
-OUT_50_PRECANOPY     = DIR_50 / "50_26_precanopy_by_case.csv"          # E8g, T-121, D-255
-OUT_50_FOREST_FORCING = DIR_50 / "50_27_forest_forcing_by_well.csv"   # E10, D-260
-OUT_50_RANWELL_NEED  = DIR_50 / "50_28_ranwell_need_grid.csv"        # E11, D-261
-OUT_50_RANWELL_EPOCH = DIR_50 / "50_29_ranwell_epoch_candidates.csv" # E11, D-261
-OUT_50_BASIS         = DIR_50 / "50_30_basis_by_test.csv"            # E12, D-268
-OUT_50_PET_ALT       = DIR_50 / "50_31_pet_alternatives_monthly.csv"  # E13, D-273
-OUT_50_PLACEMENT     = DIR_50 / "50_40_placement_by_test.csv"        # E12b, D-282
-OUT_50_ELEV_DATUM_TESTS   = DIR_50 / "50_41_elevation_datum_by_test.csv"    # E16, D-286
-OUT_50_ELEV_DATUM_SUMMARY = DIR_50 / "50_42_elevation_datum_summary.csv"    # E16, D-286
-OUT_50_CLUSTER_BASE_TESTS   = DIR_50 / "50_43_cluster_base_by_test.csv"    # E17, D-287
-OUT_50_CLUSTER_BASE_SUMMARY = DIR_50 / "50_44_cluster_base_summary.csv"    # E17, D-287
-OUT_50_CCW_QMAP             = DIR_50 / "50_45_ccw_quantile_map.csv"         # E18, T-130 / D-290: per well x basis, raw and mapped CCW skill
-OUT_50_CCW_FILM_MAP         = DIR_50 / "50_46_ccw_film_map_months.csv"      # E19, T-133 / D-292: the film's run raw, mapped and offset against the CCW median
-OUT_50_CCW_FILM_MAP_YEARS   = DIR_50 / "50_47_ccw_film_map_years.csv"       # E19, T-133 / D-292: RMSE per arm per hydrology year
+OUT_50_TRANSFER_FIG  = DIR_50C / "50_53_transfer_rule.png"          # T-173b: the same, drawn
+OUT_50_DECISION_FIG  = DIR_50C / "50_54_decision_tree.png"          # J-25: what the model lets you predict (Paper M 4.6, Figure 7)
+OUT_50_DATUM_FIG      = DIR_50B / "50_09_datum_against_the_drier_past.png"
+OUT_50_RANWELL_DATUM  = DIR_50B / "50_10_ranwell_hindcast_by_datum.csv"   # E9, D-229
+OUT_50_TWO_STORE      = DIR_50D / "50_12_two_store_by_cluster.csv"     # E8, D-231
+OUT_50_TWO_STORE_WELL = DIR_50D / "50_13_two_store_check_well.csv"     # E8, D-231
+OUT_50_TWO_STORE_FIG  = DIR_50D / "50_14_two_store.png"                 # E8, D-231
+OUT_50_CHANGE         = DIR_50D / "50_15_two_store_change.csv"         # E8b, D-232
+OUT_50_SURFACE        = DIR_50D / "50_16_surface_flow.csv"             # E8c, D-232
+OUT_50_CHANGE_SURFACE_FIG = DIR_50D / "50_17_change_and_surface.png"   # E8b/E8c, D-232
+OUT_50_RAIN_EVENTS = DIR_50D / "50_18_rain_events_by_winter.csv"       # E8d, D-234
+OUT_50_EVENT_STRESS = DIR_50D / "50_19_event_stress_by_cluster.csv"     # E8d, D-234
+OUT_50_RAIN_EVENTS_FIG = DIR_50D / "50_20_rain_events.png"              # E8d, D-234
+OUT_50_FELLING_DIST = DIR_50D / "50_21_felling_distance_by_well.csv"     # E8e, D-235
+OUT_50_NW9_TIMING = DIR_50D / "50_22_nw9_regrowth_timing.csv"           # E8e, D-235
+OUT_50_FELLING_FIG = DIR_50D / "50_23_felling_regrowth.png"              # E8e, D-235
+OUT_50_CLEARANCE_STEP = DIR_50D / "50_24_clearance_step_by_well.csv"   # E8f, D-236
+OUT_50_CLEARANCE_FIG = DIR_50D / "50_25_clearance_step.png"             # E8f, D-236
+OUT_50_PRECANOPY     = DIR_50D / "50_26_precanopy_by_case.csv"          # E8g, T-121, D-255
+OUT_50_FOREST_FORCING = DIR_50E / "50_27_forest_forcing_by_well.csv"   # E10, D-260
+OUT_50_RANWELL_NEED  = DIR_50E / "50_28_ranwell_need_grid.csv"        # E11, D-261
+OUT_50_RANWELL_EPOCH = DIR_50E / "50_29_ranwell_epoch_candidates.csv" # E11, D-261
+OUT_50_BASIS         = DIR_50C / "50_30_basis_by_test.csv"            # E12, D-268
+OUT_50_PET_ALT       = DIR_50E / "50_31_pet_alternatives_monthly.csv"  # E13, D-273
+OUT_50_PLACEMENT     = DIR_50C / "50_40_placement_by_test.csv"        # E12b, D-282
+OUT_50_ELEV_DATUM_TESTS   = DIR_50B / "50_41_elevation_datum_by_test.csv"    # E16, D-286
+OUT_50_ELEV_DATUM_SUMMARY = DIR_50B / "50_42_elevation_datum_summary.csv"    # E16, D-286
+OUT_50_CLUSTER_BASE_TESTS   = DIR_50B / "50_43_cluster_base_by_test.csv"    # E17, D-287
+OUT_50_CLUSTER_BASE_SUMMARY = DIR_50B / "50_44_cluster_base_summary.csv"    # E17, D-287
+OUT_50_CCW_QMAP             = DIR_50C / "50_45_ccw_quantile_map.csv"         # E18, T-130 / D-290: per well x basis, raw and mapped CCW skill
+OUT_50_CCW_FILM_MAP         = DIR_50E / "50_46_ccw_film_map_months.csv"      # E19, T-133 / D-292: the film's run raw, mapped and offset against the CCW median
+OUT_50_CCW_FILM_MAP_YEARS   = DIR_50E / "50_47_ccw_film_map_years.csv"       # E19, T-133 / D-292: RMSE per arm per hydrology year
 OUT_03_WELL_OPTIMAL_DATUMS  = DIR_03 / "03_09_well_optimal_datums.csv"     # read by Script 50 E17 (written by Script 03)
-OUT_50_E13_PET       = DIR_50 / "50_32_e13_pet_by_cluster.csv"        # E13, D-273
-OUT_50_E13_BREAK     = DIR_50 / "50_33_e13_beta1_break_by_well.csv"   # E13, D-273
-OUT_50_E13_WEATHER   = DIR_50 / "50_34_e13_weather_summary.csv"       # E13, D-273
-OUT_50_E13_FIG       = DIR_50 / "50_35_e13.png"                       # E13, D-273
-OUT_50_E13B_CMP      = DIR_50 / "50_36_pet_comparison.csv"            # E13b, D-274
-OUT_50_E13B_FIG      = DIR_50 / "50_37_pet_comparison.png"            # E13b, D-274
-OUT_50_E13B_RESID    = DIR_50 / "50_38_residual_seasonality_pm.csv"   # E13b, D-274
-OUT_50_E13B_INPUTS   = DIR_50 / "50_39_midas_annual_inputs.csv"      # E13b, D-274: the inputs' homogeneity
-OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
+OUT_50_E13_PET       = DIR_50E / "50_32_e13_pet_by_cluster.csv"        # E13, D-273
+OUT_50_E13_BREAK     = DIR_50E / "50_33_e13_beta1_break_by_well.csv"   # E13, D-273
+OUT_50_E13_WEATHER   = DIR_50E / "50_34_e13_weather_summary.csv"       # E13, D-273
+OUT_50_E13_FIG       = DIR_50E / "50_35_e13.png"                       # E13, D-273
+OUT_50_E13B_CMP      = DIR_50E / "50_36_pet_comparison.csv"            # E13b, D-274
+OUT_50_E13B_FIG      = DIR_50E / "50_37_pet_comparison.png"            # E13b, D-274
+OUT_50_E13B_RESID    = DIR_50E / "50_38_residual_seasonality_pm.csv"   # E13b, D-274
+OUT_50_E13B_INPUTS   = DIR_50E / "50_39_midas_annual_inputs.csv"      # E13b, D-274: the inputs' homogeneity
 
 # Script 51 - filling gaps in the record from cluster-mates (D-275)
 DIR_51 = OUT_DIR / "51_cluster_gap_fill"

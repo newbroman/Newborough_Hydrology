@@ -202,7 +202,10 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.30.0"  # Hollingham (2026) - 2026-11-05. Phase 22: Script 55, the water-balance residual
+__version__ = "2.31.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 is the suite 50a-50e: five Step rows in
+#   Phase 19 in place of one (all tier X, opt-in, Martin 2026-11-24). _DOCUMENTED_COUNTS: total_registered 64 -> 68,
+#   by_tier.optin_diagnostic 12 -> 16, by_exec.optin 8 -> 12; total_phases unchanged (22).
+# "2.30.0"  # Hollingham (2026) - 2026-11-05. Phase 22: Script 55, the water-balance residual
 #   analysis (spec NRG_spec_water_balance_diagnostic_2026-11-04, D2: tier X, opt-in). Two-pass, like 09f: it
 #   reads Scripts 18 (per-well Sy, full record and windowed), 48 (the Model A/B split-sample scores) and 39
 #   (the CCW series), so it registers after all three and a first run on a clean tree skips the stages whose
@@ -592,7 +595,14 @@ PHASE_18 = [
 
 PHASE_19 = [
     Step("48_pastas_crosscheck.py", "Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)", "A"),
-    Step("50_record_length.py",     "What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic", "X", "optin"),
+    # J-15 (T-208, Martin 2026-11-24: "five families", "50a-50e suite", "all stay opt-in"): Script 50 split
+    # into five steps, each a script like every other step (Martin 2026-11-12: "treated as the other pipeline
+    # steps"). 50a runs first: 50e reads its per-well table and 50c's decision tree reads 50a and 50b.
+    Step("50a_record_length.py",    "What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic", "X", "optin"),
+    Step("50b_datum_bases.py",      "Which datum and drainage base the record supports (D-225, D-229, D-286, D-287): Model A refitted at every datum of Script 03's sweep against the CCW and Ranwell hindcasts, the split test and the UKCP18 projection; one base in elevation (E16) and a base per cluster (E17). Opt-in diagnostic", "X", "optin"),
+    Step("50c_transfer.py",         "Transfer between wells (T-173, D-268, D-282, D-290): a neighbour's coefficients at a well and the transfer rule, per well or per cluster on both hindcasts (E12), placing a new well from a short record (E12b), and a modern-record calibration at CCW 1989\u201396 (E18); Paper M's decision tree. Opt-in diagnostic", "X", "optin"),
+    Step("50d_two_stores.py",       "Two stores and non-climatic change (D-231 to D-236, D-255): two drainage time scales per cluster (E8), a non-climatic change and surface flow (E8b/c), rain event structure (E8d), the felling north of NW9 (E8e), the 2014/15 shore clearance (E8f) and the pre-canopy store (E8g). Opt-in diagnostic", "X", "optin"),
+    Step("50e_drier_epochs.py",     "Drier epochs and forcing (D-260, D-261, D-273, D-274, D-292): the forest's forcing (E10), what Ranwell's 1951\u201353 readings need (E11), other evaporation estimates and a recharge break (E13/E13b), and whether the film's correction transfers (E19). Opt-in diagnostic", "X", "optin"),
 ]
 
 PHASE_20 = [
@@ -659,13 +669,13 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            64,
+    "total_registered":            68,
     "total_phases":                22,
     "by_tier.analytical_toplevel": 44,
     "by_tier.display_utility":      8,
-    "by_tier.optin_diagnostic":    12,
+    "by_tier.optin_diagnostic":    16,
     "by_exec.default":             53,
-    "by_exec.optin":                8,
+    "by_exec.optin":                12,
     "by_exec.ondemand":             3,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

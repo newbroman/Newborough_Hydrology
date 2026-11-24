@@ -115,7 +115,8 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-11-23 (J-29, T-226). paper1_si/S12_3 retired: S12 moved to Paper C's SI (2026f),
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-11-24 (J-15, T-208). paperM/Table3's r50 source is 50a's report numbers.
+# "1.23.0"  # Hollingham (2026) — 2026-11-23 (J-29, T-226). paper1_si/S12_3 retired: S12 moved to Paper C's SI (2026f),
 #   whose Table S1 carries the panel-fit parameters as number fields.
 # 1.22.0  # Hollingham (2026) — 2026-11-18 (J-19, T-110, D-334). paper1/Table7 (the per-cluster
 #   drainage decay half-life) removed: a recession time at a fixed floor is not a finding, and Script 18's CSV had
@@ -1376,7 +1377,7 @@ TABLES = [
         # Script 50 per-well medians over the wells that reach stability (Model B only).
         "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv",
                     "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
-                    "r50": "outputs/50_record_length/50_report_numbers.csv"},
+                    "r50": "outputs/50a_record_length/50a_report_numbers.csv"},   # J-15: stable record is 50a
         "rows": {"source": "wb"},
         "header": ["Cluster", "β₁", "β₂", "β₃", "Drainage share (%)", "Residual (mm month⁻¹)",
                    "τ_B / τ_obs (months)", "L_B (months)"],   # symbols defined in the caption

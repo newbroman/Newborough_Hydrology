@@ -29,7 +29,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.3"  # Hollingham (2026) — 2026-10-18 (T-125). spec_of accepts a negative dpN (dp-1: round to tens), as field_sync.render already does.
+__version__ = "1.0.4"  # Hollingham (2026) — 2026-11-24 (J-15, T-208). ALIASES: "50" becomes "50a".."50e", one per
+#   step of the Script 50 suite. 1.0.3: 2026-10-18 (T-125). spec_of accepts a negative dpN (dp-1: round to tens), as field_sync.render already does.
 # 1.0.2  # Hollingham (2026) — 2026-10-03 (T-105). Alias 50 for Script 50's report numbers (Paper M v1_2 §6).
 # 1.0.1  # Hollingham (2026) — 2026-10-01 (D-220). The temporary pandoc input is in.txt
 #   (read as markdown), so docref_lint does not take it for a cited document.
@@ -61,7 +62,12 @@ ALIASES = {
     "12": "outputs/12_figure_site_overview/12_report_numbers.csv",
     "26": "outputs/26_van_willegen_msl/26_report_numbers.csv",
     "48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
-    "50": "outputs/50_record_length/50_report_numbers.csv",
+    # J-15 (T-208): Script 50 is the suite 50a-50e, one report-number file per step; the "50" alias retired
+    "50a": "outputs/50a_record_length/50a_report_numbers.csv",
+    "50b": "outputs/50b_datum_bases/50b_report_numbers.csv",
+    "50c": "outputs/50c_transfer/50c_report_numbers.csv",
+    "50d": "outputs/50d_two_stores/50d_report_numbers.csv",
+    "50e": "outputs/50e_drier_epochs/50e_report_numbers.csv",
 }
 TOKEN = re.compile(r"⟪([^|⟫]+)\|([^|⟫]+)\|([^⟫]+)⟫")
 MARK = "ZQF{:04d}QZ"

@@ -45,7 +45,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.43.0"  # Hollingham (2026) — 2026-11-23 (J-32). 25_03 n_wells_within_reach and 25_02_per_well_summer_min_slopes.csv
+__version__ = "1.44.0"  # Hollingham (2026) — 2026-11-24 (J-15, T-208). The two Script 50 tables move with the split: 50_36 to
+#   50e_drier_epochs/, 50_24 to 50d_two_stores/. 1.43.0: 2026-11-23 (J-32). 25_03 n_wells_within_reach and 25_02_per_well_summer_min_slopes.csv
 #   (keyed by well) registered, for Paper C SI S1.5.
 # 1.42.1  # Hollingham (2026) — 2026-11-22 (2026-11-22f). 03_06_leave_one_out.csv registered, keyed (Cluster_Label, Excluded_Well)
 #   (basis, pet, quantity), so Paper M §3 can bind the year Penman–Monteith inputs begin (first_year, 1957) as a
@@ -548,7 +549,7 @@ EXTRA_VALUE_TABLES = [
      ["slope_mm_per_yr", "p_value", "r2", "n_years"]),
     # J-27 (1.42.0): Script 50's PET comparison, one row per (basis, pet, quantity); Paper M §3 binds
     # all / first_year (the first year Penman–Monteith can be computed) as a field.
-    ("outputs/50_record_length/50_36_pet_comparison.csv", ("basis", "pet", "quantity"),
+    ("outputs/50e_drier_epochs/50_36_pet_comparison.csv", ("basis", "pet", "quantity"),
      ["value"]),
     # 2026-11-22f (1.42.1): Script 03's leave-one-out sweep, one row per (cluster, excluded well); the MS
     # quotes the C4 R² recoveries and the per-cluster beta_1 widths from it
@@ -1065,7 +1066,7 @@ EXTRA_VALUE_TABLES = [
      ['N_post', 'N_pre']),
     ('outputs/10_clearfell_baci/10d_03_mixed_model_results.csv', ('Control', 'Tier'),
      ['Clearfell_SE_m', 'Clearfell_coef_m', 'Clearfell_p', 'N']),
-    ('outputs/50_record_length/50_24_clearance_step_by_well.csv', 'well',
+    ('outputs/50d_two_stores/50_24_clearance_step_by_well.csv', 'well',
      ['dist_clearance_m']),
     ('outputs/26_van_willegen_msl/26_msl_5yr_per_well.csv', ('well', 'window_end_year'),
      ['MSL5_m_bg']),

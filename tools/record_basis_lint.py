@@ -161,14 +161,17 @@ def main() -> int:
             print(f"  {R}FAIL{N}   {rid}  dry_months {dm!r} is not one of {sorted(DRY_MONTHS)}")
             fail += 1
         elif dm in ("censored", "filled"):
-            for s_ in scripts:
-                p_ = SRC / s_ if (SRC / s_).exists() else ROOT / s_
-                ok_ = passes_dry_bound(p_) if dm == "censored" else uses_dry_fill(p_)
-                if p_.exists() and not ok_:
-                    print(f"  {R}FAIL{N}   {rid}  declares dry months {dm}, but {s_} "
-                          + ("passes dry_bound= to no fit call" if dm == "censored"
-                             else "neither fills dry months nor passes dry_bound="))
-                    fail += 1
+            # J-15 (2026-11-24): the rule is that the row NAMES a script whose fits are censored (D-281), so it holds
+            # when ANY listed script makes the call. Since the Script 50 split a step can reach the censored fit
+            # through utils/reclen_common.py, listed beside it ("50c_transfer.py; utils/reclen_common.py").
+            found = [SRC / s_ if (SRC / s_).exists() else ROOT / s_ for s_ in scripts]
+            found = [p_ for p_ in found if p_.exists()]
+            check = passes_dry_bound if dm == "censored" else uses_dry_fill
+            if found and not any(check(p_) for p_ in found):
+                print(f"  {R}FAIL{N}   {rid}  declares dry months {dm}, but {'; '.join(scripts)} "
+                      + ("passes dry_bound= to no fit call" if dm == "censored"
+                         else "neither fills dry months nor passes dry_bound="))
+                fail += 1
         if mode == "manual":
             manual += 1
             if not args.quiet:

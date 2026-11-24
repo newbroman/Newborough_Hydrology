@@ -1,0 +1,262 @@
+Parameter,Well,Era,Value,Unit,Note
+transfer_B_median_r2_own_C1,,,0.8661752127244593,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_r2_neighbour_C1,,,0.8582160576906953,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_r2_centroid_C1,,,0.8621990835426838,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_abs_bias_m_own_C1,,,0.023210874859028077,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_abs_bias_m_neighbour_C1,,,0.06538773727520654,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_abs_bias_m_centroid_C1,,,0.13665451374579218,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_d_r2_C1,,,-0.007959155033763987,,"median neighbour r2 less median own r2, Model B (C1)"
+transfer_B_d_abs_bias_m_C1,,,0.04217686241617846,m,"median neighbour |bias| less median own |bias|, Model B (C1)"
+transfer_B_shape_holds_C1,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C1,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C1,,,7.0,count,wells in the Model B transfer test (C1)
+transfer_B_median_r2_own_C2,,,0.8423967580757354,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_r2_neighbour_C2,,,0.8262107463228449,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_r2_centroid_C2,,,0.8227131039666251,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_abs_bias_m_own_C2,,,0.06750380067764185,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_abs_bias_m_neighbour_C2,,,0.09375154659825775,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_abs_bias_m_centroid_C2,,,0.22753143091907044,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_d_r2_C2,,,-0.016186011752890583,,"median neighbour r2 less median own r2, Model B (C2)"
+transfer_B_d_abs_bias_m_C2,,,0.026247745920615906,m,"median neighbour |bias| less median own |bias|, Model B (C2)"
+transfer_B_shape_holds_C2,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C2,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C2,,,19.0,count,wells in the Model B transfer test (C2)
+transfer_B_median_r2_own_C3,,,0.8126774712648632,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_r2_neighbour_C3,,,0.8000512669481035,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_r2_centroid_C3,,,0.7422859806164745,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_abs_bias_m_own_C3,,,0.08069748735871309,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_abs_bias_m_neighbour_C3,,,0.130403865980321,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_abs_bias_m_centroid_C3,,,0.3977588000705738,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_d_r2_C3,,,-0.01262620431675976,,"median neighbour r2 less median own r2, Model B (C3)"
+transfer_B_d_abs_bias_m_C3,,,0.04970637862160791,m,"median neighbour |bias| less median own |bias|, Model B (C3)"
+transfer_B_shape_holds_C3,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C3,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C3,,,26.0,count,wells in the Model B transfer test (C3)
+transfer_B_median_r2_own_C4,,,0.6522489282518446,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_r2_neighbour_C4,,,0.5601762755045305,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_r2_centroid_C4,,,0.6521345504947245,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_abs_bias_m_own_C4,,,0.2819798620806913,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_abs_bias_m_neighbour_C4,,,0.24267325244321927,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_abs_bias_m_centroid_C4,,,0.2982357252350553,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_d_r2_C4,,,-0.09207265274731402,,"median neighbour r2 less median own r2, Model B (C4)"
+transfer_B_d_abs_bias_m_C4,,,-0.03930660963747204,m,"median neighbour |bias| less median own |bias|, Model B (C4)"
+transfer_B_shape_holds_C4,,,0.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C4,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C4,,,9.0,count,wells in the Model B transfer test (C4)
+transfer_B_median_r2_own_C5,,,0.8290091056178085,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_r2_neighbour_C5,,,0.6880237382471511,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_r2_centroid_C5,,,0.6952829247512143,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_abs_bias_m_own_C5,,,0.039273876308294514,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_abs_bias_m_neighbour_C5,,,0.4954391974609676,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_abs_bias_m_centroid_C5,,,0.33356182327367523,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_d_r2_C5,,,-0.14098536737065737,,"median neighbour r2 less median own r2, Model B (C5)"
+transfer_B_d_abs_bias_m_C5,,,0.45616532115267305,m,"median neighbour |bias| less median own |bias|, Model B (C5)"
+transfer_B_shape_holds_C5,,,0.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C5,,,0.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C5,,,5.0,count,wells in the Model B transfer test (C5)
+transfer_B_median_r2_own_open_dune,,,0.8281312217302323,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_r2_neighbour_open_dune,,,0.8203337923151528,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_r2_centroid_open_dune,,,0.7998285082929173,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_abs_bias_m_own_open_dune,,,0.06738991069352818,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_abs_bias_m_neighbour_open_dune,,,0.10212987465599609,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_abs_bias_m_centroid_open_dune,,,0.2646296389616458,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_d_r2_open_dune,,,-0.007797429415079549,,"median neighbour r2 less median own r2, Model B (open_dune)"
+transfer_B_d_abs_bias_m_open_dune,,,0.03473996396246791,m,"median neighbour |bias| less median own |bias|, Model B (open_dune)"
+transfer_B_shape_holds_open_dune,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_open_dune,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_open_dune,,,50.0,count,wells in the Model B transfer test (open_dune)
+transfer_B_median_r2_own_forest,,,0.717727686026967,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_r2_neighbour_forest,,,0.6759268807057286,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_r2_centroid_forest,,,0.6741673325160611,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_abs_bias_m_own_forest,,,0.19260682226900858,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_abs_bias_m_neighbour_forest,,,0.329190029397843,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_abs_bias_m_centroid_forest,,,0.294787447990522,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_d_r2_forest,,,-0.04180080532123842,,"median neighbour r2 less median own r2, Model B (forest)"
+transfer_B_d_abs_bias_m_forest,,,0.1365832071288344,m,"median neighbour |bias| less median own |bias|, Model B (forest)"
+transfer_B_shape_holds_forest,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_forest,,,0.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_forest,,,16.0,count,wells in the Model B transfer test (forest)
+transfer_B_median_r2_own_all,,,0.8201320675980055,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_r2_neighbour_all,,,0.8099607657044685,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_r2_centroid_all,,,0.7636569675931468,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_abs_bias_m_own_all,,,0.0702864569113304,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_abs_bias_m_neighbour_all,,,0.10910212330044458,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_abs_bias_m_centroid_all,,,0.28340771957886424,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_d_r2_all,,,-0.010171301893536988,,"median neighbour r2 less median own r2, Model B (all)"
+transfer_B_d_abs_bias_m_all,,,0.038815666389114184,m,"median neighbour |bias| less median own |bias|, Model B (all)"
+transfer_B_shape_holds_all,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_all,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_all,,,66.0,count,wells in the Model B transfer test (all)
+transfer_B_neighbour_distance_median_m,,,122.55654625049569,m,median distance from a well to its borrowed neighbour (nearest other well with a pre-2018 fit)
+transfer_rho_d_mean_depth_m,,,-0.5092647768438825,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_r_records,,,0.2135423739821285,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_distance_m,,,-0.19195557388908888,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_amplitude_m,,,-0.15569579702199074,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_beta_1,,,0.009896339136766167,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_beta_2,,,-0.20878352609211323,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_beta_3,,,-0.07628950043405817,,Spearman of this predictor against the change in NSE from borrowing
+transfer_pairs_n,,,66.0,,well-neighbour pairs in the transfer test
+transfer_median_nse_own,,,0.6119815001294202,,"median post-2018 NSE, own coefficients"
+transfer_median_nse_neighbour,,,0.437396601549267,,"median post-2018 NSE, neighbour coefficients"
+transfer_median_nse_centroid,,,0.3657904184111312,,"median post-2018 NSE, centroid coefficients"
+transfer_fail_neighbour_n,,,14.0,,wells where a neighbour's coefficients score below -1 NSE
+transfer_fail_own_n,,,2.0,,wells where their OWN coefficients score below -1 NSE
+transfer_median_gain_C1,,,-0.01214216938035484,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C2,,,-0.07758263360339301,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C3,,,-0.2456805415570994,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C4,,,0.08091957302821617,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C5,,,-2.36670526929804,,"median change in NSE from borrowing, this cluster"
+transfer_median_nse_own_mhw,,,0.46454506278751545,,"median post-2018 NSE, own coefficients, Model A at each well's depth to mean high water (run at the target well's floor); n = 66 wells"
+transfer_fail_own_n_mhw,,,5.0,,"wells scoring below -1 NSE on own coefficients, Model A at mean high water"
+transfer_median_nse_neighbour_mhw,,,-0.3391502466689982,,"median post-2018 NSE, neighbour coefficients, Model A at each well's depth to mean high water (run at the target well's floor); n = 66 wells"
+transfer_fail_neighbour_n_mhw,,,24.0,,"wells scoring below -1 NSE on neighbour coefficients, Model A at mean high water"
+transfer_median_nse_centroid_mhw,,,-7.350441507249202,,"median post-2018 NSE, centroid coefficients, Model A at each well's depth to mean high water (run at the target well's floor); n = 66 wells"
+transfer_fail_centroid_n_mhw,,,52.0,,"wells scoring below -1 NSE on centroid coefficients, Model A at mean high water"
+transfer_wells_n_mhw,,,66.0,,wells in the neighbour transfer test at mean high water (a ground level and a pre-2018 fit)
+transfer_band_lt0p1_median,,,-0.019503916763149887,,"median change in NSE, this band of mean-depth difference"
+transfer_band_lt0p1_frac_lose,,,0.12903225806451613,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_0p1_0p2_median,,,-0.31042300110889914,,"median change in NSE, this band of mean-depth difference"
+transfer_band_0p1_0p2_frac_lose,,,0.5833333333333334,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_0p2_0p4_median,,,-0.5563687393427661,,"median change in NSE, this band of mean-depth difference"
+transfer_band_0p2_0p4_frac_lose,,,0.5,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_0p4_0p8_median,,,-0.9743463332599149,,"median change in NSE, this band of mean-depth difference"
+transfer_band_0p4_0p8_frac_lose,,,0.5555555555555556,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_gt0p8_median,,,-3.1105033648134675,,"median change in NSE, this band of mean-depth difference"
+transfer_band_gt0p8_frac_lose,,,1.0,fraction,share of pairs in this band losing more than 0.25 NSE
+beta3_bound_B_n_basis,,,0.0,count,"Model B fits with beta_3 held at its lower bound 0.0001, of 40 fitted: E12's CCW and Ranwell fits, well and cluster basis (50_30)"
+basis_verdict_A,,,2.0,code,"Model A: cluster better for transfer (2 cluster better for transfer, 1 basis-robust, 0 basis matters; the rule fixed before the run, D-268)"
+basis_ccw_holds_A,,,1.0,flag,"Model A, ccw: the cluster basis holds (1) or not (0), E12, D-268"
+basis_ranwell_holds_A,,,1.0,flag,"Model A, ranwell: the cluster basis holds (1) or not (0), E12, D-268"
+basis_split_holds_A,,,1.0,flag,"Model A, split: the cluster basis holds (1) or not (0), E12, D-268"
+basis_ccw_nse_median_well_A,,,-0.25611186035183287,m,"Model A, CCW 1989-96 hindcast: median NSE on the well basis, E12, D-268"
+basis_ccw_absbias_median_well_A,,,0.22854442355987536,m,"Model A, CCW 1989-96: median |bias| on the well basis, E12, D-268"
+basis_ccw_nse_median_cluster_A,,,-0.16889522040329186,m,"Model A, CCW 1989-96 hindcast: median NSE on the cluster basis, E12, D-268"
+basis_ccw_absbias_median_cluster_A,,,0.2292396726038318,m,"Model A, CCW 1989-96: median |bias| on the cluster basis, E12, D-268"
+basis_ranwell_nse_median_well_A,,,0.4604974762940526,m,"Model A, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the well basis, E12, D-268"
+basis_ranwell_nse_median_cluster_A,,,0.4908603275471686,m,"Model A, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the cluster basis, E12, D-268"
+basis_split_nse_median_well_A_fwd,,,0.6119815001294202,m,"Model A, split-sample test (fwd): median NSE on the well basis, E12, D-268"
+basis_split_nse_median_well_A_rev,,,0.6737312915987114,m,"Model A, split-sample test (rev): median NSE on the well basis, E12, D-268"
+basis_split_nse_median_cluster_A_fwd,,,0.7193401272257512,m,"Model A, split-sample test (fwd): median NSE on the cluster basis, E12, D-268"
+basis_split_nse_median_cluster_A_rev,,,0.6546090985897709,m,"Model A, split-sample test (rev): median NSE on the cluster basis, E12, D-268"
+basis_verdict_B,,,0.0,code,"Model B: basis matters (2 cluster better for transfer, 1 basis-robust, 0 basis matters; the rule fixed before the run, D-268)"
+basis_ccw_holds_B,,,0.0,flag,"Model B, ccw: the cluster basis holds (1) or not (0), E12, D-268"
+basis_ranwell_holds_B,,,1.0,flag,"Model B, ranwell: the cluster basis holds (1) or not (0), E12, D-268"
+basis_split_holds_B,,,1.0,flag,"Model B, split: the cluster basis holds (1) or not (0), E12, D-268"
+basis_ccw_nse_median_well_B,,,-0.18035903342669424,m,"Model B, CCW 1989-96 hindcast: median NSE on the well basis, E12, D-268"
+basis_ccw_absbias_median_well_B,,,0.22943155334423157,m,"Model B, CCW 1989-96: median |bias| on the well basis, E12, D-268"
+basis_ccw_nse_median_cluster_B,,,-0.2707541378018803,m,"Model B, CCW 1989-96 hindcast: median NSE on the cluster basis, E12, D-268"
+basis_ccw_absbias_median_cluster_B,,,0.19473803756311495,m,"Model B, CCW 1989-96: median |bias| on the cluster basis, E12, D-268"
+basis_ranwell_nse_median_well_B,,,0.8274843418620724,m,"Model B, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the well basis, E12, D-268"
+basis_ranwell_nse_median_cluster_B,,,0.8417270102092882,m,"Model B, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the cluster basis, E12, D-268"
+basis_split_nse_median_well_B_fwd,,,0.7865467156802144,m,"Model B, split-sample test (fwd): median NSE on the well basis, E12, D-268"
+basis_split_nse_median_well_B_rev,,,0.7776478983988084,m,"Model B, split-sample test (rev): median NSE on the well basis, E12, D-268"
+basis_split_nse_median_cluster_B_fwd,,,0.7957138597572988,m,"Model B, split-sample test (fwd): median NSE on the cluster basis, E12, D-268"
+basis_split_nse_median_cluster_B_rev,,,0.7650543555441431,m,"Model B, split-sample test (rev): median NSE on the cluster basis, E12, D-268"
+basis_ranwell_nse_median_all_well_A,,,0.5733449018828469,m,"Model A, Ranwell 1951-53, all 11 pairings: median NSE after the offset on the well basis, E12, D-268"
+basis_ranwell_range_ratio_median_well_A,,,1.0828171463278746,m,"Model A, Ranwell 1951-53, all pairings: median model/observed seasonal range on the well basis, E12, D-268"
+basis_ranwell_nse_median_all_cluster_A,,,0.697997459318968,m,"Model A, Ranwell 1951-53, all 11 pairings: median NSE after the offset on the cluster basis, E12, D-268"
+basis_ranwell_range_ratio_median_cluster_A,,,1.0034769035786326,m,"Model A, Ranwell 1951-53, all pairings: median model/observed seasonal range on the cluster basis, E12, D-268"
+basis_ranwell_nse_median_all_well_B,,,0.6711492920429689,m,"Model B, Ranwell 1951-53, all 11 pairings: median NSE after the offset on the well basis, E12, D-268"
+basis_ranwell_range_ratio_median_well_B,,,1.0483556690571443,m,"Model B, Ranwell 1951-53, all pairings: median model/observed seasonal range on the well basis, E12, D-268"
+basis_ranwell_nse_median_all_cluster_B,,,0.7301059300915087,m,"Model B, Ranwell 1951-53, all 11 pairings: median NSE after the offset on the cluster basis, E12, D-268"
+basis_ranwell_range_ratio_median_cluster_B,,,0.9992957976646255,m,"Model B, Ranwell 1951-53, all pairings: median model/observed seasonal range on the cluster basis, E12, D-268"
+basis_vs48_max_abs_nse_diff,,,2.220446049250313e-16,m,E12 identity: the per-well arm against the published script (D-268)
+basis_vs44_max_abs_nse_diff,,,3.3809727795208744e-08,m,E12 identity: the per-well arm against the published script (D-268)
+placement_L24_n_wells,,,66.0,wells,"E12b: reference wells with at least 24 months of record, placed from their first 24 months (D-282)"
+placement_L24_share_correct_pct,,,62.121212121212125,%,E12b: share of wells whose first 24 months place them in their own cluster (D-282)
+placement_L24_share_correct_pct_C1,,,71.42857142857143,%,E12b: share of C1 wells placed in C1 from their first 24 months (D-282)
+placement_L24_share_correct_pct_C2,,,84.21052631578947,%,E12b: share of C2 wells placed in C2 from their first 24 months (D-282)
+placement_L24_share_correct_pct_C3,,,42.30769230769231,%,E12b: share of C3 wells placed in C3 from their first 24 months (D-282)
+placement_L24_share_correct_pct_C4,,,66.66666666666666,%,E12b: share of C4 wells placed in C4 from their first 24 months (D-282)
+placement_L24_share_correct_pct_C5,,,60.0,%,E12b: share of C5 wells placed in C5 from their first 24 months (D-282)
+placement_L24_verdict_A,,,2.0,code,"E12b, Model A, placed from 24 months: cluster better for transfer against the per-well basis (E12's rule, D-282)"
+placement_L24_ccw_holds_A,,,1.0,flag,"E12b, Model A, ccw, placed from 24 months: holds (1) or not (0), D-282"
+placement_L24_ranwell_holds_A,,,1.0,flag,"E12b, Model A, ranwell, placed from 24 months: holds (1) or not (0), D-282"
+placement_L24_split_holds_A,,,1.0,flag,"E12b, Model A, split, placed from 24 months: holds (1) or not (0), D-282"
+placement_L24_ccw_nse_median_A,,,0.03453855661431149,m,"E12b, Model A, ccw, placed from 24 months: median NSE (D-282)"
+placement_L24_ccw_absbias_median_A,,,0.2337984466790441,m,"E12b, Model A, CCW 1989-96, placed from 24 months: median |bias| (D-282)"
+placement_L24_ranwell_nse_median_A,,,0.6628967069627854,m,"E12b, Model A, ranwell, placed from 24 months: median NSE (D-282)"
+placement_L24_split_nse_median_A_fwd,,,0.6979726622972012,m,"E12b, Model A, split fwd, placed from 24 months: median NSE (D-282)"
+placement_L24_split_nse_median_A_rev,,,0.6365537800499518,m,"E12b, Model A, split rev, placed from 24 months: median NSE (D-282)"
+placement_L24_verdict_B,,,0.0,code,"E12b, Model B, placed from 24 months: basis matters against the per-well basis (E12's rule, D-282)"
+placement_L24_ccw_holds_B,,,0.0,flag,"E12b, Model B, ccw, placed from 24 months: holds (1) or not (0), D-282"
+placement_L24_ranwell_holds_B,,,0.0,flag,"E12b, Model B, ranwell, placed from 24 months: holds (1) or not (0), D-282"
+placement_L24_split_holds_B,,,1.0,flag,"E12b, Model B, split, placed from 24 months: holds (1) or not (0), D-282"
+placement_L24_ccw_nse_median_B,,,-0.9878545416898301,m,"E12b, Model B, ccw, placed from 24 months: median NSE (D-282)"
+placement_L24_ccw_absbias_median_B,,,0.36928045860960834,m,"E12b, Model B, CCW 1989-96, placed from 24 months: median |bias| (D-282)"
+placement_L24_ranwell_nse_median_B,,,0.753141352181083,m,"E12b, Model B, ranwell, placed from 24 months: median NSE (D-282)"
+placement_L24_split_nse_median_B_fwd,,,0.7624921062793601,m,"E12b, Model B, split fwd, placed from 24 months: median NSE (D-282)"
+placement_L24_split_nse_median_B_rev,,,0.7699621795113736,m,"E12b, Model B, split rev, placed from 24 months: median NSE (D-282)"
+placement_L36_n_wells,,,66.0,wells,"E12b: reference wells with at least 36 months of record, placed from their first 36 months (D-282)"
+placement_L36_share_correct_pct,,,75.75757575757575,%,E12b: share of wells whose first 36 months place them in their own cluster (D-282)
+placement_L36_share_correct_pct_C1,,,71.42857142857143,%,E12b: share of C1 wells placed in C1 from their first 36 months (D-282)
+placement_L36_share_correct_pct_C2,,,89.47368421052632,%,E12b: share of C2 wells placed in C2 from their first 36 months (D-282)
+placement_L36_share_correct_pct_C3,,,57.692307692307686,%,E12b: share of C3 wells placed in C3 from their first 36 months (D-282)
+placement_L36_share_correct_pct_C4,,,100.0,%,E12b: share of C4 wells placed in C4 from their first 36 months (D-282)
+placement_L36_share_correct_pct_C5,,,80.0,%,E12b: share of C5 wells placed in C5 from their first 36 months (D-282)
+placement_L36_verdict_A,,,2.0,code,"E12b, Model A, placed from 36 months: cluster better for transfer against the per-well basis (E12's rule, D-282)"
+placement_L36_ccw_holds_A,,,1.0,flag,"E12b, Model A, ccw, placed from 36 months: holds (1) or not (0), D-282"
+placement_L36_ranwell_holds_A,,,1.0,flag,"E12b, Model A, ranwell, placed from 36 months: holds (1) or not (0), D-282"
+placement_L36_split_holds_A,,,1.0,flag,"E12b, Model A, split, placed from 36 months: holds (1) or not (0), D-282"
+placement_L36_ccw_nse_median_A,,,0.022269159955161988,m,"E12b, Model A, ccw, placed from 36 months: median NSE (D-282)"
+placement_L36_ccw_absbias_median_A,,,0.23708300943102384,m,"E12b, Model A, CCW 1989-96, placed from 36 months: median |bias| (D-282)"
+placement_L36_ranwell_nse_median_A,,,0.6628967069627854,m,"E12b, Model A, ranwell, placed from 36 months: median NSE (D-282)"
+placement_L36_split_nse_median_A_fwd,,,0.6957343866786552,m,"E12b, Model A, split fwd, placed from 36 months: median NSE (D-282)"
+placement_L36_split_nse_median_A_rev,,,0.6488837335901538,m,"E12b, Model A, split rev, placed from 36 months: median NSE (D-282)"
+placement_L36_verdict_B,,,0.0,code,"E12b, Model B, placed from 36 months: basis matters against the per-well basis (E12's rule, D-282)"
+placement_L36_ccw_holds_B,,,0.0,flag,"E12b, Model B, ccw, placed from 36 months: holds (1) or not (0), D-282"
+placement_L36_ranwell_holds_B,,,0.0,flag,"E12b, Model B, ranwell, placed from 36 months: holds (1) or not (0), D-282"
+placement_L36_split_holds_B,,,1.0,flag,"E12b, Model B, split, placed from 36 months: holds (1) or not (0), D-282"
+placement_L36_ccw_nse_median_B,,,-0.9213038077186082,m,"E12b, Model B, ccw, placed from 36 months: median NSE (D-282)"
+placement_L36_ccw_absbias_median_B,,,0.36189801116104026,m,"E12b, Model B, CCW 1989-96, placed from 36 months: median |bias| (D-282)"
+placement_L36_ranwell_nse_median_B,,,0.753141352181083,m,"E12b, Model B, ranwell, placed from 36 months: median NSE (D-282)"
+placement_L36_split_nse_median_B_fwd,,,0.7748835302754823,m,"E12b, Model B, split fwd, placed from 36 months: median NSE (D-282)"
+placement_L36_split_nse_median_B_rev,,,0.7698685710814037,m,"E12b, Model B, split rev, placed from 36 months: median NSE (D-282)"
+placement_L60_n_wells,,,66.0,wells,"E12b: reference wells with at least 60 months of record, placed from their first 60 months (D-282)"
+placement_L60_share_correct_pct,,,75.75757575757575,%,E12b: share of wells whose first 60 months place them in their own cluster (D-282)
+placement_L60_share_correct_pct_C1,,,85.71428571428571,%,E12b: share of C1 wells placed in C1 from their first 60 months (D-282)
+placement_L60_share_correct_pct_C2,,,78.94736842105263,%,E12b: share of C2 wells placed in C2 from their first 60 months (D-282)
+placement_L60_share_correct_pct_C3,,,57.692307692307686,%,E12b: share of C3 wells placed in C3 from their first 60 months (D-282)
+placement_L60_share_correct_pct_C4,,,100.0,%,E12b: share of C4 wells placed in C4 from their first 60 months (D-282)
+placement_L60_share_correct_pct_C5,,,100.0,%,E12b: share of C5 wells placed in C5 from their first 60 months (D-282)
+placement_L60_verdict_A,,,2.0,code,"E12b, Model A, placed from 60 months: cluster better for transfer against the per-well basis (E12's rule, D-282)"
+placement_L60_ccw_holds_A,,,1.0,flag,"E12b, Model A, ccw, placed from 60 months: holds (1) or not (0), D-282"
+placement_L60_ranwell_holds_A,,,1.0,flag,"E12b, Model A, ranwell, placed from 60 months: holds (1) or not (0), D-282"
+placement_L60_split_holds_A,,,1.0,flag,"E12b, Model A, split, placed from 60 months: holds (1) or not (0), D-282"
+placement_L60_ccw_nse_median_A,,,0.15668876177586155,m,"E12b, Model A, ccw, placed from 60 months: median NSE (D-282)"
+placement_L60_ccw_absbias_median_A,,,0.18250052964918667,m,"E12b, Model A, CCW 1989-96, placed from 60 months: median |bias| (D-282)"
+placement_L60_ranwell_nse_median_A,,,0.6628967069627854,m,"E12b, Model A, ranwell, placed from 60 months: median NSE (D-282)"
+placement_L60_split_nse_median_A_fwd,,,0.7005691368462911,m,"E12b, Model A, split fwd, placed from 60 months: median NSE (D-282)"
+placement_L60_split_nse_median_A_rev,,,0.6474226549850944,m,"E12b, Model A, split rev, placed from 60 months: median NSE (D-282)"
+placement_L60_verdict_B,,,0.0,code,"E12b, Model B, placed from 60 months: basis matters against the per-well basis (E12's rule, D-282)"
+placement_L60_ccw_holds_B,,,0.0,flag,"E12b, Model B, ccw, placed from 60 months: holds (1) or not (0), D-282"
+placement_L60_ranwell_holds_B,,,0.0,flag,"E12b, Model B, ranwell, placed from 60 months: holds (1) or not (0), D-282"
+placement_L60_split_holds_B,,,1.0,flag,"E12b, Model B, split, placed from 60 months: holds (1) or not (0), D-282"
+placement_L60_ccw_nse_median_B,,,-0.928708522456769,m,"E12b, Model B, ccw, placed from 60 months: median NSE (D-282)"
+placement_L60_ccw_absbias_median_B,,,0.35516353185384486,m,"E12b, Model B, CCW 1989-96, placed from 60 months: median |bias| (D-282)"
+placement_L60_ranwell_nse_median_B,,,0.753141352181083,m,"E12b, Model B, ranwell, placed from 60 months: median NSE (D-282)"
+placement_L60_split_nse_median_B_fwd,,,0.7892240861401014,m,"E12b, Model B, split fwd, placed from 60 months: median NSE (D-282)"
+placement_L60_split_nse_median_B_rev,,,0.7838152157536699,m,"E12b, Model B, split rev, placed from 60 months: median NSE (D-282)"
+e_qm_rmse_cut_threshold_m,,,0.05,m,"E18 rule: the median RMSE must fall by at least this (config.E18_RMSE_CUT_M, D-290)"
+e_qm_transfers,,,0.0,,"E18 verdict on the well basis: a modern-record quantile map transfers to CCW 1989-96 (1) or not (0), D-290"
+e_qm_n_wells_well,,,9.0,wells,"wells scored, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_n_improved_well,,,4.0,wells,"wells where the map lowers RMSE, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_rmse_raw_well_m,,,0.2829903290101428,m,"median RMSE, raw run, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_rmse_mapped_well_m,,,0.2586092398600664,m,"median RMSE, mapped, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_rmse_cut_well_m,,,0.024381089150076418,m,"median raw RMSE less median mapped RMSE, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_abs_bias_raw_well_m,,,0.22854442355987536,m,"median |bias|, raw run, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_abs_bias_mapped_well_m,,,0.2173080783403739,m,"median |bias|, mapped, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_nse_raw_well,,,-0.25611186035183287,,"median NSE, raw run, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_nse_mapped_well,,,-0.06715712234319504,,"median NSE, mapped, CCW 1989-96, Model A at the project datum, well basis, 9 wells (E18, D-290)"
+e_qm_transfers_well,,,0.0,,"E18 rule on the well basis: transfers (1) or not (0), D-290"
+e_qm_n_wells_cluster,,,9.0,wells,"wells scored, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_n_improved_cluster,,,6.0,wells,"wells where the map lowers RMSE, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_rmse_raw_cluster_m,,,0.3013176177529241,m,"median RMSE, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_rmse_mapped_cluster_m,,,0.2589377706240433,m,"median RMSE, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_rmse_cut_cluster_m,,,0.04237984712888082,m,"median raw RMSE less median mapped RMSE, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_abs_bias_raw_cluster_m,,,0.2292396726038318,m,"median |bias|, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_abs_bias_mapped_cluster_m,,,0.21318196381669513,m,"median |bias|, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_nse_raw_cluster,,,-0.16889522040329186,,"median NSE, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_nse_mapped_cluster,,,0.07544504887597903,,"median NSE, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_transfers_cluster,,,0.0,,"E18 rule on the cluster basis: transfers (1) or not (0), D-290"
+e_qm_n_censored_months,,,15.0,months,"CCW months censored at the pipe base and dropped, summed over the E18 wells (as Script 39)"

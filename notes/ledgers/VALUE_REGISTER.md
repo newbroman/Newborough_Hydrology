@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**201 output file(s)** supply **4516 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
+**201 output file(s)** supply **4514 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
 
 ## Cited quantities by output file
 
@@ -4189,7 +4189,6 @@
 |  | reclen_nse_rev_A_median_Lfull_C1 | Supplementary_Material.md |
 |  | reclen_nse_rev_A_median_Lfull_C4 | Newborough_Methods_Supplement.md |
 |  | reclen_nse_rev_A_median_Lfull_C5 | Supplementary_Material.md |
-|  | reclen_nse_rev_B_median_L24_C3 | Supplementary_Material.md |
 |  | reclen_nse_rev_B_median_L36_C1 | Newborough_Methods_Supplement.md |
 |  | reclen_nse_rev_B_median_L36_C3 | PaperM.md, Supplementary_Material.md |
 |  | reclen_nse_rev_B_median_L36_C5 | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
@@ -4228,8 +4227,7 @@
 |  | window_full_beta3_ratio_p90_C4 | report9.md |
 |  | window_full_beta3_ratio_p90_C5 | PAPER1_SI_methods.md, PIPELINE_README.md, Paper1.md, report9.md |
 |  | window_full_beta3_ratio_p90_all | Supplementary_Material.md, report9.md |
-| `50b_report_numbers.csv` | datum_ccw_nse_median_at_D3 | report9.md |
-|  | e16_ccw_n_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+| `50b_report_numbers.csv` | e16_ccw_n_C2 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | e16_ccw_n_C5 | NRG_Web_Tools_Technical_Note.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | e16_ccw_nse_median_C2_at_best | PaperM.md |
 |  | e16_ccw_nse_median_C2_at_depth | report9.md |

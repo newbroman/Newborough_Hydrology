@@ -1,7 +1,7 @@
 {
  "scripts": {
   "00_climate_summary.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.19.0 run at 2026-11-24T00:12:59",
+   "recorded": "2026-11-24T11:04:02Z",
    "sig": "788ea3d1fcb54db5",
    "utils": {
     "utils/config.py": "0403c8a6a39d4399",
@@ -12,7 +12,7 @@
    }
   },
   "01_data_prep.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.30.0 run at 2026-11-23T23:52:08",
+   "recorded": "2026-11-24T10:43:51Z",
    "sig": "9a0a7696b98d48c0",
    "utils": {
     "utils/buckets.py": "3b07597c66a3bd19",
@@ -29,7 +29,7 @@
    }
   },
   "01b_water_table.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.1 run at 2026-11-23T23:52:32",
+   "recorded": "2026-11-24T10:44:53Z",
    "sig": "aa94fdb85a09713b",
    "utils": {
     "utils/config.py": "d42673dbdf282f40",
@@ -43,20 +43,20 @@
    }
   },
   "02_clustering.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.16.0 run at 2026-11-23T23:53:54",
-   "sig": "3337112c248aa484",
+   "recorded": "2026-11-24T10:45:21Z",
+   "sig": "16e024c0a988d244",
    "utils": {
     "utils/config.py": "401dc0bc3583b6aa",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/paths.py": "0a718e1f57aef9e7",
     "utils/pipeline_params.py": "c204c427520c1547",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "03_state_space_model.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.33.0 run at 2026-11-23T23:54:22",
+   "recorded": "2026-11-24T10:58:00Z",
    "sig": "2c75c5249b109134",
    "utils": {
     "utils/config.py": "30f6b10a9525f799",
@@ -71,7 +71,7 @@
    }
   },
   "04_cluster_visualisations.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.1.1 run at 2026-11-24T00:07:08",
+   "recorded": "2026-11-24T10:58:19Z",
    "sig": "1c3733d9fdfdbed9",
    "utils": {
     "utils/config.py": "0a538d6b2fd0ba81",
@@ -83,46 +83,47 @@
    }
   },
   "05_pearson_affinity.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.2 run at 2026-11-24T00:07:27",
-   "sig": "e856aef52bc41539",
+   "recorded": "2026-11-24T10:58:36Z",
+   "sig": "027d1c290167d90f",
    "utils": {
     "utils/config.py": "67cb3f7e9379ee83",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/map_utils.py": "a9808c9be7c319dc",
     "utils/paths.py": "28037fd01f0ab697",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "06_pearson_extended.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:07:48",
-   "sig": "94f74535d83fb022",
+   "recorded": "2026-11-24T10:59:08Z",
+   "sig": "40cc8a1253f0d9bd",
    "utils": {
     "utils/config.py": "9e255d8223e1250d",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/map_utils.py": "193d6a34a43848c0",
     "utils/paths.py": "ba55497f0b44ecde",
-    "utils/render_utils.py": "13882e71ea6dca25",
+    "utils/render_utils.py": "c080a8f37b79ec24",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "07_spatial_coefficients.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:08:25",
-   "sig": "e9ca7c6af2e99fe0",
+   "recorded": "2026-11-24T10:59:53Z",
+   "sig": "7217291fc6364f6e",
    "utils": {
     "utils/config.py": "5c1887674969e339",
     "utils/console_utils.py": "397ca4551f9b01c2",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/map_utils.py": "efceb7b19a04752a",
     "utils/paths.py": "840348e7c8ab7212",
+    "utils/render_utils.py": "d796bb11c2d6072c",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "08_model_benchmarking.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.1.0 run at 2026-11-24T00:09:07",
-   "sig": "2d1764fc9e2d7a3d",
+   "recorded": "2026-11-24T11:00:29Z",
+   "sig": "9bdb52b378f5144f",
    "utils": {
     "utils/config.py": "80db80e2da49e800",
     "utils/console_utils.py": "2cc1cbf79808083c",
@@ -130,12 +131,12 @@
     "utils/map_utils.py": "193d6a34a43848c0",
     "utils/model_utils.py": "17266df517d4195e",
     "utils/paths.py": "5971cebb1cbe8b35",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "09a_paired_baci.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "recorded": "2026-11-24T11:00:45Z",
    "sig": "ed6082e108d7dfca",
    "utils": {
     "utils/config.py": "2168b961579f0f9d",
@@ -148,7 +149,7 @@
    }
   },
   "09b_scraping_propagation.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "recorded": "2026-11-24T11:00:45Z",
    "sig": "b0d47b557fa16795",
    "utils": {
     "utils/clearfell_common.py": "26141fbfa925ebc4",
@@ -163,7 +164,7 @@
    }
   },
   "09c_summer_minima.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "recorded": "2026-11-24T11:00:45Z",
    "sig": "be18ecda9cacefee",
    "utils": {
     "utils/clearfell_common.py": "708747a3e869128e",
@@ -175,7 +176,7 @@
    }
   },
   "09d_scenario_comparison.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "recorded": "2026-11-24T11:00:45Z",
    "sig": "26cf142f5c3837d4",
    "utils": {
     "utils/clearfell_common.py": "d46fea5a0624db2a",
@@ -190,7 +191,7 @@
    }
   },
   "09e_robustness.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "recorded": "2026-11-24T11:00:45Z",
    "sig": "83d051ecf85f28a0",
    "utils": {
     "utils/config.py": "1f74845899956a3f",
@@ -201,7 +202,7 @@
    }
   },
   "09f_management_effects.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.12.0 run at 2026-11-24T00:23:51",
+   "recorded": "2026-11-24T11:14:59Z",
    "sig": "a15c10004628bf2b",
    "utils": {
     "utils/coastal_utils.py": "16aeaad33a7fd509",
@@ -216,7 +217,7 @@
    }
   },
   "09g_mechanism_diagrams.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:23:53",
+   "recorded": "2026-11-24T11:15:01Z",
    "sig": "7d84338892502878",
    "utils": {
     "utils/console_utils.py": "c46afb132b492082",
@@ -225,8 +226,8 @@
    }
   },
   "10a_ancova_baci.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "f6e76f75a0108589",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "741bc433d61c2a9c",
    "utils": {
     "utils/clearfell_common.py": "a24b715763de31cd",
     "utils/config.py": "dae896224aad265b",
@@ -234,12 +235,12 @@
     "utils/model_utils.py": "0a6a71e040d29f1a",
     "utils/paths.py": "a0c74add890847c3",
     "utils/pipeline_params.py": "864fd4ee689f0dae",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10b_spatial_step_maps.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "903b7971cba2ba79",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "41103fbe3847c837",
    "utils": {
     "utils/clearfell_common.py": "d355e2ed663dfe58",
     "utils/config.py": "888b5c1a2e76c227",
@@ -247,11 +248,11 @@
     "utils/data_utils.py": "b472aba11051b209",
     "utils/map_utils.py": "efceb7b19a04752a",
     "utils/paths.py": "12a982ca54222599",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10c_forest_zone_analysis.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "05c774ec6e611dfc",
    "utils": {
     "utils/config.py": "7ea1ecc8de4e3d24",
@@ -263,19 +264,19 @@
    }
   },
   "10d_summer_minima.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "2039fc8b7b169813",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "0052ccf686310ede",
    "utils": {
     "utils/clearfell_common.py": "c76e135da3adf280",
     "utils/config.py": "ed4f336e8f6ed167",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/paths.py": "c3c780f45f5e0067",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10e_coefficient_decomposition.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "5f77e121de573830",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "d47b6a371ada7884",
    "utils": {
     "utils/clearfell_common.py": "47f252630312ba24",
     "utils/config.py": "0f73d8a5f229fd13",
@@ -283,11 +284,11 @@
     "utils/model_utils.py": "7b2fc2c53d3a7340",
     "utils/paths.py": "6275abdd13201d89",
     "utils/pipeline_params.py": "dedff19b2abf667e",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10f_robustness.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "5741e3b3489f4f5c",
    "utils": {
     "utils/clearfell_common.py": "55bc1c196a9da226",
@@ -298,40 +299,40 @@
    }
   },
   "10g_diagnostics.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "6a8ad55c4404d385",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "9291e94602bdc334",
    "utils": {
     "utils/clearfell_common.py": "8733e8638f4500c4",
     "utils/config.py": "1f74845899956a3f",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/model_utils.py": "0a6a71e040d29f1a",
     "utils/paths.py": "27a03c7b08da4079",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10h_synthetic_impact_baci.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "bc48a1fc50ab4727",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "9ff5a2a6995cd6dd",
    "utils": {
     "utils/clearfell_common.py": "aa68bc75a8a051e2",
     "utils/config.py": "5708e513b39a8233",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/paths.py": "248c683336341fe5",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10i_ceh34_hindcast.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "dcc1c54411eea2ff",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "2e3d5a0c4ef6dbe2",
    "utils": {
     "utils/clearfell_common.py": "e1a3c3d75dbeaaa3",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/paths.py": "109d0e7f250883e1",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10j_impact_edge_contrast.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "6dbfc33eeccf0a1d",
    "utils": {
     "utils/clearfell_common.py": "b988556431ce8953",
@@ -342,7 +343,7 @@
    }
   },
   "10k_four_zone_baci.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "f91605dc2ebba1dc",
    "utils": {
     "utils/clearfell_common.py": "1c69addf4700e414",
@@ -354,7 +355,7 @@
    }
   },
   "10l_four_zone_summer_minima.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "99252808a43e27c9",
    "utils": {
     "utils/clearfell_common.py": "de6aeb1ce00f9bc6",
@@ -365,18 +366,18 @@
    }
   },
   "10m_wmc3_baci_dual.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
-   "sig": "2277c7f585323511",
+   "recorded": "2026-11-24T11:02:36Z",
+   "sig": "7ac5ab3ff8ddb887",
    "utils": {
     "utils/clearfell_common.py": "dc3148b256697553",
     "utils/config.py": "607788f1c975229a",
     "utils/console_utils.py": "42b44ca0ed3d3875",
     "utils/paths.py": "2add6bcebea08e05",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "10n_synthetic_did.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "0087b53498a2ae0a",
    "utils": {
     "utils/clearfell_common.py": "55bc1c196a9da226",
@@ -385,7 +386,7 @@
    }
   },
   "11_forecasting_thresholds.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:11:44",
+   "recorded": "2026-11-24T11:02:41Z",
    "sig": "c6036ced3f2ac27b",
    "utils": {
     "utils/config.py": "ba5349044f048a76",
@@ -396,7 +397,7 @@
    }
   },
   "11b_spatial_thresholds.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.25.0 run at 2026-11-24T00:11:47",
+   "recorded": "2026-11-24T11:03:37Z",
    "sig": "73a7de2494ff9b82",
    "utils": {
     "utils/config.py": "d6e331d08e3e79e2",
@@ -410,7 +411,7 @@
    }
   },
   "11c_pflood_achievability.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:12:42",
+   "recorded": "2026-11-24T11:03:53Z",
    "sig": "355f3ff139a7094e",
    "utils": {
     "utils/config.py": "f8458a264ac7fcd6",
@@ -422,19 +423,19 @@
    }
   },
   "12_figure_site_overview.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.0 run at 2026-11-24T00:13:11",
-   "sig": "5fef39ae891f5fab",
+   "recorded": "2026-11-24T11:04:34Z",
+   "sig": "800502830800ef40",
    "utils": {
     "utils/config.py": "6a40786335635ffc",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/map_utils.py": "1c34cb5b8efaf2df",
     "utils/paths.py": "dcd60db0e590da53",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "13_figure_experimental_design.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:13:39",
-   "sig": "68c8fe28507f4231",
+   "recorded": "2026-11-24T11:05:02Z",
+   "sig": "d25300464f1d0737",
    "utils": {
     "utils/clearfell_common.py": "01093b8a8b20bc40",
     "utils/config.py": "251b2e003b6e23d0",
@@ -442,11 +443,11 @@
     "utils/kml_io.py": "847160926d675cb0",
     "utils/map_utils.py": "abad5b6214741b52",
     "utils/paths.py": "e81193d1ac8ff0a0",
-    "utils/render_utils.py": "a2081811a4b88dbc"
+    "utils/render_utils.py": "d0922edf110ab2b2"
    }
   },
   "14_climate_projections.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.14.1 run at 2026-11-24T00:13:08",
+   "recorded": "2026-11-24T11:04:06Z",
    "sig": "5344022c65339e20",
    "utils": {
     "utils/cluster_series.py": "aab7d9a704d803d1",
@@ -468,7 +469,7 @@
    }
   },
   "15_depth_dependent_pet.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.11.0 run at 2026-11-24T00:14:06",
+   "recorded": "2026-11-24T11:05:11Z",
    "sig": "d4b0c91025328b4e",
    "utils": {
     "utils/config.py": "2c29b91876b8d1a7",
@@ -480,41 +481,42 @@
    }
   },
   "16_water_bal.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.16.0 run at 2026-11-24T00:14:18",
-   "sig": "bbadb50b85bdbc91",
+   "recorded": "2026-11-24T11:05:16Z",
+   "sig": "75b158d66a446ebe",
    "utils": {
     "utils/config.py": "f1fc42d89fc67352",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/paths.py": "b86dff9ba0ce4eca",
+    "utils/render_utils.py": "d796bb11c2d6072c",
     "utils/report_numbers_utils.py": "065755c28d02b79e",
     "utils/site_observations.py": "4de1de813c0e6312"
    }
   },
   "17_wtf_specific_yield.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.0 run at 2026-11-24T00:14:14",
-   "sig": "332a95f29dc6a6b3",
+   "recorded": "2026-11-24T11:05:14Z",
+   "sig": "9a60f7583af67ac6",
    "utils": {
     "utils/config.py": "922b3a18af20527e",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/paths.py": "1220d2d3e8400517",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "18_wtf_spatial.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.21.0 run at 2026-11-24T00:14:20",
-   "sig": "0b11874d7618aaab",
+   "recorded": "2026-11-24T11:06:30Z",
+   "sig": "efe916463698a895",
    "utils": {
     "utils/config.py": "6a49b17d14bbd026",
     "utils/console_utils.py": "397ca4551f9b01c2",
     "utils/map_utils.py": "a06798142226b20c",
     "utils/paths.py": "d14595d334f601c7",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "19_spatial_groundwater.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.38.0 run at 2026-11-24T00:15:41",
+   "recorded": "2026-11-24T11:06:35Z",
    "sig": "14f11ecee654a9cb",
    "utils": {
     "utils/clearfell_common.py": "d46fea5a0624db2a",
@@ -528,7 +530,7 @@
    }
   },
   "20_spatial_figures.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.66.1 run at 2026-11-24T00:15:49",
+   "recorded": "2026-11-24T11:08:10Z",
    "sig": "9f80238b16f562a9",
    "utils": {
     "utils/clearfell_common.py": "37b939062bf2400f",
@@ -546,7 +548,7 @@
    }
   },
   "21_forestry_scenarios.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.15.0 run at 2026-11-24T00:17:33",
+   "recorded": "2026-11-24T11:08:17Z",
    "sig": "54ccd11d66ea5a12",
    "utils": {
     "utils/clearfell_common.py": "6e0fe852392e4112",
@@ -561,8 +563,8 @@
    }
   },
   "22_residual_lag_analysis.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:18:31",
-   "sig": "9978628d2ebe4fa7",
+   "recorded": "2026-11-24T11:09:20Z",
+   "sig": "6a56434e7e902a3b",
    "utils": {
     "utils/config.py": "65a2073b0da713ca",
     "utils/console_utils.py": "2cc1cbf79808083c",
@@ -570,26 +572,26 @@
     "utils/map_utils.py": "a5d899e45682d016",
     "utils/model_utils.py": "c0e673163cf8e76f",
     "utils/paths.py": "185698da7bb0cf0a",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "23_ridge_recharge_lag_test.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:18:38",
-   "sig": "b8ee94bdee4f6677",
+   "recorded": "2026-11-24T11:09:26Z",
+   "sig": "6650fc8e1bad3ecd",
    "utils": {
     "utils/config.py": "61287404b955c59e",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/map_utils.py": "a5d899e45682d016",
     "utils/paths.py": "4720a1ea08460ffc",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "24_residual_seasonality.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.4.1 run at 2026-11-24T00:18:44",
-   "sig": "03a2e5e5e29c0788",
+   "recorded": "2026-11-24T11:09:40Z",
+   "sig": "47cee5b91a18cbef",
    "utils": {
     "utils/config.py": "20da950615fa24ee",
     "utils/console_utils.py": "2cc1cbf79808083c",
@@ -597,12 +599,12 @@
     "utils/map_utils.py": "193d6a34a43848c0",
     "utils/model_utils.py": "c0e673163cf8e76f",
     "utils/paths.py": "2a5773f674256ad4",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "24b_residual_climatology.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.5.0 run at 2026-11-24T00:23:06",
+   "recorded": "2026-11-24T11:14:10Z",
    "sig": "58e9f59699866ebc",
    "utils": {
     "utils/config.py": "83ea42d4de56a596",
@@ -614,7 +616,7 @@
    }
   },
   "25_coastal_gradient.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.39.0 run at 2026-11-24T00:17:39",
+   "recorded": "2026-11-24T11:09:13Z",
    "sig": "362be994622f6e47",
    "utils": {
     "utils/clearfell_common.py": "a1c2f40569207913",
@@ -626,7 +628,7 @@
    }
   },
   "26_van_willegen_msl.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.36.0 run at 2026-11-24T00:18:57",
+   "recorded": "2026-11-24T11:10:00Z",
    "sig": "e99b4e2827465f65",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -642,7 +644,7 @@
    }
   },
   "26b_van_willegen_msl_projections.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.4.0 run at 2026-11-24T00:19:16",
+   "recorded": "2026-11-24T11:10:04Z",
    "sig": "cdb29053fdfa0878",
    "utils": {
     "utils/config.py": "5f068bbf3fbdeae9",
@@ -654,7 +656,7 @@
    }
   },
   "26c_msl5_report_figures.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.1 run at 2026-11-24T00:19:19",
+   "recorded": "2026-11-24T11:10:06Z",
    "sig": "dd04f7f08fe5f4b5",
    "utils": {
     "utils/config.py": "4f7333bf56a84707",
@@ -664,7 +666,7 @@
    }
   },
   "28_c3_detrend_check.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.3.0 run at 2026-11-24T00:19:21",
+   "recorded": "2026-11-24T11:10:13Z",
    "sig": "2381401c01c8b00e",
    "utils": {
     "utils/console_utils.py": "2cc1cbf79808083c",
@@ -674,7 +676,7 @@
    }
   },
   "29_c3_within_variance_check.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.11.0 run at 2026-11-24T00:19:27",
+   "recorded": "2026-11-24T11:10:15Z",
    "sig": "d9347cd2c0bb2ad3",
    "utils": {
     "utils/config.py": "bbbf748f9050a9f8",
@@ -686,20 +688,20 @@
    }
   },
   "30_c4_drainage_identifiability.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.9.0 run at 2026-11-24T00:19:29",
-   "sig": "882bf17b0221aca2",
+   "recorded": "2026-11-24T11:11:07Z",
+   "sig": "d3f88f50618c19fb",
    "utils": {
     "utils/config.py": "6d96bed0469d15f7",
     "utils/console_utils.py": "2d101996d12651b2",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/model_utils.py": "aec9520d48c52436",
     "utils/paths.py": "e620c6bb300fce6d",
-    "utils/render_utils.py": "a2081811a4b88dbc",
+    "utils/render_utils.py": "d0922edf110ab2b2",
     "utils/report_numbers_utils.py": "065755c28d02b79e"
    }
   },
   "31_cluster_validation.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.4.2 run at 2026-11-24T00:23:09",
+   "recorded": "2026-11-24T11:14:21Z",
    "sig": "a47fb0f454259212",
    "utils": {
     "utils/config.py": "7e0459f1876bf21f",
@@ -712,7 +714,7 @@
    }
   },
   "31b_separation_vs_recoverability.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.3.1 run at 2026-11-24T00:23:19",
+   "recorded": "2026-11-24T11:14:25Z",
    "sig": "22b1e315461a0335",
    "utils": {
     "utils/console_utils.py": "f9d839c0e19a63ee",
@@ -723,7 +725,7 @@
    }
   },
   "32_differential_movement.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.9.0 run at 2026-11-24T00:20:16",
+   "recorded": "2026-11-24T11:11:46Z",
    "sig": "495e2027d1f5e0b6",
    "utils": {
     "utils/config.py": "6de8165992f0bbb8",
@@ -734,7 +736,7 @@
    }
   },
   "33_envelope_amplification.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.0 run at 2026-11-24T00:20:53",
+   "recorded": "2026-11-24T11:12:30Z",
    "sig": "8bfb2143360ef99f",
    "utils": {
     "utils/config.py": "5d0bb4ab2ee2bd10",
@@ -748,7 +750,7 @@
    }
   },
   "34_window_sensitivity.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 0.8.0 run at 2026-11-24T00:23:22",
+   "recorded": "2026-11-24T11:14:27Z",
    "sig": "e1489bfc42a76d62",
    "utils": {
     "utils/config.py": "dab78203ca74f684",
@@ -759,7 +761,7 @@
    }
   },
   "35_per_well_amplification.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.6.0 run at 2026-11-24T00:21:38",
+   "recorded": "2026-11-24T11:12:47Z",
    "sig": "1112f54ded31d377",
    "utils": {
     "utils/config.py": "c47c9c7f92721477",
@@ -772,7 +774,7 @@
    }
   },
   "36_absolute_climate_trend.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.0 run at 2026-11-24T00:21:52",
+   "recorded": "2026-11-24T11:13:41Z",
    "sig": "8e49a2c96ddf9a59",
    "utils": {
     "utils/config.py": "e2d7c615ac00937e",
@@ -784,7 +786,7 @@
    }
   },
   "37_driver_validation.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 3.11.0 run at 2026-11-24T00:22:42",
+   "recorded": "2026-11-24T11:13:58Z",
    "sig": "2114a3a5d2e32e78",
    "utils": {
     "utils/clearfell_common.py": "f0f5ee7ad04a45d3",
@@ -798,7 +800,7 @@
    }
   },
   "37b_driver_footing.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.10.1 run at 2026-11-24T00:22:58",
+   "recorded": "2026-11-24T11:14:07Z",
    "sig": "db19e984b78a4fb3",
    "utils": {
     "utils/config.py": "f9b15bf84badc3bd",
@@ -813,7 +815,7 @@
    }
   },
   "38_coastal_transect.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.7.0 run at 2026-11-24T00:23:25",
+   "recorded": "2026-11-24T11:14:30Z",
    "sig": "2106b0914c4dc17c",
    "utils": {
     "utils/config.py": "bf22e0d268bd3899",
@@ -824,7 +826,7 @@
    }
   },
   "39_ccw_hindcast.py": {
-   "recorded": "seed: code at 714de7a5, the commit carrying version 1.11.0 run at 2026-11-24T00:23:27",
+   "recorded": "2026-11-24T11:14:53Z",
    "sig": "4651dc3d3c06d2f1",
    "utils": {
     "utils/config.py": "8eb136e0c08d673d",
@@ -838,7 +840,7 @@
    }
   },
   "40_shoreline_retreat.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.8.0 run at 2026-11-24T00:23:47",
+   "recorded": "2026-11-24T11:14:55Z",
    "sig": "6f4a5503bad7b152",
    "utils": {
     "utils/config.py": "d6ae2616583c325b",
@@ -849,7 +851,7 @@
    }
   },
   "41_canopy_cover.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.16.0 run at 2026-11-24T00:23:49",
+   "recorded": "2026-11-24T11:14:57Z",
    "sig": "e36a108b9a6e2b64",
    "utils": {
     "utils/config.py": "a00f3f2ebe1632c9",
@@ -861,7 +863,7 @@
    }
   },
   "43_ranwell_sites.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 2.1.0 run at 2026-11-24T00:23:55",
+   "recorded": "2026-11-24T11:15:10Z",
    "sig": "4954dab6e81d0484",
    "utils": {
     "utils/config.py": "55392ab49174ad69",
@@ -872,7 +874,7 @@
    }
   },
   "44_ranwell_hindcast.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.15.0 run at 2026-11-24T00:24:04",
+   "recorded": "2026-11-24T11:15:29Z",
    "sig": "bb8bb9ab9b5076f9",
    "utils": {
     "utils/config.py": "c3259f4fe6a19798",
@@ -887,7 +889,7 @@
    }
   },
   "45_wet_area_model.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.6.0 run at 2026-11-24T00:24:19",
+   "recorded": "2026-11-24T11:15:36Z",
    "sig": "1d8a449b06737ec6",
    "utils": {
     "utils/buckets.py": "3b07597c66a3bd19",
@@ -900,7 +902,7 @@
    }
   },
   "46_wet_area_feed.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:24:23",
+   "recorded": "2026-11-24T11:15:37Z",
    "sig": "f1c89d3ae33e5418",
    "utils": {
     "utils/config.py": "d337a3a35283848c",
@@ -922,7 +924,7 @@
    }
   },
   "48_pastas_crosscheck.py": {
-   "recorded": "seed: code at 714de7a5, the commit carrying version 1.11.0 run at 2026-11-24T00:24:23",
+   "recorded": "2026-11-24T11:16:36Z",
    "sig": "0d3750e8617984b5",
    "utils": {
     "utils/config.py": "465daa0a5e79cc6f",
@@ -955,7 +957,7 @@
    }
   },
   "50a_record_length.py": {
-   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T02:59:49",
+   "recorded": "2026-11-24T11:17:59Z",
    "sig": "193c48fc67a106e4",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -974,7 +976,7 @@
    }
   },
   "50b_datum_bases.py": {
-   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T01:40:29",
+   "recorded": "2026-11-24T11:35:25Z",
    "sig": "55d06cff3a160549",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -993,7 +995,7 @@
    }
   },
   "50c_transfer.py": {
-   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T01:55:17",
+   "recorded": "2026-11-24T11:36:02Z",
    "sig": "5cb521f13ae39fa9",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -1012,7 +1014,7 @@
    }
   },
   "50d_two_stores.py": {
-   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T01:55:50",
+   "recorded": "2026-11-24T12:16:56Z",
    "sig": "1393663cc47814ee",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -1032,7 +1034,7 @@
    }
   },
   "50e_drier_epochs.py": {
-   "recorded": "seed: code at 8ac5a387, the commit carrying version 1.0.0 run at 2026-11-24T02:35:20",
+   "recorded": "2026-11-24T12:17:47Z",
    "sig": "84382fcdd87067e0",
    "utils": {
     "utils/clearfell_common.py": "47000681cc25a619",
@@ -1051,7 +1053,7 @@
    }
   },
   "51_cluster_gap_fill.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T01:21:36",
+   "recorded": "2026-11-24T12:18:34Z",
    "sig": "53e8f1c96de7bfa0",
    "utils": {
     "utils/config.py": "6bcc63b366b3c8d9",
@@ -1065,7 +1067,7 @@
    }
   },
   "53_ccw_forest_drift.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.1.0 run at 2026-11-24T01:22:20",
+   "recorded": "2026-11-24T12:18:38Z",
    "sig": "184b83397450769b",
    "utils": {
     "utils/config.py": "03a81cb9c2ab3cf0",
@@ -1077,7 +1079,7 @@
    }
   },
   "54_dry_year_hysteresis.py": {
-   "recorded": "seed override: provenance shows the 02:48 run read outputs/50e_drier_epochs/ (J-15's new OUT_50_E13_PET), so it ran today's utils/paths.py, committed later in 8ac5a387",
+   "recorded": "2026-11-24T12:18:41Z",
    "sig": "d2b658fcd4ddb184",
    "utils": {
     "utils/config.py": "0b897961afeb3e0e",
@@ -1091,7 +1093,7 @@
    }
   },
   "55_water_balance_drainage.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.3.0 run at 2026-11-24T01:22:26",
+   "recorded": "2026-11-24T12:18:50Z",
    "sig": "bb7517f3029588e5",
    "utils": {
     "utils/config.py": "8cc3f694e449adc0",
@@ -1105,14 +1107,14 @@
    }
   },
   "run_09_scraping.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.0.0 run at 2026-11-24T00:09:42",
+   "recorded": "2026-11-24T11:00:45Z",
    "sig": "6f348ee1900c82fc",
    "utils": {
     "utils/console_utils.py": "2cc1cbf79808083c"
    }
   },
   "run_10_clearfell.py": {
-   "recorded": "seed: code at 2ccacd4a, the commit carrying version 1.2.0 run at 2026-11-24T00:09:57",
+   "recorded": "2026-11-24T11:02:36Z",
    "sig": "1d8d54c4d418888a",
    "utils": {
     "utils/console_utils.py": "397ca4551f9b01c2"

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_148.odt — do not edit. source-sha256=299a87b058d7a5c4 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_149.odt — do not edit. source-sha256=818a838996a9d72b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.148 (November 2026).
+Document version: 2.0.149 (November 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1119,7 +1119,7 @@ Site-specific choices and rationale.
 
 Outputs.
 
-  -------------------------------------------------------- -------------------------------------------------------------------
+  -------------------------------------------------------- ----------------------------------------------------------------------------------------
   Output                                                   Description
   07_coefficient_summary.csv                               Per-cluster summary (mean, std, min, max) for each β and R²
   07_spatial_coefficients/07_coeff_01_beta1_recharge.png   β₁ map
@@ -1128,9 +1128,9 @@ Outputs.
   07_spatial_coefficients/07_coeff_04_r2_quality.png       R² map
   07_spatial_coefficients/07_coeff_maps_data.csv           Per-well data underlying the maps
   07_spatial_coefficients/07_cluster_coeff_means.csv       Per-cluster mean β₁, β₂, β₃ and R² (the §4.9 cluster-mean table)
-  07_spatial_coefficients/07_coeff_05_cluster_ranges.csv   Per-cluster min/max of β₁, β₂, β₃ with n (Paper 1 Table 5 source)
+  07_spatial_coefficients/07_coeff_05_cluster_ranges.csv   Per-cluster min/max of β₁, β₂, β₃ with n (the source of Paper 1's cluster-range table)
   07_spatial_coefficients/07_report_numbers.csv            Per-cluster mean-β report values
-  -------------------------------------------------------- -------------------------------------------------------------------
+  -------------------------------------------------------- ----------------------------------------------------------------------------------------
 
 Limitations and known caveats.
 
@@ -2744,14 +2744,14 @@ Site-specific choices.
 -   **50 m grid as the spatial resolution.** Scripts 07, 11b, 19 and 20 all use the same grid. Cell size is large enough to suppress single-well noise in the IDW and small enough that contours read smoothly at the warren's 3.5 × 2.6 km extent. It is not a project-wide convention --- *10b_spatial_step_maps.py* uses 40 m (flagged in S.5) --- but it is the spatial-figure convention.
 -   *is_forest = (cl == 4 or cl == 5)***.** The forest-cluster test is the same in both scripts, matching *FOREST_CIDS = (4, 5)* in *config.py* (F.4). Script 19 uses an inline literal; Script 20 imports *FOREST_INTERCEPTION* from *config.py* but uses an inline membership check.
 -   **The viewer's equation engine is shared with Script 21.** Both use the same monthly equilibrium perturbation, and ship the same clearfell and thinning multipliers (loaded via *clearfell_common*). The broadleaf β₂ values were briefly divergent between the two source files (Script 19 v2.6.0 used local literals; v2.7.0 consolidated to *utils.config*) --- see *Limitations*.
--   **Forest-drawdown propagation constants from C3.** The forest-drawdown map's diffusivity inputs are sourced from the live pipeline: Sy ≈ 0.31 from the C3 cluster median of *18_wtf_01_well_sy_estimates.csv* (Script 18, S.12), and β₃ from the C3 row of *03_03_cluster_mechanistic_coefficients.csv* (Script 03, S.3) --- ≈ 0.103 month⁻¹ under the *limit=1* policy --- giving λ ≈ 172 m. K = 6 m/day (Betson 2002) and saturated thickness b = 5 m remain literature/estimate literals. The Sy and β₃ loads are dynamic, so the figure tracks pipeline state.
+-   **Forest-drawdown propagation constants from C3.** The forest-drawdown map's diffusivity inputs are sourced from the live pipeline: Sy ≈ 0.31 from the C3 cluster median of *18_wtf_01_well_sy_estimates.csv* (Script 18, S.12), and β₃ from the C3 row of *03_03_cluster_mechanistic_coefficients.csv* (Script 03, S.3) --- ≈ 0.103 month⁻¹ under the *limit=1* policy --- giving λ ≈ 172 m. K = 6 m/day, the tracer-test measurement of Betson et al. (2002; range 3.0--9.0 m/day), and saturated thickness b = 5 m, a site-mean estimate, remain literals in the code. The Sy and β₃ loads are dynamic, so the figure tracks pipeline state.
 
 ### []{#anchor-382}[]{#anchor-383}[]{#anchor-384}Limitations and known caveats
 
 -   **The residual map's flow vectors carry direction only.** The residual map (*20_residual_ssm.png*) normalizes (U, V) to unit length before plotting; the Darcy K = 6 m/day does not enter its vectors and is used only in the forest-drawdown propagation λ. The water table's own flow arrows are Script 01b's (S.23e), sized by the gradient.
 -   **The ***idw_surface()*\*\* name is misleading.\*\* It calls *scipy.interpolate.griddata(method=\'linear\')* --- Delaunay piecewise-linear interpolation, not Shepard inverse-distance weighting. The misnomer is shared with *map_utils.add_idw_surface()* and the S.5 chapter; consistency with the older scripts argues against renaming.
 -   **The broadleaf β₂ values are consolidated to a single source of truth.** *utils/config.py* carries *BROADLEAF_B2_WINTER = 0.8817* and *BROADLEAF_B2_SUMMER = 1.0750* --- derived from Script 21's 12-month broadleaf β₂ profile (chapter S.14) averaged over the canopy-state phenological windows (Nov--Apr for winter, May--Oct for summer). Script 19 imports these names directly from config. §4.13.2 of the main report carries these values.
--   **Remaining hardcoded literals in the forest-drawdown map.** *K = 6.0* m/day (Betson 2002), *b = 5.0* m saturated thickness, *H0 = 150* mm, *FLOW_WEIGHT = 0.4*, and *UPHILL_PENALTY = 2.0* are literals in *plot_drawdown_propagation()*. Sy and β₃ are now read from the live pipeline (Script 20 v1.0.1; see *Site-specific choices*). K has an authoritative literature source (Betson 2002); the saturated thickness *b* and initial drawdown H₀ are site-mean estimates with no published per-cluster value at this site and remain reasonable defensive literals --- but should be read explicitly in any sensitivity discussion. The flow-weighting parameters are tuning constants for the Dijkstra cost surface, not physical quantities.
+-   **Remaining hardcoded literals in the forest-drawdown map.** *K = 6.0* m/day (Betson 2002), *b = 5.0* m saturated thickness, *H0 = 150* mm, *FLOW_WEIGHT = 0.4*, and *UPHILL_PENALTY = 2.0* are literals in *plot_drawdown_propagation()*. Sy and β₃ are now read from the live pipeline (Script 20 v1.0.1; see *Site-specific choices*). K is a field measurement at this site (the tracer test of Betson et al., 2002; range 3.0--9.0 m/day); the saturated thickness *b* and initial drawdown H₀ are site-mean estimates with no published per-cluster value at this site and remain reasonable defensive literals --- but should be read explicitly in any sensitivity discussion. The flow-weighting parameters are tuning constants for the Dijkstra cost surface, not physical quantities.
 -   **Broadleaf preset uses annual-mean interception, with phenology folded into β₂.** The broadleaf preset sets *sI_c4 = sI_c5 = 0.15* for both winter and summer, but deciduous canopy intercepts ≈ 0 % in winter and ≈ 25 % in summer. The annual mean 0.15 is correct; the seasonal split is absorbed into *sB2_w* / *sB2_s* rather than into interception itself. A reviewer inspecting the slider values may find this counter-intuitive; the engine still computes the correct equilibrium because the β₂ split absorbs the phenology.
 -   **Broadleaf interception is a literature average, not a site measurement.** Komatsu et al. (2011) is a deciduous-forest annual mean across multiple sites and species. Unlike the Freeman (2008) 24 % value, which is a Newborough Warren measurement on Corsican pine, the broadleaf value is generic. S.14 inherits the same constraint.
 -   **Linear-domain assumption.** All scenarios remain inside the steady-state equilibrium framework. Within-year dynamical trajectories --- the timing of summer minima and winter peaks --- are not resolved. The 0.5--1.5× slider range stays within the linear domain of the fitted β coefficients.
@@ -4272,7 +4272,7 @@ The 2026 group sits 49 px from its aerial siblings and the *site* groups 91 px f
 
 **Change is differenced on the ground, not on the screen.** Consecutive imagery dates are compared, using only pairs where both frames registered, resampled onto a common OSGB grid at *CANOPY_CHANGE_GRID_M* = 2 m. The frames differ in viewpoint, so a pixel-by-pixel difference measures the perspective rather than the ground.
 
-**Canopy at the forest wells (2.16.0, D-263).** Paper 1 had read the C4--C5 split in atmospheric draw as substrate and elevation beneath a uniform canopy, which had not been measured. Phase 5 reads the index in a *CANOPY_WELL_BUFFER_M* (30 m) disc around each of the fourteen C4 and C5 wells on the aerial viewpoint, with the rendered marker pixels masked (dilated by the texture window) and the region gates applied. The test uses each well's median over the pre-felling frames (before *CLEARFELL_DATE_ISO*), because β₂ is fitted mostly on pre-felling months; β₂ is taken as fitted on the comparison window, the basis of Paper 1 Table 7 (*07_coeff_maps_data.csv*). The rule was fixed before the run: elevation stands if the partial correlation of β₂ with elevation given canopy is significant at *WELL_CANOPY_TEST_P* and the partial correlation with canopy given elevation is not; canopy contributes if the latter is significant; not separable otherwise, or if canopy and elevation correlate beyond *WELL_CANOPY_COLLINEAR_R*. Result: elevation stands at 30 m, and at the 20 m and 50 m sensitivity radii (*41_07_canopy_vs_coefficients.csv*). Containment in the frame is tested on each disc's projected outline rather than its pixel count, because the perspective of the captures shrinks the far side of the frame.
+**Canopy at the forest wells (2.16.0, D-263).** Paper 1 had read the C4--C5 split in atmospheric draw as substrate and elevation beneath a uniform canopy, which had not been measured. Phase 5 reads the index in a *CANOPY_WELL_BUFFER_M* (30 m) disc around each of the fourteen C4 and C5 wells on the aerial viewpoint, with the rendered marker pixels masked (dilated by the texture window) and the region gates applied. The test uses each well's median over the pre-felling frames (before *CLEARFELL_DATE_ISO*), because β₂ is fitted mostly on pre-felling months; β₂ is taken as fitted on the comparison window, the basis of Paper 1's coefficient maps (*07_coeff_maps_data.csv*). The rule was fixed before the run: elevation stands if the partial correlation of β₂ with elevation given canopy is significant at *WELL_CANOPY_TEST_P* and the partial correlation with canopy given elevation is not; canopy contributes if the latter is significant; not separable otherwise, or if canopy and elevation correlate beyond *WELL_CANOPY_COLLINEAR_R*. Result: elevation stands at 30 m, and at the 20 m and 50 m sensitivity radii (*41_07_canopy_vs_coefficients.csv*). Containment in the frame is tested on each disc's projected outline rather than its pixel count, because the perspective of the captures shrinks the far side of the frame.
 
 ### []{#anchor-632}[]{#anchor-633}Outputs
 

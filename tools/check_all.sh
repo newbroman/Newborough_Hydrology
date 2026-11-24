@@ -18,6 +18,7 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.45.0 - 2026-11-24   ledger_lint --selftest gated (R44's new committed witness, the independent review).
 # VERSION 1.44.0 - 2026-11-24   witness_lint (T-202, D-325) gated in the records section, with the selftests of
 #                               ship_stage (T-203, D-326) and gate_inputs (T-204, D-327).
 # VERSION 1.43.0 - 2026-11-24   one run per tree (T-146): scratch/check_all.lock refuses a second concurrent
@@ -799,6 +800,7 @@ python3 tools/ms_chapters.py || rc=1
 # Version drift is printed and counted but does not gate: it was 29 rows deep on
 # the day this landed, and a gate that fails from birth is a gate that gets
 # commented out. Same treatment as pipeline_lint's literal check and export_lag.
+python3 tools/ledger_lint.py --selftest >/dev/null || { echo "  ledger_lint --selftest: FAIL"; rc=1; }   # 2026-11-24 (R44)
 ledger_out="$(python3 tools/ledger_lint.py 2>&1)" || rc=1
 printf '%s\n' "$ledger_out" | grep -E "row\(s\) with a stale version|^  ledger_lint:" || true
 

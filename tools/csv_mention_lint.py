@@ -73,7 +73,9 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-21. First gate for "every
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (R58, D-325): the index is what git TRACKS (both repositories),
+#   not the disk, so an untracked or ignored file no longer satisfies a mention.
+# 1.0.0  # Hollingham (2026) — 2026-09-21. First gate for "every
 #   CSV a document names exists" — basename search over outputs/data/tools/
 #   living/docs, with markdown-escape/bold cleanup and a measured (not
 #   guessed) count of what that cleanup could not resolve.
@@ -137,8 +139,26 @@ def recovered_count(text: str) -> int:
 
 
 def build_file_index(repo: Path, roots: list[str]) -> set[str]:
-    """Basenames of every file under any of `roots` (recursive)."""
+    """Basenames of every COMMITTED file under any of `roots`, in either repository.
+
+    1.1.0 (D-325, the 2026-11-24 review, R58): it read the DISK, so an untracked or ignored file satisfied a
+    mention — a scratch copy, a file a run wrote and nobody committed. A mention is a claim that the output is part
+    of the record, so the witness is what git tracks: the public repository and the private one over the same
+    tree. Falls back to the disk only when git cannot be asked."""
+    import subprocess
     names: set[str] = set()
+    tracked: list[str] = []
+    ok = False
+    for gd in (None, repo / ".git-working"):
+        if gd is not None and not gd.is_dir():
+            continue
+        cmd = ["git"] + ([f"--git-dir={gd}", f"--work-tree={repo}"] if gd else []) + ["ls-files", "-z", "--", *roots]
+        r = subprocess.run(cmd, cwd=repo, capture_output=True, text=True)
+        if r.returncode == 0:
+            ok = True
+            tracked += [x for x in r.stdout.split("\0") if x]
+    if ok:
+        return {Path(x).name for x in tracked}
     for root in roots:
         base = repo / root
         if not base.exists():

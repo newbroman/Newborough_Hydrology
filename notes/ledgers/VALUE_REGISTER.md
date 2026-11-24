@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**201 output file(s)** supply **4514 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
+**201 output file(s)** supply **4509 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
 
 ## Cited quantities by output file
 
@@ -1877,8 +1877,7 @@
 | `15_03_benchmark_table.csv` | C1 · Delta_NSE | Newborough_Methods_Supplement.md, report10.md, report9.md |
 |  | C2 · Delta_NSE | Supplementary_Material.md |
 |  | C4 · Delta_NSE | report10.md, report9.md |
-| `15_04_best_params.csv` | C1 · Best_Kappa | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C1 · NSE_Iterative | report9.md |
+| `15_04_best_params.csv` | C1 · NSE_Iterative | report9.md |
 |  | C1 · SSM_NSE | readme.md, report9.md |
 |  | C2 · NSE_Iterative | report9.md |
 |  | C2 · SSM_NSE | report9.md |
@@ -1888,7 +1887,6 @@
 |  | C4 · NSE_Iterative | report9.md |
 |  | C4 · R2_OneStep | Supplementary_Material.md |
 |  | C4 · SSM_NSE | report9.md |
-|  | C5 · Best_Kappa | Supplementary_Material.md, academic_Summary.md |
 |  | C5 · Best_inv_L_E | Newborough_Methods_Supplement.md, report9.md |
 |  | C5 · NSE_Iterative | Newborough_Methods_Supplement.md, report9.md |
 |  | C5 · R2_OneStep | report9.md |
@@ -1907,11 +1905,8 @@
 |  | depth_dependent_pet_best_inv_L_E_full_model_a · C4 | Paper1.md, report9.md |
 |  | depth_dependent_pet_best_inv_L_E_model_a · C1 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | depth_dependent_pet_best_inv_L_E_model_a · C5 | Supplementary_Material.md |
-|  | depth_dependent_pet_best_kappa · C1 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
-|  | depth_dependent_pet_best_kappa · C5 | Supplementary_Material.md, academic_Summary.md |
 |  | depth_dependent_pet_drainage_share_shift_pts · C3 | Newborough_Methods_Supplement.md |
 |  | depth_dependent_pet_drainage_share_shift_pts · C4 | Paper1.md, report9.md |
-|  | depth_dependent_pet_efold_depth · C5 | Newborough_Methods_Supplement.md, report9.md |
 | `16_report_numbers.csv` | C4 (Main Forest) · water_balance_residual_pct | report9.md |
 |  | water_balance_PET_mean_mm · C2 (Dune) | report9.md |
 |  | water_balance_PET_mean_mm · C3 (Western Residual) | report9.md |

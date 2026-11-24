@@ -50,7 +50,9 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-10-02. REMOTE is gdrivefile:NRG_documents_v2 (the published
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (D-328). A document newer than the marker but whose MD5 is
+#   what the Drive manifest records is archived, not lagging.
+# 1.0.1  # Hollingham (2026) — 2026-10-02. REMOTE is gdrivefile:NRG_documents_v2 (the published
 #   drive.file client; nrg_git.sh 1.25.3). 1.0.0 — 2026-08-26.
 
 import argparse
@@ -109,6 +111,16 @@ def main() -> int:
 
     cutoff = MARKER.stat().st_mtime
     stale = [(p, p.stat().st_mtime) for p in docs if p.stat().st_mtime > cutoff]
+    # 1.1.0 (D-328, 2026-11-24): an mtime newer than the marker is only a reason to LOOK. A document whose bytes
+    # are what the last archive recorded (working/DRIVE_MANIFEST.json) is on Drive, whatever its clock says - a
+    # restore, a copy or a checkout rewrites mtimes without changing content.
+    try:
+        import hashlib, json
+        man = json.loads((REPO / "working" / "DRIVE_MANIFEST.json").read_text(encoding="utf-8")).get("files") or {}
+        stale = [(p, t) for p, t in stale
+                 if man.get(p.relative_to(REPO).as_posix()) != hashlib.md5(p.read_bytes()).hexdigest()]
+    except (OSError, ValueError):
+        pass                                            # no manifest: the clock alone decides, as before
 
     if not a.quiet:
         print(f"  drive_lag: last archived {_stamp(cutoff)} — "

@@ -74,6 +74,7 @@ EXEMPT = {
     # (xref_lint, retired_phrase_lint, csv_mention_lint, docglob_lint,
     # record_basis_claims_lint)
     "report99.md", "fixture.md", "doc.md", "t.md", "Paper.md", "docs/paper/text/Paper.md",
+    "docs/x/text/Doc.md",   # doc_tier_lint 1.1.0 --selftest (R07 witness, 2026-11-24): a mirror in a throwaway repo
     # build_chat_corpus.py --selftest probes (D-245, 2026-10-08): paths the corpus allowlist
     # must deny or allow, tested as STRINGS against its rules, never opened
     "docs/report/text/Paper1_extract.md", "literature/open/van_willegen_2025.md",
@@ -88,6 +89,19 @@ EXEMPT = {
     # (the same rule that keeps changelogs out of repoint_refs). They name what
     # the file was called when the entry was written, which is correct.
     "BOOTSTRAP.md",
+    # T-154 (2026-11-24, Martin 2026-11-06: "option 1, and explicitly not option 2" - name each path with its
+    # reason; do NOT teach the lint that any untracked path is out of scope, which would silence a forgotten commit).
+    # Gitignored BY DECISION 2026-08-24 (.gitignore block "Working records: private by decision"): on disk and
+    # maintained on Martin's machine, deliberately in neither repository, so absent from every clone.
+    "PAPER2_EDITS.md", "docs/papers/paper_2/PAPER2_EDITS.md",
+    "living/HANDOVER_pipeline_forecaster_regen_2026-07-04.md",
+    # session working files under scratch/ (gitignored, ephemeral), cited from DATED records - the decision log and
+    # dated notes/findings - which are not rewritten (CLAUDE.md section 3)
+    "scratch/proof/gate_coverage_audit.md", "scratch/proof/unsourced_trace_24l.md",
+    "scratch/resolve_martin_2026-09-29.md",
+    # signposts to machine-local directories: _audit_tmp/ is the L14's audit scratch (gitignored), and venv/.bridge
+    # exists only where tools/bridge_py.sh has built it (the bridge VM), never in a cloud session
+    "_audit_tmp", "venv/.bridge",
     # a filename built at runtime from a template
     "{name}.md", "{stem}.md",
     # tools/build_diary.py names its own --public output, which exists only once

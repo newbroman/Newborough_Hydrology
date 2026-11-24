@@ -46,7 +46,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # 2026-09-25 (Claude, 25c). The aspect fix matched frames sized in
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-11-24. A figure whose embedded revision
+#   history no longer holds is identified by exact pixel size when that is unambiguous (report10 Figs 82-85).
+# "1.2.0"  # 2026-09-25 (Claude, 25c). The aspect fix matched frames sized in
 #   centimetres only; report9/report10 frames are in inches, so every re-embed whose aspect
 #   changed there kept the old height and stretched the picture (28 frames found
 #   distorted, 3.6-258 %). Any svg unit is now read and written back in its own unit.
@@ -144,7 +146,7 @@ def plan_for(odt: Path, srcidx, figsrc, skip) -> tuple[list, list]:
             data = z.read(i.filename)
             embedded[blob_id(data)] = (i.filename, data)
 
-    jobs, problems = [], []
+    jobs, problems, unresolved = [], [], []
     for num, base in figsrc.get(odt.name, []):
         if base in skip:
             continue
@@ -160,14 +162,36 @@ def plan_for(odt: Path, srcidx, figsrc, skip) -> tuple[list, list]:
                 hit = (i, rev, *embedded[bid])
                 break
         if hit is None:
-            problems.append((num, base,
-                             "no version in this file's history is embedded — "
-                             "the declaration probably names the wrong output"))
+            unresolved.append((num, base, new))
             continue
         behind, rev, entry, old = hit
         od, nd = dimensions(old), dimensions(new)
         jobs.append({"fig": num, "src": base, "entry": entry, "new": new,
                      "behind": behind, "rev": rev, "old_dim": od, "new_dim": nd})
+    # 2026-11-24: when history no longer holds the embedded revision (slim_history strips superseded binaries,
+    # D-257), identify the picture by its exact pixel size - but only where that is unambiguous: one unclaimed
+    # embedded picture of that size, and no other unresolved declaration of the same size. Measured that day on
+    # report10's Figures 82-85: each declared output had exactly the size of one embedded picture, whose bytes
+    # were in no surviving revision. Reported as identified BY SIZE, a weaker witness than history.
+    claimed = {j["entry"] for j in jobs}
+    for num, base in figsrc.get(odt.name, []):
+        cur = srcidx.get(base)
+        if cur is not None and blob_id(cur.read_bytes()) in embedded:
+            claimed.add(embedded[blob_id(cur.read_bytes())][0])
+    free = {fn: data for fn, data in embedded.values() if fn not in claimed}
+    want = [dimensions(n) for _num, _b, n in unresolved]
+    for num, base, new in unresolved:
+        nd = dimensions(new)
+        same = [(fn, d) for fn, d in free.items() if nd and dimensions(d) == nd]
+        if nd and len(same) == 1 and want.count(nd) == 1:
+            fn, old = same[0]
+            jobs.append({"fig": num, "src": base, "entry": fn, "new": new, "behind": "?",
+                         "rev": "by-size", "old_dim": nd, "new_dim": nd})
+            free.pop(fn)
+            continue
+        problems.append((num, base,
+                         "no version in this file's history is embedded, and its pixel size does not single "
+                         "out one embedded picture — the declaration may name the wrong output"))
     return jobs, problems
 
 
@@ -227,7 +251,10 @@ def rewrite(odt: Path, jobs: list) -> None:
         assert zo.namelist()[0] == "mimetype"
         assert zo.getinfo("mimetype").compress_type == zipfile.ZIP_STORED
         assert len(zo.namelist()) == len(zin.namelist())
+    import odt_edit                                   # 2026-11-24 (R47): journal the write like every odt_edit write
+    _jb = odt_edit._md5_of(odt)
     shutil.copyfile(tmp, odt)
+    odt_edit._journal(odt, _jb)
 
 
 def main() -> int:
@@ -257,8 +284,9 @@ def main() -> int:
             dim = ""
             if j["old_dim"] and j["new_dim"] and j["old_dim"] != j["new_dim"]:
                 dim = f"   {j['old_dim'][0]}x{j['old_dim'][1]} -> {j['new_dim'][0]}x{j['new_dim'][1]}"
-            print(f"      Figure {str(j['fig']):<4} {j['src']:<44} "
-                  f"{j['behind']} rev(s) behind ({j['rev']}){dim}")
+            how = ("identified BY PIXEL SIZE - its embedded revision is no longer in history"
+                   if j["rev"] == "by-size" else f"{j['behind']} rev(s) behind ({j['rev']})")
+            print(f"      Figure {str(j['fig']):<4} {j['src']:<44} {how}{dim}")
         for num, base, why in problems:
             print(f"      SKIPPED Figure {num:<4} {base:<44} {why}")
         total += len(jobs)

@@ -59,7 +59,9 @@ Usage:
 #     a traceback. QA and the hub append are written first, so they always land.
 #     The master normally auto-populates from its recordsheet link, so the ODS
 #     copy is incidental for the forecaster/hub workflow.
-__version__ = "1.3.0"
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (T-160): uno_write takes `sheets`, and never writes a second column
+#   with a date a sheet's last column already carries (the measured sheet arrives through its live link).
+# "1.3.0"
 
 import argparse, os, re, sys, math, subprocess, time, datetime as dt
 import pandas as pd
@@ -272,7 +274,14 @@ def write_qa(qa, path, month, coldate, n_written):
     open(path, 'w').write("\n".join(L))
 
 # ───────────────────────── LibreOffice (UNO) write ─────────────────────────
-def uno_write(master_path, out_path, master, vals, coldate, port=2002):
+def uno_write(master_path, out_path, master, vals, coldate, port=2002, sheets=None):
+    """Write this month's column into the master's three sheets.
+
+    2026-11-24 (T-160): `sheets` names which of ('measured', 'Absolute Level', 'depth from surface') to write; None
+    means all three. And whatever it names, a sheet whose LAST column already carries this date is SKIPPED and said
+    so: MONTHLY_ROUTINE step 0 has the master pick `measured` up from recordsheet.ods through its live link, so in
+    the normal month that sheet already has the column, and writing it again appended a second column with the same
+    date (measured 2026-11-06: measured at lastcol 296, the derived sheets at 286)."""
     import uno
     from com.sun.star.beans import PropertyValue
     profile = 'file:///tmp/nw_lo_profile'
@@ -300,13 +309,19 @@ def uno_write(master_path, out_path, master, vals, coldate, port=2002):
     doc = desktop.loadComponentFromURL("file://" + os.path.abspath(master_path),
                                         "_blank", 0, (pv("Hidden", True),))
     try:
-        sheets = doc.Sheets
         iso = coldate.strftime('%Y-%m-%d') if coldate is not None else dt.date.today().isoformat()
         plan = [('measured', 'measured', master['lastcol']['measured'] + 1, 'depth'),
                 ('Absolute Level', 'al', master['lastcol']['al'] + 1, 'wte'),
                 ('depth from surface', 'dfs', master['lastcol']['dfs'] + 1, 'dfs')]
+        book = doc.Sheets
         for sheet_name, key, newcol, field in plan:
-            sh = sheets.getByName(sheet_name)
+            if sheets is not None and sheet_name not in sheets:
+                continue
+            sh = book.getByName(sheet_name)
+            have = sh.getCellByPosition(newcol - 1, 1).getString().strip()
+            if have[:10] == iso:
+                print(f"  {sheet_name}: its last column is already {iso} - not writing a second one")
+                continue
             sh.getCellByPosition(newcol, 1).setString(iso)        # date header in row 1
             rmap = master['rows'][key]
             for w, v in vals.items():

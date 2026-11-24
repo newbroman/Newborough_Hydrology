@@ -99,7 +99,9 @@ from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-19
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24 (R47, D-325). --check also FAILs an archived versioned ODT edited
+#   in place: Drive's recorded MD5s, chained through odt_edit's write journal, must reach its current MD5.
+# 1.0.0  # Hollingham (2026) — 2026-08-19
 # 1.0.0 — first version. The Methods Supplement's front matter had said 1.9.7
 #         since the file was named _v1_9_7; the filename had reached _v1_9_24.
 #         Nothing owned the line, so every session that spotted it left it.
@@ -330,7 +332,56 @@ def main() -> int:
         print("The mirror of every document written above is now behind it — "
               "run python3 tools/refresh_mirrors.py")
 
-    return 1 if (drift or required_missing or manual) else 0
+    inplace = in_place_edits(paths) if args.check else []
+    for rel, cur in inplace:
+        print(f"  INPLACE {rel}\n            archived to Drive, and changed since by a step no odt_edit write explains "
+              f"(MD5 now {cur[:12]}): an archived version was edited in place. Save the edit as the next version.")
+    return 1 if (drift or required_missing or manual or inplace) else 0
+
+
+def in_place_edits(paths) -> list[tuple[str, str]]:
+    """1.1.0 (R47, D-325): an ARCHIVED versioned ODT whose content moved by a step the write journal cannot explain.
+
+    The witness is Drive's record - every MD5 any archive manifest recorded for the path (the private history) -
+    chained through working/odt_write_log.csv, which odt_edit 1.12.0 appends on every write (field_sync's number
+    refreshes included, which are allowed in place). A path never archived is a new version: nothing to judge.
+    Without the private store there is no witness, and nothing is judged."""
+    import hashlib, csv as _csv, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(root / "tools"))
+    try:
+        import drive_manifest_list as dml
+        m = dml.load()
+        hist = dml.history() if m else {}
+    except Exception:                                   # noqa: BLE001
+        return []
+    if not m:
+        return []
+    for k, v in (m.get("files") or {}).items():
+        hist.setdefault(k, set()).add(v)
+    steps: dict[str, list[tuple[str, str]]] = {}
+    log = root / "working" / "odt_write_log.csv"
+    if log.exists():
+        for r in _csv.DictReader(open(log, encoding="utf-8", newline="")):
+            steps.setdefault(r["path"], []).append((r["md5_before"], r["md5_after"]))
+    out = []
+    for p in paths:
+        p = pathlib.Path(p).resolve()
+        rel = p.relative_to(root).as_posix() if p.is_relative_to(root) else None
+        if rel is None or rel not in hist:
+            continue
+        cur = hashlib.md5(p.read_bytes()).hexdigest()
+        known = set(hist[rel])
+        grew = True
+        while grew and cur not in known:                # follow journalled steps out of the archived states
+            grew = False
+            for before, after in steps.get(rel, []):
+                if before in known and after not in known:
+                    known.add(after)
+                    grew = True
+        if cur not in known:
+            out.append((rel, cur))
+    return out
 
 
 if __name__ == "__main__":

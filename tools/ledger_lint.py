@@ -29,6 +29,21 @@ WHAT IT CHECKS, AND WHAT IT REFUSES TO CHECK
     * a script in src/ with no row (it is invisible to anyone reading the ledger)
     * a row naming a script that no longer exists (it describes nothing)
 
+    * WITNESS (1.2.0, D-325: `committed`) — a script whose EXECUTABLE source differs from
+      its committed state while `__version__` reads the same. Every version comparison
+      below reads a label the editor writes; this reads the code. Two states of each
+      ledger script are compared with the working tree: HEAD (an uncommitted edit), and
+      the parent of the last commit that touched it (so the check does not go quiet the
+      moment the edit is committed). "Executable source" is code_signature.signature():
+      comments, docstrings and the __version__ line removed, so a comment-only edit asks
+      for nothing. Cleared by bumping `__version__`, with its changelog line.
+      Why not outputs/pipeline_code_signatures.json, which records the code each step
+      RAN: the pipeline rewrites it on every run, so the re-run output_lag asks for after
+      an edit would erase the evidence of an unbumped one. The function is reused; the
+      reference state is git's, which no run and no editor of the script rewrites.
+      Not seen: an edit older than a shallow clone's boundary, and src/utils/ (no ledger
+      rows; utils/paths.py is a registry that is edited without a bump by practice).
+
   ADVISORY — version drift. Printed, counted, not gated. Twenty-nine stale rows
   is a maintenance backlog, and a gate that fails from the day it lands is a gate
   someone switches off within the week. The same reasoning check_all already
@@ -45,10 +60,18 @@ Usage:
     python3 tools/ledger_lint.py                 # report
     python3 tools/ledger_lint.py --quiet         # gate faults only
     python3 tools/ledger_lint.py --fix-versions  # bump Ver, mark Status DRIFT?
+    python3 tools/ledger_lint.py --selftest      # the witness fails on an unbumped edit
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-01. Adds the
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (D-325, R44). The gate gets a witness: each ledger script's
+#   executable source (code_signature.signature) against its COMMITTED state — HEAD, and the parent of the last commit
+#   touching it — and a change there with `__version__` unchanged FAILS. Until now nothing compared a code edit with a
+#   bump: every check here read the version label the editor writes. Measured on the day over this clone's history:
+#   73 committed edits to src/, 3 unbumped, all utils/paths.py (no ledger row, out of scope); 0 on a ledger script.
+#   Adds --selftest.
+#
+# "1.1.0"  # Hollingham (2026) — 2026-09-01. Adds the
 #   DOCSTRING VERSION check. Three modules carried a `__version__ :` line inside
 #   their module docstring that had drifted from the real assignment, because the
 #   bump convention updates one copy and not the other. Nothing downstream was
@@ -61,6 +84,9 @@ __version__ = "1.1.0"  # Hollingham (2026) — 2026-09-01. Adds the
 
 import argparse
 import re
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -129,6 +155,129 @@ def docstring_version_drift() -> list[tuple[str, str, str]]:
     return out
 
 
+# ---------------------------------------------------------------- the witness (D-325)
+
+def unbumped(old_src: str | None, new_src: str | None) -> str | None:
+    """The version both states carry, when the executable source moved between them and it did not. Else None."""
+    if old_src is None or new_src is None or old_src == new_src:
+        return None
+    va, vb = _VER.search(old_src), _VER.search(new_src)
+    if not (va and vb and va.group(1) == vb.group(1)):
+        return None                                    # the version moved (or there is none): nothing to convict
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import code_signature
+    a, b = code_signature.signature(old_src), code_signature.signature(new_src)
+    if a is None or b is None or a == b:               # unparseable is another gate's fault; same code = no edit
+        return None
+    return vb.group(1)
+
+
+def _git(repo: Path, *args: str) -> str | None:
+    try:
+        r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return r.stdout if r.returncode == 0 else None
+
+
+def witness(repo: Path, scripts: list[str], src: str = "src") -> tuple[list[str], int, int] | None:
+    """(faults, scripts compared with HEAD, of which also with the state before their last commit), or None where
+    there is no git history to read."""
+    log = _git(repo, "log", "--format=@%H", "--name-only", "--", src)
+    if log is None or _git(repo, "rev-parse", "HEAD") is None:
+        return None
+    last, cur = {}, None                               # path -> the last commit that touched it
+    for line in log.splitlines():
+        if line.startswith("@"):
+            cur = line[1:]
+        elif line.strip():
+            last.setdefault(line.strip(), cur)
+    faults, n, n_base = [], 0, 0
+    for s in sorted(scripts):
+        rel = f"{src}/{s}"
+        p = repo / rel
+        if not p.is_file():
+            continue
+        tree = p.read_text(encoding="utf-8", errors="ignore")
+        head = _git(repo, "show", f"HEAD:{rel}")
+        c = last.get(rel)
+        base = _git(repo, "show", f"{c}^:{rel}") if c else None
+        if head is None and base is None:
+            continue                                   # a new script: nothing committed to compare with
+        n += 1
+        n_base += base is not None
+        v = unbumped(head, tree)
+        if v:
+            faults.append(f"{s}: executable source differs from HEAD and __version__ is still {v} "
+                          f"(an uncommitted edit without a bump)")
+            continue
+        v = unbumped(base, tree)
+        if v:
+            faults.append(f"{s}: executable source changed in {c[:8]} and __version__ is still {v} "
+                          f"(a committed edit without a bump)")
+    return faults, n, n_base
+
+
+def selftest() -> int:
+    v1 = '"""Doc."""\n__version__ = "1.0.0"  # first\nx = 1\nprint(x)\n'
+    comment = v1.replace("x = 1", "x = 1  # one").replace('"""Doc."""', '"""Doc, reworded."""')
+    edit = v1.replace("x = 1", "x = 2")
+    bumped = edit.replace("1.0.0", "1.0.1")
+    bad = []
+    if unbumped(v1, edit) != "1.0.0":
+        bad.append("an executable edit with the version unchanged was not seen")
+    if unbumped(v1, bumped) or unbumped(v1, comment) or unbumped(v1, v1) or unbumped(None, v1) \
+            or unbumped(v1, v1.replace("1.0.0", "1.0.1")):
+        bad.append("a bumped edit, a comment/docstring-only edit, no edit or a new file read as unbumped")
+    # End to end, in a throwaway repository: the fault must fail committed AND uncommitted, and the bump must clear it.
+    import os
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        (repo / "src").mkdir()
+        f = repo / "src" / "01_a.py"
+        env = {"PATH": os.environ["PATH"], "HOME": tmp, "GIT_CONFIG_NOSYSTEM": "1"}
+
+        def g(*args):
+            subprocess.run(["git", "-C", tmp, "-c", "user.name=t", "-c", "user.email=t@t",
+                            "-c", "commit.gpgsign=false", *args], capture_output=True, text=True, check=True, env=env)
+
+        def commit(text):
+            f.write_text(text, encoding="utf-8")
+            g("add", "-A")
+            g("commit", "-q", "-m", "x")
+
+        g("init", "-q")
+        commit(v1)
+        if witness(repo, ["01_a.py"]) != ([], 1, 0):
+            bad.append("repo: a script with one commit did not read as 'compared with HEAD only'")
+        commit(bumped)
+        if witness(repo, ["01_a.py"]) != ([], 1, 1):
+            bad.append("repo: a committed edit WITH its bump faulted, or was not compared")
+        f.write_text(bumped.replace("x = 2", "x = 3"), encoding="utf-8")
+        w = witness(repo, ["01_a.py"])
+        if not (w and len(w[0]) == 1 and "uncommitted edit without a bump" in w[0][0]):
+            bad.append(f"repo: THE FAULT — an uncommitted executable edit, version unchanged — passed: {w}")
+        commit(bumped.replace("x = 2", "x = 3"))
+        w = witness(repo, ["01_a.py"])
+        if not (w and len(w[0]) == 1 and "committed edit without a bump" in w[0][0]):
+            bad.append(f"repo: THE FAULT — the same edit once COMMITTED — passed: {w}")
+        f.write_text(bumped.replace("x = 2", "x = 3").replace("1.0.1", "1.0.2"), encoding="utf-8")
+        if witness(repo, ["01_a.py"]) != ([], 1, 1):
+            bad.append("repo: bumping the version did not clear the fault")
+        commit(bumped.replace("x = 2", "x = 3  # three").replace("1.0.1", "1.0.2"))
+        if witness(repo, ["01_a.py"]) != ([], 1, 1):
+            bad.append("repo: a comment-only commit faulted")
+    if witness(Path(tempfile.gettempdir()) / "no_such_repo_ledger_lint", ["01_a.py"]) is not None:
+        bad.append("no git history did not read as 'cannot compare'")
+    if bad:
+        print("ledger_lint --selftest: FAIL")
+        for b in bad:
+            print(f"    - {b}")
+        return 1
+    print("ledger_lint --selftest: OK")
+    return 0
+
+
 def rows(text: str) -> list[dict]:
     out = []
     for i, line in enumerate(text.split("\n")):
@@ -148,7 +297,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--fix-versions", action="store_true")
+    ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
 
     if not LEDGER.exists():
         print(f"  SKIP  {LEDGER.name} not in this checkout")
@@ -198,6 +350,24 @@ def main() -> int:
         print("          forgets. Correct the docstring, not the assignment.")
     elif not args.quiet:
         print("  docstring version lines agree with their assignments")
+
+    w = witness(REPO, sorted(listed & on_disk))
+    if w is None:
+        print("  witness: SKIP — no git history here, so no script was compared with its committed state")
+    else:
+        w_faults, n_cmp, n_base = w
+        if w_faults:
+            fail = 1
+            print(f"  FAIL  {len(w_faults)} script(s) edited without a version bump (witness: committed):")
+            for f in w_faults:
+                print(f"          {f}")
+            print("          Bump __version__ with its dated changelog line, and the ledger row with it.")
+            # check_all prints only lines that start "  ledger_lint:" — so the red section names its cause.
+            print(f"  ledger_lint: FAIL — edited without a version bump: "
+                  f"{', '.join(f.split(':')[0] for f in w_faults)}")
+        elif not args.quiet:
+            print(f"  witness (committed): {n_cmp} script(s) compared with HEAD, {n_base} also with the state before "
+                  f"their last commit; no executable edit without a version bump")
 
     if not args.quiet or drift:
         print(f"  {len(drift)} row(s) with a stale version "

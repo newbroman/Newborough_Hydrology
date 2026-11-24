@@ -352,10 +352,13 @@ print(""GUARDED"" if ok else ""UNGUARDED"")
 EOF",GUARDED,2026-11-07,pipeline,"CLOSED 2026-11-07 by D-317, both remedies as Martin chose ('3 both'). run_analysis.py pops MATPLOTLIBRC at import, before matplotlib is imported and before any child inherits the environment; env_audit 1.3.0 records matplotlib_config probed in a CHILD with the variable removed (rc_file_is_matplotlibs_own, text.hinting, text.hinting_factor) and compares those, while host_MATPLOTLIBRC is reported and NOT compared so a host that merely sets it does not fail the gate. tools/environment.json gained the field with the L14's stock values (force_autohint / 8), added surgically because do_record rightly refuses from a second machine. VERIFIED: env -u MATPLOTLIBRC reproduces the committed 10e_03 figure exactly (9194107155d537c5...), and env_audit now reads green in a container that sets the variable. KNOWN LIMIT, measured: the matching pin in render_utils.MPL_DEFAULTS is applied only by apply_house_style(), which 3 of 25 plotting scripts call -- the other 22 set their own rcParams dict inline. A standalone run of one of those 22 STILL diverges (tested on 10e, which is one of them). That is hardening, not the fix; the fix is the pop in run_analysis, and it suffices because committed artefacts come only from there (a standalone run already cannot produce them -- pipeline_lint --check runid)."
 T-177,"finish D-316: the kappa -> L_E rename is done in the four pipeline files only; the tools, the registers, the report table and the two frozen documents still say kappa","D-316 (Martin 2026-11-07: ""L_E""); branch claude/L_E-rename carries the code half","python3 - <<'EOF'
 import pathlib
-names = (""tools/table_configs.py"", ""tools/cite_check.py"", ""tools/proof_copy.py"",
-         ""tools/form_label_lint.py"", ""notes/ledgers/VALUE_REGISTER.md"",
+# 2026-11-24: the registers and the documents. cite_check.py's dated history comments and form_label_lint's
+# backward-compatibility skip of the old key are deliberate and no longer counted.
+names = (""tools/table_configs.py"", ""tools/proof_copy.py"", ""tools/citation_index.csv"",
+         ""notes/ledgers/VALUE_REGISTER.md"",
          ""docs/report/text/Newborough_Methods_Supplement.md"",
-         ""docs/report/text/Supplementary_Material.md"")
+         ""docs/report/text/Supplementary_Material.md"",
+         ""report_edits/text/report9.md"", ""report_edits/text/report10.md"")
 left = 0
 for f in names:
     q = pathlib.Path(f)

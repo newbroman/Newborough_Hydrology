@@ -52,7 +52,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-11-18 (J-18). add_pictures(): new image entries plus their
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-11-24 (R47, D-325). Every write is journalled in
+#   working/odt_write_log.csv (path, MD5 before/after, reason, chat) so an in-place edit outside this module shows.
+# 1.11.0  # Hollingham (2026) — 2026-11-18 (J-18). add_pictures(): new image entries plus their
 #   manifest lines, with counted content.xml substitutions under the same guards as edit(). For a document whose
 #   figures are plain frames with typed captions (Paper M), where insert_figure's sequence-numbered markup would
 #   misnumber every typed caption. The archive check is edit()'s, with the new entries expected at the end.
@@ -288,6 +290,40 @@ def _guards(orig_xml: str, xml: str, zin, name: str,
     return True
 
 
+# 2026-11-24 (R47, D-325): every ODT this module writes is journalled - path, MD5 before and after, the reason -
+# in working/odt_write_log.csv (private). doc_version_sync --check reads it: an ARCHIVED versioned ODT whose MD5
+# moved by a step the journal does not explain was edited in place by something else (LibreOffice by hand, a
+# script that bypassed this module), which the versioned-document rule forbids. Never blocks a write.
+WRITE_LOG = pathlib.Path(__file__).resolve().parent.parent / "working" / "odt_write_log.csv"
+
+
+def _md5_of(p) -> str:
+    import hashlib
+    try:
+        return hashlib.md5(pathlib.Path(p).read_bytes()).hexdigest()
+    except OSError:
+        return ""
+
+
+def _journal(dst, before: str) -> None:
+    try:
+        if not WRITE_LOG.parent.is_dir():
+            return                                   # no private store: nothing to journal into
+        import csv, datetime, os
+        dst = pathlib.Path(dst).resolve()
+        root = WRITE_LOG.parent.parent.resolve()
+        rel = dst.relative_to(root).as_posix() if dst.is_relative_to(root) else str(dst)
+        new = not WRITE_LOG.exists()
+        with open(WRITE_LOG, "a", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            if new:
+                w.writerow(["time", "path", "md5_before", "md5_after", "reason", "chat"])
+            w.writerow([datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), rel, before,
+                        _md5_of(dst), REASON or os.environ.get("ODT_EDIT_REASON", ""), os.environ.get("NRG_CHAT", "")])
+    except Exception:                                # noqa: BLE001 - the journal must never cost a write
+        pass
+
+
 def _write(src, dst, xml: str, zin, names) -> bool:
     if not _tier_gate(dst, tag_change=False):
         return False
@@ -310,8 +346,10 @@ def _write(src, dst, xml: str, zin, names) -> bool:
         print(f"  ABORT {src.name}: archive verification failed")
         tmp.unlink()
         return False
+    _jb = _md5_of(dst)
     with open(tmp, "rb") as a, open(dst, "wb") as b:
         shutil.copyfileobj(a, b)
+    _journal(dst, _jb)          # 2026-11-24 (R47): the write journal
     tmp.unlink()
     print(f"  OK  {dst.name}  ({dst.stat().st_size} bytes, {len(names)} entries)")
     return True
@@ -483,8 +521,10 @@ def edit_entries(src, dst, entry_subs: dict, expect: int) -> bool:
     if not ok:
         print(f"  ABORT {src.name}: archive verification failed")
         tmp.unlink(); return False
+    _jb = _md5_of(dst)
     with open(tmp, "rb") as a, open(dst, "wb") as b:
         shutil.copyfileobj(a, b)
+    _journal(dst, _jb)          # 2026-11-24 (R47): the write journal
     tmp.unlink()
     print(f"  OK  {dst.name}  ({dst.stat().st_size} bytes, {len(names)} entries)")
     return True
@@ -666,7 +706,9 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
         if pic not in chk.namelist():
             print("  ABORT: the picture did not make it into the archive")
             zin.close(); return False
+    _jb = _md5_of(dst)
     shutil.copyfile(tmp, dst)
+    _journal(dst, _jb)          # 2026-11-24 (R47): the write journal
     zin.close()
     print(f"  OK  {dst.name}  (+{pic}, {len(blob)} bytes; "
           f"{len(names) + 1} entries)")
@@ -758,8 +800,10 @@ def add_pictures(src, dst, images: dict, subs, expect: int) -> bool:
     if not ok:
         print(f"  ABORT {src.name}: archive verification failed")
         tmp.unlink(); return False
+    _jb = _md5_of(dst)
     with open(tmp, "rb") as a, open(dst, "wb") as b:
         shutil.copyfileobj(a, b)
+    _journal(dst, _jb)          # 2026-11-24 (R47): the write journal
     tmp.unlink()
     print(f"  OK  {dst.name}  (+{len(blobs)} picture(s), {total} substitution(s); {len(names) + len(blobs)} entries)")
     return True
@@ -943,7 +987,9 @@ def replace_image(src, dst, member: str, image_path, aspect_tol: float = 0.005) 
     zin.close()
     if not ok:
         print(f"  ABORT {src.name}: archive verification failed"); tmp.unlink(); return False
+    _jb = _md5_of(dst)
     shutil.copyfile(tmp, dst)
+    _journal(dst, _jb)          # 2026-11-24 (R47): the write journal
     tmp.unlink()
     print(f"  OK  {dst.name}  ({member} replaced, {w_px}x{h_px}; content.xml unchanged)")
     return True

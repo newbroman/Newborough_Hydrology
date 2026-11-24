@@ -1,0 +1,36 @@
+# The NRG files that are in NEITHER git repository, backed up to Drive (Martin, 2026-11-24: "the drive should also
+# contain all the NRG files, including the literature folder. What's the point of having it as a backup if my files
+# aren't there?"). Used by nrg_git.sh archive_documents() as a SECOND pass, after the ODT pass:
+#   rclone copy . gdrivefile:NRG_documents_v2 --filter-from tools/rclone-local-only-filter.txt
+#
+# Each path here is kept out of git on purpose (.gitignore says why: copyright, licence, or size), so it exists only
+# on the machine that holds it - in practice the L14 - and until 2026-11-24 it was on no backup at all. Drive is
+# Martin's own private store, so copyright material there is a personal copy, not a redistribution.
+#
+# A SEPARATE filter, not lines in rclone-odt-filter.txt, because that filter also defines working/DRIVE_MANIFEST.json
+# and cloud_ship.sh compares Drive, the manifest AND the local tree through it: a cloud session never has these
+# files, so listing them there would fail every cloud ship (drive-not-current, "download missing"). This pass writes no
+# manifest. copy, never sync, as for the ODTs.
+#
+# ORDER MATTERS: the first matching rule wins.
+
+- **/.DS_Store
+- **/~$*
+- **/.~lock.*
+
+# literature/: the reference library (literature/README.md is its manifest; open/ is tracked)
++ literature/**
+
+# data/geo: licence-restricted historic map scans and the imagery captures (D-081), incl. the foreshore drumlin captures
++ data/geo/histmaps/**
++ data/geo/1900 copy_modified.tif
++ data/geo/aerial*.png
++ data/geo/site*.png
++ data/geo/Screenshot*.png
++ data/geo/sea*.png
+
+# living/: the local working folders
++ living/inbox/**
++ living/output/**
+
+- **

@@ -4,7 +4,7 @@
 hand-mapped KML, not a pipeline output). Supplements `NRG_drumlin_c2_c3_divide_2026-09-19.md`.
 
 **Source.** `data/geo/sea_ridge.kml` (four polygons) was mapped by Martin from aerial imagery (Google Maps) of the
-structures off the western shore, during the drumlin work of September 2026. It was committed in 512352b9 (2026-11-17)
+structures off the western shore, during the drumlin work of September 2026. The imagery is the Google Earth Pro seabed captures of Llanddwyn Bay registered in `data/geo/aerial_manifest.csv` (`seabed1-1-2006.png`, 2006-01-01; `seabed22-4-2017*.png`, 2017-04-22, five views), which are kept out of git (D-081) and since 2026-11-24 backed up to Drive with the other local-only files. The KML was committed in 512352b9 (2026-11-17)
 and is read by no script. Martin, 2026-11-24: "There are coastal kml structures in the /data folder"; "We looked
 extensively at Google Maps photos to outline where the drumlins might be, looking at the structures off the coast."
 

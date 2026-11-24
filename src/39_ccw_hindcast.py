@@ -121,7 +121,13 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). Emit-only: ccw_annual_range_first_year /
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-23 (J-24, J-26). (1) Figure 39_04 (Paper M Figure 5) draws both
+#   fixed-floor forms of Model A beside Model B, thin and grey (dashed: the 3.7 m floor; dash-dot: each well's depth to
+#   mean high water), labelled as the drier-climate BOUND, under the D-334 Note of 2026-11-20 (Martin: "amend d334 -
+#   this is just for the figure 5 to illustrate"; "Grey thin lines"). The series were already in 39_02. (2) J-24:
+#   _model_keys emits canopy1989_* keys, the per-well bias grouped by 1989 canopy (forest vs open), with the forest
+#   wells' worst rank and an exact permutation p for their rank sum (Martin 2026-11-23: one Section 5.1 sentence).
+# 1.10.0  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). Emit-only: ccw_annual_range_first_year /
 #   _last_year (CCW_ANNUAL_RANGE_YEARS) as ISO dates, so "1989–95" is a date field. No other output moves.
 # 1.9.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 39_report_numbers.csv gains
 #   ccw_record_first_month and ccw_record_last_month, ISO dates (the first and last month of the CCW readings),
@@ -331,6 +337,26 @@ def _model_keys(rn, pw, sfx: str, label: str) -> None:
     rn.add(f"residual_mean_open{sfx}", op["residual_mean_m"].mean(), note=f"as above, open ground, {label}")
     rn.add(f"open_pearson_r_median{sfx}", op["pearson_r"].median(), unit="", note=f"open ground, {label}")
     rn.add(f"open_nse_bias_removed_median{sfx}", op["nse_bias_removed"].median(), unit="", note=f"open ground, {label}")
+    # 1.11.0 (J-24): is the too-wet bias concentrated at the wells under canopy in 1989? A grouping of the per-well
+    # bias by canopy_1989, with the forest wells' ranks (1 = most over-predicted) and an exact permutation p: the
+    # share of equal-sized subsets of the admitted wells whose rank sum is as small as or smaller than theirs.
+    from itertools import combinations
+    cf = pw[pw["canopy_1989"] == "forest"]; co = pw[pw["canopy_1989"] == "open"]
+    if len(cf) and len(co) and pw["bias_m"].notna().all():
+        rank = pw["bias_m"].rank(ascending=False, method="min")
+        rs = rank.loc[cf.index].sum()
+        combos = list(combinations(rank.tolist(), len(cf)))
+        p_perm = sum(1 for c in combos if sum(c) <= rs) / len(combos)
+        rn.add(f"canopy1989_forest_n{sfx}", len(cf), unit="wells", note=f"admitted wells under canopy in 1989, {label}")
+        rn.add(f"canopy1989_open_n{sfx}", len(co), unit="wells", note=f"admitted wells on open ground in 1989, {label}")
+        rn.add(f"canopy1989_forest_bias_median_m{sfx}", cf["bias_m"].median(), unit="m",
+               note=f"median level bias (+ = modelled too wet), wells under canopy in 1989, {label}")
+        rn.add(f"canopy1989_open_bias_median_m{sfx}", co["bias_m"].median(), unit="m",
+               note=f"as above, wells on open ground in 1989, {label}")
+        rn.add(f"canopy1989_forest_worst_rank{sfx}", int(rank.loc[cf.index].max()), unit="rank",
+               note=f"lowest rank among the 1989-canopy wells by over-prediction (1 = most), of n_wells_admitted, {label}")
+        rn.add(f"canopy1989_forest_rank_p{sfx}", p_perm, unit="",
+               note=f"exact permutation p: subsets of that size with a rank sum as small or smaller, {label}")
 
 
 def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens, tf=None, extra=None):
@@ -643,6 +669,10 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
     is a tested alternative, drawn with B in 39_09 and tabled in 39_10 -- and the legend moves
     below the panels (Martin 2026-11-08: "the legend obscures the plots"; in the first panel it
     covered nw11's 1994-95 rise).
+
+    1.11.0 (J-26): Model A comes back to THIS figure only, under the D-334 Note of 2026-11-20, as both
+    fixed floors drawn thin and grey and labelled "bound": an illustration of the drier-climate bound,
+    not a second answer.
     """
     wells = list(dict.fromkeys(series["well"]))
     if not wells:
@@ -662,6 +692,14 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
                             label=r"Model B, $\beta_1$ range")
             ax.plot(g["month"], g["predicted_b_m_bg"], "-", lw=1.4,
                     label="Model B", color="#2b6cb0")
+        # 1.11.0 (J-26, the D-334 Note of 2026-11-20): Model A's two fixed floors, thin and grey, as the drier-climate
+        # BOUND beside Model B, not as further candidate models. Already in 39_02 (predicted_m_bg, predicted_mhw_m_bg).
+        if "predicted_m_bg" in g and g["predicted_m_bg"].notna().any():
+            ax.plot(g["month"], g["predicted_m_bg"], "--", lw=0.8, color="#8a8a8a",
+                    label=f"bound: fixed floor at {DATUM:g} m")
+        if "predicted_mhw_m_bg" in g and g["predicted_mhw_m_bg"].notna().any():
+            ax.plot(g["month"], g["predicted_mhw_m_bg"], "-.", lw=0.8, color="#8a8a8a",   # not ":" (the pipe base)
+                    label="bound: fixed floor at mean high water")
         row = adm[adm["well"] == w]
         code = row["code"].iloc[0] if len(row) else "?"
         ax.set_title(f"{w} (CCW {code})" + ("" if has_b else " \u2014 Model B not defined here"),
@@ -676,14 +714,14 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
         hh, ll = ax.get_legend_handles_labels()
         if len(ll) > len(_l):
             _h, _l = hh, ll
-    fig.legend(_h, _l, loc="lower center", ncol=3, fontsize=9, frameon=False,
+    fig.legend(_h, _l, loc="lower center", ncol=3, fontsize=8.5, frameon=False,
                bbox_to_anchor=(0.5, 0.0))
     fig.suptitle("SSM hindcast against the 1989\u201396 CCW record: Model B (fitted intercept), "
                  f"coefficients fitted on the\ncomparison window ({config.LCSC_DATA_LIMIT} months, "
                  f"{config.COMPARISON_WINDOW_START[:7].replace('-', '\u2011')} to {config.REFERENCE_CUTOFF_DATE[:7].replace('-', '\u2011')}) \u2014 its intercept is a MODERN-RECORD quantity "
                  "applied to a drier decade",
                  fontsize=9)
-    fig.tight_layout(rect=(0, 0.4 / fig.get_size_inches()[1], 1, 1))
+    fig.tight_layout(rect=(0, 0.7 / fig.get_size_inches()[1], 1, 1))   # 1.11.0: two legend rows
     render_figure(fig, fig_path)
     plt.close(fig)
 

@@ -77,7 +77,13 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-11-20 (J-23, T-173 under Model B; Martin's three decisions of 2026-11-20).
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-23 (J-25, Martin: "Figure, prose kept"). plot_decision_tree() draws
+#   Paper M Section 4.6 as a decision tree (50_54_decision_tree.png, Figure 7): own or cluster coefficients, full record or
+#   RECLEN_MIN_FIT_MONTHS, scored on the coming years, another climate's seasons and a lasting drier shift, with C4 as
+#   the forest exit. It READS the saved 50_report_numbers.csv and 48_report_numbers.csv after they are written, so the
+#   figure cannot letter a number the CSVs do not hold; pass/fail marks come from the basis_*/placement_* holds flags
+#   (the rule fixed before the run), and the own-coefficient drier-shift rows from BASIS_TOL_BIAS_M.
+# 1.29.0  # Hollingham (2026) - 2026-11-20 (J-23, T-173 under Model B; Martin's three decisions of 2026-11-20).
 #   neighbour_transfer(intercept=True): every fit Model B, the borrowed intercept travelling with the betas (full
 #   transfer, each set at its own implied datum), the centroid the median of betas and intercepts; the neighbour is
 #   still the nearest other well with a pre-2018 fit, any cluster. 50_50 gains form "B" rows. Report keys
@@ -342,7 +348,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_03_PER_WELL_WINDOW_SENS, OUT_48_MODEL_AB, OUT_39_PER_WELL,
     OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS, OUT_15_DDP_PER_WELL,
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_SPLIT_SERIES, OUT_50_SPLIT_FIG,
-    OUT_50_NEIGHBOUR, OUT_50_NEIGHBOUR_FIG, OUT_50_TRANSFER_RULE, OUT_50_TRANSFER_FIG,
+    OUT_50_NEIGHBOUR, OUT_50_NEIGHBOUR_FIG, OUT_50_TRANSFER_RULE, OUT_50_TRANSFER_FIG, OUT_50_DECISION_FIG,
     OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
@@ -4884,6 +4890,93 @@ def e13b_report(rr, cmp_: pd.DataFrame, rsum: dict, ident: float) -> None:
            note="E13b identity: Thornthwaite, full record, against 24_residual_climatology.csv (D-274)")
 
 
+def plot_decision_tree() -> None:
+    """Paper M Section 4.6 as a tree (J-25, Martin 2026-11-20: "for 4.6 a decision tree showing the NSE would be nice").
+
+    Every value is read back from the report-number CSVs this run has just written (Script 50's, and Script 48's for
+    the full-record forward NSE), never passed in or typed, so the figure and the prose's fields share one source.
+    A tested leaf is marked by Script 50's own verdict flag (basis_*_holds_B, placement_L*_*_holds_B: the rule fixed
+    before the run). The own-coefficient leaves are the reference those rules compare against, so their skill rows
+    carry no mark; their drier-shift rows are marked against BASIS_TOL_BIAS_M, the same level tolerance.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch
+    def table(path):
+        t = pd.read_csv(path)
+        return dict(zip(t["Parameter"].astype(str), pd.to_numeric(t["Value"], errors="coerce")))
+    r50, r48 = table(OUT_50_REPORT_NUMBERS), table(paths.OUT_48_REPORT_NUMBERS)
+    L = f"L{RECLEN_MIN_FIT_MONTHS}"
+    def v(key, src=r50):
+        x = src.get(key, np.nan)
+        return float(x) if np.isfinite(x) else np.nan
+    def flag(key):
+        x = v(key)
+        return None if not np.isfinite(x) else bool(x >= 0.5)
+    def nse(x):
+        return "—" if not np.isfinite(x) else f"NSE {x:.2f}"
+    def high(x, basis):
+        return "—" if not np.isfinite(x) else f"{abs(x):.2f} m too high\n{basis}"
+    def lvl(x):
+        return None if not np.isfinite(x) else bool(abs(x) <= BASIS_TOL_BIAS_M)
+    ROWS = ("the coming years", "another climate's seasons", "a lasting drier shift")
+    leaves = [
+        ("Own coefficients,\nfull record",
+         [(nse(v("modelab_nse_fwd_B_median_all", r48)), None),
+          (nse(v("ranwell_nse_median_model_b")), None),
+          (high(v("reclen_ccw_bias_m_B_median_L100_start"), "(100-month fits)"), lvl(v("reclen_ccw_bias_m_B_median_L100_start")))]),
+        (f"Own coefficients,\n{RECLEN_MIN_FIT_MONTHS} months",
+         [(nse(v(f"reclen_nse_fwd_B_median_{L}_all")), None),
+          ("not tested", None),
+          (high(v("reclen_ccw_bias_m_B_median_L36_start"), "(36-month fits)"), lvl(v("reclen_ccw_bias_m_B_median_L36_start")))]),
+        ("Cluster coefficients",
+         [(nse(v("basis_split_nse_median_cluster_B_fwd")), flag("basis_split_holds_B")),
+          (nse(v("basis_ranwell_nse_median_cluster_B")), flag("basis_ranwell_holds_B")),
+          (f"median |bias|\n{v('basis_ccw_absbias_median_cluster_B'):.2f} m", flag("basis_ccw_holds_B"))]),
+        (f"New well, placed in its\ncluster from {RECLEN_MIN_FIT_MONTHS} months",
+         [(nse(v(f"placement_{L}_split_nse_median_B_fwd")), flag(f"placement_{L}_split_holds_B")),
+          (nse(v(f"placement_{L}_ranwell_nse_median_B")), flag(f"placement_{L}_ranwell_holds_B")),
+          (f"median |bias|\n{v(f'placement_{L}_ccw_absbias_median_B'):.2f} m", flag(f"placement_{L}_ccw_holds_B"))]),
+    ]
+    INK, OK, NO, MUTED = "#1b1b1b", "#1a7f37", "#b42318", "#6b7280"
+    fig, ax = plt.subplots(figsize=(7.5, 6.0), dpi=160)
+    ax.set_xlim(0, 100); ax.set_ylim(2, 98); ax.axis("off")
+    def box(x, y, w, h, text, fc="#f4f6f8", ec="#9aa4ae", fs=8, weight="normal", color=INK):
+        ax.add_patch(FancyBboxPatch((x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.6,rounding_size=1.2",
+                                    fc=fc, ec=ec, lw=0.8))
+        ax.text(x, y, text, ha="center", va="center", fontsize=fs, weight=weight, color=color)
+    def arrow(x0, y0, x1, y1, color=MUTED):
+        ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
+                    arrowprops=dict(arrowstyle="-|>", color=color, lw=0.8, shrinkA=0, shrinkB=0))
+    box(50, 93, 30, 6, "A well's record\n(clusters C1–C3 and C5)", weight="bold")
+    box(87, 93, 18, 6, "C4 Main Forest:\nstop", fc="#fdecea", ec=NO, color=NO, weight="bold")
+    ax.text(87, 87.5, "drainage not identified;\nforecast fails (Section 5.2)", ha="center", va="top", fontsize=6.5, color=NO)
+    arrow(66, 93, 76.5, 93, NO)
+    box(26, 78, 30, 5.5, "Use the well's own coefficients")
+    box(74, 78, 30, 5.5, "Use its cluster's coefficients")
+    arrow(42, 89.8, 28, 81); arrow(58, 89.8, 72, 81)
+    xs = [12.5, 37.5, 62.5, 87.5]
+    for x, (head, rows) in zip(xs, leaves):
+        arrow(26 if x < 50 else 74, 75.2, x, 66.5)
+        box(x, 63, 21, 6.5, head, fc="#ffffff", weight="bold", fs=7.2)
+        for k, (txt, ok) in enumerate(rows):
+            y = 52 - 15 * k
+            fc, ec, col = ("#f4f6f8", "#c4cbd2", INK) if ok is None else (("#e7f5ec", OK, INK) if ok else ("#fdecea", NO, INK))
+            box(x, y, 21, 8.5, txt, fc=fc, ec=ec, color=col, fs=7.2)
+            if ok is not None:
+                ax.text(x + 9.6, y + 3.0, "✓" if ok else "✗", ha="right", va="center", fontsize=9,
+                        color=OK if ok else NO, weight="bold")
+    for k, name in enumerate(ROWS):
+        ax.text(0.5, 52 - 15 * k + 6.4, name, ha="left", va="center", fontsize=7, color=MUTED, style="italic")
+    ax.text(50, 9, f"✓ / ✗: the cluster and placement tests against each well's own coefficients, on a rule fixed\n"
+                   f"before the run (NSE within {BASIS_TOL_NSE:g}; median absolute bias within {BASIS_TOL_BIAS_M:g} m). Own-coefficient "
+                   f"drier-shift rows\nare marked against the same {BASIS_TOL_BIAS_M:g} m; unmarked rows are the reference the tests "
+                   "compare against.\nModel B throughout; medians over the reference wells.",
+            ha="center", va="center", fontsize=6.3, color=MUTED)
+    fig.suptitle("What the model lets you predict", fontsize=10, weight="bold", y=0.985)
+    render_figure(fig, OUT_50_DECISION_FIG)
+    plt.close(fig)
+
+
 def plot_e13b(mon: pd.DataFrame, rs: pd.DataFrame) -> None:
     import matplotlib
     matplotlib.use("Agg")
@@ -6150,6 +6243,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
         plot_clearance_steps(cf_tab)
         plot_e13(e13_rad, e13_pm, e13_br)
         plot_e13b(e13_mon, e13b_rs)
+        plot_decision_tree()                   # J-25: reads the report numbers saved above
     result("record length", f"{df['well'].nunique()} wells; see {OUT_50_BY_CLUSTER.name}")
     done("50")
     return 0

@@ -14,6 +14,12 @@ residual_mean_all,,,-0.22789295433561818,m,"observed less predicted, mean over w
 residual_mean_open,,,-0.12425839131408783,m,"as above, open ground, Model B (the forecaster, D-332)"
 open_pearson_r_median,,,0.8093970910607311,,"open ground, Model B (the forecaster, D-332)"
 open_nse_bias_removed_median,,,0.6001033420701661,,"open ground, Model B (the forecaster, D-332)"
+canopy1989_forest_n,,,2.0,wells,"admitted wells under canopy in 1989, Model B (the forecaster, D-332)"
+canopy1989_open_n,,,7.0,wells,"admitted wells on open ground in 1989, Model B (the forecaster, D-332)"
+canopy1989_forest_bias_median_m,,,0.4769499323869316,m,"median level bias (+ = modelled too wet), wells under canopy in 1989, Model B (the forecaster, D-332)"
+canopy1989_open_bias_median_m,,,0.1387179940002803,m,"as above, wells on open ground in 1989, Model B (the forecaster, D-332)"
+canopy1989_forest_worst_rank,,,3.0,rank,"lowest rank among the 1989-canopy wells by over-prediction (1 = most), of n_wells_admitted, Model B (the forecaster, D-332)"
+canopy1989_forest_rank_p,,,0.05555555555555555,,"exact permutation p: subsets of that size with a rank sum as small or smaller, Model B (the forecaster, D-332)"
 n_wells_admitted_model_a,,,9.0,wells,"wells hindcast against the CCW record, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
 n_open_model_a,,,6.0,wells,"open ground (in_forest False), Model A at the fixed 3.7 m floor (tested alternative, D-332)"
 pearson_r_median_model_a,,,0.8468434248689761,,"observed vs predicted, all wells, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
@@ -29,6 +35,12 @@ residual_mean_all_model_a,,,-0.005253021212048033,m,"observed less predicted, me
 residual_mean_open_model_a,,,0.14042619440359852,m,"as above, open ground, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
 open_pearson_r_median_model_a,,,0.90171234708913,,"open ground, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
 open_nse_bias_removed_median_model_a,,,0.7488775391031262,,"open ground, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+canopy1989_forest_n_model_a,,,2.0,wells,"admitted wells under canopy in 1989, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+canopy1989_open_n_model_a,,,7.0,wells,"admitted wells on open ground in 1989, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+canopy1989_forest_bias_median_m_model_a,,,0.35160193512702254,m,"median level bias (+ = modelled too wet), wells under canopy in 1989, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+canopy1989_open_bias_median_m_model_a,,,-0.22553414607480443,m,"as above, wells on open ground in 1989, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+canopy1989_forest_worst_rank_model_a,,,2.0,rank,"lowest rank among the 1989-canopy wells by over-prediction (1 = most), of n_wells_admitted, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+canopy1989_forest_rank_p_model_a,,,0.027777777777777776,,"exact permutation p: subsets of that size with a rank sum as small or smaller, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
 epoch_shift_min,,,-0.13463930248796008,m,smallest shift (1989-96 mean less modern mean)
 epoch_shift_max,,,-0.8347554606475993,m,largest shift
 epoch_shift_median,,,-0.5888264072218719,m,all wells

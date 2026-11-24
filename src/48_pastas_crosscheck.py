@@ -50,7 +50,7 @@ OUTPUTS — outputs/48_pastas_crosscheck/
                                      refitted by Pastas; true against recovered
   48_01_pastas_vs_ssm.png .......... portrait, 4 x 2: beta_1, beta_2, beta_3, then
                                      gain, response time, f, base level; Pastas (AR1)
-                                     against Model B (filled) and Model A (hollow);
+                                     against Model B (Model A not drawn since 1.11.0);
                                      wells not identified on the window crossed
   48_report_numbers.csv ............ the headline agreement (r, median ratio) for
                                      the four quantities, n, the Pastas version
@@ -61,7 +61,11 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 48_report_numbers.csv gains
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-23 (J-26, D-334). Figure 48_01 (Paper M Figure 1) drops the hollow
+#   Model A series: the figure's job is the code check against Model B, and Model A "for comparison" is not one of
+#   D-334's three jobs. The axis label and the note cell no longer mention Model A. 48_01's CSV and every report number
+#   are unchanged (the ssmA_* columns stay as data).
+# 1.10.0  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 48_report_numbers.csv gains
 #   modelab_split_date, the ISO date of config.MODEL_AB_SPLIT_DATE, so the documents' "split at January 2018" is
 #   a date field (field_sync 1.3.0). No other output moves.
 # 1.9.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in the
@@ -613,7 +617,7 @@ def model_ab_diagnostics(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFrame,
 def plot(df_all: pd.DataFrame, agree_all: pd.DataFrame) -> None:
     """Portrait, 4 x 2, at the report's 15.8 cm text width: the SSM's coefficients
     (top three panels), Pastas's native four, and the legend cell. Filled =
-    Model B, hollow = Model A; a well not identified on the window is crossed."""
+    Model B; a well not identified on the window is crossed. 1.11.0 (J-26, D-334): Model A is no longer drawn."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -640,9 +644,6 @@ def plot(df_all: pd.DataFrame, agree_all: pd.DataFrame) -> None:
                        linewidths=0.4, label=CLUSTER_LABELS.get(int(c), f"C{c}"), zorder=3)
             ax.scatter(g.loc[~ok, f"ssmB_{q}"], g.loc[~ok, f"pastas_ar1_{q}"], s=34, marker="x", color=col,
                        linewidths=1.0, zorder=4)
-            if q != "base_level_m":
-                ax.scatter(g[f"ssmA_{q}"], g[f"pastas_ar1_{q}"], s=20, facecolors="none",
-                           edgecolors=col, linewidths=0.7, zorder=2)
         both = pd.concat([df[f"ssmB_{q}"], df[f"pastas_ar1_{q}"]]).replace([np.inf, -np.inf], np.nan).dropna()
         both = both[both > 0] if q in logscale else both
         lo, hi = np.nanpercentile(both, [1, 99])
@@ -654,7 +655,7 @@ def plot(df_all: pd.DataFrame, agree_all: pd.DataFrame) -> None:
             ax.set_title(f"{titles[q]}\nidentified wells vs Model B: ρ = {r.spearman_rho:.2f}, n = {int(r.n)}"
                          + ("" if q == "base_level_m" else f", median ratio {r.median_ratio_pastas_over_ssm:.2f}"),
                          fontsize=7.5)
-        ax.set_xlabel("SSM — Model B filled, Model A hollow", fontsize=7)
+        ax.set_xlabel("SSM — Model B", fontsize=7)
         ax.set_ylabel("Pastas (AR1 noise)", fontsize=7)
         ax.tick_params(labelsize=7)
         if q in logscale:
@@ -667,7 +668,7 @@ def plot(df_all: pd.DataFrame, agree_all: pd.DataFrame) -> None:
                         f"longer than {PASTAS_IDENT_EFOLD_WINDOW_FRAC:g} × the fitted months, or its\n"
                         f"relative SE above {PASTAS_IDENT_MAX_REL_SE:g}); excluded from\nthe panel statistics.\n\n"
                         "Top: the SSM's coefficients, from\nPastas's parameters (β₃ = 1 − e^(−1/a),\nβ₁ = gain·β₃, β₂ = −f·β₁).\n"
-                        "Bottom: Pastas's own parameters.\nDashed: 1:1. Model A's β₃ carries the\ndatum; Model B is the exact counterpart.",
+                        "Bottom: Pastas's own parameters.\nDashed: 1:1. Model B is the exact\ncounterpart of Pastas's model.",
             fontsize=7, va="top", transform=ax.transAxes)
     fig.suptitle(f"The per-well SSM against Pastas on the same monthly record ({PASTAS_FIGURE_BASIS.replace('_', ' ')})", fontsize=10)
     fig.tight_layout()

@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.89.0"  # Hollingham (2026) - 2026-11-23 (J-33). OUT_25_FIT_DIAGNOSTIC_A (25_05a_gradient_fits.jpg).
+__version__ = "1.90.0"  # Hollingham (2026) - 2026-11-23 (J-25). OUT_50_DECISION_FIG (50_54_decision_tree.png, Paper M Figure 7).
+# 1.89.0  # Hollingham (2026) - 2026-11-23 (J-33). OUT_25_FIT_DIAGNOSTIC_A (25_05a_gradient_fits.jpg).
 # 1.88.0  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). OUT_09D_REPORT_NUMBERS (Script 09d
 #   3.13.0): the count of withdrawn scenario rows. Additive.
 # 1.87.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). OUT_39_THREE_FORMS (Script 39 1.7.0):
@@ -1486,6 +1487,7 @@ OUT_50_TRANSFER_RULE = DIR_50 / "50_52_transfer_rule.csv"          # T-173b, 202
 # pair: the candidate predictors (mean-depth difference, record correlation, distance, the
 # coefficient differences) against the measured change in NSE; plus banded summary rows.
 OUT_50_TRANSFER_FIG  = DIR_50 / "50_53_transfer_rule.png"          # T-173b: the same, drawn
+OUT_50_DECISION_FIG  = DIR_50 / "50_54_decision_tree.png"          # J-25: what the model lets you predict (Paper M 4.6, Figure 7)
 OUT_50_DATUM_FIG      = DIR_50 / "50_09_datum_against_the_drier_past.png"
 OUT_50_RANWELL_DATUM  = DIR_50 / "50_10_ranwell_hindcast_by_datum.csv"   # E9, D-229
 OUT_50_TWO_STORE      = DIR_50 / "50_12_two_store_by_cluster.csv"     # E8, D-231

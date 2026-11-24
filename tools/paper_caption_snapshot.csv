@@ -33,11 +33,12 @@ paper2,figure,7,"Steady-state drawdown field of the existing plantation, illu"
 paper2,figure,8,Modelled steady-state drawdown field around the 2015 CEH36 s
 paper2,table,1,Three-counterfactual ANCOVA-BACI clearfell-step estimates (m
 paperM,figure,1,Per-well coefficients of Pastas’s exponential-response model
-paperM,figure,2,The residual drainage law. Left: each reference well’s drain
-paperM,figure,3,"Evapotranspiration inferred from the winter drainage law, as"
-paperM,figure,4,"The drainage share of the mean annual loss, by cluster. The "
-paperM,figure,5,The per-well hindcast of 1989–96. Each well free-runs from 1
-paperM,figure,6,One month of the warren hindcast (December 2000). The open-d
+paperM,figure,2,One month of the warren hindcast (December 2000). The open-d
+paperM,figure,3,The per-well hindcast of 1989–96. Each well free-runs from 1
+paperM,figure,4,What the model lets you predict (Section 4.6). Each path fro
+paperM,figure,5,The residual drainage law. Left: each reference well’s drain
+paperM,figure,6,"Evapotranspiration inferred from the winter drainage law, as"
+paperM,figure,7,"The drainage share of the mean annual loss, by cluster. The "
 paperM,table,1,Free-running skill of the traditional linear model (TLM) and
 paperM,table,2,"The drainage share of the mean loss per cluster, three ways "
 paperM,table,3,"The procedure applied at Newborough, per cluster. Coefficien"

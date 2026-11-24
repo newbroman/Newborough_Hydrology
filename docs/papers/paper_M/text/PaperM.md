@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_54.odt — do not edit. source-sha256=48247449b35fbc9a pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_55.odt — do not edit. source-sha256=eb80d181bb34ebfb pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it
@@ -108,9 +108,9 @@ Two kinds of hindcast run from 1930 on the RAF Valley weather, and they do diffe
 
 In the per-well hindcasts each well free-runs from 1930 on its own present-day coefficients, and its levels over 1989--96 and 1951--53 are scored against readings that no fit has seen. The run is long so that the starting level is forgotten before the scored years: the 1989--96 levels do not depend on it. The coefficients are those of today's aquifer, so the test asks whether today's aquifer, given that era's weather, reproduces the levels then recorded; it is not a reconstruction of the aquifer as it was. These hindcasts carry the out-of-sample evidence of this section and of Section 5.1.
 
-The warren hindcast (Figure 6) describes the open dune as a whole. One rule for the open dune is run from 1930, quantile-mapped to the observed median of the reference network over the years the wells were read, and passed through two curves that relate that median level to the area of open water and of wet slack floor counted on 43 Sentinel-2 scenes (rank correlations 0.80 and 0.85). It shows how wet the warren would have been under the weather of each month since 1930. Because it is calibrated to the well record, it is not evidence of the model's skill.
+The warren hindcast (Figure 2) describes the open dune as a whole. One rule for the open dune is run from 1930, quantile-mapped to the observed median of the reference network over the years the wells were read, and passed through two curves that relate that median level to the area of open water and of wet slack floor counted on 43 Sentinel-2 scenes (rank correlations 0.80 and 0.85). It shows how wet the warren would have been under the weather of each month since 1930. Because it is calibrated to the well record, it is not evidence of the model's skill.
 
-On the drier decade, with each well's coefficients fitted to its last 98 months of record, which do not overlap the years being predicted, Model B puts the water table 0.18 m too high at the median well (0.23 m with coefficients fitted to the whole record). Here the question is whether the model puts the level in the right place, and it does not. Its median NSE is 0.08, below zero because the monthly errors exceed the spread of the levels about their own 1989--96 mean; on this test the bias, not the NSE, is the measure. The spread matters as well as the median (Figure 5): at most wells the free run tracks the measured record closely over seven years it never saw, and at two it sits well above the readings through the dry middle years, at one of them because the readings there record the bottom of the dipwell, not the water table.
+On the drier decade, with each well's coefficients fitted to its last 98 months of record, which do not overlap the years being predicted, Model B puts the water table 0.18 m too high at the median well (0.23 m with coefficients fitted to the whole record). Here the question is whether the model puts the level in the right place, and it does not. Its median NSE is 0.08, below zero because the monthly errors exceed the spread of the levels about their own 1989--96 mean; on this test the bias, not the NSE, is the measure. The spread matters as well as the median (Figure 3): at most wells the free run tracks the measured record closely over seven years it never saw, and at two it sits well above the readings through the dry middle years, at one of them because the readings there record the bottom of the dipwell, not the water table.
 
 On Ranwell's seasons Model B does well. With each hindcast's mean offset removed, its median NSE is 0.83 at the three headline pairings and 0.67 over all eleven. The seasonal timing is reproduced at all three sites. The 1951 summer draw-down is under-predicted at two of them, and the 1953 recession over-predicted.
 
@@ -126,7 +126,7 @@ Where a well's own record has a gap, it is better filled from a measured neighbo
 
 ## []{#anchor-2}4.6 What the model lets you predict
 
-There are two choices in using the model: a well's own coefficients or its cluster's, and the full record or only a few years. On the coming years any combination serves: own coefficients on the full record 0.79, on 24 months 0.71; cluster coefficients 0.80, and 0.76 for a new well placed from 24 months. This is the result a manager with a new dipwell can use. On another climate's seasons a well's own coefficients or its cluster's serve (0.83 and 0.84); a new well placed from two years drops to 0.75, outside the tolerance set before the test. For a lasting drier shift none of them serves: every combination puts the 1989--96 water table too high, by 0.20--0.39 m on short records and by a median absolute 0.19--0.37 m on cluster coefficients, because the error comes from the model, not from the wells or the record.
+There are two choices in using the model: a well's own coefficients or its cluster's, and the full record or only a few years (Figure 4). On the coming years any combination serves: own coefficients on the full record 0.79, on 24 months 0.71; cluster coefficients 0.80, and 0.76 for a new well placed from 24 months. This is the result a manager with a new dipwell can use. On another climate's seasons a well's own coefficients or its cluster's serve (0.83 and 0.84); a new well placed from two years drops to 0.75, outside the tolerance set before the test. For a lasting drier shift none of them serves: every combination puts the 1989--96 water table too high, by 0.20--0.39 m on short records and by a median absolute 0.19--0.37 m on cluster coefficients, because the error comes from the model, not from the wells or the record.
 
 ## []{#anchor-2}4.7 What the drainage coefficient measures
 
@@ -145,6 +145,8 @@ The model puts the 1989--96 water table about 0.2 m too high at the median well 
 The two epochs ask for two time scales, a fast return to the mean and a slow one that holds the level through a drier decade. A single linear store has one. A second, slower store driven by the same climate was therefore fitted at every cluster centroid, including one drawn down by the plantation as its canopy closed. No version passed the tests fixed before the fit: either the information criterion preferred one store, or the slow store forecast worse beyond 2018.
 
 Two other explanations were checked. The hindcast assumes the coefficients were the same then as now. Fitting 17 wells separately before and after the December 2017 clearfell, the rainfall response fell by 4.7 % across all of them, by 13 % at the wells beside the felling and by under 1 % at the two groups of unfelled control wells (−0.8 % and −0.3 %), so away from felling the assumption holds; and felling raises the water table, so where it reached a well it would make the model look less wet, not more. The evaporation formula is not the cause either: Penman--Monteith, computed from the station's full weather record, puts demand in 1989--96 lower relative to the fitting window than Thornthwaite does, which would raise the modelled level further, and by about a tenth of the bias.
+
+A third possibility is that the site used more water then than now. In the per-well hindcast of Figure 3, the 2 wells under canopy in 1989 rank among the 3 most over-predicted of the 9, a median of 0.48 m too high against 0.14 m at the 7 on open ground. A mature plantation would push the level that way, and so would the heavier vegetation of the years before grazing pressure rose. So few wells cannot carry the explanation: an open well is as far off, a ranking as extreme arises by chance with p = 0.06, and the two causes cannot be told apart in these records.
 
 ## []{#anchor-3}5.2 The main forest
 
@@ -170,7 +172,7 @@ Three readings are reported, each free of something the others need (Table 2). M
 
 The seasonal recession rates read the split without any model. Winter recession, with potential evapotranspiration near zero, is close to drainage alone, and summer recession is drainage and evapotranspiration together, so this recession ratio, of the mean monthly recession rates, is drainage's share of the summer loss, and it needs neither a base nor a storage coefficient: 60 % at C1, 35 % at C2, 66 % at C3, 51 % at C4 and 73 % at C5. It is a share of summer recession rather than of the mean annual loss; it rests on the months in which the level fell at all, 27 winter months at C1 against 50 summer months; and drainage rises with head, which inflates a winter numerator.
 
-A water balance reads the split with the storage coefficient taken from outside the fit. Rainfall less potential evapotranspiration is a monthly surplus; the change in storage is the water-table change multiplied by the well's apparent storage coefficient Sₐ, measured by the water-table fluctuation method (the 'apparent specific yield' of Healy and Cook, 2002) and fixed before the fit; and what the surplus does not account for is taken as drainage and regressed on the previous month's head (Figure 2). Sₐ is two to three times the textbook specific yield of dune sand, because the fluctuation method takes in the moist zone above the water table as well as the sand; it ranks wells reliably but is high in absolute terms. Over 66 wells the water balance books between 0.74 and 0.97 of potential evapotranspiration as actual, cluster by cluster (Figure 3). Winter months, with evapotranspiration near zero, estimate Sₐ and the drainage law together and borrow nothing from the fluctuation method; both regression directions are fitted, because the rainfall comes from an off-site gauge and the head change carries reading error. With the fluctuation-method Sₐ the water balance puts drainage at 31 % of the annual loss at the median well; with the winter fit's two Sₐ estimates, which lie mostly below it, it puts drainage at 36--55 %. These are two water-balance estimates, not an interval around 31 % (Figure 4): the winter fit's higher Sₐ sits at the fluctuation-method value at every cluster except C1. The reading is a diagnostic and not a forecaster: run free on the half of the record it was not fitted to it reaches a median NSE of 0.70 forward and 0.62 in reverse, against Model B's 0.79 and 0.78.
+A water balance reads the split with the storage coefficient taken from outside the fit. Rainfall less potential evapotranspiration is a monthly surplus; the change in storage is the water-table change multiplied by the well's apparent storage coefficient Sₐ, measured by the water-table fluctuation method (the 'apparent specific yield' of Healy and Cook, 2002) and fixed before the fit; and what the surplus does not account for is taken as drainage and regressed on the previous month's head (Figure 5). Sₐ is two to three times the textbook specific yield of dune sand, because the fluctuation method takes in the moist zone above the water table as well as the sand; it ranks wells reliably but is high in absolute terms. Over 66 wells the water balance books between 0.74 and 0.97 of potential evapotranspiration as actual, cluster by cluster (Figure 6). Winter months, with evapotranspiration near zero, estimate Sₐ and the drainage law together and borrow nothing from the fluctuation method; both regression directions are fitted, because the rainfall comes from an off-site gauge and the head change carries reading error. With the fluctuation-method Sₐ the water balance puts drainage at 31 % of the annual loss at the median well; with the winter fit's two Sₐ estimates, which lie mostly below it, it puts drainage at 36--55 %. These are two water-balance estimates, not an interval around 31 % (Figure 7): the winter fit's higher Sₐ sits at the fluctuation-method value at every cluster except C1. The reading is a diagnostic and not a forecaster: run free on the half of the record it was not fitted to it reaches a median NSE of 0.70 forward and 0.62 in reverse, against Model B's 0.79 and 0.78.
 
 **Table 2.** The drainage share of the mean loss per cluster, three ways (%). Model B: the cluster-centroid partition. Recession ratio: the winter over the summer mean monthly recession rate, with no model. Water balance: the drainage share of the mean annual loss with Sₐ from the fluctuation method. ---: β₃ not identified at C4. The water balance counts every loss of the rain, including water that evaporates before it reaches the water table, so its share is not on quite the same footing as the other two.
 
@@ -257,27 +259,31 @@ During the preparation of this work the author used Anthropic's Claude (successi
 
 ![](Pictures/1.png){width="311.11pt" height="560pt"}
 
-Figure 1. Per-well coefficients of Pastas's exponential-response model against Model B on the full record: Model B filled; hollow, the fixed-floor form of Section 7, for comparison; crosses mark wells whose response time Pastas does not identify. Dashed: 1:1.
-
-![](Pictures/2.png){width="468.00pt" height="176.80pt"}
-
-Figure 2. The residual drainage law. Left: each reference well's drainage rate k above its threshold against the threshold depth h₀, by cluster. Right: the fraction of each cluster's wells at which the threshold form beats the straight line by more than 2 in BIC.
-
-![](Pictures/3.png){width="468.00pt" height="306.00pt"}
-
-Figure 3. Evapotranspiration inferred from the winter drainage law, as a fraction of potential evapotranspiration: each well's summer fraction against its annual, by cluster. Line: 1:1.
-
-![](Pictures/4.png){width="468.00pt" height="284.14pt"}
-
-Figure 4. The drainage share of the mean annual loss, by cluster. The bars use the fluctuation-method Sₐ. The red span shows the shares given instead by the two Sₐ values of the winter joint fit, and the dashed line is the network median. That span is not a confidence interval, and it is not centred on its bar: a smaller Sₐ books less storage, which leaves a larger share to drainage. It therefore lies wholly above the bar at C2--C5, and straddles it only at C1, the cluster whose share depends most on choices this balance cannot settle.
-
-![](Pictures/NRG_39_04_hindcast.png){width="468.00pt" height="600.35pt"}
-
-Figure 5. The per-well hindcast of 1989--96. Each well free-runs from 1930 on Model B coefficients fitted to its last 98 months of record, which do not overlap the decade, and is compared with the Countryside Council for Wales readings.
+Figure 1. Per-well coefficients of Pastas's exponential-response model against Model B on the full record. Crosses mark wells whose response time Pastas does not identify. Dashed: 1:1.
 
 ![](Pictures/NRG_47_04_hindcast_still_2000-12.png){width="468.00pt" height="263.25pt"}
 
-Figure 6. One month of the warren hindcast (December 2000). The open-dune rule, run from 1930 and quantile-mapped to the reference network's observed median over the well years, is shown through the two Sentinel-2 wet-area curves. It uses the model and is calibrated to the well record; it is not a test of skill.
+Figure 2. One month of the warren hindcast (December 2000). The open-dune rule, run from 1930 and quantile-mapped to the reference network's observed median over the well years, is shown through the two Sentinel-2 wet-area curves. It uses the model and is calibrated to the well record; it is not a test of skill.
+
+![](Pictures/NRG_39_04_hindcast.png){width="468.00pt" height="600.35pt"}
+
+Figure 3. The per-well hindcast of 1989--96. Each well free-runs from 1930 on Model B coefficients fitted to its last 98 months of record, which do not overlap the decade, and is compared with the Countryside Council for Wales readings. The grey lines are the fixed-floor form of Section 7, with the floor at 3.7 m (dashed) and at each well's depth to mean high water (dash-dot). They illustrate the bound that a drier climate sets on the model (Section 5.4) and are not a second answer.
+
+![](Pictures/NRG_50_54_decision_tree.png){width="468.00pt" height="424.13pt"}
+
+Figure 4. What the model lets you predict (Section 4.6). Each path from a well's record ends in Model B's skill on the coming years (the forecast beyond 2018), on another climate's seasons (Ranwell's 1951--53 readings) and over a lasting drier shift (the 1989--96 level). Ticks and crosses mark the cluster and placement tests against each well's own coefficients, on a rule fixed before the run; the main forest (C4) is not predicted. The values are drawn from the same outputs as the text of Section 4.6.
+
+![](Pictures/2.png){width="468.00pt" height="176.80pt"}
+
+Figure 5. The residual drainage law. Left: each reference well's drainage rate k above its threshold against the threshold depth h₀, by cluster. Right: the fraction of each cluster's wells at which the threshold form beats the straight line by more than 2 in BIC.
+
+![](Pictures/3.png){width="468.00pt" height="306.00pt"}
+
+Figure 6. Evapotranspiration inferred from the winter drainage law, as a fraction of potential evapotranspiration: each well's summer fraction against its annual, by cluster. Line: 1:1.
+
+![](Pictures/4.png){width="468.00pt" height="284.14pt"}
+
+Figure 7. The drainage share of the mean annual loss, by cluster. The bars use the fluctuation-method Sₐ. The red span shows the shares given instead by the two Sₐ values of the winter joint fit, and the dashed line is the network median. That span is not a confidence interval, and it is not centred on its bar: a smaller Sₐ books less storage, which leaves a larger share to drainage. It therefore lies wholly above the bar at C2--C5, and straddles it only at C1, the cluster whose share depends most on choices this balance cannot settle.
 
 # []{#anchor-6}References
 

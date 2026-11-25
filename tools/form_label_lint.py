@@ -28,7 +28,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py); SKIP when they are absent by
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-25 (D-342): the forms' names, "fixed-floor" and "fitted-floor", and "the SSM"
+#   in a paper that uses only the fitted floor (D-342 (2)), name the form as "Model A/B" did.
+# 1.2.0  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py); SKIP when they are absent by
 #   design, FAIL on zero subjects.
 # "1.1.0"  # Hollingham (2026) - 2026-11-05. FORM gains the water-balance basis
 #   (water balance, fluctuation method, specific yield fixed): Script 55's share fixes Sy from outside
@@ -55,7 +57,7 @@ FIELD_KEY = re.compile(r"drain(age)?_share|drain_frac|drain_pct|(^|_)ET_(pct|fra
 # DEPTH, which is L_E itself (D-316 renamed depth_dependent_pet_efold_depth -> _L_E_m; the old spelling
 # stays so a document not yet refreshed is still skipped rather than newly flagged).
 FIELD_SKIP = re.compile(r"cluster_splithalf|_ari_|scrape_|_R2_|efold_depth|_L_E_m", re.I)
-FORM = re.compile(r"Model\s*A|Model\s*B|no-intercept|free-intercept|without an intercept|with an intercept|"
+FORM = re.compile(r"Model\s*A|Model\s*B|fixed[- ]floor|fitted[- ]floor|the SSM|SSM\b|no-intercept|free-intercept|without an intercept|with an intercept|"
                   r"free intercept|intercept form|depth-dependent|model-free|without (a|either) model|observed|"
                   r"Pastas|recession ratio|seasonal recession|lag-1|autocorrelation|both forms|either form|"
                   r"each form|two forms|three estimators|four estimators|"

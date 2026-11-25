@@ -2626,7 +2626,6 @@ C4_beta3_pct_mean,outputs/07_spatial_coefficients/07_report_numbers.csv,report_e
 C4_beta3_pct_max_excl_ceh14,outputs/07_spatial_coefficients/07_report_numbers.csv,report_edits/text/report9.md,3.9,"terior (C4, mean 1.5% and no well above ","% per month). CEH14, the sole well with ",high,confirmed
 reference_record_years_median,outputs/00_climate_summary/00_report_numbers.csv,report_edits/text/report10.md,15.9,ce wells with a median record length of ," years, supplemented by 22 extended-netw",high,confirmed
 sy_recip_beta3_correlation_r,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report10.md,0.19,nd 1/β₃ are spatially uncorrelated (r = ,"), so the two indices carry independent ",high,confirmed
-sy_recip_beta3_correlation_r,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report8.md,0.19,and 1/β₃ are spatially independent (r = ,"), so τ and t½ produce near-identical sp",high,confirmed
 msl5_change_ceh18,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−145,"EH22 (−233 mm), CEH21 (−213 mm), CEH18 ("," mm), and the C5 coastal members CEH19, ",high,confirmed
 msl5_change_c4_mean,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−138,. The C4 Forest Control wells deepen by ," mm (cluster mean), more than the site-w",high,confirmed
 beta_3_c3,outputs/20_spatial_figures/20_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.062,"icient (Script 03, S.3) --- currently ≈ ", month⁻¹ under the *limit=1* interpolati,high,confirmed

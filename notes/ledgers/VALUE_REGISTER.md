@@ -2145,7 +2145,7 @@
 |  | beta3_pvalue_ceh13_full_record | report9.md |
 |  | halflife_ceh13_full_record | report9.md |
 |  | sy_recip_beta3_correlation_p | Paper1.md |
-|  | sy_recip_beta3_correlation_r | report10.md, report8.md |
+|  | sy_recip_beta3_correlation_r | report10.md |
 |  | well_sy_cluster_mean_c1 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
 |  | well_sy_cluster_mean_c2 | Supplementary_Material.md, report9.md |
 |  | well_sy_cluster_mean_c3 | Supplementary_Material.md, report9.md |

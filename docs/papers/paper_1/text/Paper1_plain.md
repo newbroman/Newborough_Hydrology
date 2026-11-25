@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_7.odt — do not edit. source-sha256=fda178756dd142c4 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_8.odt — do not edit. source-sha256=a7a9c3def6511b2a pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -115,7 +115,7 @@ The model puts drainage at 38% of the water lost at the Lake Edge, 45% in the Du
 
 ## []{#anchor-1}How quickly does it recover?
 
-How quickly the water table settles back after a wet or dry spell is its **mean-reversion time**: the time a departure takes to shrink to about a third of its size. The model (Model B in the sister paper) gives 2.1 months for the Lake Edge group, 4.4 for the Dune and 7.4 for the Western Residual; in the Main Forest it cannot say.
+How quickly the water table settles back after a wet or dry spell is its **mean-reversion time**: the time a departure takes to shrink to about a third of its size. The model (the fitted-floor model of the sister paper) gives 2.1 months for the Lake Edge group, 4.4 for the Dune and 7.4 for the Western Residual; in the Main Forest it cannot say.
 
 The sister paper (Hollingham, 2026c) shows that the readings give the same times with no model at all, so the drainage coefficient measures how fast the water table recovers, not drainage to a real floor.
 

@@ -1,11 +1,11 @@
-<!-- GENERATED MIRROR of docs/papers/paper_C/PaperC_SI_v1_0.odt — do not edit. source-sha256=0a44c7a2e9bfe335 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_C/PaperC_SI_v1_1.odt — do not edit. source-sha256=4998ccad3df6daa5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supporting Information
 
 Hollingham (2026f), Paper C --- *Coastal retreat draws down a dune aquifer: separating shoreline erosion from climate in a 21-year dipwell record*
 
-This Supporting Information gives the methodological detail behind the coastal-retreat analysis of the main text. It is self-contained. Every number in it is read from the committed outputs of the analysis pipeline: Script 25 (25_coastal_gradient.py), Script 38 (38_coastal_transect.py) and Script 40 (40_shoreline_retreat.py). Section S1 carries over, whole, the regression specification first set out in the Supporting Information of the companion characterization paper (Hollingham, 2026a), which now cites this document for it.
+This Supporting Information gives the methodological detail behind the coastal-retreat analysis of the main text. It is self-contained. Every number in it is read from the committed outputs of the analysis pipeline: Script 25 (25_coastal_gradient.py), Script 38 (38_coastal_transect.py) and Script 40 (40_shoreline_retreat.py). Section S1 carries over, whole, the regression specification first set out in the Supporting Information of the companion characterization paper (Hollingham, 2026a), which now cites this document for it. Section S1.8 adds the sensitivity of the fit to its fitting window, shown in Figures S1 and S2.
 
 # []{#anchor}S1. The coastal-retreat gradient regression
 
@@ -27,7 +27,7 @@ Both are fitted by non-linear least squares; the Akaike information criterion co
 ## []{#anchor}S1.2 Nested specifications
 
 -   **Full network**: all open-dune and forested wells of the reference network, less the clearfell-zone wells, which carry a management forcing that is not coastal.
--   **Forest-free** (the headline): the open-dune clusters C1, C2 and C3 only, so that canopy-driven drawdown cannot contaminate the distance fit.
+-   **Forest-free** (the headline): the wells on open ground only, whatever their cluster, so that canopy-driven drawdown cannot contaminate the distance fit. Three C5 wells (CEH3, NW8, NW8B) and one C4 well (LIS1) stand on open ground and are in it; one C3 well under canopy (NW11) is not.
 -   **C3-only**: the C3 Western Residual wells only, with c_far held at the forest-free value, because the cluster has no well beyond the reach to fix it.
 -   **Canopy-controlled full network**: the full network with a canopy × time term on the land-cover flag, controlling forest cover rather than excluding it. The absorbed canopy coefficient is −9.0 ± 2.4 mm yr⁻¹ (linear-capped): the extra fall of the water table under pine, net of distance to the coast. The canopy-controlled fit is a cross-check, not the headline, and is not compared with the full network on AIC, because the canopy term is absorbed in the within-group step.
 
@@ -59,7 +59,7 @@ The panel's climate covariate is an undecayed cumulative water balance, and it i
 
 ## []{#anchor}S1.5 C5 Coastal Forest as an out-of-sample test
 
-The C5 Coastal Forest wells are under canopy and are excluded from the forest-free fit, so they test the gradient without contributing to it. One of them, NW9, 419 m from the shore, declines at −32.7 mm yr⁻¹ (standard error 9.2; p = 0.002, R² = 0.41, 20 years; 25_02_per_well_summer_min_slopes.csv). That decline is steeper than the fitted coast-edge amplitude itself, δ₀ = −31.28 mm yr⁻¹, which is the largest deepening the gradient attributes at any distance. NW9 lies inside the reach, where the gradient's contribution is smaller than δ₀, so distance to the shore cannot account for the whole of its decline. Neither cluster-independent term closes that gap: the trend carried by the cumulative water-balance covariate is +2.95 mm yr⁻¹ and the fitted far-field level −0.30 mm yr⁻¹, and their sum is positive. The remainder is consistent with the thin saturated thickness inferred for C5 (Hollingham, 2026a).
+NW9 is the one C5 Coastal Forest well under canopy. It is excluded from the forest-free fit, so it tests the gradient without contributing to it. NW9, 419 m from the shore, declines at −32.7 mm yr⁻¹ (standard error 9.2; p = 0.002, R² = 0.41, 20 years; 25_02_per_well_summer_min_slopes.csv). That decline is steeper than the fitted coast-edge amplitude itself, δ₀ = −31.28 mm yr⁻¹, which is the largest deepening the gradient attributes at any distance. NW9 lies inside the reach, where the gradient's contribution is smaller than δ₀, so distance to the shore cannot account for the whole of its decline. Neither cluster-independent term closes that gap: the trend carried by the cumulative water-balance covariate is +2.95 mm yr⁻¹ and the fitted far-field level −0.30 mm yr⁻¹, and their sum is positive. The remainder is consistent with the thin saturated thickness inferred for C5 (Hollingham, 2026a).
 
 ## []{#anchor}S1.6 Seasonal robustness
 
@@ -86,6 +86,18 @@ The standard error estimated from the refits is the delete-one jackknife, √((*
 
 The leverage of CEH3 lies inside the well-basis error.
 
+## S1.8 Sensitivity to the fitting window
+
+Script 25 refits the headline specification with the well set and the end of the window held fixed (February 2026), moving only the first month, one month at a time, from March 2005 to February 2014 (25_12_window_sweep.csv; Figure S1). The panel keeps 61 wells (60 from August 2011). Every window gives a usable fit, and none sits on a parameter bound.
+
+δ₀ stays negative in every window, from −36.88 to −23.95 mm yr⁻¹. L_cg does not hold. It stays near 900 m for windows that start in 2005, falls through 2006--07, and drops to about 520 m once the window starts after August 2007 (median 524 m over those windows). Across the whole sweep it runs from 455 m (window from February 2014) to 904 m (window from May 2005). c_far runs from −0.30 to +23.96 mm yr⁻¹; Section S2 explains why it is not a rate.
+
+The reach moves in steps, not smoothly. The two values it settles on, 893.7 m and 523.8 m, are the distances from the shore of wells D25 and NW8B (25_02_per_well_summer_min_slopes.csv). The linear-capped profile changes slope where its cap passes a well, so the fit tends to place the cap at a well. Few wells lie between those two distances, so the reach is resolved only to the spacing of the wells there.
+
+Fixed-length rolling windows (25_13_rolling_window.csv; Figure S2) show the same. At eighteen years, the longest window the record lets slide, L_cg runs from 525 to 936 m and δ₀ from −36.99 to −30.83 mm yr⁻¹. At ten years L_cg runs from 348 to 1779 m.
+
+The main text therefore quotes the reach as the range across the start-month sweep, 455 to 904 m, and treats the coast-edge amplitude as robust to the window.
+
 # []{#anchor}S2. The full cluster decomposition
 
 Table S2 gives the decomposition from which the main text's Table 1 is drawn. The non-coastal term is the same at every cluster: the trend the cumulative water-balance covariate carries over the fitted span, plus the fitted far-field level. Unexplained is the observed decline minus the coastal and non-coastal terms. The delete-one range is the coastal share across the refits of S1.7, which move δ₀ and L_cg together.
@@ -102,7 +114,7 @@ Table S2 gives the decomposition from which the main text's Table 1 is drawn. Th
 
 The unexplained remainder is of the same order as the coastal term at C5, which rests on four wells. That is why the main text reports C5's coastal share as "about half" and not as a calibrated attribution.
 
-**Why the far-field level is not a climate rate.** The far-field level c_far is statistically separable from the covariate: its variance inflation factor against the covariate, on the within-well demeaned design, is 1.01. It is not interpretively separable. A constant drift at every well trades off against the covariate's own trend over the panel's span, so only their sum is recovered. Its value therefore depends on the window. Moving the start of the window with the well set held fixed (25_12_window_sweep.csv) takes c_far from −0.30 mm yr⁻¹ over the full record to +23.96 for the window from February 2014. Fitted in rolling windows of fixed length (25_13_rolling_window.csv), its standard deviation across windows is 13.1 mm yr⁻¹ for ten-year windows and 4.6 for eighteen-year windows, and it correlates with the covariate's trend in the same window at −0.82 and −0.59. It is a window statistic, not a rate, and the main text uses it in no attribution.
+**Why the far-field level is not a climate rate.** The far-field level c_far is statistically separable from the covariate: its variance inflation factor against the covariate, on the within-well demeaned design, is 1.01. It is not interpretively separable. A constant drift at every well trades off against the covariate's own trend over the panel's span, so only their sum is recovered. Its value therefore depends on the window. Moving the start of the window with the well set held fixed (25_12_window_sweep.csv; Figure S1) takes c_far from −0.30 mm yr⁻¹ over the full record to +23.96 for the window from February 2014. Fitted in rolling windows of fixed length (25_13_rolling_window.csv; Figure S2), its standard deviation across windows is 13.1 mm yr⁻¹ for ten-year windows and 4.6 for eighteen-year windows, and it correlates with the covariate's trend in the same window at −0.82 and −0.59. It is a window statistic, not a rate, and the main text uses it in no attribution.
 
 # []{#anchor}S3. Shoreline retreat from digitized coastlines
 
@@ -136,10 +148,20 @@ The sub-periods carry progradation at some transects (a negative least-eroding r
 
 Across the winter of 2019--20, which included Storm Brendan, two coastlines 202 days apart were compared at 139 transects over 3,450 m of frontage. The median shore-normal displacement was 8.9 m (10th to 90th percentile 4.1 to 21.8 m), against 1.3 m that the mean rate would give over the interval. No transect prograded. The median exceeds the control's 95th percentile of 5.5 m, so it is displacement, not digitizing error.
 
+# Figures
+
+![](Pictures/25_12_window_sweep.png){width="6.00000in" height="6.17345in"}
+
+**Figure S1.** Sensitivity of the cross-shore decay fit to the start of the fitting window. The same wells are used throughout and the window end is fixed; only the first month moves. (a) Coast-edge amplitude δ₀; (b) inland reach L_cg; (c) far-field level c_far against the observed far-field trend. Forest-free and C3-only fits, with 95% Wald intervals. (Source: 25_12_window_sweep.png.)
+
+![](Pictures/25_13_rolling_window.png){width="5.00000in" height="7.61138in"}
+
+**Figure S2.** Fixed-length rolling-window sensitivity of the cross-shore decay fit. One panel per window length; within a panel the window length is constant and the whole window slides along the record, so a 21-year record allows only three years of slide at an eighteen-year length. Lines break where fits were rejected for sitting on a parameter bound or returning a reach beyond the panel's own wells; rejected fits are drawn as open markers. The far-field level and the climate term compensate as the window moves, and their spread narrows as the window lengthens. (Source: 25_13_rolling_window.png.)
+
 # []{#anchor}S4. References
 
 Akaike, H. (1974) A new look at the statistical model identification. *IEEE Transactions on Automatic Control* 19(6), 716--723. doi:10.1109/TAC.1974.1100705
 
-Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records. *In preparation.*
+Hollingham, M. (2026a) Dune-aquifer architecture from manual dipwell records: clusters, coefficients and storage at Newborough Warren. *In preparation.*
 
 Pye, K. and Blott, S.J. (2024) *Dune rejuvenation AfterLIFE options for Twyni Penrhos, Newborough.* NRW Evidence Report No. 787, 73 pp. Bangor: Natural Resources Wales.

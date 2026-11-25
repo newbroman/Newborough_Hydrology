@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "2.2.0"  # Hollingham (2026) - 2026-11-24. OUT_10_SEASONAL_TABLE, OUT_10_ROBUSTNESS_TABLE (run_10 1.3.0),
+__version__ = "2.3.0"  # Hollingham (2026) - 2026-11-25. Paper C distance bands (Martin 2026-11-25): OUT_25_DISTANCE_BANDS
+#   (25_17), OUT_25_DISTANCE_BAND_WELLS (25_17b), OUT_25_DISTANCE_BAND_SERIES (25_18), OUT_25_DISTANCE_BAND_FIG (25_19), OUT_25_SPLIT_2011 (25_20),
+#   OUT_25_STEP_VS_TREND (25_21), OUT_25_DRAINAGE_CHANGE (25_22), OUT_40_TRANSECT_MAP (40_08) and DATA_KML_CLAY
+#   (data/geo/clay.kml, the mapped clay exposure). Additive.
+# 2.2.0  # Hollingham (2026) - 2026-11-24. OUT_10_SEASONAL_TABLE, OUT_10_ROBUSTNESS_TABLE (run_10 1.3.0),
 #   OUT_09C_SUMMER_BACI_TABLE (09c 1.10.0), OUT_55_LATERAL_INFLOW (55 1.5.0). Additive.
 # 2.1.0  # Hollingham (2026) - 2026-11-24 (T-215). OUT_55_SAMEBASIS. Additive.
 # "2.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Script 50 split into the suite 50a-50e:
@@ -418,6 +422,7 @@ DATA_KML_RANWELL_FEATURES    = data_geo("ranwell_features.kml")               # 
 DATA_KML_RANWELL_RIDGE       = data_geo("ranwell_ridge.kml")                  # Martin's traced ridge (overlay only)
 DATA_KML_STREAMS       = data_geo("streams.kml")
 DATA_KML_CLEARFELL     = data_geo("clearfell.kml")
+DATA_KML_CLAY          = data_geo("clay.kml")      # Martin: the mapped clay exposure (one LineString), 2026-11-25
 DATA_KML_SITE_BOUNDARY = data_geo("site_boundary.kml")
 # OSM-derived Caernarfon Bay + Menai Strait High Water Mark coastline,
 # EPSG:27700, used as the fixed-head boundary for scrape drawdown
@@ -1303,6 +1308,15 @@ OUT_25_COVARIATE_SPEC_RANGE             = DIR_25 / "25_15_covariate_specificatio
 # quoted from a committed CSV). One row per headline-panel well.
 OUT_25_DELTA0_LOO                       = DIR_25 / "25_16_delta0_leave_one_out.csv"
 OUT_25_DELTA0_LOO_FIG                   = DIR_25 / "25_16_delta0_leave_one_out.png"
+# Paper C (Martin 2026-11-25): the decline split by distance from the shore, the before/after-2011 test of the
+# headline specification, and the breach tests (step vs trend per well; drainage change about the step).
+OUT_25_DISTANCE_BANDS                   = DIR_25 / "25_17_distance_band_decomposition.csv"
+OUT_25_DISTANCE_BAND_WELLS              = DIR_25 / "25_17b_distance_band_wells.csv"
+OUT_25_DISTANCE_BAND_SERIES             = DIR_25 / "25_18_distance_band_series.csv"
+OUT_25_DISTANCE_BAND_FIG                = DIR_25 / "25_19_distance_bands.png"
+OUT_25_SPLIT_2011                       = DIR_25 / "25_20_split_2011.csv"
+OUT_25_STEP_VS_TREND                    = DIR_25 / "25_21_step_vs_trend.csv"
+OUT_25_DRAINAGE_CHANGE                  = DIR_25 / "25_22_drainage_change.csv"
 
 
 # --- Script 39: SSM hindcast against the 1989-96 CCW record (standalone) -------
@@ -1616,6 +1630,7 @@ def out_47_lang(path, lang: str):
     (export_lag, the film page, the provenance ledger) is unchanged."""
     return path if lang == "en" else path.with_name(f"{path.stem}_{lang}{path.suffix}")
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
+OUT_40_TRANSECT_MAP    = DIR_40 / "40_08_transect_map.png"   # 2026-11-25: epochs, normals by retreat, Script 38 wells
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;
 # Script 40 identifies them by which reproduces the D-060 baseline rather than

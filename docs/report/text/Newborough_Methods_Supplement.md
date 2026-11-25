@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_152.odt — do not edit. source-sha256=4c23d76d2c902dcd pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_152.odt — do not edit. source-sha256=61dec1c6e0f35a90 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -1245,7 +1245,7 @@ The suite's principal results --- the headline +0.128 m benefit at CEH36 (paired
 
 Within each tier, per-well analysis runs in two layers. First, the well-minus-control time series is averaged within each era window (from *WELL_ERAS*, described in *Suite-level methodology* below), and the change in mean between successive eras is the BACI step. Second, the SSM (F.3) is refit per-well per-era via direct OLS on the era's monthly observations, with the same *\[+P, −PET, −(z₀ + h_prev)\]* design matrix as Script 03. Per-era β₃ estimates with 95 % confidence intervals come from an "isolated" refit: the script first fits the full SSM to extract β₁ and β₂, subtracts the climate-driven Δh component, then regresses the remaining drainage component on *−h_disp_prev* with an intercept to recover an unbiased β₃ and its CI. The isolated β₃ estimates populate the report's per-well β₃ era table (Table 18 in the main report).
 
-The live numbers tell the story. CEH36's β₃ rises from 0.084 (Baseline, p = 0.041) to 0.139 (Pure Scraping, p = 0.002) to 0.110 (Felling Pulse, p \< 0.001) --- a structural drainage signal consistent with the lowered ground surface. The paired BACI shift at CEH36 vs CEH4 is +0.128 m for the Pure Scraping era and +0.023 m for the Felling Pulse era. The net benefit against CEH21 --- the coastal benchmark, secondary impact, but the well whose own trajectory most closely represents what CEH36 would have done without scraping --- is +0.144 m.
+The live numbers tell the story. CEH36's β₃ rises from 0.084 (Baseline, p = 0.041) to 0.139 (Pure Scraping, p = 0.002) to 0.139 (Felling Pulse, p \< 0.001) --- a structural drainage signal consistent with the lowered ground surface. The paired BACI shift at CEH36 vs CEH4 is +0.128 m for the Pure Scraping era and +0.023 m for the Felling Pulse era. The net benefit against CEH21 --- the coastal benchmark, secondary impact, but the well whose own trajectory most closely represents what CEH36 would have done without scraping --- is +0.144 m.
 
 Site-specific choices.
 
@@ -1369,7 +1369,7 @@ Outputs.
 2.  **Synthetic control.** CEH36 minus a weighted composite of donor wells from *DONOR_CANDIDATES* (eleven candidate wells outside the scraping influence --- CEH1, CEH2, CEH5, CEH6, CEH9, CEH11, CEH16, CEH17, CEH19, CEH22, CEH24). Donor weights are fitted by OLS on the pre-scraping baseline, then the same weighted composite is computed across the full record. The step is the post-scraping minus pre-scraping mean of the (CEH36 − synthetic) gap series.
 3.  **SSM forward residual.** The SSM is calibrated on CEH36's pre-2015 baseline via OLS on *Δh = β₁·P − β₂·PET − β₃·(z₀ + h_prev)* (with HEADLINE_LAG = 0), then iterated forward from the last baseline observation as an autonomous forecast: at each month, the predicted Δh is added to the previous predicted level. The residual (observed minus predicted) over the Pure Scraping era is the step change.
 
-The live estimates: raw BACI +0.128 m, synthetic control +0.141 m (with 11 donors), SSM forward residual +0.100 m. The first two are closely convergent (within 13 mm); the SSM forward residual gives a noticeably smaller estimate, partly because the model's drainage feedback term iteratively brings the predicted level back toward equilibrium as the post-2015 elevation rises, absorbing some of the observed step into the forecast trajectory. The methodological point is that all three are positive and substantial: the +0.128 m benefit is not an artefact of CEH4's deepening, which only affects the raw BACI estimate.
+The live estimates: raw BACI +0.128 m, synthetic control +0.141 m (with 11 donors), SSM forward residual +0.106 m. The first two are closely convergent (within 13 mm); the SSM forward residual gives a noticeably smaller estimate, partly because the model's drainage feedback term iteratively brings the predicted level back toward equilibrium as the post-2015 elevation rises, absorbing some of the observed step into the forecast trajectory. The methodological point is that all three are positive and substantial: the +0.128 m benefit is not an artefact of CEH4's deepening, which only affects the raw BACI estimate.
 
 Outputs.
 

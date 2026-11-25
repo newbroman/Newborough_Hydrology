@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.46.0"  # Hollingham (2026) — 2026-11-25 (changelog 2026-11-25e). 22_05 publishes its beta_3 p-values
+__version__ = "1.47.0"  # Hollingham (2026) — 2026-11-25 (D-343, changelog 2026-11-25f). 14_summer_trend_stats robust_start and
+#   25_13_rolling_window.csv (spec, window_years, window_start: delta_0_mm_yr, L_m) registered, for Paper C v1_2 and its SI v1_1.
+# "1.46.0"  # Hollingham (2026) — 2026-11-25 (changelog 2026-11-25e). 22_05 publishes its beta_3 p-values
 #   (OLS and HAC): on the fitted floor (Script 22 1.7.0) the one HAC flip is CEH20's beta_3, quoted in the MS and Paper 1 SI.
 # "1.45.0"  # Hollingham (2026) — 2026-11-24 (D-341 draft). CONSTANT_SOURCES gains
 #   src/utils/publication.py, the publication years of the cited works (citation years become fields).
@@ -1086,7 +1088,7 @@ EXTRA_VALUE_TABLES = [
     ('outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv', 'Cluster_Label',
      ['n']),
     ('outputs/14_climate_projections/14_summer_trend_stats.csv', 'Cluster',
-     ['Slope_m_per_yr_robust', 'p_value_robust']),
+     ['Slope_m_per_yr_robust', 'p_value_robust', 'robust_start']),   # 1.47.0: Paper C §4.1/§5.5 quote the refit year (2011)
     ('outputs/14_climate_projections/14_winter_trend_stats.csv', 'Cluster',
      ['p_value_robust']),
     ('outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv', ('window_years', 'cluster_label'),
@@ -1107,6 +1109,9 @@ EXTRA_VALUE_TABLES = [
      ['coastal_gradient_loo_max_pct_of_basis', 'coastal_gradient_loo_min_pct_of_basis', 'coastal_gradient_pct_of_basis', 'mean_dist_coast_m', 'n_wells', 'n_wells_within_reach']),
     ('outputs/25_coastal_gradient/25_02_per_well_summer_min_slopes.csv', 'well',    # J-32: Paper C SI S1.5 (NW9 out-of-sample test)
      ['slope_m_yr', 'slope_se', 'slope_p', 'r2', 'n_years', 'dist_coast_m']),
+    # 1.47.0 (D-343): Paper C SI S1.8 quotes the eighteen- and ten-year rolling-window extremes of L_cg and delta_0
+    ('outputs/25_coastal_gradient/25_13_rolling_window.csv', ('spec', 'window_years', 'window_start'),
+     ['delta_0_mm_yr', 'L_m']),
     ('outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv', ('source', 'model'),
      ['c_se']),
     ('outputs/37b_driver_footing/37b_driver_footing.csv', 'component',

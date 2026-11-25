@@ -18,6 +18,7 @@ RB-11,report8,Apparent Storage Coefficient Estimation,computes a per-month Sₐ 
 RB-12,report8,Five-Year Mean Spring,"The five-year mean spring water level MSL5, indexed by its closing year, is the unweighted mean of five consecutive annual spring means",an aggregation over the record; not a fitting window
 RB-13,report8,Network-Scale Coastal-Retreat,a non-linear panel regression was fitted to the full 21-year monthly record,
 RB-13,report8,Network-Scale Coastal-Retreat,Three nested specifications were fitted to test robustness to forest-cover inclusion: the full network (67 wells,25_01_panel_fit_parameters n_wells
+RB-13b,none,,,"2026-11-25: Paper C breach test 3 (25_22, Script 25 1.40.0) is not yet presented in any document; Paper C's methods section states its basis when the analysis is written in (Martin's call)."
 RB-14,report9,The 1989–96 record,"uses each well's own coefficients from the modern per-well fit, driven by the RAF Valley climate record for 1989–96, with no refitting",
 RB-15,none,,,Script 39's full-record climate-only series (open-ground panel) is not presented in any document; nothing to state until it is
 RB-15p,MS,S.10 Script 15,"The script uses the comparison window, January 2018 to February 2026",renumbered from a duplicate RB-15 (2026-11-22f); the D-280 depth-dependent PET basis

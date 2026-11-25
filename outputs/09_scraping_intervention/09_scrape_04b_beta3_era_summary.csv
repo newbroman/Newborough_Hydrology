@@ -1,16 +1,16 @@
 Well,Role,Era,beta_3,CI_95,p_value,Sig
-CEH36,Impact (scraped),Baseline,0.08355078575110446,"[0.004, 0.163]",0.0405,*
-CEH36,Impact (scraped),Pure Scraping,0.1388086353307848,"[0.057, 0.220]",0.0016,**
-CEH36,Impact (scraped),Felling Pulse,0.11024663359626165,"[0.053, 0.168]",<0.001,***
-CEH4,Control (paired),Baseline,0.07019047144901161,"[0.026, 0.114]",0.0019,**
-CEH4,Control (paired),Pure Scraping,0.1615086161770781,"[0.079, 0.244]",<0.001,***
-CEH4,Control (paired),Felling Pulse,0.11314642761883714,"[0.064, 0.162]",<0.001,***
-CEH18,Impact (boundary),Baseline,0.07517427276422695,"[0.037, 0.114]",<0.001,***
-CEH18,Impact (boundary),Felling Pulse,0.09806486700534481,"[0.020, 0.176]",0.0143,*
-CEH18,Impact (boundary),After Scraping,0.14570553091790064,"[0.012, 0.279]",0.0337,*
-CEH21,Impact (coastal),Baseline,0.10259527711387695,"[0.052, 0.153]",<0.001,***
-CEH21,Impact (coastal),Coastal Drawdown,0.05151620043206227,"[-0.006, 0.109]",0.0804,ns
-CEH21,Impact (coastal),After Scraping,0.0953254628777575,"[-0.018, 0.208]",0.0953,ns
-CEH22,Control (coastal),Baseline,0.14011615897586777,"[0.088, 0.192]",<0.001,***
-CEH22,Control (coastal),Coastal Drawdown,0.1398798614909261,"[0.062, 0.217]",<0.001,***
-CEH22,Control (coastal),After Scraping,0.15480193333721054,"[0.007, 0.302]",0.0404,*
+CEH36,Impact (scraped),Baseline,0.10494021313893274,"[0.026, 0.184]",0.0103,*
+CEH36,Impact (scraped),Pure Scraping,0.15093069535442766,"[0.071, 0.231]",<0.001,***
+CEH36,Impact (scraped),Felling Pulse,0.13865922619847562,"[0.082, 0.195]",<0.001,***
+CEH4,Control (paired),Baseline,0.08123641982295098,"[0.038, 0.125]",<0.001,***
+CEH4,Control (paired),Pure Scraping,0.1681111887941864,"[0.088, 0.249]",<0.001,***
+CEH4,Control (paired),Felling Pulse,0.13022039040850136,"[0.081, 0.179]",<0.001,***
+CEH18,Impact (boundary),Baseline,0.0893491667192927,"[0.051, 0.127]",<0.001,***
+CEH18,Impact (boundary),Felling Pulse,0.12166637955113396,"[0.044, 0.200]",0.0027,**
+CEH18,Impact (boundary),After Scraping,0.15732928970638976,"[0.026, 0.289]",0.0210,*
+CEH21,Impact (coastal),Baseline,0.11387690118662833,"[0.063, 0.164]",<0.001,***
+CEH21,Impact (coastal),Coastal Drawdown,0.07367348166953819,"[0.016, 0.132]",0.0136,*
+CEH21,Impact (coastal),After Scraping,0.1084144267970334,"[-0.002, 0.219]",0.0550,ns
+CEH22,Control (coastal),Baseline,0.16806744611406027,"[0.119, 0.218]",<0.001,***
+CEH22,Control (coastal),Coastal Drawdown,0.19780417343024861,"[0.120, 0.276]",<0.001,***
+CEH22,Control (coastal),After Scraping,0.1916473391667203,"[0.056, 0.327]",0.0076,**

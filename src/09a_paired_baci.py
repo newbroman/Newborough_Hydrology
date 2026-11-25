@@ -35,7 +35,10 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.13.0"  # Hollingham (2026) - 2026-09-30. Pair_dist_coast_diff rows (impact minus paired
+__version__ = "2.14.0"  # Hollingham (2026) — 2026-11-25 (D-332, D-343; Martin: "change the paper 1 and 2 results ... fixed
+#   floor ... to fitted floor"). The per-era SSM fits (X_base, X_full) gain the intercept: the fitted-floor form, the
+#   headline since D-332. The era beta_3 values Paper 2 quotes move; the drainage-isolation regression already had one.
+# "2.13.0"  # Hollingham (2026) - 2026-09-30. Pair_dist_coast_diff rows (impact minus paired
 #   control dist_coast_m, one per PAIRED_CONTROLS_MAP pair) in 09_scrape_report_numbers.csv - report8 SS3.5.3's
 #   "about 90 m" / "some 85 m" traced (proof queue). No other output moves.
 # 2.12.0  # Hollingham (2026) - 2026-09-28. Tier 2 figure: each BACI panel's y-label names its own
@@ -506,6 +509,7 @@ def main():
 
         df["h_disp_prev"] = DRAINAGE_DATUM + df["h_prev"]
         X_base = pd.DataFrame({
+            "alpha": 1.0,   # 2.14.0: the fitted floor (D-332)
             "beta_1_recharge": df["P_m_lag1"],
             "beta_2_atmospheric_draw": -df["PET"],
             "beta_3_drainage": -df["h_disp_prev"],
@@ -540,6 +544,7 @@ def main():
             sub = df.loc[sub.index]
             if len(sub) > 6:
                 X_full = pd.DataFrame({
+                    "alpha": 1.0,   # 2.14.0: the fitted floor (D-332)
                     "beta_1_recharge": sub["P_m_lag1"],
                     "beta_2_atmospheric_draw": -sub["PET"],
                     "beta_3_drainage": -sub["h_disp_prev"],

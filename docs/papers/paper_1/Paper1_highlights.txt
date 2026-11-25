@@ -1,5 +1,4 @@
 Dune-aquifer architecture resolved from manual dipwells and one climate station
 Water balance closes; its drainage–evaporation split is bounded, not identified
-Iterative forecast skill rises from NSE 0.43 to 0.82 over a linear benchmark
+Summer minima fell at four of five clusters, and the fall lies before 2011
 Interception-corrected apparent storage is broadly uniform across clusters
-Coastal retreat resolved as a forcing distinct from climate on long-term decline

@@ -1164,7 +1164,7 @@
 |  | Scraping (observed) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
 | `09d_02_summer_scenario_comparison.csv` | Climate dry · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
 |  | Climate wet · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md |
-| `09e_report_numbers.csv` | CEH36_SSM_forward_residual_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report10.md, report12.md, report9.md |
+| `09e_report_numbers.csv` | CEH36_SSM_forward_residual_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report10.md, report12.md |
 |  | CEH36_raw_BACI_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report7.md, report9.md |
 |  | CEH36_synthetic_control_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
 | `10_consolidated_report_numbers.csv` | ANCOVA_A_WMC3+FE1+FE2_Climate_R2 | report9.md |

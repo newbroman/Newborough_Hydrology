@@ -47,7 +47,12 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: 40_report_numbers.csv gains
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-25 (Martin: "where's the map of the transects?"). New figure
+#   40_08_transect_map.png: the digitised coastlines of 2006, 2017, 2021 and 2026, the shore-normal transects of
+#   40_02 coloured by their signed 2006-2026 retreat, the mapped clay exposure (data/geo/clay.kml) and Script 38's
+#   model-free transect wells (38_transect.csv: CEH22 coastal anchor ... NW4 inland anchor) joined as a line, over
+#   add_kml_features / add_en_axes. Figure only; no CSV or report number changes.
+# 1.8.0  # Hollingham (2026) - 2026-09-29. T-96 batch 2: 40_report_numbers.csv gains
 #   shoreline_1899_georef_rmse_rate_m_per_yr = config.SHORELINE_1899_GEOREF_RMSE_M / the `years` of the
 #   1899->2006 pair_extent interval (the value written to that row of 40_01_epoch_series.csv) - the
 #   georeferencing error of the 1899 line expressed as a rate over that span (report8 SS3.7.4 "about
@@ -202,7 +207,7 @@ from utils import config, paths
 from utils.console_utils import (banner, phase, step, info, warn, saved, note,
                                  result, done)
 from utils.render_utils import render_figure
-from utils.map_utils import load_site_outline
+from utils.map_utils import load_site_outline, add_kml_features, add_en_axes
 from pyproj import Transformer
 
 SCRIPT_ID = "40"
@@ -1132,6 +1137,92 @@ def _figure(measured, out_path):
     plt.close(fig)
 
 
+# Length of each transect as drawn on 40_08 (m landward / seaward of the 2006
+# line). Display only: the measurement is the signed ray of 40_02.
+MAP_TRANSECT_LANDWARD_M = 200.0
+MAP_TRANSECT_SEAWARD_M = 100.0
+
+
+def _local_to_osgb(xy, lat0, lon0):
+    """Inverse of _to_local_m, then WGS84 -> OSGB36 (EPSG:27700)."""
+    r = 6371000.0
+    xy = np.atleast_2d(np.asarray(xy, dtype=float))
+    lon = lon0 + np.degrees(xy[:, 0] / (r * math.cos(math.radians(lat0))))
+    lat = lat0 + np.degrees(xy[:, 1] / r)
+    e, n = Transformer.from_crs("EPSG:4326", "EPSG:27700",
+                                always_xy=True).transform(lon, lat)
+    return np.column_stack([e, n])
+
+
+def _transect_map(epoch_line, base, lat0, lon0, out_path):
+    """40_08: the modern coastlines, the shore-normal transects coloured by
+    their 2006-2026 signed retreat, the clay exposure and Script 38's transect
+    wells joined as a line, on the project's site layers and E/N axes."""
+    from matplotlib.collections import LineCollection
+    fig, ax = plt.subplots(figsize=(8.0, 7.2), facecolor="white")
+    add_kml_features(ax, paths.DATA_DIR, include_scrapes=False)
+    pts = []
+    styles = {"2006": ("0.55", "--"), "2017": ("#1f77b4", "-"),
+              "2021": ("#9467bd", "-"), "2026": ("black", "-")}
+    for name in ("2006", "2017", "2021", "2026"):
+        xy = _local_to_osgb(epoch_line[name], lat0, lon0)
+        pts.append(xy)
+        col, ls = styles[name]
+        ax.plot(xy[:, 0], xy[:, 1], color=col, ls=ls, lw=1.4, zorder=4,
+                label=f"coastline {name}")
+    S, N, ray = base["_S"], base["_N"], base["_ray"]
+    ok = np.asarray(base["_ok"], dtype=bool) & np.isfinite(ray)
+    a = _local_to_osgb(S[ok] - MAP_TRANSECT_LANDWARD_M * N[ok], lat0, lon0)
+    b = _local_to_osgb(S[ok] + MAP_TRANSECT_SEAWARD_M * N[ok], lat0, lon0)
+    segs = np.stack([a, b], axis=1)
+    lim = float(np.nanpercentile(np.abs(ray[ok]), 98))
+    lc = LineCollection(segs, array=ray[ok], cmap="RdBu_r", norm=plt.Normalize(-lim, lim),
+                        linewidths=1.3, zorder=3)
+    ax.add_collection(lc)
+    cb = fig.colorbar(lc, ax=ax, shrink=0.6, pad=0.02)
+    cb.set_label("signed retreat 2006–2026 (m)\npositive = landward", fontsize=10)
+    cb.ax.tick_params(labelsize=9.5)
+    pts.append(segs.reshape(-1, 2))
+    if paths.DATA_KML_CLAY.exists():
+        tr = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+        for ll in _read_kml(paths.DATA_KML_CLAY):
+            e, n = tr.transform(ll[:, 0], ll[:, 1])
+            ax.plot(e, n, color="saddlebrown", lw=2.6, zorder=5, solid_capstyle="round",
+                    label="clay exposure (clay.kml)")
+            pts.append(np.column_stack([e, n]))
+    else:
+        warn(f"{paths.DATA_KML_CLAY.name} not found: the clay exposure is not drawn")
+    if paths.OUT_38_CSV.exists():
+        wells = [c for c in pd.read_csv(paths.OUT_38_CSV, nrows=0).columns
+                 if c not in ("year",) and not c.startswith("diff")]
+        loc = pd.read_csv(paths.INT_LOCATIONS)
+        loc["well"] = loc["Name"].astype(str).str.strip().str.lower()
+        dist = pd.read_csv(paths.DATA_DIST_COAST)
+        dist["well"] = dist["Name"].astype(str).str.strip().str.lower()
+        w = (loc[loc["well"].isin(wells)][["well", "E", "N"]]
+             .merge(dist[["well", "dist_coast_m"]], on="well")
+             .sort_values("dist_coast_m"))
+        ax.plot(w["E"], w["N"], "-", color="darkorange", lw=1.8, zorder=6)
+        ax.scatter(w["E"], w["N"], s=55, color="darkorange", edgecolor="black", zorder=7,
+                   label="Script 38 transect wells")
+        for r in w.itertuples():
+            ax.annotate(r.well.upper(), (r.E, r.N), xytext=(5, 4), textcoords="offset points",
+                        fontsize=9, zorder=8)
+        pts.append(w[["E", "N"]].to_numpy(dtype=float))
+    else:
+        warn(f"{paths.OUT_38_CSV.name} not found: the Script 38 transect wells are not drawn")
+    allp = np.vstack(pts)
+    pad = 250.0
+    ax.set_xlim(allp[:, 0].min() - pad, allp[:, 0].max() + pad)
+    ax.set_ylim(allp[:, 1].min() - pad, allp[:, 1].max() + pad)
+    add_en_axes(ax, apply_extent=False, labelsize=9.5, label_fontsize=10.5)
+    ax.legend(fontsize=9, loc="lower left", frameon=True, framealpha=0.9)
+    ax.set_title("Shore-normal transects, 2006–2026 retreat", fontsize=12)
+    fig.tight_layout()
+    render_figure(fig, out_path)
+    plt.close(fig)
+
+
 # ======================================================================
 def main():
     banner(SCRIPT_ID, "Shoreline retreat from the digitised coastline epochs",
@@ -1381,6 +1472,8 @@ def main():
 
     _figure(modern_common, paths.OUT_40_FIG)
     saved(paths.OUT_40_FIG.name)
+    _transect_map(epoch_line, base, lat0, lon0, paths.OUT_40_TRANSECT_MAP)
+    saved(paths.OUT_40_TRANSECT_MAP.name)
 
     for a in (reg, syn):
         if a is not None and not a["passed"]:

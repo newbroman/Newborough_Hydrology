@@ -15,21 +15,21 @@ Net_benefit,CEH36,Pure_Scraping,0.1441530612244898,m,vs CEH21 coastal benchmark
 Net_benefit,CEH36,Felling_Pulse,-0.05490278512251001,m,vs CEH21 coastal benchmark
 Net_benefit,CEH18,Felling_Pulse,-0.010812353532881958,m,vs CEH21 coastal benchmark
 Net_benefit,CEH18,After_Scraping,-0.07525030584781023,m,vs CEH21 coastal benchmark
-beta3_era,CEH36,1_Baseline,0.08355078575110446,m,"CI=[0.0038,0.1633] p=0.0405"
-beta3_era,CEH36,2_Pure_Scraping,0.1388086353307848,m,"CI=[0.0573,0.2203] p=0.0016"
-beta3_era,CEH36,3_Felling_Pulse,0.11024663359626165,m,"CI=[0.0528,0.1677] p=<0.001"
-beta3_era,CEH4,1_Baseline,0.07019047144901161,m,"CI=[0.0265,0.1139] p=0.0019"
-beta3_era,CEH4,2_Pure_Scraping,0.1615086161770781,m,"CI=[0.0786,0.2444] p=<0.001"
-beta3_era,CEH4,3_Felling_Pulse,0.11314642761883714,m,"CI=[0.0639,0.1624] p=<0.001"
-beta3_era,CEH18,1_Baseline,0.07517427276422695,m,"CI=[0.0365,0.1138] p=<0.001"
-beta3_era,CEH18,2_Felling_Pulse,0.09806486700534481,m,"CI=[0.0202,0.1759] p=0.0143"
-beta3_era,CEH18,3_After_Scraping,0.14570553091790064,m,"CI=[0.0122,0.2792] p=0.0337"
-beta3_era,CEH21,1_Baseline,0.10259527711387695,m,"CI=[0.0518,0.1534] p=<0.001"
-beta3_era,CEH21,2_Coastal_Drawdown,0.05151620043206227,m,"CI=[-0.0064,0.1094] p=0.0804"
-beta3_era,CEH21,3_After_Scraping,0.0953254628777575,m,"CI=[-0.0178,0.2085] p=0.0953"
-beta3_era,CEH22,1_Baseline,0.14011615897586777,m,"CI=[0.0878,0.1925] p=<0.001"
-beta3_era,CEH22,2_Coastal_Drawdown,0.1398798614909261,m,"CI=[0.0624,0.2174] p=<0.001"
-beta3_era,CEH22,3_After_Scraping,0.15480193333721054,m,"CI=[0.0074,0.3022] p=0.0404"
+beta3_era,CEH36,1_Baseline,0.10494021313893274,m,"CI=[0.0260,0.1838] p=0.0103"
+beta3_era,CEH36,2_Pure_Scraping,0.15093069535442766,m,"CI=[0.0710,0.2309] p=<0.001"
+beta3_era,CEH36,3_Felling_Pulse,0.13865922619847562,m,"CI=[0.0821,0.1952] p=<0.001"
+beta3_era,CEH4,1_Baseline,0.08123641982295098,m,"CI=[0.0378,0.1247] p=<0.001"
+beta3_era,CEH4,2_Pure_Scraping,0.1681111887941864,m,"CI=[0.0876,0.2486] p=<0.001"
+beta3_era,CEH4,3_Felling_Pulse,0.13022039040850136,m,"CI=[0.0811,0.1793] p=<0.001"
+beta3_era,CEH18,1_Baseline,0.0893491667192927,m,"CI=[0.0514,0.1272] p=<0.001"
+beta3_era,CEH18,2_Felling_Pulse,0.12166637955113396,m,"CI=[0.0436,0.1998] p=0.0027"
+beta3_era,CEH18,3_After_Scraping,0.15732928970638976,m,"CI=[0.0258,0.2888] p=0.0210"
+beta3_era,CEH21,1_Baseline,0.11387690118662833,m,"CI=[0.0633,0.1645] p=<0.001"
+beta3_era,CEH21,2_Coastal_Drawdown,0.07367348166953819,m,"CI=[0.0157,0.1317] p=0.0136"
+beta3_era,CEH21,3_After_Scraping,0.1084144267970334,m,"CI=[-0.0025,0.2193] p=0.0550"
+beta3_era,CEH22,1_Baseline,0.16806744611406027,m,"CI=[0.1185,0.2176] p=<0.001"
+beta3_era,CEH22,2_Coastal_Drawdown,0.19780417343024861,m,"CI=[0.1196,0.2760] p=<0.001"
+beta3_era,CEH22,3_After_Scraping,0.1916473391667203,m,"CI=[0.0561,0.3272] p=0.0076"
 Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
 Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
 Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)

@@ -1,0 +1,6 @@
+Cluster,Cluster_Label,n_wells,kept_pre,moved_pre,kept_post,moved_post
+1,C1 (Lake Edge),7,6,CEH11->mixed,7,
+2,C2 (Dune),19,15,CEH28->mixed; L7->mixed; D7->mixed; D43->mixed,16,L7->C3; D7->C3; D43->C3
+3,C3 (Western Residual),26,22,CEH10->mixed; CEH42->mixed; D38->mixed; T41A->mixed,11,NW1->C5; NW2->C5; NW5->C5; NW6->C5; NW7->C5; NW11->C5; NW13->C5; CEH1->C5; CEH9->C5; CEH39->C5; CEH40->C2; CEH41->C2; WMC3->C5; WMC4->C5; D15->C2
+4,C4 (Main Forest),9,9,,9,
+5,C5 (Coastal Forest),5,0,NW9->C3; CEH16->C3; CEH17->C3; CEH19->C3; CEH31->C3,5,

@@ -14,7 +14,12 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-11-24 (Paper 1 review). New: the partition fitted before and
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-11-25 (D-343; Martin: "I want to see the pre 2018 cluster results and
+#   map"; "I think we need to include the new clustering results in paper 1"). The period split gains a per-cluster
+#   table (02_15_period_split_by_cluster.csv: how many of each full-record cluster stay together before and from
+#   2018, and where the rest go) and a three-panel map (02_16_period_split_map.png). A split group whose matched
+#   cluster holds none of its members is drawn as "mixed" (before 2018: CEH11 with four C2 and four C3 wells).
+# "1.18.0"  # Hollingham (2026) — 2026-11-24 (Paper 1 review). New: the partition fitted before and
 #   after MODEL_AB_SPLIT_DATE (the December 2017 clearfell) separately, compared by ARI with a permutation p-value
 #   (02_14_period_split.csv; cluster_period_* report numbers). Martin: "shouldnt we run the clustering on pre and
 #   post dec 2017 to see if the clusters hold?"
@@ -805,6 +810,65 @@ def plot_month_stability(well_stab: pd.Series, month_stab: pd.Series,
 # clusters hold?"). The path is built from DIR_02 here, not added to utils/paths.py: every pipeline script imports
 # paths, so a constant there would move every step's code signature for one file only this script writes.
 OUT_02_PERIOD_SPLIT = DIR_02 / "02_14_period_split.csv"
+OUT_02_PERIOD_SPLIT_BY_CLUSTER = DIR_02 / "02_15_period_split_by_cluster.csv"   # 1.19.0
+OUT_02_PERIOD_SPLIT_MAP = DIR_02 / "02_16_period_split_map.png"                 # 1.19.0
+
+
+def period_split_by_cluster(rows: pd.DataFrame) -> pd.DataFrame:
+    """1.19.0: per full-record cluster, how many wells stay together in each half and where the others go."""
+    mixed = {h: {grp for grp, g in rows.groupby(f"{h}_group_raw") if not (g["full_cluster"] == g[f"{h}_cluster"]).any()}
+             for h in ("pre", "post")}
+    out = []
+    for cid, g in rows.groupby("full_cluster"):
+        rec = {"Cluster": int(cid), "Cluster_Label": CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"), "n_wells": len(g)}
+        for h in ("pre", "post"):
+            rec[f"kept_{h}"] = int(g[f"same_{h}"].sum())
+            moved = g[~g[f"same_{h}"]]
+            rec[f"moved_{h}"] = "; ".join(
+                f"{w.upper()}->" + ("mixed" if grp in mixed[h] else f"C{int(c)}")
+                for w, c, grp in zip(moved["well"], moved[f"{h}_cluster"], moved[f"{h}_group_raw"]))
+        out.append(rec)
+    return pd.DataFrame(out)
+
+
+def plot_period_split_map(rows: pd.DataFrame, out_path) -> None:
+    """1.19.0: the full-record partition beside the partitions fitted before and from the split, on the well map.
+    Each split group takes the colour of the full-record cluster it was matched to; a group whose matched cluster
+    holds none of its members is grey ("mixed"). Wells outside their full-record cluster are outlined and named."""
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc["k"] = loc["Name"].map(normalize_well_name)
+    m = rows.assign(k=rows["well"].map(normalize_well_name)).merge(loc[["k", "E", "N"]], on="k", how="left")
+    def colour_of(h):
+        lab = m[f"{h}_cluster"]
+        mixed = {grp for grp, g in m.groupby(f"{h}_group_raw") if not (g["full_cluster"] == g[f"{h}_cluster"]).any()}
+        return [("#9a9a9a" if r[f"{h}_group_raw"] in mixed else CLUSTER_COLOURS.get(int(c), "#777777"))
+                for (_, r), c in zip(m.iterrows(), lab)]
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    panels = [("(a) Full record", [CLUSTER_COLOURS.get(int(c), "#777777") for c in m["full_cluster"]], None),
+              (f"(b) Before {split:%B %Y}", colour_of("pre"), "pre"),
+              (f"(c) From {split:%B %Y}", colour_of("post"), "post")]
+    fig, axes = plt.subplots(1, 3, figsize=(11, 4.6), sharex=True, sharey=True)
+    for ax, (title, cols, h) in zip(axes, panels):
+        moved = np.zeros(len(m), bool) if h is None else ~m[f"same_{h}"].to_numpy(bool)
+        ax.scatter(m["E"][~moved], m["N"][~moved], s=55, c=np.array(cols, dtype=object)[~moved], edgecolors="white",
+                   linewidths=0.6, zorder=3)
+        ax.scatter(m["E"][moved], m["N"][moved], s=70, c=np.array(cols, dtype=object)[moved], edgecolors="black",
+                   linewidths=1.5, zorder=4)
+        for _, r in m[moved].iterrows():
+            ax.annotate(str(r["well"]).upper(), (r["E"], r["N"]), xytext=(4, 3), textcoords="offset points", fontsize=8)
+        ax.set_title(title, loc="left"); ax.set_aspect("equal"); ax.grid(alpha=0.25)
+        ax.set_xlabel("Easting (m)")
+    axes[0].set_ylabel("Northing (m)")
+    from matplotlib.lines import Line2D
+    handles = [Line2D([], [], marker="o", ls="", mfc=CLUSTER_COLOURS[c], mec="white", ms=8, label=CLUSTER_LABELS[c])
+               for c in sorted(CLUSTER_LABELS) if c in CLUSTER_COLOURS]
+    handles += [Line2D([], [], marker="o", ls="", mfc="#9a9a9a", mec="white", ms=8, label="mixed group"),
+                Line2D([], [], marker="o", ls="", mfc="white", mec="black", mew=1.5, ms=8,
+                       label="outside its full-record cluster")]
+    fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False)
+    plt.tight_layout(rect=(0, 0.09, 1, 1))
+    render_figure(fig, out_path, facecolor="white")
+    plt.close(fig)
 
 
 def period_split_stability(wells_ref: pd.DataFrame, full_labels: pd.Series, k: int) -> tuple[pd.DataFrame, dict]:
@@ -1976,6 +2040,16 @@ if __name__ == "__main__":
     _full = pd.Series(sub_clusters, index=wells_ref.columns)
     _ps_rows, _ps = period_split_stability(wells_ref, _full, WARDS_K)
     _ps_rows.to_csv(OUT_02_PERIOD_SPLIT, index=False)
+    _ps_by = period_split_by_cluster(_ps_rows)   # 1.19.0
+    _ps_by.to_csv(OUT_02_PERIOD_SPLIT_BY_CLUSTER, index=False)
+    plot_period_split_map(_ps_rows, OUT_02_PERIOD_SPLIT_MAP)
+    step(f"Saved {OUT_02_PERIOD_SPLIT_BY_CLUSTER.name} and {OUT_02_PERIOD_SPLIT_MAP.name}")
+    for _, _r in _ps_by.iterrows():
+        for _h in ("pre", "post"):
+            rr.add(f"cluster_period_kept_{_h}_C{int(_r['Cluster'])}", int(_r[f"kept_{_h}"]), unit="count",
+                   era=f"split {MODEL_AB_SPLIT_DATE}",
+                   note=f"wells of full-record {_r['Cluster_Label']} (n={int(_r['n_wells'])}) placed together in "
+                        f"the cluster of the same name in the {_h}-split partition")
     step(f"Saved period split: {OUT_02_PERIOD_SPLIT.name} - ARI pre/post {_ps['ari_pre_post']:.2f} "
          f"(p {_ps['ari_pre_post_p']:.3f}), pre/full {_ps['ari_pre_full']:.2f}, post/full {_ps['ari_post_full']:.2f}")
     _per = f"split {MODEL_AB_SPLIT_DATE}"

@@ -57,6 +57,11 @@ outputs/20_spatial_figures/20_msl5_change_perwell.csv
                                        Raw 2017→2023 MSL5 change per well
                                        (for the §5.7.5 Check 2 correlation;
                                        Script 20 runs earlier in the pipeline)
+outputs/40_shoreline_retreat/40_01_epoch_series.csv
+                                       Shoreline retreat per epoch, for 25_20
+                                       (Script 40 runs LATER: a guarded read of
+                                       the committed file)
+data/geo/clay.kml                      Mapped clay exposure (25_21 distances)
 
 Outputs
 -------
@@ -111,6 +116,18 @@ Outputs
                                        together, and carries the CWB-covariate
                                        contribution beside the fitted constant
                                        so the two can be read against their sum
+25_17_distance_band_decomposition.csv  Paper C (1.40.0): observed summer-minimum decline per
+                                       distance band (all wells; fixed set >= 19 of 21 years)
+                                       beside the headline coastal term at the wells' distances
+25_17b_distance_band_wells.csv         every band well: distance, years, own slope, in_forest,
+                                       short_record (< 19 years)
+25_18_distance_band_series.csv         the yearly band means behind 25_17
+25_19_distance_bands.png               (a) band series, (b) the coastal line with every well
+25_20_split_2011.csv                   headline specification before / after the split year
+                                       (2010, 2011, 2012), raw near-far contrast, retreat
+25_21_step_vs_trend.csv                per well: one level shift vs a linear trend, CWB in both
+25_22_drainage_change.csv              Model B beta_3 / implied floor before vs after the
+                                       coastal wells' median step date
 25_report_numbers.csv                  Headline numbers in standard format
                                        (incl. §5.7.5 Check 2: raw MSL5-change
                                        vs summer-min-slope Pearson/Spearman)
@@ -127,7 +144,23 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.39.0"  # Hollingham (2026) - 2026-11-23 (J-33). Also writes 25_05a_gradient_fits.jpg: panel (a) of
+__version__ = "1.40.0"  # Hollingham (2026) - 2026-11-25 (Martin, Paper C). Paper C drops clusters: the decline is split by
+#   DISTANCE FROM THE SHORE (0-300, 300-600, 600-900, 900-1300, >1300 m; CEH11 is a member of 600-900 m and is not
+#   reported on its own, Martin 2026-11-25): 25_17 / 25_18 / 25_19, band_* report numbers; 25_17b lists every band well (distance, years, own slope, in_forest, short_record) and
+#   25_19 draws short-record wells open, because short rising records (LIS1, D25, CEH39) pull the 600-900 m all-wells
+#   basis; 25_17 carries both bases (all wells; >= 19 years) side by side with their counts.
+#   OPEN-DUNE sensitivity (Martin: "a dune only transect beyond the influence of the forest and rock ridge"): 25_17,
+#   25_17b, 25_18 and 25_20 carry spec = network | open_dune; open dune = in_forest 0, CEH12 out, and beyond Script
+#   20's drawdown_lambda of the forest_boundary.geojson edge; a band with < 3 wells on a basis is not computed. Band well set = the full panel with the clearfell COASTAL controls CEH17 / CEH19 back in
+#   (load_panel(clearfell_zone=BAND_CLEARFELL_ZONE)); EDGE CEH16 / CEH31 stay out. Applied to the bands only: on the
+#   whole panel it would move the full-network fit, 25_02 and 25_03; the forest-free headline drops both wells on land
+#   cover either way (asserted in main()). 25_20: the headline specification before/after 2011 (split years 2010-2012),
+#   with the raw <600 m less >1300 m contrast and Script 40's retreat (guarded read of 40_01) and a printed verdict;
+#   split2011_* numbers. Breach tests (Martin: the pre-2011 fall as a breached low-permeability layer): 25_21 step vs
+#   trend per well with the CWB covariate, step propagation against distance from the shore and from data/geo/clay.kml,
+#   25_22 Model B beta_3 and implied floor before/after the coastal median step date; breach_* numbers and a printed
+#   verdict. Additive: 25_01-25_16 and every existing report number are unchanged.
+# 1.39.0  # Hollingham (2026) - 2026-11-23 (J-33). Also writes 25_05a_gradient_fits.jpg: panel (a) of
 #   25_05 alone (summer minimum), for Paper C Figure 3, whose decomposition is a table. 25_05 itself is unchanged.
 # 1.38.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The beta3_recursion covariate of
 #   25_15 runs Model B: Script 03's coefficients (Model B since 03 1.31.0) at the panel-median implied datum
@@ -833,7 +866,8 @@ def model_linear_capped(d, delta_0, L, c):
 # ── Data loading ──────────────────────────────────────────────────────────────
 
 def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
-                restrict_cluster: int | None = None) -> pd.DataFrame:
+                restrict_cluster: int | None = None,
+                clearfell_zone: list | None = None) -> pd.DataFrame:
     """Build the long-form monthly panel with all needed covariates.
 
     Parameters
@@ -844,6 +878,9 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
         (the forest-free network specification)
     restrict_cluster : if set, restrict to a single cluster only
         (the C3-only specification expects 3)
+    clearfell_zone : the wells dropped as clearfell-affected (1.40.0). None is
+        CLEARFELL_ZONE, which every published fit uses; the distance-band
+        decomposition passes BAND_CLEARFELL_ZONE instead.
     """
     wc = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     we = pd.read_csv(paths.INT_WELLS_EXTENDED, index_col=0, parse_dates=True)
@@ -917,7 +954,8 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
         if restrict_cluster == 3:
             long = long[~long["well"].isin(CLEARFELL_ZONE_IN_C3)]
     else:
-        long = long[~long["well"].isin(CLEARFELL_ZONE)]
+        long = long[~long["well"].isin(CLEARFELL_ZONE if clearfell_zone is None
+                                       else clearfell_zone)]
         if exclude_forested:
             # LAND COVER, not cluster.  Excluding on cluster dropped ceh3,
             # nw8 and lis1, which are open ground, and retained ceh12 and
@@ -4090,6 +4128,884 @@ def correction_dispersion_rows(corr_diag: pd.DataFrame) -> list[dict]:
     return rows
 
 
+# ── Paper C: distance bands, the 2011 split and the breach tests (1.40.0) ────
+# Martin, 2026-11-25: Paper C drops clusters and splits the decline by DISTANCE
+# FROM THE SHORE. Everything below is additive: no published fit is refitted
+# with a different well set, and 25_01 / 25_03 are untouched.
+#
+# The well set. The bands use Script 25's full panel (load_panel) with ONE
+# change: the two clearfell COASTAL controls, CEH17 and CEH19, come back in.
+# They were dropped as BACI clearfell-zone wells, but they are coastal-forest
+# controls that were not felled; the EDGE wells CEH16 and CEH31 carry the
+# felling step and stay out. The change is made only for the bands, through
+# load_panel(clearfell_zone=BAND_CLEARFELL_ZONE): applied to the whole panel it
+# would move the full-network fit, the canopy-controlled fit, 25_02 and the
+# cluster partition (all of which read long_full), which are published. The
+# forest-free headline would NOT move either way — CEH17 and CEH19 are under
+# canopy (in_forest = 1) and the forest-free specification drops them on land
+# cover — and main() asserts that, so the claim cannot go stale.
+BAND_CLEARFELL_ZONE = sorted(set(CLEARFELL_ZONE) - set(COASTAL_CONTROL_WELLS))
+DISTANCE_BANDS_M = [(0.0, 300.0), (300.0, 600.0), (600.0, 900.0),
+                    (900.0, 1300.0), (1300.0, np.inf)]
+# A fixed well set per band: wells read in at least this many of the panel's
+# hydrological years (21, 2005-2025), so the band mean is not moved by wells
+# entering and leaving it.
+BAND_FIXED_MIN_YEARS = 19
+
+# The before/after-2011 test. A split year S puts the hydrological years up to
+# and including S in BEFORE (monthly fit window panel start .. S-12) and those
+# from S+1 in AFTER (S+1-01 .. panel end): the windows do not overlap, so the
+# two fits are independent, and the 2011 summer minimum — the last of the steep
+# fall in the raw band series — sits in BEFORE only. S = 2011 is the headline;
+# 2010 and 2012 are its sensitivity.
+SPLIT_YEARS = (2010, 2011, 2012)
+SPLIT_HEADLINE_YEAR = 2011
+SPLIT_NEAR_MAX_M = 600.0     # raw contrast: mean of wells within 600 m ...
+SPLIT_FAR_MIN_M = 1300.0     # ... less the mean of wells beyond 1300 m
+# The model contrast δ(150 m) − δ(1300 m) is the coastal differential the fit
+# implies between the reference distance and the far band. It is identified
+# inside the panel's distance range even when L runs past it (where δ₀, L and c
+# separately are not), so it is the quantity set against the retreat.
+SPLIT_CONTRAST_FAR_M = 1300.0
+
+# Breach tests (Martin 2026-11-25: the pre-2011 fall as the breach of a
+# low-permeability layer at the coast — a STEP that settles, not a trend).
+STEP_COASTAL_MAX_M = 900.0       # wells tested as coastal: within 900 m
+STEP_INLAND_MIN_M = 1300.0       # controls: beyond 1300 m
+STEP_MIN_SEGMENT_MONTHS = 24     # observed months each side of a candidate step
+STEP_MIN_OBS = 96                # observed months for a well to be tested
+STEP_DELTA_IC = 2.0              # AIC and BIC must both favour the step by this
+
+
+# Open-dune sensitivity (Martin 2026-11-25: "a dune only transect beyond the
+# influence of the forest and rock ridge"). Open ground by the land-cover flag
+# the headline uses (in_forest = 0); the bedrock-ridge well(s) of
+# COASTAL_GRADIENT_EXCLUDED_WELLS kept out (load_panel already does; the
+# project holds NO bedrock-ridge polygon — Script 07's ridge mask is a DEM
+# threshold on dune ridges and sea_ridge.kml is nearshore seabed, so neither is
+# the rock ridge); and wells within the plantation drawdown reach of the
+# forest_boundary.geojson edge dropped. That reach is Script 20's fitted
+# e-folding length drawdown_lambda (20_report_numbers.csv), not a config
+# constant: none is defined there. A band left with fewer than
+# OPEN_DUNE_MIN_WELLS wells on a basis is reported as not computed.
+OPEN_DUNE_MIN_WELLS = 3
+
+
+def open_dune_wells(long: pd.DataFrame) -> tuple[set, dict]:
+    """The open-dune well set and its basis (see OPEN_DUNE_MIN_WELLS)."""
+    import json
+    from shapely.geometry import Point, Polygon
+    lam = np.nan
+    rn20 = paths.OUT_20_REPORT_NUMBERS
+    if rn20.exists():
+        _r = pd.read_csv(rn20)
+        _v = _r.loc[_r["Parameter"] == "drawdown_lambda", "Value"]
+        lam = float(_v.iloc[0]) if len(_v) else np.nan
+    if not np.isfinite(lam):
+        warn("drawdown_lambda not found in Script 20's report numbers: the open-dune set "
+             "is NOT buffered from the plantation edge")
+    ring = json.loads(paths.DATA_FOREST_BOUNDARY.read_text())["features"][0]["geometry"]["coordinates"][0]
+    edge = Polygon(ring).exterior
+    w = long.groupby("well").agg(E=("easting", "first"), N=("northing", "first"),
+                                 in_forest=("in_forest", "first"))
+    w["dist_plantation_edge_m"] = [edge.distance(Point(e, n)) for e, n in zip(w["E"], w["N"])]
+    keep = w[(w["in_forest"] == 0) & ~w.index.isin(COASTAL_GRADIENT_EXCLUDED_WELLS)]
+    if np.isfinite(lam):
+        keep = keep[keep["dist_plantation_edge_m"] > lam]
+    basis = {"buffer_m": lam, "n_open_ground": int((w["in_forest"] == 0).sum()),
+             "n_wells": int(len(keep)), "dist_edge": w["dist_plantation_edge_m"]}
+    return set(keep.index), basis
+
+
+def _band_key(lo: float, hi: float) -> str:
+    """'0_300' ... '1300_plus' — the report-number key of a band."""
+    return f"{lo:.0f}_plus" if not np.isfinite(hi) else f"{lo:.0f}_{hi:.0f}"
+
+
+def _annual_mean_ols(annual: pd.DataFrame, year_col: str, wells) -> dict:
+    """The balanced annual cross-well mean of ``wells`` and its OLS slope.
+
+    The same aggregation and OLS as ``balanced_annual_mean_slope`` (the 25_03
+    basis), returning the series and the slope's standard error as well."""
+    a = annual[annual["well"].isin(set(wells))]
+    ann = a.groupby(year_col)["value"].mean().sort_index()
+    n_w = a.groupby(year_col)["well"].nunique().reindex(ann.index)
+    out = {"series": ann, "n_wells_by_year": n_w, "slope_mm_yr": np.nan,
+           "se_mm_yr": np.nan, "n_years": int(len(ann))}
+    if len(ann) >= 3:
+        res = sm.OLS(ann.values.astype(float),
+                     sm.add_constant(ann.index.values.astype(float))).fit()
+        out["slope_mm_yr"] = float(res.params[1]) * 1000.0
+        out["se_mm_yr"] = float(res.bse[1]) * 1000.0
+    return out
+
+
+def _coastal_term(d, fit: dict) -> np.ndarray:
+    """δ(d) = δ₀·max(1 − d/L, 0) (the clamp keeps the sign of δ₀): the coastal
+    part of the headline linear-capped fit, c left out."""
+    d0, L = float(fit["popt"][0]), float(fit["popt"][1])
+    return model_linear_capped(np.asarray(d, dtype=float), d0, L, 0.0)
+
+
+def distance_band_decomposition(long_band: pd.DataFrame, fit_headline: dict,
+                                spec: str = "network", min_wells: int = 0,
+                                ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """25_17 and 25_18: the observed summer-minimum decline per distance band
+    beside the coastal term the headline fit assigns to the band's wells.
+
+    Observed: annual_metric_by_well summer_min -> mean across the band's wells
+    each hydrological year -> one OLS slope (mm/yr), for ALL band wells and for
+    the FIXED set read in >= BAND_FIXED_MIN_YEARS years. Coastal: mean over the
+    band's wells of δ₀·max(1 − d/L, 0) at each well's distance, δ₀ and L from
+    the forest-free linear-capped headline (25_01).
+
+    The third frame (25_17b) lists every band well: distance, years read, its
+    own summer-minimum OLS slope, land cover (in_forest) and short_record
+    (< BAND_FIXED_MIN_YEARS years) — the wells that separate the two bases.
+    """
+    annual, year_col = annual_metric_by_well(long_band, "summer_min")
+    n_years_panel = int(annual[year_col].nunique())
+    yrs_per_well = annual.groupby("well")[year_col].nunique()
+    dist = annual.groupby("well")["dist_coast_m"].first()
+    d0, L = float(fit_headline["popt"][0]), float(fit_headline["popt"][1])
+
+    groups = [(f"{lo:.0f}-{hi:.0f} m" if np.isfinite(hi) else f">{lo:.0f} m",
+               _band_key(lo, hi), lo, hi,
+               sorted(dist[(dist >= lo) & (dist < hi)].index))
+              for lo, hi in DISTANCE_BANDS_M]
+
+    rows, series = [], []
+    for label, key, lo, hi, wells in groups:
+        fixed = [w for w in wells if yrs_per_well.get(w, 0) >= BAND_FIXED_MIN_YEARS]
+        o_all = _annual_mean_ols(annual, year_col, wells if len(wells) >= min_wells else [])
+        o_fix = _annual_mean_ols(annual, year_col, fixed if len(fixed) >= min_wells else [])
+        _skip = [b for b, ws in (("all wells", wells), (">= 19 years", fixed))
+                 if len(ws) < min_wells]
+        coastal = float(np.mean(_coastal_term(dist[wells].values, fit_headline))) \
+            if wells else np.nan
+        rows.append({
+            "spec": spec, "band": label, "key": key,
+            "d_lo_m": lo, "d_hi_m": hi,
+            "n_wells": len(wells),
+            "mean_dist_coast_m": float(dist[wells].mean()) if wells else np.nan,
+            "observed_mm_yr": o_all["slope_mm_yr"],
+            "observed_se_mm_yr": o_all["se_mm_yr"],
+            "n_years": o_all["n_years"],
+            "n_wells_fixed": len(fixed),
+            "observed_fixed_mm_yr": o_fix["slope_mm_yr"],
+            "observed_fixed_se_mm_yr": o_fix["se_mm_yr"],
+            "coastal_mm_yr": coastal,
+            "observed_less_coastal_mm_yr": o_all["slope_mm_yr"] - coastal,
+            "delta_0_mm_yr": d0, "L_m": L,
+            "fixed_min_years": BAND_FIXED_MIN_YEARS,
+            "n_years_panel": n_years_panel,
+            "wells": " ".join(wells),
+            "wells_fixed": " ".join(fixed),
+            "not_computed": ("; ".join(f"{x}: fewer than {min_wells} wells" for x in _skip)
+                             if _skip else ""),
+        })
+        s_all, s_fix = o_all["series"], o_fix["series"]
+        yrs = sorted(set(s_all.index) | set(s_fix.index))
+        for y in yrs:
+            mf = s_fix.get(y, np.nan)
+            series.append({
+                "spec": spec, "band": label, "key": key, year_col: int(y),
+                "n_wells_all": int(o_all["n_wells_by_year"].get(y, 0) or 0),
+                "mean_summer_min_all_m": s_all.get(y, np.nan),
+                "n_wells_fixed": int(o_fix["n_wells_by_year"].get(y, 0) or 0)
+                    if len(s_fix) else 0,
+                "mean_summer_min_fixed_m": mf,
+                "mean_summer_min_fixed_rel_m": (mf - float(s_fix.mean()))
+                    if len(s_fix) else np.nan,
+            })
+    cover = long_band.groupby("well")["in_forest"].first()
+    wrows = []
+    for label, key, lo, hi, wells in groups:
+        for w in wells:
+            g = annual[annual["well"] == w]
+            slope = (float(np.polyfit(g[year_col].astype(float), g["value"].astype(float), 1)[0])
+                     * 1000.0 if len(g) >= 3 else np.nan)
+            wrows.append({"spec": spec, "band": label, "key": key, "well": w,
+                          "dist_coast_m": float(dist[w]),
+                          "n_years": int(yrs_per_well.get(w, 0)),
+                          "first_year": int(g[year_col].min()),
+                          "last_year": int(g[year_col].max()),
+                          "slope_mm_yr": slope,
+                          "in_forest": int(cover.get(w, 0)),
+                          "short_record": bool(yrs_per_well.get(w, 0) < BAND_FIXED_MIN_YEARS),
+                          "coastal_mm_yr": float(_coastal_term([dist[w]], fit_headline)[0])})
+    return pd.DataFrame(rows), pd.DataFrame(series), pd.DataFrame(wrows)
+
+
+def distance_band_rows(bands: pd.DataFrame) -> list[dict]:
+    """Report-number rows for 25_17 (band_<key>_*; open_dune_band_<key>_*)."""
+    rows: list[dict] = []
+    src = "25_17 distance-band decomposition, summer minimum, balanced annual mean"
+    for r in bands.itertuples():
+        pre = f"band_{r.key}_"
+        if r.spec != "network":
+            pre = f"{r.spec}_" + pre
+        src = ("25_17 distance-band decomposition, summer minimum, balanced annual mean"
+               + ("" if r.spec == "network" else f", {r.spec} well set"))
+        what = f"band {r.band}"
+        for k, v, u, note in (
+            ("n_wells", r.n_wells, "wells", "wells in the band (Script 25 panel with CEH17/CEH19)"),
+            ("observed_mm_yr", r.observed_mm_yr, "mm/yr",
+             "OLS slope of the yearly mean summer minimum across all the band's wells"),
+            ("observed_se_mm_yr", r.observed_se_mm_yr, "mm/yr", "standard error of that slope"),
+            ("n_wells_fixed", r.n_wells_fixed, "wells",
+             f"wells read in >= {BAND_FIXED_MIN_YEARS} of the {r.n_years_panel} years"),
+            ("observed_fixed_mm_yr", r.observed_fixed_mm_yr, "mm/yr",
+             "the same slope over the fixed well set"),
+            ("coastal_mm_yr", r.coastal_mm_yr, "mm/yr",
+             "mean over the wells of delta_0*max(1-d/L,0), forest-free linear-capped headline (25_01)"),
+            ("observed_less_coastal_mm_yr", r.observed_less_coastal_mm_yr, "mm/yr",
+             "observed (all wells) less the coastal term"),
+        ):
+            rows.append({"Parameter": pre + k, "Well": "", "Era": "2005-2025",
+                         "Value": float(v) if pd.notna(v) else np.nan, "Unit": u,
+                         "Note": f"{src}; {what}: {note}."})
+    return rows
+
+
+def _fit_contrast(fit: dict, decay_func, d_a: float, d_b: float) -> tuple[float, float]:
+    """δ(d_a) − δ(d_b) from a panel fit, with a delta-method SE on the full
+    covariance (c cancels). As delta_at_distance, by central differences."""
+    popt = np.asarray(fit["popt"], dtype=float)
+
+    def _ev(th):
+        return float(decay_func(np.array([d_a]), th[0], th[1], th[2])[0]
+                     - decay_func(np.array([d_b]), th[0], th[1], th[2])[0])
+    val = _ev(popt)
+    cov = fit.get("cov")
+    if cov is None or not np.all(np.isfinite(cov)):
+        return val, np.nan
+    g = np.zeros(len(popt))
+    for i in range(len(popt)):
+        h = max(abs(popt[i]) * 1e-5, 1e-6)
+        up, dn = popt.copy(), popt.copy()
+        up[i] += h
+        dn[i] -= h
+        g[i] = (_ev(up) - _ev(dn)) / (2.0 * h)
+    var = float(g @ np.asarray(cov, dtype=float) @ g)
+    return val, (float(np.sqrt(var)) if np.isfinite(var) and var >= 0 else np.nan)
+
+
+# Script 40's consecutive modern epochs; 2006-2026 spans them and is not used.
+RETREAT_EPOCH_PAIRS = ("2006-2017", "2017-2021", "2021-2026")
+
+
+def _retreat_over(epochs: pd.DataFrame | None, start, end) -> dict:
+    """Time-weighted shoreline retreat over [start, end] from Script 40's
+    consecutive modern_common_frontage epochs (2006-2017, 2017-2021, 2021-2026).
+    Reports the epochs used and the share of the window they cover (none
+    covers 2005, so a window starting there is partly uncovered)."""
+    out = {"retreat_rate_m_yr": np.nan, "retreat_epochs": "",
+           "retreat_cover_frac": np.nan}
+    if epochs is None or epochs.empty:
+        return out
+    pair = epochs["from_epoch"].astype(str) + "-" + epochs["to_epoch"].astype(str)
+    e = epochs[(epochs["basis"] == "modern_common_frontage")
+               & pair.isin(RETREAT_EPOCH_PAIRS)].copy()
+    e = e[pd.notna(e["rate_m_yr"])]
+    start, end = pd.Timestamp(start), pd.Timestamp(end)
+    num = den = 0.0
+    used = []
+    for r in e.itertuples():
+        a, b = pd.Timestamp(r.from_date), pd.Timestamp(r.to_date)
+        ov = (min(b, end) - max(a, start)).days / 365.25
+        if ov > 0:
+            num += ov * float(r.rate_m_yr)
+            den += ov
+            used.append(f"{r.from_epoch}-{r.to_epoch} {float(r.rate_m_yr):.2f} m/yr ({ov:.1f} yr)")
+    if den > 0:
+        out["retreat_rate_m_yr"] = num / den
+        out["retreat_epochs"] = "; ".join(used)
+        out["retreat_cover_frac"] = den / max((end - start).days / 365.25, 1e-9)
+    return out
+
+
+def split_2011_test(long_ff: pd.DataFrame, long_band: pd.DataFrame,
+                    cwb: pd.Series, epochs: pd.DataFrame | None,
+                    p0, bounds, spec: str = "network") -> pd.DataFrame:
+    """25_20: the HEADLINE specification (forest-free, linear-capped, CWB
+    covariate; fit_panel on build_design, as rolling_window_sweep does) fitted
+    before and after each split year, with the raw no-model contrast and the
+    shoreline retreat over each window.
+
+    Raw contrast: OLS slope of (mean summer minimum of the band-panel wells
+    within SPLIT_NEAR_MAX_M) − (mean of those beyond SPLIT_FAR_MIN_M), over
+    the hydrological years of each window; for all wells and for the fixed set
+    (>= BAND_FIXED_MIN_YEARS years). Retreat: _retreat_over the same window.
+    """
+    lo_b, hi_b = np.asarray(bounds[0], float), np.asarray(bounds[1], float)
+    design = build_design(long_ff, cwb)
+    annual, year_col = annual_metric_by_well(long_band, "summer_min")
+    yrs_per_well = annual.groupby("well")[year_col].nunique()
+    fixed = set(yrs_per_well[yrs_per_well >= BAND_FIXED_MIN_YEARS].index)
+    near = annual[annual["dist_coast_m"] < SPLIT_NEAR_MAX_M]
+    far = annual[annual["dist_coast_m"] >= SPLIT_FAR_MIN_M]
+
+    def _contrast(wells_ok):
+        n = near[near["well"].isin(wells_ok)].groupby(year_col)["value"].mean()
+        f = far[far["well"].isin(wells_ok)].groupby(year_col)["value"].mean()
+        return (n - f).dropna()
+    con_all = _contrast(set(annual["well"]))
+    con_fix = _contrast(fixed)
+
+    def _ols(s):
+        if len(s) < 3:
+            return np.nan, np.nan, int(len(s))
+        r = sm.OLS(s.values.astype(float),
+                   sm.add_constant(s.index.values.astype(float))).fit()
+        return float(r.params[1]) * 1000.0, float(r.bse[1]) * 1000.0, int(len(s))
+
+    rows = []
+    for S in SPLIT_YEARS:
+        for window in ("before", "after"):
+            if window == "before":
+                sub = design[design["date"] < pd.Timestamp(f"{S + 1}-01-01")]
+                ymask = lambda s: s[s.index <= S]          # noqa: E731
+            else:
+                sub = design[design["date"] >= pd.Timestamp(f"{S + 1}-01-01")]
+                ymask = lambda s: s[s.index > S]           # noqa: E731
+            row = {"spec": spec, "split_year": S, "window": window,
+                   "headline_split": S == SPLIT_HEADLINE_YEAR}
+            fit = fit_panel(sub, model_linear_capped, p0=p0, bounds=bounds,
+                            label=f"split{S}_{window}")
+            popt, perr = np.asarray(fit["popt"]), np.asarray(fit["perr"])
+            d_max = float(sub["dist_coast_m"].max())
+            flags = sweep_usability(popt, perr, d_max, lo_b, hi_b, hi_b - lo_b)
+            trend = cwb_trend(cwb, fit["date_min"], fit["date_max"])
+            ref = delta_at_distance(fit, model_linear_capped, COASTAL_REFERENCE_DISTANCE_M)
+            con_v, con_se = _fit_contrast(fit, model_linear_capped,
+                                          COASTAL_REFERENCE_DISTANCE_M, SPLIT_CONTRAST_FAR_M)
+            r_all = _ols(ymask(con_all))
+            r_fix = _ols(ymask(con_fix))
+            ret = _retreat_over(epochs, fit["date_min"], fit["date_max"])
+            row.update({
+                "window_start": f"{fit['date_min']:%Y-%m}",
+                "window_end": f"{fit['date_max']:%Y-%m}",
+                "n_wells": int(fit["n_wells"]), "n_obs": int(fit["n"]),
+                "delta_0_mm_yr": float(popt[0]), "delta_0_se": float(perr[0]),
+                "L_m": float(popt[1]), "L_se": float(perr[1]),
+                "c_mm_yr": float(popt[2]), "c_se": float(perr[2]),
+                "panel_max_dist_m": d_max,
+                "at_bound": flags["at_bound"],
+                "reach_exceeds_panel": flags["reach_exceeds_panel"],
+                "usable": flags["usable"],
+                "beta_cwb_m_per_mm": float(fit["beta_cwb_m_per_mm"]),
+                "cwb_trend_mm_yr": float(trend),
+                "climate_term_mm_yr": 1000.0 * float(fit["beta_cwb_m_per_mm"]) * float(trend),
+                "rate_150m_mm_yr": ref["value"],
+                "rate_150m_se": ref["se"] if ref["se"] is not None else np.nan,
+                "coastal_150m_mm_yr": float(_coastal_term([COASTAL_REFERENCE_DISTANCE_M], fit)[0]),
+                "contrast_150_1300_mm_yr": con_v,
+                "contrast_150_1300_se": con_se,
+                "raw_contrast_mm_yr": r_all[0], "raw_contrast_se": r_all[1],
+                "raw_contrast_n_years": r_all[2],
+                "raw_contrast_fixed_mm_yr": r_fix[0], "raw_contrast_fixed_se": r_fix[1],
+                "raw_contrast_n_wells_near": int(near["well"].nunique()),
+                "raw_contrast_n_wells_far": int(far["well"].nunique()),
+                "raw_contrast_n_wells_fixed": int(len(fixed)),
+            })
+            row.update(ret)
+            rr = row["retreat_rate_m_yr"]
+            row["contrast_per_m_retreat_mm"] = (con_v / rr if np.isfinite(rr) and rr > 0
+                                                else np.nan)
+            row["raw_contrast_per_m_retreat_mm"] = (r_all[0] / rr
+                                                    if np.isfinite(rr) and rr > 0 else np.nan)
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def split_2011_verdict(split: pd.DataFrame) -> str:
+    """The plain-English verdict on the headline split, built from 25_20.
+
+    A window SHOWS the coastal deepening when its quantity is negative by more
+    than twice its SE. The rates are CONSISTENT with the retreat when the
+    deepening per metre of retreat differs between the windows by less than
+    twice the combined SE (retreat taken as exact)."""
+    h = split[split["headline_split"] & (split["spec"] == "network")].set_index("window")
+    b, a = h.loc["before"], h.loc["after"]
+
+    def _shows(v, se):
+        return bool(np.isfinite(v) and np.isfinite(se) and v + 2.0 * se < 0)
+
+    def _consistent(vb, sb, va, sa, rb, ra):
+        if not all(np.isfinite([vb, sb, va, sa, rb, ra])) or rb <= 0 or ra <= 0:
+            return None
+        z = (vb / rb - va / ra) / np.hypot(sb / rb, sa / ra)
+        return bool(abs(z) < 2.0)
+
+    def _say(name, vb, sb, va, sa):
+        sb_, sa_ = _shows(vb, sb), _shows(va, sa)
+        where = ("in both windows" if sb_ and sa_ else
+                 f"only in the window to {SPLIT_HEADLINE_YEAR}" if sb_ else
+                 f"only in the window from {SPLIT_HEADLINE_YEAR + 1}" if sa_ else "in neither window")
+        cons = _consistent(vb, sb, va, sa, b["retreat_rate_m_yr"], a["retreat_rate_m_yr"])
+        tail = ("" if cons is None else
+                ", at rates per metre of retreat that agree" if cons else
+                ", at rates per metre of retreat that do NOT agree")
+        return (f"{name}: {vb:+.1f} ± {sb:.1f} mm/yr before, {va:+.1f} ± {sa:.1f} after "
+                f"-> the coastal deepening appears {where}{tail}."), sb_, sa_, cons
+
+    s_raw, rb_, ra_, rc = _say("Raw contrast (<600 m less >1300 m, summer minimum)",
+                               b["raw_contrast_mm_yr"], b["raw_contrast_se"],
+                               a["raw_contrast_mm_yr"], a["raw_contrast_se"])
+    s_mod, mb_, ma_, mc = _say("Headline model, delta(150 m) - delta(1300 m)",
+                               b["contrast_150_1300_mm_yr"], b["contrast_150_1300_se"],
+                               a["contrast_150_1300_mm_yr"], a["contrast_150_1300_se"])
+    usable = (f"The before-window fit is {'usable' if b['usable'] else 'NOT usable'} "
+              f"(L {b['L_m']:.0f} m against a panel reaching {b['panel_max_dist_m']:.0f} m), "
+              f"the after-window fit {'usable' if a['usable'] else 'NOT usable'} "
+              f"(L {a['L_m']:.0f} m).")
+    ret = (f"Shoreline retreat {b['retreat_rate_m_yr']:.2f} m/yr over the before window "
+           f"({b['retreat_epochs']}; covers {100 * b['retreat_cover_frac']:.0f}%) and "
+           f"{a['retreat_rate_m_yr']:.2f} m/yr after ({a['retreat_epochs']}).")
+    if rb_ and not ra_:
+        overall = (f"VERDICT: the coastal deepening is concentrated in the years to "
+                   f"{SPLIT_HEADLINE_YEAR} in the raw data while the shore kept "
+                   f"retreating at least as fast afterwards — it does not track the "
+                   f"retreat at a steady rate."
+                   + (" The model still finds a smaller coastal term after the split."
+                      if ma_ else ""))
+    elif rb_ and ra_ and rc:
+        overall = ("VERDICT: the coastal deepening appears in both windows at rates "
+                   "consistent with the retreat.")
+    elif rb_ and ra_:
+        overall = ("VERDICT: the coastal deepening appears in both windows, but not at "
+                   "rates consistent with the retreat.")
+    else:
+        overall = ("VERDICT: the raw contrast does not show the pattern the split asks "
+                   "about; read the rows of 25_20.")
+    lines = [s_raw, s_mod, usable, ret, overall]
+    od = split[split["headline_split"] & (split["spec"] == "open_dune")]
+    if not od.empty:
+        o = od.set_index("window")
+        ob, oa = o.loc["before"], o.loc["after"]
+        s_o, ob_, oa_, _ = _say("OPEN DUNE raw contrast",
+                                ob["raw_contrast_mm_yr"], ob["raw_contrast_se"],
+                                oa["raw_contrast_mm_yr"], oa["raw_contrast_se"])
+        s_m, mb2, ma2, _ = _say("OPEN DUNE model, delta(150 m) - delta(1300 m)",
+                                ob["contrast_150_1300_mm_yr"], ob["contrast_150_1300_se"],
+                                oa["contrast_150_1300_mm_yr"], oa["contrast_150_1300_se"])
+        holds = (ob_ == rb_) and (oa_ == ra_)
+        lines += [s_o, s_m,
+                  f"OPEN DUNE ({int(ob['n_wells'])} wells in the before fit, "
+                  f"{int(oa['n_wells'])} after; fits {'usable' if ob['usable'] else 'NOT usable'} / "
+                  f"{'usable' if oa['usable'] else 'NOT usable'}): the coastal pattern and its "
+                  f"timing {'HOLD' if holds else 'do NOT hold'} on open dune alone "
+                  f"(raw contrast {'significant' if ob_ else 'not significant'} before, on "
+                  f"{int(ob['raw_contrast_n_years'])} years with {int(ob['raw_contrast_n_wells_near'])} "
+                  f"near wells in all; {'significant' if oa_ else 'not significant'} after, on "
+                  f"{int(oa['raw_contrast_n_years'])} years)."]
+    return "\n".join(lines)
+
+
+def split_2011_rows(split: pd.DataFrame) -> list[dict]:
+    """Report-number rows split2011_<window>_<quantity> for the headline split,
+    and split2011_s<year>_<window>_<quantity> for every split year."""
+    rows: list[dict] = []
+    cols = (("delta_0_mm_yr", "mm/yr"), ("delta_0_se", "mm/yr"), ("L_m", "m"),
+            ("L_se", "m"), ("c_mm_yr", "mm/yr"), ("c_se", "mm/yr"),
+            ("usable", "flag"), ("n_wells", "wells"),
+            ("climate_term_mm_yr", "mm/yr"), ("rate_150m_mm_yr", "mm/yr"),
+            ("rate_150m_se", "mm/yr"), ("coastal_150m_mm_yr", "mm/yr"),
+            ("contrast_150_1300_mm_yr", "mm/yr"), ("contrast_150_1300_se", "mm/yr"),
+            ("raw_contrast_mm_yr", "mm/yr"), ("raw_contrast_se", "mm/yr"),
+            ("raw_contrast_fixed_mm_yr", "mm/yr"), ("retreat_rate_m_yr", "m/yr"),
+            ("contrast_per_m_retreat_mm", "mm per m"),
+            ("raw_contrast_per_m_retreat_mm", "mm per m"))
+    for r in split.itertuples():
+        sp = "" if r.spec == "network" else f"{r.spec}_"
+        tags = [f"split2011_{sp}s{r.split_year}_{r.window}_"]
+        if r.headline_split:
+            tags.insert(0, f"split2011_{sp}{r.window}_")
+        for tag in tags:
+            for c, u in cols:
+                v = getattr(r, c)
+                rows.append({"Parameter": tag + c, "Well": "",
+                             "Era": f"{r.window_start} to {r.window_end}",
+                             "Value": float(v) if pd.notna(v) else np.nan, "Unit": u,
+                             "Note": f"25_20 split {r.split_year} ({r.window}), spec {r.spec}; forest-free "
+                                     f"linear-capped headline specification refitted on the "
+                                     f"window; column {c}."})
+    return rows
+
+
+def _clay_line_osgb():
+    """The mapped clay exposure (data/geo/clay.kml) as a shapely geometry in
+    EPSG:27700, or None if the file is absent (the distance column is then NaN
+    and the console says so)."""
+    import re
+    from pyproj import Transformer
+    from shapely.geometry import LineString, MultiLineString
+    if not paths.DATA_KML_CLAY.exists():
+        warn(f"{paths.DATA_KML_CLAY.name} not found: distance to the clay exposure not computed")
+        return None
+    raw = paths.DATA_KML_CLAY.read_text(encoding="utf-8", errors="replace")
+    tr = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+    lines = []
+    for block in re.findall(r"<coordinates>(.*?)</coordinates>", raw, re.S):
+        pts = [tuple(float(v) for v in tok.split(",")[:2]) for tok in block.split()
+               if len(tok.split(",")) >= 2]
+        if len(pts) >= 2:
+            lines.append(LineString([tr.transform(*p) for p in pts]))
+    if not lines:
+        warn(f"{paths.DATA_KML_CLAY.name} carries no usable coordinates")
+        return None
+    return lines[0] if len(lines) == 1 else MultiLineString(lines)
+
+
+def _ic(rss: float, n: int, k: int) -> tuple[float, float]:
+    """Gaussian AIC and BIC from a residual sum of squares."""
+    ll = n * np.log(max(rss, 1e-300) / n)
+    return ll + 2.0 * k, ll + k * np.log(n)
+
+
+def step_vs_trend(long_band: pd.DataFrame, cwb: pd.Series) -> pd.DataFrame:
+    """25_21: per well, a single level shift against a linear trend, climate in
+    both (breach test 1).
+
+    For each band-panel well within STEP_COASTAL_MAX_M of the shore, and each
+    beyond STEP_INLAND_MIN_M as a control, with >= STEP_MIN_OBS observed
+    months: monthly h on month fixed effects + the CWB covariate (the panel's
+    climate term) + EITHER t (trend) OR 1[t >= t*] (step). t* is searched over
+    every month leaving >= STEP_MIN_SEGMENT_MONTHS observed months each side,
+    and counts as a parameter of the step model (k = 14 + 1 against 14). The
+    step is PREFERRED when AIC and BIC both favour it by STEP_DELTA_IC: monthly
+    residuals are autocorrelated, so AIC alone over-rewards the searched step.
+    """
+    from shapely.geometry import Point
+    df = long_band.merge(cwb.to_frame(), left_on="date", right_index=True, how="inner")
+    df = df.dropna(subset=["h_depth", "cwb", "dist_coast_m"])
+    clay = _clay_line_osgb()
+    rows = []
+    for well, g in df.groupby("well"):
+        d = float(g["dist_coast_m"].iloc[0])
+        group = ("coastal" if d < STEP_COASTAL_MAX_M else
+                 "inland" if d >= STEP_INLAND_MIN_M else None)
+        if group is None or len(g) < STEP_MIN_OBS:
+            continue
+        g = g.sort_values("date")
+        y = g["h_depth"].values.astype(float)
+        n = len(y)
+        months = pd.get_dummies(g["date"].dt.month, prefix="m", drop_first=True).values.astype(float)
+        base = np.column_stack([np.ones(n), months, g["cwb"].values.astype(float)])
+        t = ((g["date"] - g["date"].iloc[0]).dt.days / 365.25).values
+        Xt = np.column_stack([base, t])
+        bt, *_ = np.linalg.lstsq(Xt, y, rcond=None)
+        rss_t = float(np.sum((y - Xt @ bt) ** 2))
+        k_t = Xt.shape[1] + 1
+        aic_t, bic_t = _ic(rss_t, n, k_t)
+        best = (np.inf, None, np.nan)
+        for i in range(STEP_MIN_SEGMENT_MONTHS, n - STEP_MIN_SEGMENT_MONTHS + 1):
+            Xs = np.column_stack([base, (np.arange(n) >= i).astype(float)])
+            bs, *_ = np.linalg.lstsq(Xs, y, rcond=None)
+            rss = float(np.sum((y - Xs @ bs) ** 2))
+            if rss < best[0]:
+                best = (rss, i, float(bs[-1]))
+        rss_s, i_s, size = best
+        k_s = base.shape[1] + 1 + 1 + 1          # + step coef + t* + sigma
+        aic_s, bic_s = _ic(rss_s, n, k_s)
+        step_date = g["date"].iloc[i_s]
+        e, nn = float(g["easting"].iloc[0]), float(g["northing"].iloc[0])
+        d_clay = float(clay.distance(Point(e, nn))) if clay is not None else np.nan
+        rows.append({
+            "well": well, "group": group, "dist_coast_m": d,
+            "dist_clay_m": d_clay,
+            "record_start": f"{g['date'].iloc[0]:%Y-%m}",
+            "record_end": f"{g['date'].iloc[-1]:%Y-%m}",
+            "n_obs": n,
+            "trend_mm_yr": float(bt[-1]) * 1000.0,
+            "step_date": f"{step_date:%Y-%m}",
+            "step_date_decimal": step_date.year + (step_date.month - 0.5) / 12.0,
+            "step_size_mm": size * 1000.0,
+            "aic_trend": aic_t, "aic_step": aic_s,
+            "bic_trend": bic_t, "bic_step": bic_s,
+            "delta_aic_trend_minus_step": aic_t - aic_s,
+            "delta_bic_trend_minus_step": bic_t - bic_s,
+            "prefers_step": bool((aic_t - aic_s) > STEP_DELTA_IC
+                                 and (bic_t - bic_s) > STEP_DELTA_IC),
+            # A breach lowers the table: only a preferred step DOWN is one.
+            "prefers_drop": bool((aic_t - aic_s) > STEP_DELTA_IC
+                                 and (bic_t - bic_s) > STEP_DELTA_IC and size < 0),
+        })
+    return pd.DataFrame(rows)
+
+
+def step_propagation(steps: pd.DataFrame) -> pd.DataFrame:
+    """Breach test 2: step date and step size against distance from the shore
+    and from the clay exposure (OLS slope and p). The test subset is the wells
+    whose preferred step is a DROP (a breach lowers the table); the wells
+    preferring any step, and every tested well, are carried for comparison —
+    they mix the coastal drops with the network-wide rises of 2020 and so test
+    two events at once."""
+    from scipy.stats import linregress
+    rows = []
+    for subset, s in (("prefers_drop", steps[steps["prefers_drop"]]),
+                      ("prefers_step", steps[steps["prefers_step"]]),
+                      ("all_tested", steps)):
+        for xcol, xlab in (("dist_coast_m", "shore"), ("dist_clay_m", "clay")):
+            for ycol, ylab, scale, unit in (("step_date_decimal", "date", 1000.0, "yr per km"),
+                                            ("step_size_mm", "size", 1000.0, "mm per km")):
+                ok = s[[xcol, ycol]].dropna()
+                if len(ok) < 4 or ok[xcol].nunique() < 3:
+                    rows.append({"subset": subset, "x": xlab, "y": ylab, "n": len(ok),
+                                 "slope": np.nan, "slope_se": np.nan, "p": np.nan,
+                                 "unit": unit})
+                    continue
+                lr = linregress(ok[xcol].values, ok[ycol].values)
+                rows.append({"subset": subset, "x": xlab, "y": ylab, "n": len(ok),
+                             "slope": lr.slope * scale, "slope_se": lr.stderr * scale,
+                             "p": lr.pvalue, "r": lr.rvalue, "unit": unit})
+    return pd.DataFrame(rows)
+
+
+def drainage_change(long_band: pd.DataFrame, steps: pd.DataFrame
+                    ) -> tuple[pd.DataFrame, pd.Timestamp | None]:
+    """25_22: Model B (fit_ssm intercept=True, with each well's dry-month
+    bounds, as Script 03's headline) fitted before and after ONE common date —
+    the median step date of the coastal wells whose preferred step is a drop — for every
+    tested well (breach test 3). A common date makes the inland wells a control
+    over the same two periods. Reported: β₃, α and the implied floor
+    z_B = DRAINAGE_DATUM − α/β₃ (m below ground) in each period, and the change."""
+    from utils.model_utils import fit_ssm, dry_bounds
+    from utils.config import DRAINAGE_DATUM
+    pref = steps[(steps["group"] == "coastal") & steps["prefers_drop"]]
+    if pref.empty:
+        warn("no coastal well prefers a drop: 25_22 has no common date and is empty")
+        return pd.DataFrame(), None
+    t0 = pd.Timestamp(pd.to_datetime(pref["step_date"]).sort_values()
+                      .iloc[len(pref) // 2]).to_period("M").to_timestamp()
+    cl = _climate_monthly()
+    rows = []
+    for r in steps.itertuples():
+        h = (long_band[long_band["well"] == r.well].set_index("date")["h_depth"]
+             .sort_index())
+        h = h[~h.index.duplicated(keep="first")]
+        bound = dry_bounds(r.well)
+        if len(bound):
+            bound.index = pd.DatetimeIndex(bound.index)
+        out = {"well": r.well, "group": r.group, "dist_coast_m": r.dist_coast_m,
+               "prefers_step": r.prefers_step, "split_date": f"{t0:%Y-%m}"}
+        for per, hs in (("before", h[h.index < t0]), ("after", h[h.index >= t0])):
+            bd = (bound if not len(bound) else
+                  bound[bound.index < t0] if per == "before" else bound[bound.index >= t0])
+            fit = fit_ssm(hs, cl, intercept=True,
+                          dry_bound=(bd if len(bd) else None))
+            if fit is None:
+                out.update({f"{per}_n": 0, f"{per}_beta_3": np.nan,
+                            f"{per}_beta_3_se": np.nan, f"{per}_alpha": np.nan,
+                            f"{per}_floor_m": np.nan})
+                continue
+            b3, a = float(fit["beta_3_drainage"]), float(fit.get("alpha", np.nan))
+            out.update({f"{per}_n": int(fit["n"]), f"{per}_beta_3": b3,
+                        f"{per}_beta_3_se": float(fit.get("se_beta_3", np.nan)),
+                        f"{per}_alpha": a,
+                        f"{per}_floor_m": (DRAINAGE_DATUM - a / b3) if b3 > 0 else np.nan,
+                        f"{per}_beta_3_bound_binds": bool(fit.get("beta_3_bound_binds", False))})
+        out["d_beta_3"] = out.get("after_beta_3", np.nan) - out.get("before_beta_3", np.nan)
+        out["d_floor_m"] = out.get("after_floor_m", np.nan) - out.get("before_floor_m", np.nan)
+        rows.append(out)
+    return pd.DataFrame(rows), t0
+
+
+def breach_rows(steps: pd.DataFrame, prop: pd.DataFrame,
+                drain: pd.DataFrame, t0) -> list[dict]:
+    """Report-number rows breach_* for 25_21 / 25_22 and the propagation test."""
+    rows: list[dict] = []
+
+    def _r(k, v, u, note):
+        rows.append({"Parameter": k, "Well": "", "Era": "", "Unit": u,
+                     "Value": float(v) if pd.notna(v) else np.nan,
+                     "Note": note})
+    for grp in ("coastal", "inland"):
+        g = steps[steps["group"] == grp]
+        _r(f"breach_{grp}_n_prefer_any_step", int(g["prefers_step"].sum()), "wells",
+           f"25_21: {grp} wells where AIC and BIC both favour a step (up or down) by > {STEP_DELTA_IC:g}")
+        p = g[g["prefers_drop"]]
+        dates = pd.to_numeric(p["step_date_decimal"])
+        _r(f"breach_{grp}_n_tested", len(g), "wells",
+           f"25_21: {grp} wells tested (step vs trend, CWB in both)")
+        _r(f"breach_{grp}_n_prefer_drop", len(p), "wells",
+           f"25_21: of those, wells whose favoured step is a drop")
+        _r(f"breach_{grp}_step_date_median", dates.median() if len(p) else np.nan,
+           "decimal year", f"25_21: median step date, {grp} wells preferring a drop")
+        _r(f"breach_{grp}_step_date_q25", dates.quantile(0.25) if len(p) else np.nan,
+           "decimal year", "25_21: lower quartile of the same")
+        _r(f"breach_{grp}_step_date_q75", dates.quantile(0.75) if len(p) else np.nan,
+           "decimal year", "25_21: upper quartile of the same")
+        _r(f"breach_{grp}_step_size_median_mm", p["step_size_mm"].median() if len(p) else np.nan,
+           "mm", f"25_21: median step size, {grp} wells preferring a drop")
+    for r in prop.itertuples():
+        base = f"breach_{r.subset}_step{r.y}_vs_d{r.x}"
+        _r(base + "_slope", r.slope, r.unit,
+           f"OLS slope of step {r.y} on distance from the {r.x} ({r.subset}, n={r.n})")
+        _r(base + "_p", r.p, "p", "p-value of that slope")
+    if drain is not None and not drain.empty:
+        for grp in ("coastal", "inland"):
+            g = drain[drain["group"] == grp]
+            _r(f"breach_{grp}_d_beta_3_median", g["d_beta_3"].median(), "1/month",
+               f"25_22: median after - before Model B beta_3, split at {t0:%Y-%m}")
+            _r(f"breach_{grp}_d_floor_median_m", g["d_floor_m"].median(), "m",
+               "25_22: median after - before implied floor (m below ground; + = deeper)")
+            _r(f"breach_{grp}_n_beta_3_up", int((g["d_beta_3"] > 0).sum()), "wells",
+               "25_22: wells whose beta_3 rose after the split")
+            _r(f"breach_{grp}_n_drain_fitted", int(g["d_beta_3"].notna().sum()), "wells",
+               "25_22: wells fitted in both periods")
+    return rows
+
+
+def breach_verdict(steps: pd.DataFrame, prop: pd.DataFrame,
+                   drain: pd.DataFrame, t0) -> str:
+    """Plain-English verdict for the breach hypothesis from the three tests.
+
+    Support needs (1) a larger share of coastal than inland wells preferring a
+    DROP over a trend, one-sided Fisher p < 0.05 (nearly every well prefers
+    SOME step, so "any step" does not discriminate); (2) step date later and step smaller (less
+    negative) with distance from the shore, either slope significant at 0.05
+    and neither significantly the wrong way; (3) β₃ rising, or the implied
+    floor deepening, near the coast, and by more than inland: a one-sided
+    Mann-Whitney test (coastal > inland) on the change, p < 0.05, over the wells
+    fitted in both periods (inland wells deepened too, so "more than inland"
+    has to be shown, not read off two medians). All three: supports; none:
+    does not; otherwise mixed."""
+    c = steps[steps["group"] == "coastal"]
+    i = steps[steps["group"] == "inland"]
+    fc = c["prefers_drop"].mean() if len(c) else np.nan
+    fi = i["prefers_drop"].mean() if len(i) else np.nan
+    from scipy.stats import fisher_exact
+    p_t1 = (float(fisher_exact([[int(c["prefers_drop"].sum()), int((~c["prefers_drop"]).sum())],
+                                [int(i["prefers_drop"].sum()), int((~i["prefers_drop"]).sum())]],
+                               alternative="greater")[1]) if len(c) and len(i) else np.nan)
+    t1 = bool(np.isfinite(fc) and np.isfinite(fi) and fc > fi
+              and np.isfinite(p_t1) and p_t1 < 0.05)
+    pr = prop[(prop["subset"] == "prefers_drop") & (prop["x"] == "shore")].set_index("y")
+    sd, ss = pr.loc["date"], pr.loc["size"]
+    right_d = bool(np.isfinite(sd["slope"]) and sd["slope"] > 0 and sd["p"] < 0.05)
+    right_s = bool(np.isfinite(ss["slope"]) and ss["slope"] > 0 and ss["p"] < 0.05)
+    wrong = bool((np.isfinite(sd["slope"]) and sd["slope"] < 0 and sd["p"] < 0.05)
+                 or (np.isfinite(ss["slope"]) and ss["slope"] < 0 and ss["p"] < 0.05))
+    t2 = (right_d or right_s) and not wrong
+    t3 = False
+    b3_ok = fl_ok = False
+    if drain is not None and not drain.empty:
+        _g = drain.groupby("group")
+        dc, di = (_g["d_beta_3"].median().get(k, np.nan) for k in ("coastal", "inland"))
+        fc, fi = (_g["d_floor_m"].median().get(k, np.nan) for k in ("coastal", "inland"))
+        from scipy.stats import mannwhitneyu
+
+        def _mw(col):
+            x = drain.loc[drain["group"] == "coastal", col].dropna()
+            y = drain.loc[drain["group"] == "inland", col].dropna()
+            if len(x) < 3 or len(y) < 3:
+                return np.nan
+            return float(mannwhitneyu(x, y, alternative="greater").pvalue)
+        p_b3, p_fl = _mw("d_beta_3"), _mw("d_floor_m")
+        b3_ok = bool(np.isfinite(dc) and dc > 0 and np.isfinite(p_b3) and p_b3 < 0.05)
+        fl_ok = bool(np.isfinite(fc) and fc > 0 and np.isfinite(p_fl) and p_fl < 0.05)
+        t3 = b3_ok or fl_ok
+    lines = [
+        f"(1) step vs trend: {int(c['prefers_drop'].sum())}/{len(c)} coastal and "
+        f"{int(i['prefers_drop'].sum())}/{len(i)} inland wells prefer a DROP over a trend "
+        f"(any step: {int(c['prefers_step'].sum())}/{len(c)} and "
+        f"{int(i['prefers_step'].sum())}/{len(i)}; coastal > inland one-sided Fisher p={p_t1:.4f}) "
+        f"-> {'supports' if t1 else 'does not support'}.",
+        f"(2) propagation (wells preferring a drop): step date {sd['slope']:+.2f} yr/km (p={sd['p']:.3f}), step size "
+        f"{ss['slope']:+.1f} mm/km (p={ss['p']:.3f}) with distance from the shore "
+        f"-> {'supports' if t2 else 'does not support'}.",
+        (f"(3) drainage about {t0:%Y-%m} ({int(drain['d_beta_3'].notna().sum())} wells fitted "
+         f"in both periods): median change in beta_3 coastal {dc:+.4f}, inland {di:+.4f} /month "
+         f"(coastal > inland one-sided Mann-Whitney p={p_b3:.3f}); "
+         f"implied floor coastal {fc:+.2f} m, inland {fi:+.2f} m deeper (p={p_fl:.3f}) "
+         f"-> {'supports' if t3 else 'does not support'}.")
+        if drain is not None and not drain.empty else "(3) drainage: not computed.",
+    ]
+    n = sum([t1, t2, t3])
+    lines.append("BREACH VERDICT: " + ("SUPPORTS" if n == 3 else
+                                       "DOES NOT SUPPORT" if n == 0 else "MIXED")
+                 + f" ({n} of 3 tests point towards a breach).")
+    return "\n".join(lines)
+
+
+def plot_distance_bands(series: pd.DataFrame, bands: pd.DataFrame,
+                        long_band: pd.DataFrame, fit_headline: dict,
+                        fig_path: Path, band_wells: pd.DataFrame | None = None) -> None:
+    """25_19: (a) the yearly mean summer minimum per band (fixed well set, each
+    relative to its own mean) with the OLS line through the nearest band; (b)
+    the fitted coastal line δ₀·max(1 − d/L, 0) with every band-panel well at
+    its distance, coloured by band (records < BAND_FIXED_MIN_YEARS drawn open)."""
+    band_rows = bands.reset_index(drop=True)
+    cmap = plt.get_cmap("viridis")
+    colours = {r.key: cmap(i / max(len(band_rows) - 1, 1) * 0.9)
+               for i, r in enumerate(band_rows.itertuples())}
+    fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(7.5, 9.5), facecolor="white")
+    ycol = [c for c in series.columns if c in ("hydro_year", "year")][0]
+    for r in band_rows.itertuples():
+        s = series[(series["key"] == r.key)].dropna(subset=["mean_summer_min_fixed_rel_m"])
+        if s.empty:
+            continue
+        ax_a.plot(s[ycol], s["mean_summer_min_fixed_rel_m"] * 1000.0, "-o", ms=3.5,
+                  lw=1.6, color=colours[r.key],
+                  label=f"{r.band} ({r.n_wells_fixed} wells; "
+                        f"{r.observed_fixed_mm_yr:+.1f} mm/yr)")
+    near = band_rows.iloc[0]
+    s0 = series[series["key"] == near["key"]].dropna(subset=["mean_summer_min_fixed_rel_m"])
+    if len(s0) >= 3:
+        k = np.polyfit(s0[ycol].astype(float), s0["mean_summer_min_fixed_rel_m"] * 1000.0, 1)
+        xx = np.array([s0[ycol].min(), s0[ycol].max()], dtype=float)
+        ax_a.plot(xx, np.polyval(k, xx), "--", color=colours[near["key"]], lw=1.4,
+                  label=f"straight line, {near['band']}")
+    ax_a.axvline(SPLIT_HEADLINE_YEAR + 0.5, color="0.5", lw=1.0, ls=":")
+    ax_a.text(SPLIT_HEADLINE_YEAR + 0.6, ax_a.get_ylim()[0], f" split {SPLIT_HEADLINE_YEAR}/{SPLIT_HEADLINE_YEAR + 1}",
+              fontsize=8.5, color="0.35", va="bottom")
+    ax_a.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax_a.set_xlabel("Hydrological year", fontsize=11)
+    ax_a.set_ylabel("Summer minimum relative to band mean (mm)", fontsize=11)
+    ax_a.set_title("(a) Yearly mean summer minimum by distance band\n(fixed well set)",
+                   fontsize=12)
+    ax_a.legend(fontsize=8.5, frameon=False, loc="upper right", ncol=2)
+    _lo, _hi = ax_a.get_ylim()
+    ax_a.set_ylim(_lo, _hi + 0.35 * (_hi - _lo))     # head-room for the legend
+    ax_a.tick_params(labelsize=9.5)
+
+    d_all = long_band.groupby("well")["dist_coast_m"].first()
+    dd = np.linspace(0.0, float(d_all.max()) * 1.02, 400)
+    ax_b.plot(dd, _coastal_term(dd, fit_headline), color="black", lw=1.6,
+              label=(f"coastal term, δ₀ {fit_headline['popt'][0]:+.1f} mm/yr, "
+                     f"L {fit_headline['popt'][1]:.0f} m"))
+    for r in band_rows.itertuples():
+        w = [x for x in str(r.wells).split() if x in d_all.index]
+        if not w:
+            continue
+        short = (set(band_wells.loc[band_wells["short_record"], "well"])
+                 if band_wells is not None else set())
+        wl = [x for x in w if x not in short]
+        ws = [x for x in w if x in short]
+        ax_b.scatter(d_all[wl], _coastal_term(d_all[wl].values, fit_headline), s=30,
+                     color=colours[r.key], edgecolor="black", lw=0.4, zorder=3,
+                     label=f"{r.band}: {len(w)} wells ({len(ws)} short), "
+                           f"mean {r.coastal_mm_yr:+.1f} mm/yr")
+        if ws:
+            ax_b.scatter(d_all[ws], _coastal_term(d_all[ws].values, fit_headline), s=46,
+                         facecolor="white", edgecolor=colours[r.key], lw=1.6, zorder=3.5)
+        if np.isfinite(r.d_hi_m):
+            ax_b.axvline(r.d_hi_m, color="0.85", lw=0.8, zorder=0)
+    if band_wells is not None and band_wells["short_record"].any():
+        ax_b.scatter([], [], s=46, facecolor="white", edgecolor="0.3", lw=1.6,
+                     label=f"open marker: record < {BAND_FIXED_MIN_YEARS} years")
+    ax_b.set_xlabel("Distance from the shore (m)", fontsize=11)
+    ax_b.set_ylabel("Coastal term δ(d) (mm/yr)", fontsize=11)
+    ax_b.set_title("(b) Headline coastal line at each well's distance", fontsize=12)
+    ax_b.legend(fontsize=8.5, frameon=False, loc="lower right")
+    ax_b.tick_params(labelsize=9.5)
+    fig.tight_layout()
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -4663,6 +5579,99 @@ def main() -> None:
         partitions[m["key"]] = part
         per_wells[m["key"]] = pw
 
+    # ── Paper C: distance bands, the 2011 split, the breach tests (1.40.0) ──
+    # The band well set is the full panel with CEH17 / CEH19 back in. The
+    # forest-free headline drops them on land cover either way; asserted, so a
+    # change to in_forest that let them into the headline would stop the run
+    # rather than move a published value unannounced.
+    step("Paper C: decline by distance from the shore")
+    long_band = load_panel(distances, clearfell_zone=BAND_CLEARFELL_ZONE)
+    _ff_band = load_panel(distances, exclude_forested=True,
+                          clearfell_zone=BAND_CLEARFELL_ZONE)
+    if set(_ff_band["well"]) != set(long_ff["well"]):
+        raise RuntimeError(
+            "restoring CEH17/CEH19 would change the forest-free headline panel "
+            f"({sorted(set(_ff_band['well']) ^ set(long_ff['well']))}); the band "
+            "well set is no longer separable from the headline")
+    info(f"band panel {long_band['well'].nunique()} wells (full panel "
+         f"{long_full['well'].nunique()} + {', '.join(sorted(set(long_band['well']) - set(long_full['well'])))}); "
+         "forest-free headline panel unchanged")
+    bands, band_series, band_wells = distance_band_decomposition(long_band, fit_ff_l)
+    # Open-dune sensitivity (Martin 2026-11-25): same decomposition, open-dune wells only.
+    od_set, od_basis = open_dune_wells(long_band)
+    long_od_band = long_band[long_band["well"].isin(od_set)]
+    long_od_ff = long_ff[long_ff["well"].isin(od_set)]
+    info(f"open-dune set: {len(od_set)} wells (open ground {od_basis['n_open_ground']}, "
+         f"outside {od_basis['buffer_m']:.0f} m of the plantation edge; CEH12 out): "
+         f"{' '.join(sorted(od_set))}")
+    _b_od, _s_od, _w_od = distance_band_decomposition(long_od_band, fit_ff_l,
+                                                      spec="open_dune",
+                                                      min_wells=OPEN_DUNE_MIN_WELLS)
+    _b_od["plantation_buffer_m"] = od_basis["buffer_m"]
+    for _r in _b_od[_b_od["not_computed"] != ""].itertuples():
+        warn(f"open dune, {_r.band}: {_r.not_computed} — not computed")
+    band_wells["dist_plantation_edge_m"] = band_wells["well"].map(od_basis["dist_edge"])
+    band_wells["open_dune"] = band_wells["well"].isin(od_set)
+    _w_od["dist_plantation_edge_m"] = _w_od["well"].map(od_basis["dist_edge"])
+    _w_od["open_dune"] = True
+    bands_net, band_series_net = bands, band_series
+    bands = pd.concat([bands, _b_od], ignore_index=True)
+    band_series = pd.concat([band_series, _s_od], ignore_index=True)
+    band_wells = pd.concat([band_wells, _w_od], ignore_index=True)
+    bands.to_csv(paths.OUT_25_DISTANCE_BANDS, index=False)
+    saved(paths.OUT_25_DISTANCE_BANDS.name)
+    band_wells.to_csv(paths.OUT_25_DISTANCE_BAND_WELLS, index=False)
+    saved(paths.OUT_25_DISTANCE_BAND_WELLS.name,
+          f"{len(band_wells)} wells, {int(band_wells['short_record'].sum())} short records")
+    band_series.to_csv(paths.OUT_25_DISTANCE_BAND_SERIES, index=False)
+    saved(paths.OUT_25_DISTANCE_BAND_SERIES.name)
+    print(bands[["spec", "band", "n_wells", "observed_mm_yr", "n_wells_fixed",
+                 "observed_fixed_mm_yr", "coastal_mm_yr"]].round(1).to_string(index=False))
+    plot_distance_bands(band_series_net, bands_net, long_band, fit_ff_l,
+                        paths.OUT_25_DISTANCE_BAND_FIG,
+                        band_wells=band_wells[band_wells["spec"] == "network"])
+    saved(paths.OUT_25_DISTANCE_BAND_FIG.name)
+
+    step("Paper C: the headline specification before and after 2011")
+    # Script 40 runs LATER in the pipeline; its committed epoch series is read
+    # if present (a guarded backward read: the series is fixed by the
+    # digitised coastlines, so it does not change from run to run).
+    if paths.OUT_40_EPOCH_SERIES.exists():
+        _epochs = pd.read_csv(paths.OUT_40_EPOCH_SERIES)
+    else:
+        warn(f"{paths.OUT_40_EPOCH_SERIES.name} not found (Script 40 has not run): "
+             "the retreat columns of 25_20 are NaN")
+        _epochs = None
+    split = split_2011_test(long_ff, long_band, cwb, _epochs,
+                            p0=[-30.0, 1000.0, -5.0],      # as the headline fit
+                            bounds=([-200, 100, -30], [50, 10000, 30]))
+    split = pd.concat([split, split_2011_test(
+        long_od_ff, long_od_band, cwb, _epochs,
+        p0=[-30.0, 1000.0, -5.0], bounds=([-200, 100, -30], [50, 10000, 30]),
+        spec="open_dune")], ignore_index=True)
+    split.to_csv(paths.OUT_25_SPLIT_2011, index=False)
+    saved(paths.OUT_25_SPLIT_2011.name)
+    print(split[["spec", "split_year", "window", "window_start", "window_end", "n_wells",
+                 "delta_0_mm_yr", "L_m", "c_mm_yr", "usable", "climate_term_mm_yr",
+                 "rate_150m_mm_yr", "contrast_150_1300_mm_yr", "raw_contrast_mm_yr",
+                 "retreat_rate_m_yr"]].round(2).to_string(index=False))
+    for _line in split_2011_verdict(split).splitlines():
+        result("split 2011", _line)
+
+    step("Paper C: breach tests (step vs trend, propagation, drainage)")
+    steps = step_vs_trend(long_band, cwb)
+    steps.to_csv(paths.OUT_25_STEP_VS_TREND, index=False)
+    saved(paths.OUT_25_STEP_VS_TREND.name, f"{len(steps)} wells")
+    prop = step_propagation(steps)
+    print(prop.round(4).to_string(index=False))
+    drain, t_split = drainage_change(long_band, steps)
+    drain.to_csv(paths.OUT_25_DRAINAGE_CHANGE, index=False)
+    saved(paths.OUT_25_DRAINAGE_CHANGE.name, f"{len(drain)} wells")
+    for _line in breach_verdict(steps, prop, drain, t_split).splitlines():
+        result("breach", _line)
+    paper_c_rows = (distance_band_rows(bands) + split_2011_rows(split)
+                    + breach_rows(steps, prop, drain, t_split))
+
     # ── Spring-vs-summer comparison (needs both metrics) ──
     if "summer_min" in partitions and "spring_mean" in partitions:
         print("\n  Building spring-vs-summer comparison ...")
@@ -4688,6 +5697,8 @@ def main() -> None:
             [report, pd.DataFrame(correction_dispersion_rows(
                 corr_diags.get("summer_min")))],
             ignore_index=True)
+        # 1.40.0: Paper C distance bands, split-2011 and breach tests.
+        report = pd.concat([report, pd.DataFrame(paper_c_rows)], ignore_index=True)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")
@@ -4706,6 +5717,10 @@ def main() -> None:
     print("    25_09_season_interaction_test.csv")
     print("    25_10_record_length_composition.csv / _spring.csv")
     print("    25_11_matched_window_sensitivity.csv  (reported only)")
+    print("    25_17_distance_band_decomposition.csv / 25_18_distance_band_series.csv / 25_19_distance_bands.png")
+    print("    25_17b_distance_band_wells.csv")
+    print("    25_20_split_2011.csv")
+    print("    25_21_step_vs_trend.csv / 25_22_drainage_change.csv")
     print("    25_report_numbers.csv")
     info("Script 25 complete.\n")
 

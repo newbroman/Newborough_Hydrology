@@ -28,7 +28,10 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.4.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): the CEH36 SSM frame keeps months
+__version__ = "2.5.0"  # Hollingham (2026) — 2026-11-25 (D-332, D-343). The CEH36 forward residual fits the fitted-floor SSM
+#   (intercept alpha) on the pre-2015 baseline and steps it forward with alpha, as the headline model; it was the
+#   no-intercept form at DRAINAGE_DATUM. Paper 2's +0.100 m moves.
+# "2.4.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): the CEH36 SSM frame keeps months
 #   without a level so its shifts are one calendar month; the baseline fit drops cross-
 #   gap pairs, the forward run steps through every month of weather and starts from the
 #   last MEASURED pre-2015 month.
@@ -148,12 +151,13 @@ def main():
 
     if len(ts_base) >= 36:
         X_fit = pd.DataFrame({
+            "alpha": 1.0,   # 2.5.0: the fitted floor (D-332)
             "P": ts_base["P_lag1"],
             "PET_neg": -ts_base["PET"],
             "h_neg": -(DRAINAGE_DATUM + ts_base["h_prev"]),
         })
         model = sm.OLS(ts_base["dh"].values, X_fit.values).fit()
-        b1, b2, b3 = model.params
+        a0, b1, b2, b3 = model.params
 
         # Forward simulation
         ts_fwd = ts.copy()
@@ -171,7 +175,7 @@ def main():
                 PET_t = ts_fwd.loc[dt, "PET"]
                 if np.isnan(P_t) or np.isnan(PET_t):
                     continue
-                dh_pred = b1 * P_t - b2 * PET_t - b3 * (DRAINAGE_DATUM + h_pred)
+                dh_pred = a0 + b1 * P_t - b2 * PET_t - b3 * (DRAINAGE_DATUM + h_pred)
                 h_pred = h_pred + dh_pred
                 ts_fwd.loc[dt, "h_pred"] = h_pred
 

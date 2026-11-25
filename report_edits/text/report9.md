@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=d54ee96a0ec57530 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=4a74638a24191857 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -559,7 +559,7 @@ Any scraping benefit therefore has to be measured after allowing for this backgr
 
 -   **Raw BACI against CEH4:** +0.128 m.
 -   **Synthetic control** from 11 donor wells: +0.141 m.
--   **SSM forward residual:** +0.100 m. This is an autonomous-forecast estimator and the most conservative of the three.
+-   **SSM forward residual:** +0.106 m. This is an autonomous-forecast estimator and the most conservative of the three.
 
 The two control-differenced methods (the first two) agree closely.
 
@@ -587,38 +587,38 @@ The two control-differenced methods (the first two) agree closely.
 
 **β₃ rises at the treated well CEH36, but it rises as much at its unscraped control CEH4, so the change is not read as a scraping effect (Table 18; Figure 22).** Era by era:
 
--   **CEH36** (treatment): 0.084 at baseline → 0.139 in the Pure Scraping era.
--   **CEH4** (its control): 0.070 → 0.162 over the same period, a comparable increase.
--   **CEH18** (treatment): 0.075 at baseline → 0.098 → 0.146 after the October 2023 scraping.
--   **CEH21** (treatment): 0.103 → 0.052 → 0.095, recovering (not significant).
--   **CEH22** (CEH21\'s control): flat, at 0.140, 0.140 and 0.155.
+-   **CEH36** (treatment): 0.105 at baseline → 0.151 in the Pure Scraping era.
+-   **CEH4** (its control): 0.081 → 0.168 over the same period, a comparable increase.
+-   **CEH18** (treatment): 0.089 at baseline → 0.122 → 0.157 after the October 2023 scraping.
+-   **CEH21** (treatment): 0.114 → 0.074 → 0.108, recovering (not significant).
+-   **CEH22** (CEH21\'s control): flat, at 0.168, 0.198 and 0.192.
 
 The β₃ increase is shared by the unmanipulated CEH4 but not by CEH22. The per-well era estimates, with confidence intervals and p-values, are in Table 18; their reading is in Section 5.4.3.
 
   ------- ----------- ------------------ ------- ------------------- --------- --------
   Well    Role        Era                β₃      95% CI              p-value   Sig
-  CEH36   Treatment   Baseline           0.084   \[0.004, 0.163\]    0.041     \*
-  CEH36   Treatment   Pure Scraping      0.139   \[0.057, 0.220\]    0.002     \*\*
-  CEH36   Treatment   Felling Pulse      0.110   \[0.053, 0.168\]    \<0.001   \*\*\*
-  CEH18   Treatment   Baseline           0.075   \[0.037, 0.114\]    \<0.001   \*\*\*
-  CEH18   Treatment   Felling Pulse      0.098   \[0.020, 0.176\]    0.014     \*
-  CEH18   Treatment   After Scraping     0.146   \[0.012, 0.279\]    0.034     \*
-  CEH21   Treatment   Baseline           0.103   \[0.052, 0.153\]    \<0.001   \*\*\*
-  CEH21   Treatment   Coastal Drawdown   0.052   \[−0.006, 0.109\]   0.080     ns
-  CEH21   Treatment   After Scraping     0.095   \[−0.018, 0.208\]   0.095     ns
-  CEH4    Control     Baseline           0.070   \[0.026, 0.114\]    0.002     \*\*
-  CEH4    Control     Pure Scraping      0.162   \[0.079, 0.244\]    \<0.001   \*\*\*
-  CEH4    Control     Felling Pulse      0.113   \[0.064, 0.162\]    \<0.001   \*\*\*
-  CEH22   Control     Baseline           0.140   \[0.088, 0.192\]    \<0.001   \*\*\*
-  CEH22   Control     Coastal Drawdown   0.140   \[0.062, 0.217\]    \<0.001   \*\*\*
-  CEH22   Control     After Scraping     0.155   \[0.007, 0.302\]    0.040     \*
+  CEH36   Treatment   Baseline           0.105   \[0.026, 0.184\]    0.010     \*
+  CEH36   Treatment   Pure Scraping      0.151   \[0.071, 0.231\]    \<0.001   \*\*\*
+  CEH36   Treatment   Felling Pulse      0.139   \[0.082, 0.195\]    \<0.001   \*\*\*
+  CEH18   Treatment   Baseline           0.089   \[0.051, 0.127\]    \<0.001   \*\*\*
+  CEH18   Treatment   Felling Pulse      0.122   \[0.044, 0.200\]    0.003     \*\*
+  CEH18   Treatment   After Scraping     0.157   \[0.026, 0.289\]    0.021     \*
+  CEH21   Treatment   Baseline           0.114   \[0.063, 0.164\]    \<0.001   \*\*\*
+  CEH21   Treatment   Coastal Drawdown   0.074   \[0.016, 0.132\]    0.014     \*
+  CEH21   Treatment   After Scraping     0.108   \[−0.002, 0.219\]   0.055     ns
+  CEH4    Control     Baseline           0.081   \[0.038, 0.125\]    \<0.001   \*\*\*
+  CEH4    Control     Pure Scraping      0.168   \[0.088, 0.249\]    \<0.001   \*\*\*
+  CEH4    Control     Felling Pulse      0.130   \[0.081, 0.179\]    \<0.001   \*\*\*
+  CEH22   Control     Baseline           0.168   \[0.119, 0.218\]    \<0.001   \*\*\*
+  CEH22   Control     Coastal Drawdown   0.198   \[0.120, 0.276\]    \<0.001   \*\*\*
+  CEH22   Control     After Scraping     0.192   \[0.056, 0.327\]    0.008     \*\*
   ------- ----------- ------------------ ------- ------------------- --------- --------
 
 **Table :** Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95% confidence intervals. Treatment wells (CEH36, CEH18, CEH21) shaded mid-grey; control wells (CEH4, CEH22) shaded light grey. The β₃ changes at the control wells are not read as a scraping effect: CEH4 rises in the Pure Scraping era, before the December 2017 clearfell, and falls again in the Felling Pulse, and CEH22 is flat within its confidence intervals. Treatment-well era-specific β₃ estimates are plotted in Figure 22. Significance: \*\*\* p \< 0.001, \*\* p \< 0.01, \* p \< 0.05. (Source: 09_scrape_04b_beta3_era_summary.csv).
 
 ******
 
-![**Figure : ** Era-specific β₃ storage decay coefficients with 95% confidence intervals at scraping treatment wells (CEH36, CEH18, CEH21) and their unscraped controls (CEH4, CEH22). Each symbol represents a management era: Baseline (hollow circle), Pure Scraping (filled square), Felling Pulse (triangle), After Scraping (diamond) and Coastal Drawdown (inverted triangle). Where confidence intervals overlap between eras, β₃ changes are not statistically distinguishable. CEH36 rises from Baseline (0.084) to Pure Scraping (0.139) and eases to 0.110 in the Felling Pulse, though the confidence intervals overlap across all three eras. CEH18 rises from Baseline (0.075) through Felling Pulse (0.098) to 0.146 after the October 2023 scraping; that estimate differs from zero (p = 0.034), but its wide confidence interval \[0.012, 0.279\] overlaps both earlier eras. CEH21\'s Coastal Drawdown estimate (0.052, ns) and After Scraping estimate (0.095, ns) are not significant. Control wells (CEH4, CEH22) are drawn faded, to the right of the dashed separator; CEH4\'s β₃ rises in the Pure Scraping era and falls in the Felling Pulse as CEH36\'s does, while CEH22\'s is flat, which is why the cross-era changes are not read as a scraping effect (full control values in Table 18). (Source: 09_scrape_07_beta3_confidence.png).](Pictures/1000000100000755000003F79797EDE3.png "fig:"){width="6.2217in" height="3.3646in"}
+![**Figure : ** Era-specific β₃ storage decay coefficients with 95% confidence intervals at scraping treatment wells (CEH36, CEH18, CEH21) and their unscraped controls (CEH4, CEH22). Each symbol represents a management era: Baseline (hollow circle), Pure Scraping (filled square), Felling Pulse (triangle), After Scraping (diamond) and Coastal Drawdown (inverted triangle). Where confidence intervals overlap between eras, β₃ changes are not statistically distinguishable. CEH36 rises from Baseline (0.105) to Pure Scraping (0.151) and eases to 0.139 in the Felling Pulse, though the confidence intervals overlap across all three eras. CEH18 rises from Baseline (0.089) through Felling Pulse (0.122) to 0.157 after the October 2023 scraping; that estimate differs from zero (p = 0.021), but its wide confidence interval \[0.026, 0.289\] overlaps both earlier eras. CEH21\'s Coastal Drawdown estimate (0.074, ns) and After Scraping estimate (0.108, ns) are not significant. Control wells (CEH4, CEH22) are drawn faded, to the right of the dashed separator; CEH4\'s β₃ rises in the Pure Scraping era and falls in the Felling Pulse as CEH36\'s does, while CEH22\'s is flat, which is why the cross-era changes are not read as a scraping effect (full control values in Table 18). (Source: 09_scrape_07_beta3_confidence.png).](Pictures/1000000100000755000003F79797EDE3.png "fig:"){width="6.2217in" height="3.3646in"}
 
 ### []{#anchor-15}**Summer Minima**
 
@@ -713,7 +713,7 @@ The BACI-corrected Δβ₃ does not decay with distance from CEH36, its sign rev
 -   **Timescale.** The aquifer diffusivity timescale L_B²Sₐ/(Kb) exceeds seven years at a separation of 570 m (Fetter, 2001), against a 31-month post-scraping record.
 -   **Depth of cut.** The inferred ground surface lowering at CEH36 is approximately 0.35 m, back-calculated as d_ex = H₀/Sₐ from the measured BACI step H₀ ≈ 0.13 m and CEH36\'s own Sₐ ≈ 0.37, the value the scenarios of Section 4.5.6 also use. This is consistent with field observation of the cut.
 -   **Re-equilibration.** The water-table shallowing partially re-equilibrates over approximately two years, leaving +128 mm as the BACI-corrected benefit in the Pure Scraping era (Section 4.5.2).
--   **Lasting effect.** The SSM forward residual (Figure 21b) stays positive through this period (+0.100 m over the Pure Scraping era; Figure 21c), consistent with a lasting lowering of the ground surface.
+-   **Lasting effect.** The SSM forward residual (Figure 21b) stays positive through this period (+0.106 m over the Pure Scraping era; Figure 21c), consistent with a lasting lowering of the ground surface.
 
 ![**Figure :** Climate-corrected spatial step-change map for the scraping era (April 2015 -- November 2017). Each well\'s step relative to its pre-scraping mean, corrected by subtracting the C3 control centroid step. The localized response at CEH36 and absence of a spatial gradient uphill at well distances of 250--780 m within the 31-month observation window are consistent with the scraping effect being either spatially confined or propagating on timescales longer than the available record (Section 5.4.3). (Source: 10b_spatial_scrape_corrected.png)](Pictures/10000001000007240000058047B77BB4.png "fig:"){width="6.2217in" height="4.7922in"}
 

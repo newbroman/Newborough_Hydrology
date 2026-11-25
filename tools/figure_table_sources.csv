@@ -73,6 +73,7 @@ Paper1_v*.odt,Table,Table2,16_water_bal_table.csv
 Paper1_v*.odt,Table,Table3,16_water_bal_vol_table.csv
 Paper1_v*.odt,Table,Table4,17_wtf_01_sy_estimates.csv
 Paper1_v*.odt,Table,Table6,07_coeff_05_cluster_ranges.csv
+Paper1_v*.odt,Table,Table7,14_summer_trend_stats.csv
 Paper1_v*.odt,Table,Table8,10c_forest_zone_correlations.csv
 academic_Summary_v*.odt,Table,Table1,03_03_cluster_mechanistic_coefficients.csv
 Hollingham_2026_Paper2_amended_v*.odt,Table,Table1,10a_01_ancova_comparison_table.csv
@@ -89,6 +90,7 @@ Supplementary_Material_v*.odt,Table,Table2,03_03_cluster_mechanistic_coefficient
 PaperM_v*.odt,Table,Table1,08_cluster_nse_medians.csv
 PaperM_v*.odt,Table,Table2,16_water_bal_rec_table.csv
 PaperM_v*.odt,Table,Table3,16_water_bal_table.csv
+PaperM_v*.odt,Table,TableFloors,48_report_numbers.csv
 PAPER1_SI_methods_v*.odt,Table,Table6,25_01_panel_fit_parameters.csv
 report9.odt,Table,1.19,09c_report_numbers.csv
 report9.odt,Table,1.20,09c_09_summer_minima_baci_table.csv

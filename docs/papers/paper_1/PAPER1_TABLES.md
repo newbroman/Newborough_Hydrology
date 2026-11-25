@@ -17,7 +17,7 @@ below verified present in the committed tree.*
 | 4 | `17_wtf_specific_yield/17_wtf_01_sy_estimates.csv` | 17 | Specific yield by cluster, WTF method — event-median (Approach B) |
 | 5 | `07_spatial_coefficients/07_coeff_05_cluster_ranges.csv` | 07 | Per-well SSM coefficient ranges by cluster |
 | 6 | `10c_forest_zone_correlations.csv` | 10c | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r (p) |
-| 7 | `25_coastal_gradient/25_03_cluster_partition.csv` | 25 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate (mm/yr) |
+| 7 | `14_climate_projections/14_summer_trend_stats.csv` | 14 | Trend in the annual summer minimum by cluster (mm/yr), full record and from 2011 (§4.11; D-343, 2026-11-25; table_gen paper1/Table7) |
 
 The SSM-versus-TLM benchmark table (formerly Table 5) moved to the companion methods paper
 on 2026-10-08 (D-244), where it is Paper M Table 1 (`08_model_benchmarking/08_cluster_nse_medians.csv`);
@@ -61,3 +61,6 @@ water-balance partitions and decomposition shares all recompute on pipeline reru
 `audit_number_drift.py` diffs the committed CSVs between two commits and flags values a
 document still prints, which catches drift but not renamed files or columns; those need
 checking by hand against the paths above.
+
+The coastal decomposition table (Table 7 until 2026-11-24) went to Paper C with the coastal material (J-29). Table 7
+is now §4.11's summer-minimum trends (D-343, 2026-11-25).

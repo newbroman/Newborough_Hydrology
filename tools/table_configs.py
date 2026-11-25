@@ -115,7 +115,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-11-24 (Paper 1 review). paper1/Table2: C4's residual prints —†
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-11-25 (D-343). paper1/Table7 added: the trend in the annual summer
+#   minimum by cluster (Script 14's 14_summer_trend_stats.csv), Paper 1's new §4.11. paperM/Table1 and Table2 headers
+#   say "fitted floor" for "Model B" (D-342 names; Paper M v1_57).
+# 1.26.0  # Hollingham (2026) — 2026-11-24 (Paper 1 review). paper1/Table2: C4's residual prints —†
 #   (zero by construction, its drainage taken by difference); paper1/Table9 retired with Paper 1's §4.11.
 # 1.25.0  # Hollingham (2026) — 2026-11-24 (J-16). report9 §4.6's four tables: TableClearfellFourZone
 #   (10k_01 + 10l_01), TableClearfellSeasonal (run_10's 10_16), TableClearfellRobustness (run_10's 10_17),
@@ -1524,8 +1527,8 @@ TABLES = [
         "rows": {"source": "nse"},
         # 2026-11-18 (J-18, D-334): Paper M v1_48 restructured on one model; the Model A columns leave the table
         # (they stay in the CSV as the robustness record).
-        "header": ["Cluster", "n", "Median NSE, TLM", "Median NSE, Model B",
-                   "NSE > 0, TLM", "NSE > 0, Model B"],
+        "header": ["Cluster", "n", "Median NSE, TLM", "Median NSE, fitted floor",
+                   "NSE > 0, TLM", "NSE > 0, fitted floor"],
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {
                 "C1": "C1 Lake Edge",
@@ -1588,7 +1591,7 @@ TABLES = [
         "sources": {"rec": "outputs/16_water_balance/16_water_bal_rec_table.csv",
                     "r55": "outputs/55_water_balance_drainage/55_report_numbers.csv"},
         "rows": {"source": "rec"},
-        "header": ["Cluster", "Model B", "Recession ratio", "Water balance"],
+        "header": ["Cluster", "Fitted floor", "Recession ratio", "Water balance"],
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {
                 "1": "C1 Lake Edge",
@@ -1616,6 +1619,26 @@ TABLES = [
             {"fmt": "template", "template": "{beta_1_recharge_min:.3f}–{beta_1_recharge_max:.3f}"},
             {"fmt": "template", "template": "{beta_2_atmospheric_draw_min:.3f}–{beta_2_atmospheric_draw_max:.3f}"},
             {"fmt": "template", "template": "{beta_3_drainage_min:.3f}–{beta_3_drainage_max:.3f}"},
+        ],
+    },
+    {
+        # 2026-11-25 (D-343): Paper 1 §4.11. Fixed-effects centroid series (Script 14 1.8.0, D-202); full record and
+        # from config.EXTREMES_ROBUSTNESS_START (2011). Slopes in mm/yr (Slope_m_per_yr x 1000).
+        "id": "paper1/Table7",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table7",
+        "caption": "Paper 1 - trend in the annual summer minimum by cluster (Script 14)",
+        "sources": {"st": "outputs/14_climate_projections/14_summer_trend_stats.csv"},
+        "rows": {"source": "st"},
+        "header": ["Cluster", "n", "Full record", "R²", "p", "From 2011", "p"],
+        "columns": [
+            {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"col": "n_years", "fmt": "int"},
+            {"col": "Slope_m_per_yr", "fmt": "fixed", "dp": 1, "scale": 1000},
+            {"col": "R2", "fmt": "fixed", "dp": 3},
+            {"col": "p_value", "fmt": "pvalue", "dp": 3},
+            {"col": "Slope_m_per_yr_robust", "fmt": "fixed", "dp": 1, "scale": 1000, "sign": True},
+            {"col": "p_value_robust", "fmt": "pvalue", "dp": 2},
         ],
     },
     {

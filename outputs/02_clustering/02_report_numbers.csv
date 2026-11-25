@@ -35,6 +35,16 @@ cluster_stability_median_min_stable_k5,,k=5,0.9802567888414756,,"lowest per-clus
 bootstrap_n_resamples,,,1000.0,count,config.CLUSTER_BOOT_N
 bootstrap_k_min,,,4.0,,config.CLUSTER_BOOT_K_RANGE
 bootstrap_k_max,,,7.0,,config.CLUSTER_BOOT_K_RANGE
+cluster_period_kept_pre_C1,,split 2018-01-01,6.0,count,wells of full-record C1 (Lake Edge) (n=7) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C1,,split 2018-01-01,7.0,count,wells of full-record C1 (Lake Edge) (n=7) placed together in the cluster of the same name in the post-split partition
+cluster_period_kept_pre_C2,,split 2018-01-01,15.0,count,wells of full-record C2 (Dune) (n=19) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C2,,split 2018-01-01,16.0,count,wells of full-record C2 (Dune) (n=19) placed together in the cluster of the same name in the post-split partition
+cluster_period_kept_pre_C3,,split 2018-01-01,22.0,count,wells of full-record C3 (Western Residual) (n=26) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C3,,split 2018-01-01,11.0,count,wells of full-record C3 (Western Residual) (n=26) placed together in the cluster of the same name in the post-split partition
+cluster_period_kept_pre_C4,,split 2018-01-01,9.0,count,wells of full-record C4 (Main Forest) (n=9) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C4,,split 2018-01-01,9.0,count,wells of full-record C4 (Main Forest) (n=9) placed together in the cluster of the same name in the post-split partition
+cluster_period_kept_pre_C5,,split 2018-01-01,0.0,count,wells of full-record C5 (Coastal Forest) (n=5) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C5,,split 2018-01-01,5.0,count,wells of full-record C5 (Coastal Forest) (n=5) placed together in the cluster of the same name in the post-split partition
 cluster_period_split_date,,,2018-01-01,date,first month of the second half in the pre/post clustering test (config.MODEL_AB_SPLIT_DATE)
 cluster_period_ari_pre_post,,split 2018-01-01,0.5779251539554714,,"adjusted Rand index between Ward k=5 partitions fitted before and after the split, on the 66 wells both halves carry"
 cluster_period_ari_pre_post_p,,split 2018-01-01,0.000999000999000999,,permutation p-value of that ARI (1000 shuffles of one half's labels)

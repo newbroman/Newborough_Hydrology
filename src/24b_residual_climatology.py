@@ -55,7 +55,10 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_METEOROLOGICAL_MONTHS, pairing with the WINTER_METEOROLOGICAL_MONTHS import added in batch one.
+__version__ = "1.5.1"  # Hollingham (2026) - 2026-11-25. The bump dee90029 (2026-11-07, D-155) missed: the blanket
+#   warnings.simplefilter("ignore") around the replacement KML read became two named filters (pyogrio driver chatter, the
+#   sequential-read notice), so any other warning is heard. Surfaced by ledger_lint once the clone was unshallowed.
+# 1.5.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_METEOROLOGICAL_MONTHS, pairing with the WINTER_METEOROLOGICAL_MONTHS import added in batch one.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No

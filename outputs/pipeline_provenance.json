@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T22:34:50",
+ "generated": "2026-11-25T14:04:52",
  "orchestrator": "2.33.0",
  "steps": {
   "00_climate_summary.py": {
@@ -735,9 +735,9 @@
     "outputs/22_residual_lag_analysis/22_02_ar1_spatial_map.png": "11947537efd4c8ed213a045fd56d9155e1bfde952682e808e651bf0f0f237dcf",
     "outputs/22_residual_lag_analysis/22_03_alpha_phi_scatter.png": "c80150065629c624b4e876fbbc0e3e28cfcc6ef69c9c89d4fca3ea1ee34da9c6",
     "outputs/22_residual_lag_analysis/22_04_example_residuals_by_cluster.png": "e83e1a773ece9de1f89716daa742e11bc90cea1fb222d0964ca448cd098f24ec",
-    "outputs/22_residual_lag_analysis/22_05_ssm_residual_autocorrelation.csv": "50e22cb287465703f6d0520581eed345041c25e9bcfcf04d9eb26c491a88125f",
-    "outputs/22_residual_lag_analysis/22_06_ssm_cluster_mean_inference.csv": "19da2ef3af3f52767ed7b68aae39bb7436777dd32cb53228b54b587cadea6213",
-    "outputs/22_residual_lag_analysis/22_report_numbers.csv": "2660a3b6e73ebc952e773c58773a77be915817f812df0a2185cb3f0f7b78dadf",
+    "outputs/22_residual_lag_analysis/22_05_ssm_residual_autocorrelation.csv": "499caae9c93525057095430345bbe42d1e2b44a5a1ca98b84593bfdc0212e92d",
+    "outputs/22_residual_lag_analysis/22_06_ssm_cluster_mean_inference.csv": "daf3af08cb17abe3edc5f23cfe7aaf72a1b69ef7bf6e7e209979ed3fa1c60a0c",
+    "outputs/22_residual_lag_analysis/22_report_numbers.csv": "34435508d6845ebc825974004897c055f6ba17bf92773a1510b1b1ed8759857d",
     "outputs/22_residuals_wide.csv": "3d421b94a85c5f10bce60f244b85332ad41b61df2e1f5c668f48e81eb5940778"
    },
    "fallbacks": [],
@@ -748,9 +748,9 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 5.8,
-   "started": "2026-11-24T21:24:59",
-   "version": "1.6.0"
+   "seconds": 12.4,
+   "started": "2026-11-25T14:04:39",
+   "version": "1.7.0"
   },
   "23_ridge_recharge_lag_test.py": {
    "emitted": {

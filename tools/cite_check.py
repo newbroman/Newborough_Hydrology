@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.45.0"  # Hollingham (2026) — 2026-11-24 (D-341 draft). CONSTANT_SOURCES gains
+__version__ = "1.46.0"  # Hollingham (2026) — 2026-11-25 (changelog 2026-11-25e). 22_05 publishes its beta_3 p-values
+#   (OLS and HAC): on the fitted floor (Script 22 1.7.0) the one HAC flip is CEH20's beta_3, quoted in the MS and Paper 1 SI.
+# "1.45.0"  # Hollingham (2026) — 2026-11-24 (D-341 draft). CONSTANT_SOURCES gains
 #   src/utils/publication.py, the publication years of the cited works (citation years become fields).
 # 1.44.0  # Hollingham (2026) — 2026-11-24 (J-15, T-208). The two Script 50 tables move with the split: 50_36 to
 #   50e_drier_epochs/, 50_24 to 50d_two_stores/. 1.43.0: 2026-11-23 (J-32). 25_03 n_wells_within_reach and 25_02_per_well_summer_min_slopes.csv
@@ -1027,7 +1029,8 @@ EXTRA_VALUE_TABLES = [
     ("outputs/26_van_willegen_msl/26_ewi_msl5_comparison.csv", "well",
      ["EWI_m_bg", "MSL5_obs_m_bg", "MSL5_pred_m_bg", "residual_mm"]),
     ("outputs/22_residual_lag_analysis/22_05_ssm_residual_autocorrelation.csv", "Well",
-     ["ar1_phi", "durbin_watson", "p_beta_2_ols", "p_beta_2_hac"]),
+     ["ar1_phi", "durbin_watson", "p_beta_2_ols", "p_beta_2_hac",
+      "p_beta_3_ols", "p_beta_3_hac"]),   # 1.46.0: Script 22 1.7.0's one flip is a beta_3 (CEH20)
     ("outputs/22_model_b_fits.csv", "Well", ["alpha", "ar1_phi", "R2"]),
     ("outputs/23_ridge_lag_fits.csv", "Well", ["alpha", "beta_10", "beta_11", "peak_lag", "phi_resid"]),
     ("outputs/06_pear_membership_audit_sitewide.csv", "Well_Normalised",

@@ -563,10 +563,10 @@
    }
   },
   "22_residual_lag_analysis.py": {
-   "recorded": "2026-11-24T21:25:05Z",
-   "sig": "6a56434e7e902a3b",
+   "recorded": "2026-11-25T14:04:52Z",
+   "sig": "a6e635e9fc1e2e7b",
    "utils": {
-    "utils/config.py": "65a2073b0da713ca",
+    "utils/config.py": "9ab854e6ffb7a9e7",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
     "utils/map_utils.py": "a5d899e45682d016",

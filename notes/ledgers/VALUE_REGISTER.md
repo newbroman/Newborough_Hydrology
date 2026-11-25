@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**201 output file(s)** supply **4509 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
+**201 output file(s)** supply **4508 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
 
 ## Cited quantities by output file
 
@@ -2521,7 +2521,6 @@
 | `22_05_ssm_residual_autocorrelation.csv` | T41d · durbin_watson | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | ceh14 · ar1_phi | Newborough_Methods_Supplement.md |
 |  | ceh16 · durbin_watson | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
-|  | ceh23 · p_beta_2_ols | Newborough_Methods_Supplement.md |
 |  | ceh25 · durbin_watson | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | ceh25 · p_beta_2_ols | Newborough_Methods_Supplement.md |
 |  | ceh27 · durbin_watson | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |

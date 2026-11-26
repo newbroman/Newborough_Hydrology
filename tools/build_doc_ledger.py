@@ -51,7 +51,10 @@ import subprocess
 import sys
 import datetime
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-21. See CHANGELOG above.
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-26 (the Fable gate review; D-327): declares the ODTs as an input - SKIP without them
+#   (a session without the Drive secret) instead of a crash or a false "STALE, regenerate"; a WRITE without them is
+#   refused, because it rebuilt the committed file from nothing (87 provenance-ledger lines deleted in the review).
+# 1.1.0  # Hollingham (2026) — 2026-09-21. See CHANGELOG above.
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 MANIFEST = REPO / "docs" / "PDF_MANIFEST.txt"
@@ -172,6 +175,16 @@ def main() -> int:
     ap.add_argument("--check", action="store_true",
                     help="fail if the committed ledger is stale against the live lag state; write nothing")
     a = ap.parse_args()
+    # 2026-11-26 (the Fable gate review; D-327): the ODTs are an input. Without them (a session without the
+    # Drive secret, CLAUDE.md 4g) this gate said STALE or crashed; it now says SKIP and names what is missing.
+    sys.path.insert(0, str(REPO / "tools"))
+    from gate_inputs import declare_inputs
+    _inp = declare_inputs("build_doc_ledger", odts=["report_edits/odt/report*.odt", "report_edits/odt/report.odm", "docs/papers/*/*.odt"])
+    if _inp.absent and not (a.check or a.stdout):
+        print("build_doc_ledger: REFUSED - no ODTs here; writing now would rebuild the committed file from nothing")
+        return 1
+    if _inp.absent:
+        return _inp.skip()
     text = build()
     if a.check:
         have = DEFAULT_OUT.read_text(encoding="utf-8") if DEFAULT_OUT.exists() else ""

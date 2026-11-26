@@ -24,7 +24,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-23 (J-32 for J-29). PaperC_SI_v*.odt, the SI of Paper C, joins the mirrors
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-11-26 (the Fable gate review; D-327): declares the ODTs as an input - SKIP without them
+#   (a session without the Drive secret) instead of a crash or a false "STALE, regenerate"; a WRITE without them is
+#   refused, because it rebuilt the committed file from nothing (87 provenance-ledger lines deleted in the review).
+# 1.10.0  # Hollingham (2026) - 2026-11-23 (J-32 for J-29). PaperC_SI_v*.odt, the SI of Paper C, joins the mirrors
 #   (its mirror is named for the family, beside PaperC's). The resolver keeps PaperC_v* and PaperC_SI_v* apart by the "_v" in the glob.
 # 1.9.0  # Hollingham (2026) - 2026-11-23 (J-31 for J-32 item 1). PaperC_v*.odt (Hollingham 2026f, born
 #   2026-11-23e) joins the mirrors (docs/papers/paper_C/text/PaperC.md), so field_sync.documents() sees its fields and
@@ -316,6 +319,16 @@ def main() -> int:
                     help="regenerate each mirror in a temp dir and byte-compare; "
                          "reads content, not timestamps")
     args = ap.parse_args()
+    # 2026-11-26 (the Fable gate review; D-327): the ODTs are an input. Without them (a session without the
+    # Drive secret, CLAUDE.md 4g) this gate said STALE or crashed; it now says SKIP and names what is missing.
+    sys.path.insert(0, str(REPO / "tools"))
+    from gate_inputs import declare_inputs
+    _inp = declare_inputs("refresh_mirrors", odts=["report_edits/odt/report*.odt", "report_edits/odt/report.odm", "docs/papers/*/*.odt"])
+    if _inp.absent and not (args.check or args.paths):
+        print("refresh_mirrors: REFUSED - no ODTs here; writing now would rebuild the committed file from nothing")
+        return 1
+    if _inp.absent:
+        return _inp.skip()
 
     jobs = resolve()
     if args.only:

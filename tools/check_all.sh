@@ -18,7 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.48.0 - 2026-11-26   a failing rule_audit selftest keeps its whole output in scratch/rule_audit_selftest_fail.log
+# VERSION 1.49.0 - 2026-11-26   the Fable gate review (Martin: "fix the whole check-all process"): cite_check
+#                               --index-only once (was 7 runs), task_lint once (register_lint reads its states),
+#                               task checks in parallel; selftest_gate keeps every failing selftest's output; the
+#                               summary JSON names the commits it judged; the ending lists the red sections; the
+#                               citation listing goes to scratch/. A missing private store is a FLAG (task_lint 1.4.0).
+# 1.48.0 - 2026-11-26   a failing rule_audit selftest keeps its whole output in scratch/rule_audit_selftest_fail.log
 #                               and shows its diag: lines - the 10a/11pre/14a failures went undiagnosed for two days
 #                               because the grep showed only the FAIL lines (rule_audit 1.2.0 found the cause).
 # 1.47.0 - 2026-11-24   year_field_lint --selftest and --check in the number-fields section (D-341 draft:
@@ -331,6 +336,21 @@ section() {
     _sec_t0="$(date +%s)"
 }
 
+# 1.49.0 (2026-11-26, the Fable gate review): ONE helper for a gated selftest. Fifteen ran `>/dev/null || rc=1`
+# and printed nothing at all when they failed; twenty more printed a name and threw the output away - which is
+# how rule_audit's intermittent failure stayed undiagnosed for two days. A failure now keeps the whole output in
+# scratch/selftest_fail_<tool>.log and shows its FAIL / diag lines.
+selftest_gate() {   # selftest_gate tools/x.py [--selftest-flag]
+    local tool="$1" flag="${2:---selftest}" name out
+    name="$(basename "$tool" .py)"
+    out="$(python3 "$tool" "$flag" 2>&1)" && return 0
+    mkdir -p scratch
+    printf '%s\n' "$out" > "scratch/selftest_fail_${name}.log"
+    echo "  FAIL ${name} ${flag} (full output: scratch/selftest_fail_${name}.log)"
+    printf '%s\n' "$out" | grep -E "FAIL|REFUSED|Error|diag:" | head -20 | sed 's/^/    /'
+    rc=1
+}
+
 _sec_write_summary() {
     _sec_flush
     mkdir -p "$(dirname "$GATE_SUMMARY")" 2>/dev/null || true
@@ -344,10 +364,31 @@ for line in tsv.read_text(encoding="utf-8").splitlines():
     name, verdict, seconds = (line.split("\t") + ["", "", ""])[:3]
     secs.append({"index": len(secs) + 1, "key": f"{len(secs) + 1:02d} {name}",
                  "section": name, "verdict": verdict, "seconds": int(seconds or 0)})
+def _judged():
+    # 1.49.0 (the Fable review: "the verdict names no commit"): WHAT was judged, so a commit message's quoted
+    # verdict has a witness - both HEADs, whether either tree was dirty, the store, the ODTs, the interpreter.
+    import glob, os, subprocess
+    def g(*a):
+        r = subprocess.run(["git", *a], capture_output=True, text=True)
+        return r.stdout.strip() if r.returncode == 0 else None
+    w = ["--git-dir=.git-working", "--work-tree=."]
+    pw = os.path.isdir(".git-working")
+    return {"public_head": g("rev-parse", "HEAD"), "public_dirty": bool(g("status", "--porcelain", "-uno")),
+            "private_head": g(*w, "rev-parse", "HEAD") if pw else None,
+            "private_dirty": bool(g(*w, "status", "--porcelain", "-uno")) if pw else None,
+            "private_store": "present" if pw else "ABSENT",
+            "odts": len(glob.glob("report_edits/odt/*.odt") + glob.glob("docs/papers/*/*.odt")),
+            "python": sys.version.split()[0]}
 out.write_text(json.dumps({
     "generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "host": platform.node(),
     "chat": __import__("os").environ.get("NRG_CHAT", ""),   # 1.43.0 (T-146): whose run this verdict is
+    # 1.49.0 (the Fable review: "the verdict names no commit"): WHAT was judged, so a commit message's quoted
+    # verdict has a witness - both HEADs, whether either tree was dirty, the store, the ODTs, the interpreter.
+    "judged": _judged(),
+    # 1.49.0: a verdict reached after --fix rewrote files says so ("OK after --fix")
+    "fixed_files": (int(__import__("os").environ["NRG_CHECK_ALL_FIXED"])
+                    if __import__("os").environ.get("NRG_CHECK_ALL_FIXED", "").isdigit() else None),
     "verdict": "OK" if total == "0" else "FAIL",
     "sections": secs,
     "counts": {"sections": len(secs),
@@ -402,6 +443,46 @@ python3 tools/env_audit.py --quiet --gate || rc=1
 # every gate green. Reads the venv's dist-info directly; passes where there is
 # no venv/ (a clone), because it cannot see the environment it would compare.
 python3 tools/freeze_requirements.py --check --quiet || rc=1
+# 1.49.0 (Martin, 2026-11-26: "The private repository should always be present, surely."): its absence is a FLAG
+# and a red, named once here, not a quiet SKIP in each gate that reads it. A public-only clone - the HQ daily pass
+# included - is red until both repositories are attached (tools/cloud_setup.sh).
+_store="$(python3 -c "import sys; sys.path.insert(0,'tools'); import doc_lock; s,w=doc_lock.store_state(); print(s+'|'+w)" 2>&1)"
+case "$_store" in
+    ABSENT\|*) echo "  FLAG  the private repository is ABSENT: ${_store#*|}"
+               echo "        it should always be present; attach it (tools/cloud_setup.sh) and run again"; rc=1 ;;
+    PRESENT*)  echo "  private store: ${_store%%|*}" ;;
+    *)         echo "  FAIL  could not read the private store's state: $_store"; rc=1 ;;
+esac
+
+# 1.49.0 (Martin approved 2026-11-26, the guarded form from the Fable gate review): --fix also rebuilds the TEXT
+# artefacts that go stale after an ordinary commit (ledgers, pipeline index, value ledger, public decisions, section
+# map, chat corpus) - the same commands ship_regenerate() runs - but ONLY where both stores and the ODTs are here:
+# in a session without them the provenance ledger builder deleted 87 committed lines and the doc ledger zeroed
+# itself. It refuses otherwise, and that refusal also stops --fix's ODT version sync and mirror rebuild. What it
+# rewrote is shown (ship_stage snapshot/diff, D-326), left uncommitted, and recorded in the summary. The DEFAULT run
+# never rebuilds: a stale artefact there stays red, which is ship_regen_lint's (R66) signal.
+_FIXED=""
+if [ "$FIX" = "1" ]; then
+    _odts=$(ls report_edits/odt/*.odt docs/papers/*/*.odt 2>/dev/null | wc -l)
+    if [ "${_store%%|*}" = "ABSENT" ] || [ "$_odts" -eq 0 ]; then
+        echo "  --fix REFUSED: it rebuilds only where the private store AND the ODTs are present (store ${_store%%|*}, ${_odts} ODTs)."
+        echo "        Nothing was rewritten; the run continues as a plain check."
+        FIX=0; rc=1
+    else
+        echo "  --fix: rebuilding the text artefacts (ship_regenerate's builders), with a before/after snapshot"
+        python3 tools/ship_stage.py snapshot scratch/check_all_fix_snapshot.json >/dev/null || rc=1
+        for t in build_figure_ledger build_provenance_ledger build_value_register build_doc_ledger \
+                 build_number_ledger build_pipeline_index build_public_decisions section_map build_chat_corpus; do
+            python3 "tools/${t}.py" >/dev/null || { echo "  FAIL --fix: ${t}"; rc=1; }
+        done
+        python3 tools/build_value_ledger.py --write >/dev/null || { echo "  FAIL --fix: build_value_ledger"; rc=1; }
+        _fix_out="$(python3 tools/ship_stage.py diff scratch/check_all_fix_snapshot.json 2>&1)"
+        printf '%s\n' "$_fix_out" | sed 's/^/  /'
+        _FIXED="$(printf '%s\n' "$_fix_out" | grep -oE 'changed [0-9]+ file' | grep -oE '[0-9]+' | head -1)"
+        echo "  --fix: ${_FIXED:-?} file(s) rewritten and left UNCOMMITTED - read the list above before committing"
+    fi
+fi
+export NRG_CHECK_ALL_FIXED="${_FIXED}"
 
 echo
 section "── document versions (does the text agree with the filename?) ───────"
@@ -424,7 +505,8 @@ else
         rc=1
     }
 fi
-# --check compares modification times and gates on them because it is instant.
+# --check compares CONTENT against the ODT on this disk (refresh_mirrors 1.3.0, 2026-09-08; this comment said
+# "modification times" until check_all 1.49.0). It is instant.
 # It cannot tell you whether a mirror is what its source PRODUCES. When that is
 # the question — a mirror that keeps coming back changed, a suspicion that two
 # pandocs disagree — `--verify` regenerates every mirror and compares bytes. It
@@ -461,7 +543,7 @@ python3 tools/record_basis_lint.py --quiet || rc=1
 # ... and does each methods section STATE it? Option B (Martin, 2026-09-21): a
 # statement per method, gated — tools/record_basis_claims.csv carries the
 # fragment each section must contain; code -> register -> sentence.
-python3 tools/record_basis_claims_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/record_basis_claims_lint.py --selftest
 python3 tools/record_basis_claims_lint.py --quiet || rc=1
 
 echo
@@ -493,7 +575,7 @@ section "── month steps (is every monthly change one calendar month?) ──
 # bridge filled the first month of longer gaps, and build_ssm_frame differenced
 # across holes: 151 of 13,211 reference-network pairs spanned 2-23 months.
 python3 tools/month_step_lint.py || rc=1
-python3 tools/month_step_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/month_step_lint.py --selftest
 
 echo
 section "── table sources (config, map and caption agree on number->source?) ──"
@@ -519,7 +601,7 @@ section "── number fields (does every field in every document equal its comm
 python3 tools/field_sync.py --check || rc=1
 # 1.47.0 (D-341 draft): a citation of Martin's own work prints its year from a field (src/utils/publication.py);
 # no document may hold more bare self-citation years than tools/year_field_inventory.csv allows.
-python3 tools/year_field_lint.py --selftest >/dev/null || { echo "year_field_lint --selftest: FAIL"; rc=1; }
+selftest_gate tools/year_field_lint.py --selftest
 python3 tools/year_field_lint.py --check || rc=1
 
 echo
@@ -553,14 +635,14 @@ section "── cross-references (does any chapter send the reader to the Supple
 # name the script that does it." A rule in a prose file is re-broken by every
 # fresh session; this is what checks it. xref_allow.csv lists the pointers
 # Martin has chosen, or has yet to rule on, each with its reason.
-python3 tools/xref_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/xref_lint.py --selftest
 python3 tools/xref_lint.py --quiet || rc=1
 echo
 
 section "── self-citations (does each paper letter the author's 2026 works the same way?) ──"
 # "Hollingham, 2026a" meant the report in Paper 1 and Paper 1 in Papers 2 and M; Paper 2 used one
 # label for two works. tools/self_citations.csv fixes one letter per work (Martin, 2026-10-06).
-python3 tools/self_cite_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/self_cite_lint.py --selftest
 python3 tools/self_cite_lint.py || rc=1
 echo
 
@@ -568,28 +650,28 @@ section "── retired wording (does any retired phrase or number reappear?) �
 # tau as a residence time, 117 measuring points, 8.4 ha, 1,172 ha, 53.15, the
 # stale step counts, an em space, a Pye & Blott figure: tools/retired_phrases.csv
 # is the list, each row with its reason; YYYY-MM-DD dates are advisory.
-python3 tools/retired_phrase_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/retired_phrase_lint.py --selftest
 python3 tools/retired_phrase_lint.py --quiet || rc=1
 echo
 
 section "── document net (is every ODT and mirror inside the drift net?) ──────"
 # The gap that has appeared three times: a glob that does not match the
 # filename hides a document from cite_check and audit_number_drift.
-python3 tools/docglob_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/docglob_lint.py --selftest
 python3 tools/docglob_lint.py --quiet || rc=1
 echo
 
 section "── file mentions (does every CSV or JSON a document names exist?) ────"
 # 17_wtf_well_sy.csv was retired on 2026-08-19 and four documents still named
 # it as current on 2026-09-21; nine more names were typos one script over.
-python3 tools/csv_mention_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/csv_mention_lint.py --selftest
 python3 tools/csv_mention_lint.py --quiet || rc=1
 # Scripts, tools and paths the ROOT documents name must exist (the documentation
 # layer: CLAUDE.md, MACHINE_SETUP, the READMEs, index.html, the bootstrap). The
 # 2026-09-24 audit found ./wgit and nrg_git.sh at the root a month after they
 # moved, a renamed script, two output files that never existed and a hand-typed
 # figure table on a numbering the report had left behind — none visible to a gate.
-python3 tools/mention_lint.py --selftest >/dev/null || { echo "  mention_lint --selftest: FAIL"; rc=1; }
+selftest_gate tools/mention_lint.py --selftest
 python3 tools/mention_lint.py || rc=1
 # Counts that root documents state — pipeline steps, packages pinned, ledgers,
 # report figures and tables, decisions, wells — are stamped from the tree into
@@ -661,7 +743,7 @@ section "── step/phase locators (do the MS step numbers match the manifest?)
 # drifted silently (Script 27 read "step 44" and "step 49" while the manifest
 # said 52). This keys each locator on the script beside it and checks its index,
 # total and phase against the manifest. GATED.
-python3 tools/step_number_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/step_number_lint.py --selftest
 python3 tools/step_number_lint.py || rc=1
 
 echo
@@ -688,8 +770,8 @@ echo
 section "── claims (who is doing what?) ──────────────────────────────────────"
 python3 tools/work_board.py --gate || true
 python3 tools/board_artifact.py --check || true          # 1.33.0: advisory - only a session can republish
-python3 tools/register_io.py --selftest >/dev/null || { echo "  FAIL register_io selftest"; rc=1; }
-python3 tools/ship_scope.py --selftest >/dev/null || { echo "  FAIL ship_scope selftest"; rc=1; }
+selftest_gate tools/register_io.py --selftest
+selftest_gate tools/ship_scope.py --selftest
 # 2026-11-06 (T-156): the detail is SHOWN on failure. This was `>/dev/null || echo FAIL`,
 # so a red printed one bare line and threw away every line naming the assertion that broke -
 # the same defect as the `tail -1` this file carried at line 378 until 1.36.0 (changelog
@@ -704,8 +786,8 @@ _dl_out="$(python3 tools/doc_lock.py --selftest 2>&1)" || {
 # 1.34.0 (D-301): the two registers NRG HQ runs on. Their self-tests are gated for the same reason
 # the three above are - they are what keeps one chat's work out of another's - and each register's
 # own --check lands on the day it is written (§4d: a generated artefact with no --check rots).
-python3 tools/chat_register.py --selftest >/dev/null || { echo "  FAIL chat_register selftest"; rc=1; }
-python3 tools/job_queue.py --selftest >/dev/null || { echo "  FAIL job_queue selftest"; rc=1; }
+selftest_gate tools/chat_register.py --selftest
+selftest_gate tools/job_queue.py --selftest
 # 1.38.0 (2026-11-07, Martin: "build the job runner"): the pass over that queue. Gated with its
 # detail shown, per T-156 - a selftest that knows which property failed must say which.
 _jr_out="$(python3 tools/job_runner.py --selftest 2>&1)" || {
@@ -718,10 +800,10 @@ python3 tools/chat_register.py --check || rc=1
 # makes the HQ page's name clickable, and a BARE session id there renders as a relative href that goes
 # nowhere - which is what all three populated rows held. The gate fails on a malformed link (fixable,
 # and green once fixed) and only counts the missing ones, which no chat can be compelled to supply.
-python3 tools/chat_links.py --selftest >/dev/null || { echo "  FAIL chat_links selftest"; rc=1; }
+selftest_gate tools/chat_links.py --selftest
 python3 tools/chat_links.py --check || rc=1
 python3 tools/job_queue.py --check || rc=1
-python3 tools/hq_snapshot.py --selftest >/dev/null || { echo "  FAIL hq_snapshot selftest"; rc=1; }
+selftest_gate tools/hq_snapshot.py --selftest
 python3 tools/hq_snapshot.py --check || rc=1
 python3 tools/hq_page.py --check || true                 # advisory - only a session can republish
 # 1.35.0 (D-301 phase 3, T-137): the conduct checks. The SELFTEST gates - a broken auditor is a
@@ -731,12 +813,7 @@ python3 tools/hq_page.py --check || true                 # advisory - only a ses
 # 2026-11-06 (T-156, second instance): the detail is SHOWN, as for doc_lock above. The first
 # fix caught doc_lock's selftest line and missed its twin here, and this one then failed in a
 # run while passing standalone — with nothing but "FAIL rule_audit selftest" to go on.
-_ra_out="$(python3 tools/rule_audit.py --selftest 2>&1)" || {
-  echo "  FAIL rule_audit selftest (full output: scratch/rule_audit_selftest_fail.log)"
-  printf '%s\n' "$_ra_out" > scratch/rule_audit_selftest_fail.log
-  printf '%s\n' "$_ra_out" | grep -E "FAIL|REFUSED|diag:" | sed 's/^/    /'
-  rc=1
-}
+selftest_gate tools/rule_audit.py   # 1.48.0's inline capture, now the shared helper (1.49.0)
 python3 tools/rule_audit.py --check || true              # report-only by design (D-302)
 
 echo
@@ -756,7 +833,7 @@ python3 tools/build_public_decisions.py --check || rc=1
 # the sources, rules, tools or page have moved since the chatbot was last built. The
 # ship rebuilds the public chatbot (chat/) itself; the private artifact copy is
 # republished by a session.
-python3 tools/build_chat_corpus.py --selftest >/dev/null || rc=1
+selftest_gate tools/build_chat_corpus.py --selftest
 python3 tools/build_chat_corpus.py --check || rc=1
 
 echo
@@ -764,26 +841,26 @@ section "── records (did the last session leave the records a session needs?
 # D-143. A rule that lives only in prose, an artefact nothing consumes and a
 # verdict that depends on neither is how the onboarding system was forgotten.
 # If this fails, the fix is to WRITE the record it names, never to skip it.
-python3 tools/session_handover.py --selftest >/dev/null || rc=1
+selftest_gate tools/session_handover.py --selftest
 python3 tools/session_handover.py --check || rc=1
 # Which rules have a gate at all. Martin, 2026-09-21: "now I am worried we
 # dont have adequate checks to ensure the project rules are followed" - after
 # a CLAUDE.md rule with no gate was broken six times in a morning.
 python3 tools/rule_gate_lint.py --quiet || rc=1
 # D-325 (T-202): every gated rule names its witness in tools/gate_witness.csv; the ones naming none are listed.
-python3 tools/witness_lint.py --selftest >/dev/null || { echo "  witness_lint --selftest: FAIL"; rc=1; }
+selftest_gate tools/witness_lint.py --selftest
 python3 tools/witness_lint.py || rc=1
 # D-326 (T-203): the ship's before/after comparison of what its regenerate changed.
-python3 tools/ship_stage.py --selftest >/dev/null || { echo "  ship_stage --selftest: FAIL"; rc=1; }
+selftest_gate tools/ship_stage.py --selftest
 # D-327 (T-204): the shared input declaration the gates use.
-python3 tools/gate_inputs.py --selftest >/dev/null || { echo "  gate_inputs --selftest: FAIL"; rc=1; }
+selftest_gate tools/gate_inputs.py --selftest
 # D-340 (draft): the scoped run - its plan, propagation by hash, settle loop and refusals.
-python3 tools/run_scope.py --selftest >/dev/null || { echo "  run_scope --selftest: FAIL"; rc=1; }
+selftest_gate tools/run_scope.py --selftest
 # The default review page (CLAUDE.md §7): mirror -> blocks, captions, figures from the ODT.
-python3 tools/review_page.py --selftest >/dev/null || { echo "  review_page --selftest: FAIL"; rc=1; }
+selftest_gate tools/review_page.py --selftest
 # D-213: the ship rebuilds every derived artefact this script gates, before
 # the gate. This keeps that list paired with the gates above and below.
-python3 tools/ship_regen_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/ship_regen_lint.py --selftest
 python3 tools/ship_regen_lint.py --quiet || rc=1
 # 1.39.0 (J-4): the PULL path, which is the other half of "a public commit without its working
 # commit is a change nobody can account for later" (CLAUDE.md §4f). Until nrg_git.sh 1.34.0,
@@ -802,7 +879,7 @@ section "── phases (which document is live; is every frozen write reasoned?)
 # D-144: one live document family at a time. odt_edit refuses a prose write to a
 # frozen family without a recorded reason; this gate keeps the register it
 # consults complete and consistent, so the refusal never fires for a missing row.
-python3 tools/doc_tier_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/doc_tier_lint.py --selftest
 python3 tools/doc_tier_lint.py || rc=1
 
 echo
@@ -810,13 +887,13 @@ section "── ledgers (does SCRIPT_LEDGER still describe the code?) ───�
 # D-144 §4: a registered step the Supplement does not document is refused at
 # registration; the same derived check runs here so a missing chapter is red
 # before anyone runs the pipeline.
-python3 tools/ms_chapters.py --selftest >/dev/null || rc=1
+selftest_gate tools/ms_chapters.py --selftest
 python3 tools/ms_chapters.py || rc=1
 # Gates on structural faults only — a script with no row, a row with no script.
 # Version drift is printed and counted but does not gate: it was 29 rows deep on
 # the day this landed, and a gate that fails from birth is a gate that gets
 # commented out. Same treatment as pipeline_lint's literal check and export_lag.
-python3 tools/ledger_lint.py --selftest >/dev/null || { echo "  ledger_lint --selftest: FAIL"; rc=1; }   # 2026-11-24 (R44)
+selftest_gate tools/ledger_lint.py --selftest   # 2026-11-24 (R44)
 ledger_out="$(python3 tools/ledger_lint.py 2>&1)" || rc=1
 printf '%s\n' "$ledger_out" | grep -E "row\(s\) with a stale version|^  ledger_lint:" || true
 
@@ -826,7 +903,7 @@ section "── pipeline index (does pipeline_index.html match a fresh build?) �
 # reads, what it feeds and which documents use it - built from pipeline_provenance.json, the
 # manifest, PROVENANCE_LEDGER and citation_index. Content against a fresh build, never mtimes;
 # the ship rebuilds it (ship_regenerate), so red here after a ship is a defect in the builder.
-python3 tools/build_pipeline_index.py --selftest >/dev/null || { echo "  build_pipeline_index --selftest: FAIL"; rc=1; }
+selftest_gate tools/build_pipeline_index.py --selftest
 python3 tools/build_pipeline_index.py --check || rc=1
 
 echo
@@ -857,31 +934,39 @@ section "── tasks (is any outstanding job now finished, or newly broken?) �
 # Gates ONLY on a check that could not answer. An open task is work in hand and
 # must not fail the build; a broken check is a lie waiting to happen, and does.
 # task_lint executes every registered check, several of which invoke other
-# linters, so it is the most expensive gate in the file - 10 s. It was run
+# linters, so it is the most expensive gate in the file (about 30 s on 4 cores since 1.49.0). It was run
 # TWICE, once to gate and once to display. --open carries the same exit code,
 # so one run does both.
-task_out="$(python3 tools/task_lint.py --open 2>&1)" || rc=1
-printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
+# 1.49.0 (the Fable review): cite_check --index-only ran SEVEN times per check_all - three task checks, twice each
+# (register_lint re-ran all of task_lint), and section "citation drift". It now runs once, here; the task checks
+# read it through NRG_CITE_INDEX_OUT, register_lint reads task_lint's states file, and "citation drift" below
+# reads the saved output and exit code.
+mkdir -p scratch
+python3 tools/cite_check.py --index-only > scratch/cite_index_only.txt 2> scratch/cite_index_only.err
+echo "$?" > scratch/cite_index_only.rc
+export NRG_CITE_INDEX_OUT="$PWD/scratch/cite_index_only.txt"
+task_out="$(python3 tools/task_lint.py --open --states-out scratch/task_states.json 2>&1)" || rc=1
+printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): |FLAG|FAIL" || true
 
 # The work register's own status cells are prose and prose does not fail. On
 # 2026-09-09 sixteen were wrong at once and the dashboard published the error.
 # register_lint checks only what is mechanically decidable: a cell contradicting
 # task_lint, a claimed check_all gate that is not invoked, a file said not to
 # exist that does. Typed counts are advisory.
-python3 tools/register_lint.py || rc=1
+NRG_TASK_STATES=scratch/task_states.json python3 tools/register_lint.py || rc=1
 # An id means ONE task. On 2026-11-08 two chats each minted a T-183 and a T-184 -- four
 # tasks under two ids -- because each took max+1 over a --depth 50 clone it could see only
 # part of. cloud_setup.sh now clones with --filter=blob:none so the view is whole; this asks
 # the question the merge used to answer far too late, and says nothing when origin is
 # unreachable rather than guessing agreement.
-python3 tools/task_register.py --selftest >/dev/null || { echo "  task_register --selftest: FAIL"; rc=1; }
+selftest_gate tools/task_register.py --selftest
 python3 tools/task_register.py --check || rc=1
 # The same question for D-numbers (T-187): D-318 was written twice on 2026-11-08. Fails on a D-number
 # repeated in one log or carrying a different title here and on the private origin.
-python3 tools/decision_register.py --selftest >/dev/null || { echo "  decision_register --selftest: FAIL"; rc=1; }
+selftest_gate tools/decision_register.py --selftest
 python3 tools/decision_register.py --check || rc=1
 # This file's own # VERSION header against its changelog (T-143): written in one place only twice.
-python3 tools/version_header_lint.py --selftest >/dev/null || { echo "  version_header_lint --selftest: FAIL"; rc=1; }
+selftest_gate tools/version_header_lint.py --selftest
 python3 tools/version_header_lint.py || rc=1
 
 section "── inequality claims (is every \"p < x\" still true of its value?) ──"
@@ -933,10 +1018,10 @@ section "── references (do typed Table/Figure numbers still resolve?) ──
 # and the check cannot run on a stale artefact.
 # The renumber matcher's own cases (1.30.0): repoint_refs is run only at renumber
 # time, so its regressions would otherwise surface as corrupted documents.
-python3 tools/repoint_refs.py --selftest >/dev/null || { echo "  repoint_refs --selftest: FAIL"; rc=1; }
+selftest_gate tools/repoint_refs.py --selftest
 python3 tools/reference_lint.py --kind table || rc=1
 # The papers (1.31.0): typed captions, alt text and references, per paper family.
-python3 tools/paper_refs.py --selftest >/dev/null || { echo "  paper_refs --selftest: FAIL"; rc=1; }
+selftest_gate tools/paper_refs.py --selftest
 python3 tools/paper_refs.py --quiet || rc=1
 # FIGURES, since 2026-09-01. nrg_git.sh runs figref_lint at push time and its own
 # comment says what that does NOT cover: "Semantic mistakes (a reference pointing
@@ -1024,7 +1109,7 @@ section "── input provenance (do the outputs match the committed INPUTS?) �
 # green (the D-115 case). Skips cleanly until run_analysis.py records the
 # hashes. --selftest first, because a green gate proves nothing if its
 # detection has stopped working.
-python3 tools/input_provenance_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/input_provenance_lint.py --selftest
 python3 tools/input_provenance_lint.py --gate || rc=1
 
 echo
@@ -1032,7 +1117,7 @@ section "── step provenance (was each output made from the committed upstrea
 # S1: D-133 records what the pipeline STARTED from; this records what each step
 # READ from other steps and whether it fell back on a default. The remedy a
 # failure names is the step to re-run, never skipping the check (D-102).
-python3 tools/provenance_lint.py --selftest >/dev/null || rc=1
+selftest_gate tools/provenance_lint.py --selftest
 python3 tools/provenance_lint.py || rc=1
 
 echo
@@ -1047,7 +1132,7 @@ python3 tools/drive_lag.py || true
 echo
 section "── asserted claims ──────────────────────────────────────────────────"
 python3 tools/cite_check.py --claims-only || rc=1
-python3 tools/cite_check.py --selftest-claims >/dev/null || { echo "  cite_check --selftest-claims: FAIL"; rc=1; }
+selftest_gate tools/cite_check.py --selftest-claims
 
 echo
 section "── citation drift (confirmed rows must match the committed CSV) ──────"
@@ -1055,7 +1140,20 @@ section "── citation drift (confirmed rows must match the committed CSV) ─
 # non-zero when a CONFIRMED citation no longer renders equal to its committed
 # value. This is the drift that caught the 13 stale Sy citations; it was run
 # advisory-only before, so confirmed drift passed green (W101/D-006, for prose).
-python3 tools/cite_check.py --index-only || rc=1
+# 1.49.0: 7,911 of a green log's 8,935 lines were this one listing (209 advisory DRIFTED among them, which CLAUDE.md 5
+# warns are usually mispointings). The listing goes to scratch/; the gate prints its verdict lines.
+if [ -s scratch/cite_index_only.rc ]; then
+    _ci_rc="$(cat scratch/cite_index_only.rc)"
+else
+    python3 tools/cite_check.py --index-only > scratch/cite_index_only.txt 2> scratch/cite_index_only.err; _ci_rc=$?
+fi
+grep -E "citation\(s\) exact|unindexed occurrence" scratch/cite_index_only.txt | sed 's/^ */  /'
+echo "  (full listing: scratch/cite_index_only.txt)"
+if [ "$_ci_rc" != "0" ]; then
+    echo "  FAIL cite_check --index-only (exit $_ci_rc): confirmed citations no longer match the committed CSV"
+    grep -E "DRIFTED|Traceback|Error" scratch/cite_index_only.txt scratch/cite_index_only.err | head -30 | sed 's/^/    /'
+    rc=1
+fi
 
 echo
 section "── citations (advisory: full triage list, does not gate) ─────────────"
@@ -1073,5 +1171,20 @@ fi
 
 echo
 _sec_write_summary
-[ "$_total_rc" = "0" ] && echo "check_all: OK" || echo "check_all: FAIL"
+# 1.49.0: the ending names the red sections, so nobody scrolls 9,000 lines to find them.
+python3 - "$GATE_SUMMARY" <<'PYEND' || true
+import json, sys
+d = json.load(open(sys.argv[1]))
+red = [x["key"] for x in d["sections"] if x["verdict"] != "OK"]
+j = d.get("judged") or {}
+print(f"  {len(d['sections'])} sections, {len(red)} red" + (": " + "; ".join(red) if red else "")
+      + f" - public {str(j.get('public_head'))[:8]}{'+dirty' if j.get('public_dirty') else ''},"
+      + f" private {str(j.get('private_head'))[:8]}{'+dirty' if j.get('private_dirty') else ''}"
+      + f" ({j.get('private_store')}), {j.get('odts')} ODTs, python {j.get('python')}")
+PYEND
+if [ "$_total_rc" = "0" ] && [ -n "${NRG_CHECK_ALL_FIXED}" ] && [ "${NRG_CHECK_ALL_FIXED}" != "0" ]; then
+    echo "check_all: OK after --fix (${NRG_CHECK_ALL_FIXED} file(s) rewritten, uncommitted)"
+else
+    [ "$_total_rc" = "0" ] && echo "check_all: OK" || echo "check_all: FAIL"
+fi
 exit "$_total_rc"

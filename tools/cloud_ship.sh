@@ -29,7 +29,10 @@
 #   and what it holds (tools/doc_lock.py). Step 3 refuses commits that touch another chat's claim
 #   (tools/ship_scope.py check), and the ship is given a request file so nrg_git.sh 1.29.0 scopes it.
 #
-# Version 1.4.0 — Hollingham (2026) — 2026-11-26 (Martin: fix the untrailered tool commits). Both of this script's own
+# Version 1.5.0 — Hollingham (2026) — 2026-11-26 (Martin approved deleting lock_push; the 11-08 review's fault 6). The
+#   unguarded lock push is gone: doc_lock take/release publish the lock themselves (D-314), and step 3 now CHECKS that
+#   the lock on the private origin equals this tree's (lock_published), failing "lock-not-published" when it does not.
+# 1.4.0 — Hollingham (2026) — 2026-11-26 (Martin: fix the untrailered tool commits). Both of this script's own
 #   commits (the lock push, the release-and-log) carry "Claude-Session: tool:cloud_ship" (rule_audit 1.2.0).
 # 1.3.0 — Hollingham (2026) — 2026-11-24 (D-339). --paths "tools/number_fields.csv,…" names the shared registers
 #   and other unclaimed paths the ship carries; without it a dirty register stops the ship (ship_scope 1.4.0).
@@ -80,19 +83,20 @@ trap 'release_ship; exit 130' INT TERM HUP
 
 step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 
-lock_push() {   # commit (if anything is left to commit) and push the lock file privately
-  "${WG[@]}" add working/DOCUMENT_LOCK.json || return 1
-  if ! "${WG[@]}" diff --cached --quiet -- working/DOCUMENT_LOCK.json; then
-    "${WG[@]}" commit -q -m "$1" -m "Claude-Session: tool:cloud_ship" -- working/DOCUMENT_LOCK.json || return 1
-  fi
-  "${WG[@]}" push -q origin HEAD:main
+# 1.5.0 (2026-11-26; the 11-08 structure review's fault 6, Martin approved its deletion 2026-11-26): lock_push is
+# gone. It was an unguarded `push origin HEAD:main` duplicating what doc_lock take/release already do with T-175's
+# rider guard (D-314), and it carried a changelog commit and a ship log to the private origin unasked on 2026-11-08.
+# What it guaranteed - the lock is on GitHub before the ship goes on - is now CHECKED, read-only:
+lock_published() {   # the lock file on the private origin equals this tree's
+  "${WG[@]}" fetch -q origin main 2>/dev/null || return 1
+  "${WG[@]}" diff --quiet origin/main -- working/DOCUMENT_LOCK.json
 }
 
 fail() {
   echo "  $2"
   if [ "$LOCKED" = 1 ]; then
     "$VPY" tools/doc_lock.py release --force --note "cloud ship ${ID} failed before shipping: $1" >/dev/null
-    lock_push "doc lock released: cloud ship ${ID} failed ($1)" || echo "  (lock release not pushed)"
+    lock_published || echo "  (the lock release is LOCAL ONLY - doc_lock's own push did not reach GitHub)"
   fi
   release_ship
   echo "SHIP: FAIL $1  (log ${LOG})"
@@ -176,7 +180,7 @@ if [ -n "$CHAT" ]; then
     || fail ship-claim-refused "could not take the ship claim - the reason is above: another chat holds it (ship from that chat, or after it releases), or chat '${CHAT}' is not registered (tools/chat_register.py register)"
   SHIPCLAIM=1
 fi
-lock_push "doc lock: cloud ship ${ID}" || fail lock-push "could not push the lock to the private repo"
+lock_published || fail lock-not-published "the lock did not reach the private repo (doc_lock printed LOCAL ONLY above?): a claim nobody can see is not a claim (D-314)"
 
 step 4/7 "no committed mirror is ahead of Drive (refresh_mirrors --verify, by content)"
 "$VPY" tools/refresh_mirrors.py --verify \
@@ -192,7 +196,7 @@ if [ "$DRY" = 1 ]; then
   git push --dry-run origin HEAD >/dev/null 2>&1 && echo "  public push: OK" || echo "  public push: REFUSED"
   "$VPY" tools/doc_lock.py release --force --note "cloud ship ${ID}: dry run" >/dev/null
   release_ship
-  lock_push "doc lock released: cloud ship ${ID} dry run" || echo "  (lock release not pushed)"
+  lock_published || echo "  (the lock release is LOCAL ONLY - doc_lock's own push did not reach GitHub)"
   echo "SHIP: DRYRUN OK  (every check passed; nothing shipped; log ${LOG})"
   exit 0
 fi

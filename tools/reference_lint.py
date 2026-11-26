@@ -60,7 +60,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-08. The typed-reference census now reads the
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-26 (the Fable gate review; D-327): declares the ODTs as an input - SKIP without them
+#   (a session without the Drive secret) instead of a crash or a false "STALE, regenerate"; a WRITE without them is
+#   refused, because it rebuilt the committed file from nothing (87 provenance-ledger lines deleted in the review).
+# 1.2.0  # Hollingham (2026) — 2026-09-08. The typed-reference census now reads the
 #   master's own mirror (report.md) after the sub-documents, so the Abstract's references are
 #   counted and resolved like any chapter's. Captions and the snapshot are unchanged.
 #   1.1.0 — 2026-09-01. FIGURES ARE NOW LIVE.
@@ -290,6 +293,13 @@ def main() -> int:
     ap.add_argument("--snapshot", action="store_true",
                     help="pin what each number currently means, before editing")
     a = ap.parse_args()
+    # 2026-11-26 (the Fable gate review; D-327): the ODTs are an input. Without them (a session without the
+    # Drive secret, CLAUDE.md 4g) this gate said STALE or crashed; it now says SKIP and names what is missing.
+    sys.path.insert(0, str(REPO / "tools"))
+    from gate_inputs import declare_inputs
+    _inp = declare_inputs("reference_lint", odts=["report_edits/odt/report*.odt", "report_edits/odt/report.odm", "docs/papers/*/*.odt"])
+    if _inp.absent:
+        return _inp.skip()
     return run(a.kind, a.orphans, a.snapshot)
 
 

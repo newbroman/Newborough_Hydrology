@@ -37,7 +37,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-11-23 (J-31 follow-up). _first_text_after() wanted a whole caption
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-26 (the Fable gate review; D-327): declares the ODTs as an input - SKIP without them
+#   (a session without the Drive secret) instead of a crash or a false "STALE, regenerate"; a WRITE without them is
+#   refused, because it rebuilt the committed file from nothing (87 provenance-ledger lines deleted in the review).
+# 1.1.1  # Hollingham (2026) — 2026-11-23 (J-31 follow-up). _first_text_after() wanted a whole caption
 #   paragraph inside a 3000-character window; report9 Table 1.11's caption grew past it with two date fields and the
 #   ledger silently dropped the table (CLAUDE.md's count read 32 for 33). The paragraph must START inside the window
 #   and is read to its end - the same fix as table_provenance_lint 1.0.1.
@@ -194,6 +197,16 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
+    # 2026-11-26 (the Fable gate review; D-327): the ODTs are an input. Without them (a session without the
+    # Drive secret, CLAUDE.md 4g) this gate said STALE or crashed; it now says SKIP and names what is missing.
+    sys.path.insert(0, str(REPO / "tools"))
+    from gate_inputs import declare_inputs
+    _inp = declare_inputs("build_provenance_ledger", odts=["report_edits/odt/report*.odt", "report_edits/odt/report.odm", "docs/papers/*/*.odt"])
+    if _inp.absent and not args.check:
+        print("build_provenance_ledger: REFUSED - no ODTs here; writing now would rebuild the committed file from nothing")
+        return 1
+    if _inp.absent:
+        return _inp.skip()
 
     rows = report_tables() + report_figures() + paper_exhibits()
     by_src = defaultdict(list)

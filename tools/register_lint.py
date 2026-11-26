@@ -47,7 +47,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-26 (the Fable gate review): reads the task states task_lint
+#   already computed (NRG_TASK_STATES, written by `task_lint --states-out` in check_all) instead of running all of
+#   task_lint a second time - 107 s of the tasks section; and a task_lint it cannot read is a FAIL, never an empty
+#   {} that passed check 1 on nothing (its old timeout=180 / except: return {}).
+# 1.2.0  # Hollingham (2026) — 2026-11-24 (T-204, D-327): declares its inputs (tools/gate_inputs.py);
 #   SKIP when they are absent by design, FAIL on zero subjects.
 # "1.1.0"  # Hollingham (2026) — 2026-09-09. Check 4: a row
 #   whose ID cell names more than one work item. Found by Martin, who noticed
@@ -100,13 +104,24 @@ BUNDLED_ID = re.compile(r"[,/]|\s(?:and|&)\s|[0-9]\s*[-\u2010-\u2015]\s*[A-Za-z0
 TYPED_COUNT = re.compile(r"\b(\d{1,5})\s+(entries|rows|wells|PDFs|files|occurrences|decisions|steps|documents)\b", re.I)
 
 
-def task_states() -> dict[str, str]:
-    """{'T-01': 'open'|'done'|'broken'} from task_lint, the tool that owns them."""
+def task_states() -> dict[str, str] | None:
+    """{'T-01': 'open'|'done'|'broken'} from task_lint, the tool that owns them. 1.3.0: from the states file
+    check_all's one task_lint run wrote, when given; None (a FAIL) when task_lint could not be read."""
+    import os
+    import json
+    f = os.environ.get("NRG_TASK_STATES")
+    if f:
+        try:
+            return json.loads(Path(f).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            print(f"  FAIL  NRG_TASK_STATES={f} could not be read ({e})")
+            return None
     try:
         out = subprocess.run([sys.executable, str(REPO / "tools" / "task_lint.py")],
-                             capture_output=True, text=True, cwd=REPO, timeout=180).stdout
-    except Exception:
-        return {}
+                             capture_output=True, text=True, cwd=REPO, timeout=600).stdout
+    except Exception as e:
+        print(f"  FAIL  task_lint could not be run ({e}) - check 1 cannot answer")
+        return None
     states = {}
     for m in re.finditer(r"^\s*(DONE|OPEN|BROKEN)\s+(T-\d{2})\b", out, re.M):
         states[m.group(2)] = m.group(1).lower()
@@ -149,6 +164,9 @@ def main(argv: list[str]) -> int:
         return inp.skip()
     text = REGISTER.read_text(encoding="utf-8")
     tasks = task_states()
+    if not tasks:
+        print("register_lint: FAIL - no task states to check the register against (a pass on nothing is not an OK)")
+        return 1
     ca = check_all_invokes()
     bad = 0
     counts: list[str] = []

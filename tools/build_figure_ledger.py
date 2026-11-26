@@ -39,7 +39,10 @@ import pathlib
 import re
 import sys
 
-__version__ = "2.3.0"  # Hollingham (2026) — 2026-09-08. --check: regenerate in memory and exit 1
+__version__ = "2.4.0"  # Hollingham (2026) — 2026-11-26 (the Fable gate review; D-327): declares the ODTs as an input - SKIP without them
+#   (a session without the Drive secret) instead of a crash or a false "STALE, regenerate"; a WRITE without them is
+#   refused, because it rebuilt the committed file from nothing (87 provenance-ledger lines deleted in the review).
+# 2.3.0  # Hollingham (2026) — 2026-09-08. --check: regenerate in memory and exit 1
 #   when any caption is flagged (no resolvable Source: marker) or the committed ledger differs
 #   from what the captions now give. Gated in check_all 1.12.0. Until now the flag was visible
 #   only to whoever regenerated the ledger by hand (it caught Figure 75 on 2026-09-08).
@@ -135,6 +138,16 @@ def main() -> int:
     ap.add_argument("--check", action="store_true",
                     help="fail if any caption lacks a resolvable Source: marker or the committed ledger is stale; write nothing")
     a = ap.parse_args()
+    # 2026-11-26 (the Fable gate review; D-327): the ODTs are an input. Without them (a session without the
+    # Drive secret, CLAUDE.md 4g) this gate said STALE or crashed; it now says SKIP and names what is missing.
+    sys.path.insert(0, str(REPO / "tools"))
+    from gate_inputs import declare_inputs
+    _inp = declare_inputs("build_figure_ledger", odts=["report_edits/odt/report*.odt", "report_edits/odt/report.odm", "docs/papers/*/*.odt"])
+    if _inp.absent and not (a.check or a.stdout):
+        print("build_figure_ledger: REFUSED - no ODTs here; writing now would rebuild the committed file from nothing")
+        return 1
+    if _inp.absent:
+        return _inp.skip()
     flagged: list = []
     text = build(flagged)
     if a.check:

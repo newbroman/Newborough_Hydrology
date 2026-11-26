@@ -70,7 +70,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-11 (J-12, T-196). render() is the printed report,
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-26 (Martin: "fix the whole check-all process"; the Fable gate
+#   review of the same day). (1) The register's `needs` column (private | odt) says what a check reads that a
+#   public clone lacks; task_lint still infers nothing from the command. A `private` check with the private store
+#   ABSENT is a FLAG and a FAIL - "The private repository should always be present, surely" (Martin, 2026-11-26) -
+#   never a skip and never a phantom OPEN or DONE; an `odt` check with no ODTs is SKIP (a session without the Drive
+#   secret is a blessed mode, CLAUDE.md 4g). (2) `cite_check --index-only` runs ONCE: its output is shared with the
+#   checks through NRG_CITE_INDEX_OUT (check_all sets it; standalone, task_lint runs it once itself). (3)
+#   --states-out PATH writes {id: status} for register_lint, which ran all of task_lint a second time. (4) Checks run
+#   on a thread pool capped at the core count (NRG_TASK_LINT_WORKERS); verdicts matched serial on all 225 rows.
+# 1.3.0  # Hollingham (2026) — 2026-11-11 (J-12, T-196). render() is the printed report,
 #   shared by main() and by as_json(with_text=True), so the HQ daily pass can hand proof_copy's tasks tab the
 #   same text `--open` prints from the ONE evaluation it already runs for the HQ page (the checks are not run
 #   twice, which is what check_all's --tasks-from did until check_all 1.41.0). Output unchanged.
@@ -87,7 +96,9 @@ import argparse
 import csv
 import datetime
 import json
+import os
 import re
+import tempfile
 import subprocess
 import sys
 from pathlib import Path
@@ -140,12 +151,68 @@ def run_check(cmd: str) -> tuple[str | None, str]:
     return out, ""
 
 
+CITE_ENV = "NRG_CITE_INDEX_OUT"
+ODT_GLOBS = ("report_edits/odt/report*.odt", "docs/papers/*/*.odt")
+PRIVATE_FLAG = ("the private repository is absent - it should always be present (Martin, 2026-11-26); "
+                "this check reads it and cannot answer")
+
+
+def _needs(r: dict) -> set[str]:
+    return {n.strip() for n in (r.get("needs") or "").split(";") if n.strip()}
+
+
+def _odts_present() -> bool:
+    return any(any(REPO.glob(g)) for g in ODT_GLOBS)
+
+
+def _private_present() -> tuple[bool, str]:
+    import doc_lock
+    state, why = doc_lock.store_state()
+    return state != "ABSENT", why
+
+
+def _share_cite_index(rows: list[dict]) -> None:
+    """1.4.0: run cite_check --index-only once for every check that reads it (three did, 20 s each)."""
+    if os.environ.get(CITE_ENV) and Path(os.environ[CITE_ENV]).exists():
+        return
+    if not any(CITE_ENV in (r.get("check") or "") for r in rows):
+        return
+    fd, path = tempfile.mkstemp(prefix="nrg_cite_index_", suffix=".txt")
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        p = subprocess.run([sys.executable, str(REPO / "tools/cite_check.py"), "--index-only"], cwd=REPO,
+                           capture_output=True, text=True, timeout=TIMEOUT * 3)
+        fh.write(p.stdout)
+    os.environ[CITE_ENV] = path
+
+
+def _workers() -> int:
+    try:
+        return max(1, int(os.environ.get("NRG_TASK_LINT_WORKERS", "")))
+    except ValueError:
+        return max(1, min(4, os.cpu_count() or 1))
+
+
 def evaluate(rows: list[dict]) -> tuple[list, list, list, list]:
     """Run every row's check once and sort the rows four ways. Shared by the printed report and
-    --json (1.2.0), so the HQ snapshot cannot disagree with what the gate printed."""
+    --json (1.2.0), so the HQ snapshot cannot disagree with what the gate printed. 1.4.0: a `private` check with
+    the store absent is an ERROR carrying PRIVATE_FLAG (it is not run); an `odt` check with no ODTs is skipped."""
     done, open_, errors, skipped = [], [], [], []
-    for r in rows:
-        out, note = run_check(r["check"])
+    have_private, _why = _private_present()
+    have_odt = _odts_present()
+    _share_cite_index(rows)
+
+    def one(r):
+        nd = _needs(r)
+        if "private" in nd and not have_private:
+            return None, "FLAG: " + PRIVATE_FLAG
+        if "odt" in nd and not have_odt:
+            return "SKIP (inputs absent by design) - this check reads the ODTs, which this session does not hold", ""
+        return run_check(r["check"])
+
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=_workers()) as ex:
+        results = list(ex.map(one, rows))
+    for r, (out, note) in zip(rows, results):
         if out is None:
             errors.append((r, note))
         elif SKIP_RE.match(out):
@@ -243,6 +310,7 @@ def main() -> int:
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--open", action="store_true", dest="only_open")
     ap.add_argument("--json", action="store_true", help="the register machine-readable (1.2.0, D-301)")
+    ap.add_argument("--states-out", metavar="PATH", help="1.4.0: also write {id: status} as JSON, for register_lint")
     args = ap.parse_args()
 
     if args.json:
@@ -255,6 +323,16 @@ def main() -> int:
 
     rows = read_register()
     done, open_, errors, skipped = evaluate(rows)
+    if args.states_out:
+        st = {r["id"]: "done" for r in done}
+        st.update({r["id"]: "open" for r, _ in open_})
+        st.update({r["id"]: "broken" for r, _ in errors})
+        st.update({r["id"]: "skip" for r, _ in skipped})
+        Path(args.states_out).write_text(json.dumps(st, indent=1, sort_keys=True), encoding="utf-8")
+    flagged = [r for r, n in errors if n.startswith("FLAG: ")]
+    if flagged:
+        print(f"  FLAG  the private repository is ABSENT: {len(flagged)} task check(s) read it and were not run. "
+              "It should always be present (Martin, 2026-11-26) - attach it (tools/cloud_setup.sh).")
     print(render(rows, done, open_, errors, skipped, only_open=args.only_open, quiet=args.quiet))
     return 1 if errors else 0
 

@@ -29,7 +29,9 @@
 #   and what it holds (tools/doc_lock.py). Step 3 refuses commits that touch another chat's claim
 #   (tools/ship_scope.py check), and the ship is given a request file so nrg_git.sh 1.29.0 scopes it.
 #
-# Version 1.3.0 — Hollingham (2026) — 2026-11-24 (D-339). --paths "tools/number_fields.csv,…" names the shared registers
+# Version 1.4.0 — Hollingham (2026) — 2026-11-26 (Martin: fix the untrailered tool commits). Both of this script's own
+#   commits (the lock push, the release-and-log) carry "Claude-Session: tool:cloud_ship" (rule_audit 1.2.0).
+# 1.3.0 — Hollingham (2026) — 2026-11-24 (D-339). --paths "tools/number_fields.csv,…" names the shared registers
 #   and other unclaimed paths the ship carries; without it a dirty register stops the ship (ship_scope 1.4.0).
 # 1.2.1 — Hollingham (2026) — 2026-11-24 (Fable review). A trap releases the ship claim on every exit, a kill
 #   included; a refused take names both causes (held elsewhere, or the chat unregistered).
@@ -81,7 +83,7 @@ step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 lock_push() {   # commit (if anything is left to commit) and push the lock file privately
   "${WG[@]}" add working/DOCUMENT_LOCK.json || return 1
   if ! "${WG[@]}" diff --cached --quiet -- working/DOCUMENT_LOCK.json; then
-    "${WG[@]}" commit -q -m "$1" -- working/DOCUMENT_LOCK.json || return 1
+    "${WG[@]}" commit -q -m "$1" -m "Claude-Session: tool:cloud_ship" -- working/DOCUMENT_LOCK.json || return 1
   fi
   "${WG[@]}" push -q origin HEAD:main
 }
@@ -211,7 +213,7 @@ release_ship
 mkdir -p working/ship_logs
 cp "$LOG" "working/ship_logs/${ID}.log"
 "${WG[@]}" add working/DOCUMENT_LOCK.json "working/ship_logs/${ID}.log" \
-  && "${WG[@]}" commit -q -m "cloud ship ${ID}: lock released, log" \
+  && "${WG[@]}" commit -q -m "cloud ship ${ID}: lock released, log" -m "Claude-Session: tool:cloud_ship" \
   && "${WG[@]}" push -q origin HEAD:main || echo "  note: lock release / log not pushed"
 echo "${line:-SHIP: FAIL no-verdict (nrg_git.sh exit ${rc}; log ${LOG})}"
 exit "$rc"

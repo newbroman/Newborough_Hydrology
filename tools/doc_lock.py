@@ -91,7 +91,9 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-24 (T-138). REGISTRATION_REQUIRED = True: an unregistered chat's
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-26 (Martin: fix the untrailered tool commits). The lock record's own
+#   commit carries the trailer "Claude-Session: tool:doc_lock", so rule_audit (1.2.0) reads it as a tool commit.
+# 1.10.0  # Hollingham (2026) - 2026-11-24 (T-138). REGISTRATION_REQUIRED = True: an unregistered chat's
 #   take is refused (Martin: "chats now register themselves out of habit"); selftest 10a-d swapped round.
 # 1.9.0  # Hollingham (2026) - 2026-11-24 (T-200, D-324). AREAS gains "ship", the right to push; and the
 #   stale second `__version__ = "1.5.1"` assignment below, which overrode this line so the module reported 1.5.1 since
@@ -676,7 +678,7 @@ def publish_records(paths=RECORD_PATHS, what: str = "the claim") -> None:
         _wgit("add", "--", *present)
         if not _wgit("diff", "--cached", "--quiet", "--", *present).returncode:
             return                                      # nothing staged: already current
-        if _wgit("commit", "-q", "-m", f"doc_lock: {what}", "--", *present).returncode:
+        if _wgit("commit", "-q", "-m", f"doc_lock: {what}", "-m", "Claude-Session: tool:doc_lock", "--", *present).returncode:
             print("  WARNING: could not commit the record — the claim is LOCAL ONLY (D-314)")
             return
         # T-175 fix (b), Martin 2026-11-07: the push is HEAD:main, so it carries the whole

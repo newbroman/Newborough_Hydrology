@@ -18,7 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.47.0 - 2026-11-24   year_field_lint --selftest and --check in the number-fields section (D-341 draft:
+# VERSION 1.48.0 - 2026-11-26   a failing rule_audit selftest keeps its whole output in scratch/rule_audit_selftest_fail.log
+#                               and shows its diag: lines - the 10a/11pre/14a failures went undiagnosed for two days
+#                               because the grep showed only the FAIL lines (rule_audit 1.2.0 found the cause).
+# 1.47.0 - 2026-11-24   year_field_lint --selftest and --check in the number-fields section (D-341 draft:
 #                                citation years are fields; the held Paper 1 / Paper C counts sit in an inventory).
 # VERSION 1.46.0 - 2026-11-24   run_scope --selftest gated (D-340, the scoped run); review_page --selftest (the
 #   default review page, CLAUDE.md §7).
@@ -729,8 +732,9 @@ python3 tools/hq_page.py --check || true                 # advisory - only a ses
 # fix caught doc_lock's selftest line and missed its twin here, and this one then failed in a
 # run while passing standalone — with nothing but "FAIL rule_audit selftest" to go on.
 _ra_out="$(python3 tools/rule_audit.py --selftest 2>&1)" || {
-  echo "  FAIL rule_audit selftest"
-  printf '%s\n' "$_ra_out" | grep -E "FAIL|REFUSED" | sed 's/^/    /'
+  echo "  FAIL rule_audit selftest (full output: scratch/rule_audit_selftest_fail.log)"
+  printf '%s\n' "$_ra_out" > scratch/rule_audit_selftest_fail.log
+  printf '%s\n' "$_ra_out" | grep -E "FAIL|REFUSED|diag:" | sed 's/^/    /'
   rc=1
 }
 python3 tools/rule_audit.py --check || true              # report-only by design (D-302)

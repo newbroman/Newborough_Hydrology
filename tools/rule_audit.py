@@ -71,7 +71,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-26 (Martin: "the missing session trailers, I approve the fix").
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-26 (Martin: "Fix the other 5 serious findings"). A trailer whose value
+#   starts "tool:" (TOOL_SESSION_PREFIX) marks a tool's own commit - doc_lock 1.11.0, cloud_ship 1.4.0 and nrg_git 1.44.0
+#   now sign theirs "Claude-Session: tool:<name>" - and is neither a session-trailer finding nor unattributed; a chat named
+#   in the subject ("... by chat 'X'") is still used for claim-coverage. Selftest 3e. And the override window starts
+#   at the watermark commit (or now - days), not at the first commit inside the window: an override stamped a second
+#   before the commit that recorded it was dropped - the intermittent 10a/11pre/14a failures, now explained.
+# 1.1.0  # Hollingham (2026) — 2026-11-26 (Martin: "the missing session trailers, I approve the fix").
 #   session-trailer no longer fires on doc_lock's OWN commits (subject "doc_lock: ..."): the tool writes them on a
 #   take, release or register update and names the chat in the subject ("... by chat 'X'"), which is the attribution;
 #   it adds no Claude-Session trailer. A named chat is used for claim-coverage as a trailer's would be; a bare
@@ -404,6 +410,7 @@ def rule_decision_fields(a: Audit, cs: list[dict]) -> None:
 
 
 DOC_LOCK_SUBJECT = "doc_lock:"   # 1.1.0: the prefix doc_lock writes on its own commits
+TOOL_SESSION_PREFIX = "tool:"     # 1.2.0: "Claude-Session: tool:<name>" on a tool's own commit
 
 
 def rule_claims_and_trailers(a: Audit, cs: list[dict], timeline: list[dict],
@@ -418,8 +425,10 @@ def rule_claims_and_trailers(a: Audit, cs: list[dict], timeline: list[dict],
     unattributed = []
     for c in cs:
         chat = None
-        # 1.1.0: doc_lock's own commits are attributed by their subject, not by a trailer.
-        if c["subject"].startswith(DOC_LOCK_SUBJECT) and not c["session"]:
+        # 1.1.0: doc_lock's own commits are attributed by their subject, not by a trailer;
+        # 1.2.0: so is any commit a tool signs "Claude-Session: tool:<name>".
+        if (c["subject"].startswith(DOC_LOCK_SUBJECT) and not c["session"]) \
+                or c["session"].startswith(TOOL_SESSION_PREFIX):
             m = re.search(r"by chat '([^']+)'", c["subject"])
             if not m:
                 continue                          # "doc_lock: chat register" - a tool commit, nothing to attribute
@@ -747,7 +756,14 @@ def audit(since: str | None = None, days: int = SINCE_DAYS, board: dict | None =
     cs = commits(private=False, since=pub_since, days=days) \
         + commits(private=True, since=prv_since, days=days)
     cs.sort(key=lambda c: c["at"])
-    window_from = _parse(cs[0]["at"]) if cs else (now() - datetime.timedelta(days=days))
+    # 1.2.0: the window for time-stamped evidence (the override log) starts at the WATERMARK, not at the first commit
+    # inside the window. An override row is stamped before the commit that records it, so when that commit was the
+    # window's first and landed a second later, the row fell outside and the override was never reported - the cause
+    # of selftests 10a, 11pre and 14a/b failing intermittently (reproduced 1 in 4 under the venv's Python, 2026-11-26).
+    marks = [_parse(_git("show", "-s", "--format=%cI", rev, private=prv) or None)
+             for rev, prv in ((pub_since, False), (prv_since, True)) if rev]
+    marks = [m for m in marks if m]
+    window_from = min(marks) if marks else (now() - datetime.timedelta(days=days))
 
     if board is None:
         import work_board
@@ -1037,6 +1053,15 @@ def _selftest() -> int:
                not [f for f in p3d["findings"] if f["rule"] == "session-trailer"
                     and str(f.get("evidence", "")).startswith("doc_lock:")],
                json.dumps(p3d.get("findings"), indent=1)[:500])
+
+        # 3e (1.2.0). A tool-signed commit ("Claude-Session: tool:<name>") raises no trailer finding.
+        (t3 / "a.txt").write_text("5", encoding="utf-8")
+        _commit(t3, ["a.txt"], "Drive manifest after ship abc\n\nClaude-Session: tool:nrg_git\n")
+        p3e = payload(t3, NRG_RULE_AUDIT_SINCE="HEAD~1")
+        check_("3e a tool-signed commit raises no session-trailer finding",
+               not [f for f in p3e["findings"] if f["rule"] == "session-trailer"
+                    and str(f.get("evidence", "")).startswith("Drive manifest")],
+               json.dumps(p3e.get("findings"), indent=1)[:500])
 
         # 4. A commit with no handover entry is a finding; with a complete one, none.
         t4 = T / "handover"
@@ -1400,6 +1425,21 @@ def _selftest() -> int:
         check_("14b and the true count survives in counts.by_rule",
                p14["counts"]["by_rule"].get("override") == MAX_PER_RULE + 4,
                json.dumps(p14["counts"], indent=1)[:400])
+
+        # 14c (1.2.0). The boundary that made 10a/11pre/14a intermittent, forced: the override is stamped, and the
+        # commit recording it - the only commit in the window - is dated five seconds later. It must still be found.
+        t14c = T / "override_boundary"
+        _mkrepo(t14c, lock={"holder": None, "claims": {}})
+        _t0 = now() - datetime.timedelta(minutes=10)
+        (t14c / "working/claim_overrides.csv").write_text(
+            "when,action,claim,from_chat,to_chat,by,note\n"
+            f"{_t0:%Y-%m-%dT%H:%M:%SZ},forced-take,doc:Y,A,B,martin,n\n", encoding="utf-8")
+        _commit(t14c, ["working/claim_overrides.csv"], "an override", private=True,
+                when=f"{_t0 + datetime.timedelta(seconds=5):%Y-%m-%dT%H:%M:%SZ}")
+        p14c = payload(t14c)
+        check_("14c an override stamped before its own commit (the window's first) is still found",
+               any(f["rule"] == "override" for f in p14c.get("findings", [])),
+               json.dumps(p14c.get("findings"), indent=1)[:400] + _diag(p14c, t14c))
 
         # 15. --check never fails on findings: it reports them (D-302, report-only).
         rc, out, err = _run(["--check"], t10); out += err

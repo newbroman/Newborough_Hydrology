@@ -41,3 +41,15 @@ The record ends in 2023 because dataset-version-202407 does. A later dataset ver
 ## Licence
 
 **Open Government Licence v3.0.** Attribution: "Contains public sector information licensed under the Open Government Licence v3.0." © Crown copyright, Met Office. Cite each product as Met Office (2024): MIDAS Open: UK hourly weather observation data, v202407 (and UK hourly solar radiation data, v202407). NERC EDS Centre for Environmental Data Analysis. doi:10.5285/c50776e4903942cdb329589da70b83fe (hourly weather); doi:10.5285/0afba628c2f4462da68b0a81ebf1ff4c (solar radiation).
+
+## Addendum, 2026-11-25 — the wind units, and a second reader
+
+- **`wind_speed_unit_id` 4 = knots, confirmed.** The capability file does not define the codes; every hourly
+  data file's own header does: `comments,wind_speed_unit_id,"4=wind speed from anemometer,knots"` (0 and 1 are
+  m/s, 3 is estimated knots), and declares `wind_speed` and `q10mnt_mxgst_spd` (10-minute maximum gust) in
+  knots. Over July 2004 - June 2023 every row carries code 4. `utils.pet_alternatives.midas_hourly_wind()`
+  (1.2.0) refuses any other code and any file whose header does not define 4 as knots.
+- **Also read by** `src/40_shoreline_retreat.py` 1.10.0 (storm table 40_09 / 40_10 / 40_11), through
+  `utils.pet_alternatives.midas_hourly_wind()`, so the raw files are still read only by that module.
+- The 10-minute maximum gust is reported only in some hours (about 2.7% of hours 2004-2023) and in none of the
+  2022/23 winter at all, so a winter's `max_gust_kt` is the largest REPORTED gust (NaN for 2022/23).

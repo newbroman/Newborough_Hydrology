@@ -13,3 +13,56 @@ winter2019_20_between_storm_expectation_m,,2019-09-11 to 2020-03-31,1.2834606574
 winter2019_20_context_rate_m_yr,,2019-09-11 to 2020-03-31,2.3207128967456545,m/yr,"the long-run rate the expectation is built from, measured over 20.2437 yr (2006-2026) on the modern_common_frontage basis in 40_01_epoch_series.csv. Carries this pair's tag because it is context FOR this pair, not a free-standing constant"
 headline_retreat_rate_2006_2026_m_yr,,2006-2026,2.3207128967456545,m/yr,"modern_common_frontage basis (40_01_epoch_series.csv); emitted because the floor, control and generalisation gate tests pass; NaN if withheld"
 shoreline_1899_georef_rmse_rate_m_per_yr,,1899-2006,0.05560854379365932,m/yr,"SHORELINE_1899_GEOREF_RMSE_M (5.95 m, data/geo/GEO_PROVENANCE.md) / years of the 1899->2006 pair_extent row of 40_01_epoch_series.csv (106.998 yr)"
+carpark_retreat_2006_2009_median_m,,2006-2009,-6.882031045037063,m,"1.10.0: 40_02 column common_2006_2009_m (ray from the 2026 normals; positive = retreat), median over 20 transects within 250 m of the frontage point nearest CEH15 (the beach car park)"
+common_frontage_retreat_2006_2009_median_m,,2006-2009,3.9938555112730114,m,"1.10.0: 40_02 column common_2006_2009_m (ray from the 2026 normals; positive = retreat), median over 128 transects of the floor band"
+carpark_retreat_2009_2017_median_m,,2009-2017,29.249850845374986,m,"1.10.0: 40_02 column common_2009_2017_m (ray from the 2026 normals; positive = retreat), median over 20 transects within 250 m of the frontage point nearest CEH15 (the beach car park)"
+common_frontage_retreat_2009_2017_median_m,,2009-2017,20.755366883388557,m,"1.10.0: 40_02 column common_2009_2017_m (ray from the 2026 normals; positive = retreat), median over 128 transects of the floor band"
+carpark_retreat_2017_2021_median_m,,2017-2021,23.37671646423683,m,"1.10.0: 40_02 column common_2017_2021_m (ray from the 2026 normals; positive = retreat), median over 20 transects within 250 m of the frontage point nearest CEH15 (the beach car park)"
+common_frontage_retreat_2017_2021_median_m,,2017-2021,9.575865037348734,m,"1.10.0: 40_02 column common_2017_2021_m (ray from the 2026 normals; positive = retreat), median over 128 transects of the floor band"
+carpark_retreat_2021_2026_median_m,,2021-2026,6.528126153401031,m,"1.10.0: 40_02 column common_2021_2026_m (ray from the 2026 normals; positive = retreat), median over 20 transects within 250 m of the frontage point nearest CEH15 (the beach car park)"
+common_frontage_retreat_2021_2026_median_m,,2021-2026,10.690644674274807,m,"1.10.0: 40_02 column common_2021_2026_m (ray from the 2026 normals; positive = retreat), median over 128 transects of the floor band"
+retreat_2006_2009_median_m,,2006-01-01 to 2009-04-20,3.340905059388946,m,"1.10.0: signed shore-normal median on the modern_common_frontage band (131 normals, 3.30 yr; rate in 40_01)"
+retreat_2009_2017_median_m,,2009-04-20 to 2017-03-24,20.494893757741945,m,"1.10.0: signed shore-normal median on the modern_common_frontage band (131 normals, 7.93 yr; rate in 40_01)"
+storm_n_winters,,2004/05-2022/23,19.0,winters,40_09: July-June winters with MIDAS Valley hourly wind
+storm_gale_days_median,,2004/05-2022/23,14.0,days,40_09: median per winter of days with an onshore (180-300 deg) hourly mean >= 34 kt
+storm_severe_gale_days_median,,2004/05-2022/23,3.0,days,40_09: median per winter of days with an onshore hourly mean >= 41 kt
+storm_n_events,,2004/05-2022/23,71.0,days,40_10: days with an onshore hourly mean >= 40 kt
+storm_max_onshore_mean_kt,,2004/05-2022/23,51.0,kt,40_09: strongest onshore hourly mean of the record
+storm_gale_days_2004_05,,2004/05,22.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2004_05,,2004/05,3.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2005_06,,2005/06,12.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2005_06,,2005/06,1.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2006_07,,2006/07,37.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2006_07,,2006/07,7.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2007_08,,2007/08,15.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2007_08,,2007/08,3.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2008_09,,2008/09,13.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2008_09,,2008/09,2.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2009_10,,2009/10,8.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2009_10,,2009/10,1.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2010_11,,2010/11,16.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2010_11,,2010/11,5.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2011_12,,2011/12,18.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2011_12,,2011/12,5.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2012_13,,2012/13,14.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2012_13,,2012/13,2.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2013_14,,2013/14,17.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2013_14,,2013/14,8.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2014_15,,2014/15,12.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2014_15,,2014/15,3.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2015_16,,2015/16,32.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2015_16,,2015/16,5.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2016_17,,2016/17,4.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2016_17,,2016/17,2.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2017_18,,2017/18,14.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2017_18,,2017/18,3.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2018_19,,2018/19,14.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2018_19,,2018/19,2.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2019_20,,2019/20,16.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2019_20,,2019/20,4.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2020_21,,2020/21,21.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2020_21,,2020/21,2.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2021_22,,2021/22,10.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2021_22,,2021/22,2.0,days,40_09 severe_gale_days_onshore
+storm_gale_days_2022_23,,2022/23,11.0,days,40_09 gale_days_onshore
+storm_severe_gale_days_2022_23,,2022/23,1.0,days,40_09 severe_gale_days_onshore

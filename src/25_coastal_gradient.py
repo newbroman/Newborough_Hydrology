@@ -62,6 +62,10 @@ outputs/40_shoreline_retreat/40_01_epoch_series.csv
                                        (Script 40 runs LATER: a guarded read of
                                        the committed file)
 data/geo/clay.kml                      Mapped clay exposure (25_21 distances)
+data/geo/newborough_dem.tif            LiDAR DTM: the 20 m ridge contour (open-dune buffer, 1.41.0)
+data/geo/forest shore clearance April 2015.kml
+                                       25_21 distance to the shore clearance (1.41.0; cleared between May
+                                       2012 and March 2017 by the aerial imagery, the file name notwithstanding)
 
 Outputs
 -------
@@ -125,7 +129,8 @@ Outputs
 25_19_distance_bands.png               (a) band series, (b) the coastal line with every well
 25_20_split_2011.csv                   headline specification before / after the split year
                                        (2010, 2011, 2012), raw near-far contrast, retreat
-25_21_step_vs_trend.csv                per well: one level shift vs a linear trend, CWB in both
+25_21_step_vs_trend.csv                per well: one level shift vs a linear trend, CWB in both; and
+                                       (1.41.0) a second step in Oct 2014 - Apr 2015 with the first held
 25_22_drainage_change.csv              Model B beta_3 / implied floor before vs after the
                                        coastal wells' median step date
 25_report_numbers.csv                  Headline numbers in standard format
@@ -144,7 +149,21 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.40.0"  # Hollingham (2026) - 2026-11-25 (Martin, Paper C). Paper C drops clusters: the decline is split by
+__version__ = "1.41.0"  # Hollingham (2026) - 2026-11-25 (later; Martin, Paper C). (1) THE RIDGE BUFFER ("We do have a
+#   ridge outline - it's the 20 m contour. Use 200 m from the 20 m contour"): ridge_distances() takes the bedrock ridge as
+#   the largest connected region of the LiDAR DTM (paths.DATA_DEM) at or above RIDGE_CONTOUR_M (holes filled; the ~150
+#   other >= 20 m patches, each < 0.3 ha, are dune crests and are reported, not used), and the open-dune set now also
+#   drops every well inside it or within RIDGE_BUFFER_M of it. 25_17b gains dist_ridge_m, inside_ridge,
+#   dist_any_20m_m (distance to ANY ground >= 20 m, for comparison) and dem_ground_m; 25_17 gains ridge_buffer_m.
+#   (2) 25_20's retreat reads Script 40 1.10.0's 2006-2009 and 2009-2017 epochs in place of 2006-2017
+#   (RETREAT_EPOCH_PAIRS), so the before-window retreat is the measured 2006-2009 + 2009-2017 rates.
+#   (3) THE 2014-15 SECOND STEP (Martin: the wells nearest the clearance should be the ones most affected):
+#   two_step_test() adds to 25_21, for every tested well, a second level shift searched over STEP2_WINDOW
+#   (2014-10 to 2015-04, the window Martin asked about) with the well's best single step held at its 25_21 date, its HAC
+#   (Newey-West, STEP2_HAC_LAGS) standard error and t, AIC/BIC against the one-step model, the unrestricted best
+#   second step, and the well's distance to the shore clearance; first_step_group labels the 2009 and 2014-15
+#   groups; twostep_* report numbers summarise the 2009 coastal group. Additive except 25_20's retreat columns.
+# 1.40.0  # Hollingham (2026) - 2026-11-25 (Martin, Paper C). Paper C drops clusters: the decline is split by
 #   DISTANCE FROM THE SHORE (0-300, 300-600, 600-900, 900-1300, >1300 m; CEH11 is a member of 600-900 m and is not
 #   reported on its own, Martin 2026-11-25): 25_17 / 25_18 / 25_19, band_* report numbers; 25_17b lists every band well (distance, years, own slope, in_forest, short_record) and
 #   25_19 draws short-record wells open, because short rising records (LIS1, D25, CEH39) pull the 600-900 m all-wells
@@ -4175,6 +4194,19 @@ STEP_INLAND_MIN_M = 1300.0       # controls: beyond 1300 m
 STEP_MIN_SEGMENT_MONTHS = 24     # observed months each side of a candidate step
 STEP_MIN_OBS = 96                # observed months for a well to be tested
 STEP_DELTA_IC = 2.0              # AIC and BIC must both favour the step by this
+# 1.41.0: the second step (Martin 2026-11-25: do the 2009-step wells, nearest the
+# shore clearance and the sand movement, drop again in Oct 2014 - Apr 2015?). The
+# clearance itself is dated only to May 2012 - March 2017 (aerial imagery, Martin
+# 2026-11-25); the window below is the question as asked, not the clearance date.
+# The window is Oct 2014 - Apr 2015 as Martin asked it: the Landsat bracket of the
+# shore clearance (GEO_PROVENANCE, 2026-10-03) and the window in which Script 50's
+# E8f first found the near wells' steps. It is NOT config.E8F_STEP_WINDOW, which
+# Script 50d 1.1.0 widened the same day to 2012-06..2017-03 (the aerial-imagery
+# bracket) so that E8f estimates the date; this test asks about one window.
+STEP2_WINDOW = ("2014-10-01", "2015-04-01")
+STEP_FIRST_GROUPS = {"2009": ("2009-01-01", "2009-12-31"),       # 25_21 best-step date
+                     "2014-15": ("2014-01-01", "2015-06-30")}     # ranges that label a group
+STEP2_HAC_LAGS = 12              # Newey-West lags (months) for the second step's SE
 
 
 # Open-dune sensitivity (Martin 2026-11-25: "a dune only transect beyond the
@@ -4189,6 +4221,54 @@ STEP_DELTA_IC = 2.0              # AIC and BIC must both favour the step by this
 # constant: none is defined there. A band left with fewer than
 # OPEN_DUNE_MIN_WELLS wells on a basis is reported as not computed.
 OPEN_DUNE_MIN_WELLS = 3
+# 1.41.0 (Martin 2026-11-25: "We do have a ridge outline - it's the 20 m
+# contour. Use 200 m from the 20 m contour"). The ridge is the largest connected
+# region of the LiDAR DTM at or above RIDGE_CONTOUR_M; open dune excludes every
+# well inside it or within RIDGE_BUFFER_M of its edge.
+RIDGE_CONTOUR_M = 20.0
+RIDGE_BUFFER_M = 200.0
+
+
+def ridge_distances(wells: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Distance of each well (index = well, columns E, N in EPSG:27700) to the
+    20 m ground contour of the bedrock ridge, from the project DTM
+    (paths.DATA_DEM, 2 m). The ridge is the LARGEST connected region at or
+    above RIDGE_CONTOUR_M (holes filled): the other regions above that height
+    are isolated dune crests a fraction of a hectare across, so they are not
+    the ridge; the distance to ANY ground >= RIDGE_CONTOUR_M is returned beside
+    it for comparison only. Distances are pixel-centre to pixel-centre (+/- one
+    2 m pixel); a well inside the ridge reads 0 and inside_ridge True."""
+    import rasterio
+    from scipy import ndimage
+    with rasterio.open(paths.DATA_DEM) as src:
+        z = src.read(1, masked=True).astype(float).filled(np.nan)
+        tr = src.transform
+    res = abs(float(tr.a))
+    high = np.isfinite(z) & (z >= RIDGE_CONTOUR_M)
+    lab, n = ndimage.label(high)
+    sizes = ndimage.sum(high, lab, range(1, n + 1))
+    k = int(np.argmax(sizes)) + 1
+    ridge = ndimage.binary_fill_holes(lab == k)
+    d_ridge = ndimage.distance_transform_edt(~ridge) * res
+    d_any = ndimage.distance_transform_edt(~high) * res
+    col = np.floor((wells["E"].to_numpy(float) - tr.c) / tr.a).astype(int)
+    row = np.floor((wells["N"].to_numpy(float) - tr.f) / tr.e).astype(int)
+    inside = (row >= 0) & (row < z.shape[0]) & (col >= 0) & (col < z.shape[1])
+    if not inside.all():
+        warn(f"{int((~inside).sum())} well(s) outside the DTM: ridge distance NaN "
+             f"({' '.join(wells.index[~inside])})")
+    rr, cc = np.where(inside, row, 0), np.where(inside, col, 0)
+    out = pd.DataFrame({
+        "dist_ridge_m": np.where(inside, d_ridge[rr, cc], np.nan),
+        "inside_ridge": np.where(inside, ridge[rr, cc], False).astype(bool),
+        "dist_any_20m_m": np.where(inside, d_any[rr, cc], np.nan),
+        "dem_ground_m": np.where(inside, z[rr, cc], np.nan),
+    }, index=wells.index)
+    others = np.sort(np.delete(sizes, k - 1))[::-1] * res * res / 1e4
+    basis = {"ridge_area_ha": float(ridge.sum() * res * res / 1e4),
+             "n_other_patches": int(n - 1),
+             "largest_other_ha": float(others[0]) if len(others) else 0.0}
+    return out, basis
 
 
 def open_dune_wells(long: pd.DataFrame) -> tuple[set, dict]:
@@ -4209,11 +4289,18 @@ def open_dune_wells(long: pd.DataFrame) -> tuple[set, dict]:
     w = long.groupby("well").agg(E=("easting", "first"), N=("northing", "first"),
                                  in_forest=("in_forest", "first"))
     w["dist_plantation_edge_m"] = [edge.distance(Point(e, n)) for e, n in zip(w["E"], w["N"])]
+    rd, rbasis = ridge_distances(w[["E", "N"]])
+    w = w.join(rd)
     keep = w[(w["in_forest"] == 0) & ~w.index.isin(COASTAL_GRADIENT_EXCLUDED_WELLS)]
     if np.isfinite(lam):
         keep = keep[keep["dist_plantation_edge_m"] > lam]
+    near_ridge = keep.index[~(keep["dist_ridge_m"] > RIDGE_BUFFER_M)]
+    keep = keep[keep["dist_ridge_m"] > RIDGE_BUFFER_M]
     basis = {"buffer_m": lam, "n_open_ground": int((w["in_forest"] == 0).sum()),
-             "n_wells": int(len(keep)), "dist_edge": w["dist_plantation_edge_m"]}
+             "n_wells": int(len(keep)), "dist_edge": w["dist_plantation_edge_m"],
+             "ridge": rd, "ridge_removed": sorted(near_ridge),
+             "ridge_within_buffer_all": sorted(w.index[~(w["dist_ridge_m"] > RIDGE_BUFFER_M)]),
+             **rbasis}
     return set(keep.index), basis
 
 
@@ -4392,12 +4479,15 @@ def _fit_contrast(fit: dict, decay_func, d_a: float, d_b: float) -> tuple[float,
 
 
 # Script 40's consecutive modern epochs; 2006-2026 spans them and is not used.
-RETREAT_EPOCH_PAIRS = ("2006-2017", "2017-2021", "2021-2026")
+# 1.41.0: Script 40 1.10.0 splits 2006-2017 at the 20 April 2009 line, so the
+# two halves replace it (2006-2017 would double-count them).
+RETREAT_EPOCH_PAIRS = ("2006-2009", "2009-2017", "2017-2021", "2021-2026")
 
 
 def _retreat_over(epochs: pd.DataFrame | None, start, end) -> dict:
     """Time-weighted shoreline retreat over [start, end] from Script 40's
-    consecutive modern_common_frontage epochs (2006-2017, 2017-2021, 2021-2026).
+    consecutive modern_common_frontage epochs (RETREAT_EPOCH_PAIRS: 2006-2009,
+    2009-2017, 2017-2021, 2021-2026).
     Reports the epochs used and the share of the window they cover (none
     covers 2005, so a window starting there is partly uncovered)."""
     out = {"retreat_rate_m_yr": np.nan, "retreat_epochs": "",
@@ -4733,6 +4823,129 @@ def step_vs_trend(long_band: pd.DataFrame, cwb: pd.Series) -> pd.DataFrame:
                                  and (bic_t - bic_s) > STEP_DELTA_IC and size < 0),
         })
     return pd.DataFrame(rows)
+
+
+def two_step_test(long_band: pd.DataFrame, cwb: pd.Series,
+                  steps: pd.DataFrame) -> pd.DataFrame:
+    """25_21 (1.41.0): a SECOND level shift, with the well's best single step
+    held at its 25_21 date.
+
+    Same design as step_vs_trend (monthly h on month fixed effects + CWB + the
+    first step). The second step 1[t >= t2] is searched (a) over STEP2_WINDOW
+    (Oct 2014 - Apr 2015, the window asked about: the Landsat bracket, not the
+    clearance date, which the aerial imagery puts in May 2012 - March 2017) and
+    (b) over every month, each
+    keeping >= STEP_MIN_SEGMENT_MONTHS observed months from the first step and
+    from either end of the record. For (a): the step size, its HAC (Newey-West,
+    STEP2_HAC_LAGS) standard error and t, and AIC/BIC of the two-step model
+    against the one-step model, the searched t2 counted as a parameter.
+    s2win_prefers_drop is AIC and BIC both favouring it by STEP_DELTA_IC with a
+    negative size and |t_HAC| >= 2 (monthly residuals are autocorrelated, so the
+    plain OLS SE is not used). A well whose first step lies within
+    STEP_MIN_SEGMENT_MONTHS of the window has no window candidate (NaN)."""
+    from shapely.geometry import Point
+    from utils.kml_io import read_kml
+    try:
+        strip = read_kml(paths.DATA_SHORE_CLEARANCE_2015, quiet=True).geometry.union_all()
+    except Exception as exc:                                   # noqa: BLE001
+        warn(f"shore clearance unreadable ({exc}): dist_shore_clearance_m NaN")
+        strip = None
+    df = long_band.merge(cwb.to_frame(), left_on="date", right_index=True, how="inner")
+    df = df.dropna(subset=["h_depth", "cwb", "dist_coast_m"])
+    w0, w1 = (pd.Timestamp(x) for x in STEP2_WINDOW)
+    first = steps.set_index("well")
+    rows = []
+    for well, g in df.groupby("well"):
+        if well not in first.index:
+            continue
+        g = g.sort_values("date").reset_index(drop=True)
+        y = g["h_depth"].values.astype(float)
+        n = len(y)
+        months = pd.get_dummies(g["date"].dt.month, prefix="m", drop_first=True).values.astype(float)
+        base = np.column_stack([np.ones(n), months, g["cwb"].values.astype(float)])
+        d1 = pd.Timestamp(str(first.loc[well, "step_date"]) + "-01")
+        i1 = int(np.searchsorted(g["date"].values, np.datetime64(d1)))
+        s1 = (np.arange(n) >= i1).astype(float)
+        X1 = np.column_stack([base, s1])
+        b1, *_ = np.linalg.lstsq(X1, y, rcond=None)
+        rss1 = float(np.sum((y - X1 @ b1) ** 2))
+        aic1, bic1 = _ic(rss1, n, X1.shape[1] + 2)        # + t1 + sigma, as 25_21
+        grp = ""
+        for lab, (a, b) in STEP_FIRST_GROUPS.items():
+            if pd.Timestamp(a) <= d1 <= pd.Timestamp(b):
+                grp = lab
+        e, nn = float(g["easting"].iloc[0]), float(g["northing"].iloc[0])
+        row = {"well": well, "first_step_group": grp,
+               "dist_shore_clearance_m": (float(strip.distance(Point(e, nn)))
+                                         if strip is not None else np.nan)}
+        ok_i = [i for i in range(STEP_MIN_SEGMENT_MONTHS, n - STEP_MIN_SEGMENT_MONTHS + 1)
+                if abs(i - i1) >= STEP_MIN_SEGMENT_MONTHS]
+
+        def _best(cands):
+            best = (np.inf, None)
+            for i in cands:
+                X = np.column_stack([X1, (np.arange(n) >= i).astype(float)])
+                bb, *_ = np.linalg.lstsq(X, y, rcond=None)
+                r = float(np.sum((y - X @ bb) ** 2))
+                if r < best[0]:
+                    best = (r, i)
+            return best
+        win = [i for i in ok_i if w0 <= g["date"].iloc[i] <= w1]
+        rss_w, iw = _best(win)
+        if iw is not None:
+            X = np.column_stack([X1, (np.arange(n) >= iw).astype(float)])
+            fit = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": STEP2_HAC_LAGS})
+            aic2, bic2 = _ic(rss_w, n, X.shape[1] + 3)     # + t1 + t2 + sigma
+            size, se = float(fit.params[-1]), float(fit.bse[-1])
+            row.update({
+                "s2win_date": f"{g['date'].iloc[iw]:%Y-%m}",
+                "s2win_size_mm": size * 1000.0, "s2win_se_hac_mm": se * 1000.0,
+                "s2win_t_hac": size / se if se > 0 else np.nan,
+                "s2win_first_step_mm": float(fit.params[-2]) * 1000.0,
+                "s2win_delta_aic": aic1 - aic2, "s2win_delta_bic": bic1 - bic2,
+                "s2win_prefers_drop": bool((aic1 - aic2) > STEP_DELTA_IC
+                                           and (bic1 - bic2) > STEP_DELTA_IC
+                                           and size < 0 and abs(size / se) >= 2.0),
+            })
+        else:
+            row["s2win_prefers_drop"] = False
+        rss_b, ib = _best(ok_i)
+        if ib is not None:
+            X = np.column_stack([X1, (np.arange(n) >= ib).astype(float)])
+            bb, *_ = np.linalg.lstsq(X, y, rcond=None)
+            aic2, bic2 = _ic(rss_b, n, X.shape[1] + 3)
+            db = g["date"].iloc[ib]
+            row.update({"s2best_date": f"{db:%Y-%m}", "s2best_size_mm": float(bb[-1]) * 1000.0,
+                        "s2best_delta_bic": bic1 - bic2,
+                        "s2best_in_window": bool(w0 <= db <= w1)})
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def two_step_rows(two: pd.DataFrame) -> list[dict]:
+    """Report numbers twostep_<group>_* for the 2009 coastal group (and the
+    2009 inland wells) from the 25_21 second-step columns."""
+    rows: list[dict] = []
+    for lab, sub in (("2009_coastal", two[(two["first_step_group"] == "2009")
+                                          & (two["group"] == "coastal")]),
+                     ("2009_inland", two[(two["first_step_group"] == "2009")
+                                         & (two["group"] == "inland")])):
+        t = sub.dropna(subset=["s2win_size_mm"])
+        for k, v, u, note in (
+                ("n_wells", len(sub), "wells", "wells whose 25_21 best single step falls in 2009"),
+                ("n_tested", len(t), "wells", f"of those, with a candidate second step in {STEP2_WINDOW[0][:7]}..{STEP2_WINDOW[1][:7]}"),
+                ("n_prefer_drop", int(t["s2win_prefers_drop"].sum()), "wells",
+                 f"second step in the window a drop favoured by AIC and BIC (> {STEP_DELTA_IC:g}) with |t_HAC| >= 2"),
+                ("n_negative", int((t["s2win_size_mm"] < 0).sum()), "wells", "second step in the window negative"),
+                ("size_median_mm", t["s2win_size_mm"].median(), "mm", "median second-step size in the window"),
+                ("size_min_mm", t["s2win_size_mm"].min(), "mm", "most negative second-step size in the window"),
+                ("size_max_mm", t["s2win_size_mm"].max(), "mm", "least negative / largest second-step size in the window"),
+                ("n_best_in_window", int(sub["s2best_in_window"].fillna(False).astype(bool).sum()), "wells",
+                 "unrestricted best second step falls in the window")):
+            rows.append({"Parameter": f"twostep_{lab}_{k}", "Well": "", "Era": "",
+                         "Value": float(v) if pd.notna(v) else np.nan, "Unit": u,
+                         "Note": f"25_21 two-step test (1.41.0): {note}."})
+    return rows
 
 
 def step_propagation(steps: pd.DataFrame) -> pd.DataFrame:
@@ -5602,18 +5815,31 @@ def main() -> None:
     long_od_band = long_band[long_band["well"].isin(od_set)]
     long_od_ff = long_ff[long_ff["well"].isin(od_set)]
     info(f"open-dune set: {len(od_set)} wells (open ground {od_basis['n_open_ground']}, "
-         f"outside {od_basis['buffer_m']:.0f} m of the plantation edge; CEH12 out): "
-         f"{' '.join(sorted(od_set))}")
+         f"outside {od_basis['buffer_m']:.0f} m of the plantation edge and {RIDGE_BUFFER_M:.0f} m of "
+         f"the {RIDGE_CONTOUR_M:.0f} m ridge contour; CEH12 out): {' '.join(sorted(od_set))}")
+    info(f"ridge: {od_basis['ridge_area_ha']:.0f} ha of DTM >= {RIDGE_CONTOUR_M:.0f} m in one region; "
+         f"{od_basis['n_other_patches']} other patches (largest {od_basis['largest_other_ha']:.2f} ha, "
+         f"dune crests) not used. Band wells within {RIDGE_BUFFER_M:.0f} m of it: "
+         f"{' '.join(od_basis['ridge_within_buffer_all']) or 'none'}; removed from open dune by it "
+         f"(after the land-cover and plantation tests): {' '.join(od_basis['ridge_removed']) or 'none'}")
+    _rd = od_basis["ridge"]
+    _crest = sorted(set(od_set) & set(_rd.index[_rd["dist_any_20m_m"] <= RIDGE_BUFFER_M]))
+    info(f"for comparison only: buffering ANY ground >= {RIDGE_CONTOUR_M:.0f} m (dune crests too) would "
+         f"also remove {len(_crest)} open-dune wells: {' '.join(_crest) or 'none'}")
     _b_od, _s_od, _w_od = distance_band_decomposition(long_od_band, fit_ff_l,
                                                       spec="open_dune",
                                                       min_wells=OPEN_DUNE_MIN_WELLS)
     _b_od["plantation_buffer_m"] = od_basis["buffer_m"]
+    _b_od["ridge_buffer_m"] = RIDGE_BUFFER_M
     for _r in _b_od[_b_od["not_computed"] != ""].itertuples():
         warn(f"open dune, {_r.band}: {_r.not_computed} — not computed")
     band_wells["dist_plantation_edge_m"] = band_wells["well"].map(od_basis["dist_edge"])
     band_wells["open_dune"] = band_wells["well"].isin(od_set)
     _w_od["dist_plantation_edge_m"] = _w_od["well"].map(od_basis["dist_edge"])
     _w_od["open_dune"] = True
+    for _c in ("dist_ridge_m", "inside_ridge", "dist_any_20m_m", "dem_ground_m"):
+        band_wells[_c] = band_wells["well"].map(od_basis["ridge"][_c])
+        _w_od[_c] = _w_od["well"].map(od_basis["ridge"][_c])
     bands_net, band_series_net = bands, band_series
     bands = pd.concat([bands, _b_od], ignore_index=True)
     band_series = pd.concat([band_series, _s_od], ignore_index=True)
@@ -5660,7 +5886,14 @@ def main() -> None:
 
     step("Paper C: breach tests (step vs trend, propagation, drainage)")
     steps = step_vs_trend(long_band, cwb)
+    _two = two_step_test(long_band, cwb, steps)
+    steps = steps.merge(_two, on="well", how="left")
     steps.to_csv(paths.OUT_25_STEP_VS_TREND, index=False)
+    _g9 = steps[steps["first_step_group"] != ""].sort_values(["first_step_group", "dist_coast_m"])
+    print(_g9[["well", "group", "first_step_group", "dist_coast_m", "dist_shore_clearance_m", "step_date",
+               "step_size_mm", "s2win_date", "s2win_size_mm", "s2win_se_hac_mm", "s2win_t_hac",
+               "s2win_delta_bic", "s2win_prefers_drop", "s2best_date", "s2best_size_mm"]]
+          .round(1).to_string(index=False))
     saved(paths.OUT_25_STEP_VS_TREND.name, f"{len(steps)} wells")
     prop = step_propagation(steps)
     print(prop.round(4).to_string(index=False))
@@ -5670,7 +5903,7 @@ def main() -> None:
     for _line in breach_verdict(steps, prop, drain, t_split).splitlines():
         result("breach", _line)
     paper_c_rows = (distance_band_rows(bands) + split_2011_rows(split)
-                    + breach_rows(steps, prop, drain, t_split))
+                    + breach_rows(steps, prop, drain, t_split) + two_step_rows(steps))
 
     # ── Spring-vs-summer comparison (needs both metrics) ──
     if "summer_min" in partitions and "spring_mean" in partitions:

@@ -11,7 +11,12 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "2.3.0"  # Hollingham (2026) - 2026-11-25. Paper C distance bands (Martin 2026-11-25): OUT_25_DISTANCE_BANDS
+__version__ = "2.5.0"  # Hollingham (2026) - 2026-11-25 (latest). DATA_TIDES_BARMOUTH and DATA_WAVES_ERA5 (Script 40
+#   1.11.0). Additive.
+# 2.4.0  # Hollingham (2026) - 2026-11-25 (later). DATA_KML_COAST_2009 (data/geo/coast2009.kml, the
+#   20 April 2009 dune edge, Martin 2026-10-23), now an epoch of Script 40 1.10.0; OUT_40_STORM_WINTERS (40_09),
+#   OUT_40_STORM_EVENTS (40_10), OUT_40_STORM_FIG (40_11) and DATA_TIDES_HOLYHEAD (data/tides/holyhead, BODC). Additive.
+# 2.3.0  # Hollingham (2026) - 2026-11-25. Paper C distance bands (Martin 2026-11-25): OUT_25_DISTANCE_BANDS
 #   (25_17), OUT_25_DISTANCE_BAND_WELLS (25_17b), OUT_25_DISTANCE_BAND_SERIES (25_18), OUT_25_DISTANCE_BAND_FIG (25_19), OUT_25_SPLIT_2011 (25_20),
 #   OUT_25_STEP_VS_TREND (25_21), OUT_25_DRAINAGE_CHANGE (25_22), OUT_40_TRANSECT_MAP (40_08) and DATA_KML_CLAY
 #   (data/geo/clay.kml, the mapped clay exposure). Additive.
@@ -453,7 +458,7 @@ KML_BROADLEAF        = data_geo("broadleaf_restock.kml")
 DATA_FELLING_1998_1    = data_geo("felling_1998_1.geojson")
 DATA_FELLING_1998_2    = data_geo("felling_1998_2.geojson")
 DATA_FELLING_1998_3    = data_geo("felling_1998_3.geojson")
-DATA_SHORE_CLEARANCE_2015 = data_geo("forest shore clearance April 2015.kml")   # Martin, 2026-10-03; cleared Oct 2014-Mar 2015 (Landsat)
+DATA_SHORE_CLEARANCE_2015 = data_geo("forest shore clearance April 2015.kml")   # Martin, 2026-10-03; the name is not a date: cleared between May 2012 and March 2017 (aerial imagery; Martin 2026-11-25)
 DATA_BROADLEAF_RESTOCK = data_geo("broadleaf_restock.geojson")
 DATA_CLEARFELL         = data_geo("clearfell.geojson")   # the 2017 clearfell (clearfell.kml -> 27700), 1.48.0
 DATA_WELL_ELEVATIONS = DATA_WELL_METADATA  # consolidated; was Well_locations_height.csv
@@ -1330,6 +1335,9 @@ DATA_CCW_SIMILARITY_MARTIN = DATA_DIR / "ccw_similarity_groups_martin.csv"   # M
 # Script 44 (D-145; provenance in data/RANWELL_PROVENANCE.md).
 RANWELL_LEVELS          = DATA_DIR / "ranwell_1951_53_water_levels.csv"
 MIDAS_RAIN_DIR          = DATA_DIR / "midas_rain"   # Met Office MIDAS Open daily rain gauges (E8d, D-234)
+DATA_TIDES_HOLYHEAD     = DATA_DIR / "tides" / "holyhead"   # BODC processed 15-min Holyhead files (Script 40 1.10.0; may be absent)
+DATA_TIDES_BARMOUTH     = DATA_DIR / "tides" / "barmouth"   # BODC processed 15-min Barmouth files (Script 40 1.11.0; may be absent)
+DATA_WAVES_ERA5         = DATA_DIR / "waves" / "era5_waves_frontage_hourly.csv.gz"   # ERA5 hourly waves, 53.0 N 4.5 W (Script 40 1.11.0; data/WAVES_PROVENANCE.md)
 MIDAS_WEATHER_DIR       = DATA_DIR / "midas_weather" / "valley_01145"   # MIDAS Open hourly weather + radiation, Valley (E13, D-273)
 RANWELL_RANGES          = DATA_DIR / "ranwell_1951_53_monthly_ranges.csv"
 RANWELL_PARC_MAWR_RAIN  = DATA_DIR / "ranwell_1950_53_parc_mawr_rain.csv"
@@ -1373,6 +1381,8 @@ OUT_40_SENSITIVITY     = DIR_40 / "40_06_coastal_sensitivity.csv"
 # the spec called it 40_05 before those existed.
 OUT_40_STORM_PAIR      = DIR_40 / "40_07_storm_pair.csv"
 OUT_40_REPORT_NUMBERS  = DIR_40 / "40_report_numbers.csv"
+OUT_40_STORM_WINTERS   = DIR_40 / "40_09_storm_winters.csv"   # 1.10.0: onshore gales per July-June winter
+OUT_40_STORM_EVENTS    = DIR_40 / "40_10_storm_events.csv"    # 1.10.0: days with an onshore mean >= 40 kt
 
 # ── Script 41 — canopy and forest cover from the dated aerial series ──────────
 # The IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT. It is screen capture of a
@@ -1630,6 +1640,7 @@ def out_47_lang(path, lang: str):
     (export_lag, the film page, the provenance ledger) is unchanged."""
     return path if lang == "en" else path.with_name(f"{path.stem}_{lang}{path.suffix}")
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
+OUT_40_STORM_FIG       = DIR_40 / "40_11_storm_winters.png"   # 1.10.0
 OUT_40_TRANSECT_MAP    = DIR_40 / "40_08_transect_map.png"   # 2026-11-25: epochs, normals by retreat, Script 38 wells
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;
@@ -1643,6 +1654,7 @@ OUT_40_TRANSECT_MAP    = DIR_40 / "40_08_transect_map.png"   # 2026-11-25: epoch
 # series' inflated recent rate to a single displaced line (D-087).
 DATA_KML_COAST_1899    = data_geo("coast1899.kml")
 DATA_KML_COAST_2006    = data_geo("coast2006.kml")
+DATA_KML_COAST_2009    = data_geo("coast2009.kml")   # 2009-04-20 dune edge; epoch since Script 40 1.10.0
 DATA_KML_COAST_2017    = data_geo("coast2017.kml")
 DATA_KML_COAST_2021    = data_geo("coast2021.kml")
 DATA_KML_COAST_2026    = data_geo("coast2026.kml")

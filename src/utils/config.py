@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.132.0"  # Hollingham (2026) - 2026-11-23 (J-33). COAST_RETREAT_M (6 m) is superseded as the drawn
+__version__ = "1.133.0"  # Hollingham (2026) - 2026-11-25 (Martin: the shore-clearance date is not known; aerial
+#   imagery brackets it between May 2012 and March 2017). E8F_STEP_WINDOW widened from 2014-10..2015-04 to 2012-06..2017-03
+#   so Script 50d's E8f estimates the date; the E8f note corrected.
+# 1.132.0  # Hollingham (2026) - 2026-11-23 (J-33). COAST_RETREAT_M (6 m) is superseded as the drawn
 #   event by the measured 2019-20 winter displacement (coastal_utils 1.1.0); kept as Script 40's comparator.
 # 1.131.0  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END, the (P-PET)
 #   reference window, move here from Scripts 00 and 02, which each typed them; values unchanged (2004-12-01, 2025-12-01).
@@ -884,13 +887,16 @@ E8E_CANOPY_REGION      = "felling_1998_1"
 E8E_CANOPY_VIEWPOINT   = "vp1"
 
 # E8f (D-236, spec NRG_spec_E8f_shore_clearance_step_2026-10-03, approved 2026-10-03 07:49): did the shore clearance
-# (data/geo/forest shore clearance April 2015.kml; cleared between 2014-10-29 and 2015-03-21 by Landsat) put a step
+# (data/geo/forest shore clearance April 2015.kml - the name is not a date: cleared between May 2012 and March 2017 by
+# the aerial imagery, Martin 2026-11-25; a 2026-10-03 Landsat reading, GEO_PROVENANCE, put it in Oct 2014-Mar 2015) put a step
 # into the wells around it? Per well, the E8 single store plus one step (One) whose date is profiled monthly over
 # E8F_STEP_WINDOW; a well needs E8F_MIN_SIDE_MONTHS readings either side. Near wells lie within E8F_NEAR_M of the
 # strip, placebo wells beyond E8F_FAR_M. A well has a step if BIC improves by TWO_STORE_BIC_STRONG and the step's
 # 95% interval excludes zero. Test 1: any of E8F_CONTROL_WELLS has a step; test 2: at most E8F_PLACEBO_MAX_FRAC of
 # the placebo wells do (else the shift is site-wide).
-E8F_STEP_WINDOW        = ("2014-10-01", "2015-04-01")
+# 2026-11-25 (Martin): widened from ("2014-10-01", "2015-04-01") to the aerial-imagery bracket, so the date is
+# estimated rather than assumed (Script 50d 1.1.0).
+E8F_STEP_WINDOW        = ("2012-06-01", "2017-03-01")
 E8F_MIN_SIDE_MONTHS    = 24
 E8F_NEAR_M             = 500.0
 E8F_FAR_M              = 1000.0

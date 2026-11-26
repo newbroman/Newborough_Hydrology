@@ -204,7 +204,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (567)
+## Outputs no exhibit renders (575)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -519,6 +519,13 @@
 - `25_15_covariate_specification_range.csv`
 - `25_16_delta0_leave_one_out.csv`
 - `25_16_delta0_leave_one_out.png`
+- `25_17_distance_band_decomposition.csv`
+- `25_17b_distance_band_wells.csv`
+- `25_18_distance_band_series.csv`
+- `25_19_distance_bands.png`
+- `25_20_split_2011.csv`
+- `25_21_step_vs_trend.csv`
+- `25_22_drainage_change.csv`
 - `25_report_numbers.csv`
 - `26_curreli_min_per_cluster.csv`
 - `26_curreli_min_per_well.csv`
@@ -601,10 +608,3 @@
 - `37b_report_numbers.csv`
 - `38_report_numbers.csv`
 - `38_transect.csv`
-- `39_01_hindcast_per_well.csv`
-- `39_02_hindcast_series.csv`
-- `39_03_beta1_sensitivity.csv`
-- `39_04_hindcast.png`
-- `39_05_full_hindcast_site.csv`
-- `39_06_full_hindcast_decadal.csv`
-- `39_07_full_hindcast.png`

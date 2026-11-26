@@ -172,6 +172,14 @@ docs/papers/paper_2/PAPER2_EDITS.md
 # must never reach the public one, where it would be meaningless to a reader
 # and would conflict on every push between machines.
 
+# Third-party time series kept in the PRIVATE repository (2026-11-25): ERA5 waves (Copernicus licence) and
+# BODC tide-gauge files (Open Government Licence: publishable, kept private at the 2026-11-25 handover's request).
+# The private repository force-adds them (wgit add -f), as it
+# does data/Ecohydrology_dataset.xlsx; their provenance records (data/WAVES_PROVENANCE.md, data/TIDES_PROVENANCE.md)
+# are public. A cloud session gets them from the private checkout (tools/cloud_setup.sh step 2).
+/data/waves/
+/data/tides/
+
 # Google Earth Pro screen captures — the imagery series behind Script 41.
 # Licensed basemap (Bluesky, Infoterra Ltd & COWI A/S), and committing it to a
 # PUBLIC repository attached to a journal submission is redistribution, which is

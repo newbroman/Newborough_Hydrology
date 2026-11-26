@@ -8,7 +8,12 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-25 (Martin: "the forest was cleared after May 2012 - the forest is
+#   there in the aerial photo but missing in March 2017; I have no photos in between"). E8f's step date is now
+#   ESTIMATED over config.E8F_STEP_WINDOW = 2012-06..2017-03 (was 2014-10..2015-04, which assumed the date). Labels say
+#   "the shore clearance (2012-17)"; the site-wide verdict is "site-wide shift" (code 0 unchanged). The file name
+#   "forest shore clearance April 2015.kml" is kept (paths depend on it); it is not a date.
+# 1.0.0  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 import argparse
 import importlib.util
@@ -1230,8 +1235,9 @@ def plot_felling(tab, timing, ie) -> None:
     saved(OUT_50_FELLING_FIG.name)
 
 
-# ── E8f (1.7.0, D-236): the 2014/15 shore clearance — a step in the wells around it? ──────────────────
-E8F_VERDICT = {"clearance step at the controls": 2, "no clearance step at the controls": 1, "site-wide 2015 shift": 0}
+# ── E8f (1.7.0, D-236): the shore clearance (between May 2012 and March 2017, aerial imagery) — a step in the wells
+# around it? ──────────────────
+E8F_VERDICT = {"clearance step at the controls": 2, "no clearance step at the controls": 1, "site-wide shift": 0}
 
 
 def clearance_steps(lev, lev_cols, cl):
@@ -1323,7 +1329,7 @@ def e8f_verdict(tab: pd.DataFrame):
     frac = float(plc["has_step"].mean()) if len(plc) else np.nan
     t2 = bool(np.isfinite(frac) and frac <= E8F_PLACEBO_MAX_FRAC)
     rho = spearmanr(near["dist_clearance_m"], near["step_m"]) if len(near) > 2 else None
-    verdict = ("site-wide 2015 shift" if not t2 else
+    verdict = ("site-wide shift" if not t2 else
                "clearance step at the controls" if t1 else "no clearance step at the controls")
     return verdict, {"test1": t1, "test2": t2, "placebo_frac": frac, "n_placebo": len(plc), "n_near": len(near),
                      "controls_tested": list(ctrl["well"]), "controls_with_step": list(ctrl[ctrl["has_step"]]["well"]),
@@ -1382,8 +1388,8 @@ def plot_clearance_steps(tab) -> None:
         ax.annotate(r.well.upper(), (r.dist_clearance_m, r.step_m), xytext=(4, 4), textcoords="offset points", fontsize=7)
     ax.axhline(0, color="0.4", lw=0.7)
     ax.axvline(E8F_NEAR_M, color="0.7", lw=0.6, ls="--"); ax.axvline(E8F_FAR_M, color="0.7", lw=0.6, ls="--")
-    ax.set_xlabel("distance to the 2014/15 shore clearance (m)")
-    ax.set_ylabel("fitted step, Oct 2014 to Apr 2015 (m, 95%)")
+    ax.set_xlabel("distance to the shore clearance, 2012-17 (m)")
+    ax.set_ylabel(f"fitted step, date searched {E8F_STEP_WINDOW[0][:7]} to {E8F_STEP_WINDOW[1][:7]} (m, 95%)")
     ax.set_title("E8f: a step at the clearance? Ringed: a step by the rule. Red: the rule's step; blue: the same "
                  "test after the 2008-11 step is allowed for", loc="left", fontsize=8)
     ax.grid(alpha=0.3); ax.legend(fontsize=7)
@@ -1625,7 +1631,8 @@ def main(no_fig: bool = False) -> int:
     fe_tab.to_csv(OUT_50_FELLING_DIST, index=False); saved(f"{OUT_50_FELLING_DIST.name} ({len(fe_tab)} rows)")
     fe_timing.to_csv(OUT_50_NW9_TIMING, index=False); saved(f"{OUT_50_NW9_TIMING.name} ({len(fe_timing)} rows)")
 
-    phase(6, "The 2014/15 shore clearance: a step in the wells around it? (E8f, 1.7.0, D-236)")
+    phase(6, f"The shore clearance (between May 2012 and March 2017): a step in the wells around it, date searched "
+             f"{E8F_STEP_WINDOW[0][:7]}..{E8F_STEP_WINDOW[1][:7]}? (E8f, D-236; window widened 50d 1.1.0)")
     cf_tab = clearance_steps(lev, lev_cols, cl)
     cf_verdict, cf_info = e8f_verdict(cf_tab)
     for r in cf_tab[cf_tab["control"]].itertuples():

@@ -74,7 +74,7 @@ __version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split fro
 # |   50_04_record_length.png            stability, forecast, within-record and CCW hindcast against L
 # |   50_18 .. 50_20                     E8d, rain event structure (D-234)
 # |   50_21 .. 50_23                     E8e, the 1998 felling north of NW9 and its regrowth (D-235)
-# |   50_24 .. 50_25                     E8f, the 2014/15 shore clearance step (D-236)
+# |   50_24 .. 50_25                     E8f, the shore clearance step, 2012-17 (D-236)
 # |   50_26_precanopy_by_case.csv        E8g, a store drawn down by the plantation: the pre-canopy test (T-121, D-255)
 # |   50_27_forest_forcing_by_well.csv   E10, the forest forcing test (D-260)
 # |   50_28_ranwell_need_grid.csv        E11, what Ranwell's readings need: every pairing x coefficient scales (D-261)

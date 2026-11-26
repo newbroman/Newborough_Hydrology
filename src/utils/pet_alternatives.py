@@ -33,7 +33,12 @@ Reproduces, exactly, the scratch runs working/nvc_laurence/scripts/26_e13_scratc
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-24 (D-274): midas_monthly_pm also returns the monthly dew
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-11-25 (Martin, the storm table of Script 40 1.10.0):
+#   midas_hourly_wind() returns the hourly wind speed and direction, the 10-minute maximum gust and MSL pressure
+#   from the same hourly files, deduplicated per hour as midas_daily_pm does. It REFUSES any wind_speed_unit_id
+#   other than 4: each data file's own header defines 4 = "wind speed from anemometer, knots" (the capability file
+#   does not define the codes), and wind_speed and q10mnt_mxgst_spd are declared in knots. No PET value changes.
+# 1.1.0  # Hollingham (2026) - 2026-10-24 (D-274): midas_monthly_pm also returns the monthly dew
 #   point, daily minimum temperature and pressure, so E13b can show the inputs' homogeneity. No PET value changes.
 # 1.0.0  # Hollingham (2026) - 2026-10-23 (D-273; Martin 23:20 "Make e13 a proper step"; spec
 #   NRG_spec_E13_build_2026-10-23, approved). First issue.
@@ -258,3 +263,33 @@ def midas_span(station_dir: Path) -> tuple[str, str]:
         if p[0] == "date_valid" and len(p) >= 4:
             return tuple(pd.Timestamp(x).to_period("M").to_timestamp().strftime("%Y-%m-%d") for x in p[2:4])
     raise ValueError(f"no date_valid in {f}")
+
+
+MIDAS_KNOTS_UNIT_ID = 4   # data-file header: "4=wind speed from anemometer,knots"
+
+
+def midas_hourly_wind(station_dir: Path, start: str, end: str) -> pd.DataFrame:
+    """Hourly wind (knots, from the anemometer), direction (deg true), 10-minute maximum gust (knots) and MSL
+    pressure (hPa) for [start, end], indexed by ob_time; one row per hour, the first non-missing value of each
+    field (the 1980-2001 double messages, as midas_daily_pm). Raises if a row in range carries a
+    wind_speed_unit_id other than MIDAS_KNOTS_UNIT_ID, or if a file's header does not define that code as knots."""
+    y0, y1 = pd.Timestamp(start).year, pd.Timestamp(end).year
+    files = [f for f in sorted((station_dir / "hourly_weather").glob("*qcv-1_*.csv.gz"))
+             if y0 <= int(f.stem.split("_")[-1].split(".")[0]) <= y1]
+    cols = ["ob_time", "wind_speed_unit_id", "wind_direction", "wind_speed", "q10mnt_mxgst_spd", "msl_pressure"]
+    parts = []
+    for f in files:
+        t = gzip.open(f, "rt", encoding="utf-8", errors="replace").read()
+        if "4=wind speed from anemometer,knots" not in t.split("\ndata\n", 1)[0]:
+            raise ValueError(f"{f.name}: the header does not define wind_speed_unit_id 4 as knots")
+        body, _ = _badc(f)
+        parts.append(body[cols])
+    h = pd.concat(parts)
+    h["t"] = pd.to_datetime(h.ob_time)
+    h = h[(h.t >= pd.Timestamp(start)) & (h.t <= pd.Timestamp(end))]
+    units = set(pd.to_numeric(h.wind_speed_unit_id, errors="coerce").dropna().astype(int))
+    if units - {MIDAS_KNOTS_UNIT_ID}:
+        raise ValueError(f"wind_speed_unit_id {sorted(units)} in {start}..{end}: only {MIDAS_KNOTS_UNIT_ID} (knots) is handled")
+    for c in cols[2:]:
+        h[c] = pd.to_numeric(h[c], errors="coerce")
+    return h.drop(columns=["ob_time", "wind_speed_unit_id"]).groupby("t").first().sort_index()

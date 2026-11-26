@@ -236,7 +236,11 @@ a series line would double-count 2006.
   functions (`_measure`, signed shore-normal, `SHORE_NORMAL_SPACING_M`,
   `SHORE_NORMAL_MAX_RANGE_M`, common northing band of 2006/2009/2017); the
   result is in `working/updates/coast2009_split_2026-10-23/`. It is not an
-  epoch of `40_01_epoch_series.csv`.
+  epoch of `40_01_epoch_series.csv`. *(Superseded 2026-11-25 — see the next line.)*
+- **Read by (since 2026-11-25):** `40_shoreline_retreat.py` 1.10.0 (`paths.DATA_KML_COAST_2009`), as the
+  2009 epoch (2009-04-20): 2006→2009 and 2009→2017 rows of `40_01_epoch_series.csv`, the `ray_2026_to_2009_m`
+  column of `40_02_normals.csv`, the green dotted line of `40_08`. It spans the modern frontage band at both ends,
+  so the band does not move; its vertices are left out of the projection origin, so no earlier row moves.
 
 ### `coast2019-09-11.kml` / `coast2020-03-31.kml` — the STORM PAIR, not epochs
 
@@ -1353,9 +1357,10 @@ that is not water.
 - **What:** a strip of pine cleared along the foreshore south-west of the 2017 clearfell, one polygon, 5.57 ha, about 540 m long and 100 m wide; 280 m from the clearfell at its nearest.
 - **Source:** digitised by **Martin Hollingham** (Google Earth Pro), supplied 2026-10-03, dated by him "April 2015, the same date as the CEH36 scraping".
 - **Dated from imagery (2026-10-03):** Landsat 7/8 bracket the clearance between **29 October 2014 and 21 March 2015**. A partial scene on 24 January 2015 suggests most of it was done by then. Sentinel-2 starts in July 2015 and shows the strip already bare. Findings: `working/updates/clearance2015/FINDINGS.md`.
+- **Date, 2026-11-25 (Martin):** "the forest was cleared after May 2012 — the forest is there in the aerial photo but missing in March 2017; I have no photos in between." The aerial imagery therefore brackets the clearance **between May 2012 and March 2017**, and the file name's "April 2015" is not a date. Script 50d (1.1.0) now estimates the step date over 2012-06..2017-03 (`config.E8F_STEP_WINDOW`) rather than assuming it. The Landsat bracket above is satellite, not aerial, evidence and is kept as recorded; which governs is Martin's call.
 - **Wells within 250 m:** CEH3, CEH35, CEH19 and CEH17 (the two clearfell coastal controls), CEH4 (the CEH36 scrape-pair control), CEH38, NW9, CEH36, CEH31 and CEH16 (clearfell edge wells), FE3.
 - **CRS:** WGS84 lon/lat.
-- **Read by:** `src/50_record_length.py` 1.7.0 E8f (D-236), via `paths.DATA_SHORE_CLEARANCE_2015` and `utils/kml_io.read_kml`.
+- **Read by:** `src/50_record_length.py` 1.7.0 E8f (D-236), via `paths.DATA_SHORE_CLEARANCE_2015` and `utils/kml_io.read_kml`; since 2026-11-24 `src/50d_two_stores.py`, and since 2026-11-25 `src/25_coastal_gradient.py` 1.41.0 (25_21 `dist_shore_clearance_m`).
 
 ### `clearfell.geojson` — EPSG:27700 reprojection of the 2017 clearfell (added 2026-09-30)
 - **What:** the `clearfell.kml` compartment as a committed EPSG:27700 `FeatureCollection` with one `Polygon`, the same structure as the four reprojections above (outer ring at `features[0].geometry.coordinates[0]`, 23 vertices).

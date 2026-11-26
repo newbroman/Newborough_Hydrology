@@ -47,7 +47,34 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-25 (Martin: "where's the map of the transects?"). New figure
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-25 (latest). Storm table gains ERA5 WAVES (data/waves/,
+#   data/WAVES_PROVENANCE.md; hourly Hs, mean direction and peak period at 53.0 N 4.5 W, Caernarfon Bay): per event
+#   day hs_max_m and the period / direction at that hour; per winter max_hs_m, its date, the record's 95th-percentile
+#   daily Hs (hs_threshold_m, STORM_HS_PERCENTILE) and the days, and gale days, above it. BARMOUTH tides beside Holyhead
+#   (paths.DATA_TIDES_BARMOUTH; own columns *_barmouth_m, never averaged); _read_bodc_holyhead -> _read_bodc. Every
+#   new column is empty, with one warning, while its input is absent. Nothing in 40_01-40_08 moves. The BODC files
+#   are read gzipped (*.txt.gz) as well as plain; 40_09 gains tide_days_holyhead / _barmouth (days with a clean level
+#   in the winter), because BODC flags whole months improbable (Barmouth every value from 2016).
+# 1.10.0  # Hollingham (2026) - 2026-11-25 (later; Martin, the 2009 question: "was there an unusually
+#   large retreat between 2006 and 2009?"). coast2009.kml (20 April 2009 dune edge, traced 2026-10-23; GEO_PROVENANCE)
+#   becomes an EPOCH: INTERVALS gain 2006-2009 and 2009-2017, measured on each pair's own extent and on the shared
+#   modern frontage band, which 2009 spans at both ends, so the band does not move. The local projection origin stays
+#   the centroid of the five ORIGIN_EPOCHS (the 2009 vertices are left out of it) and the generalisation bound stays
+#   on the four modern lines, so no existing row of 40_01-40_07 moves. 40_02 gains, on the 2026 normals of the floor
+#   interval, E/N (EPSG:27700), the ray to each earlier line (ray_2026_to_<epoch>_m) and the consecutive retreat on
+#   those COMMON normals (common_<a>_<b>_m = ray_a - ray_b). 40_report_numbers gains retreat_2006_2009 / 2009_2017
+#   medians (modern frontage) and the car-park stretch (CAR_PARK_WELL CEH15, DIPwells.kml "CAR PARK"; transects whose
+#   2026 origin lies within CAR_PARK_RADIUS_M of the frontage point nearest it) per consecutive interval. 40_08 draws
+#   the 2009 line.
+#   STORM TABLE (Martin, same day): 40_09_storm_winters.csv (per July-June winter 2004/05-2022/23: days with an onshore
+#   180-300 deg hourly mean >= 34 kt and >= 41 kt, event days >= 40 kt, the strongest onshore mean, largest 10-minute
+#   gust, lowest MSL pressure), 40_10_storm_events.csv (every day with an onshore mean >= 40 kt) and 40_11_storm_winters.png
+#   (with the shoreline epochs and Script 25's 2009 / 2014-15 well-drop windows), from the MIDAS Open Valley hourly
+#   record read through utils.pet_alternatives.midas_hourly_wind (knots: wind_speed_unit_id 4, defined in each data
+#   file's header). Holyhead tides (BODC processed 15-minute files in paths.DATA_TIDES_HOLYHEAD, data/TIDES_PROVENANCE.md)
+#   fill the day's highest level, maximum surge (residual) and the winter's count of gale days above its 95th-percentile
+#   daily high water when present; absent, those columns are written empty with one warning. storm_* report numbers.
+# 1.9.0  # Hollingham (2026) - 2026-11-25 (Martin: "where's the map of the transects?"). New figure
 #   40_08_transect_map.png: the digitised coastlines of 2006, 2017, 2021 and 2026, the shore-normal transects of
 #   40_02 coloured by their signed 2006-2026 retreat, the mapped clay exposure (data/geo/clay.kml) and Script 38's
 #   model-free transect wells (38_transect.csv: CEH22 coastal anchor ... NW4 inland anchor) joined as a line, over
@@ -195,6 +222,7 @@ import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import math
+import gzip
 import re
 
 import numpy as np
@@ -226,6 +254,7 @@ TOL_GENERAL  = config.SHORE_GENERALISATION_TOLERANCE_M
 EPOCHS = [
     ("1899", paths.DATA_KML_COAST_1899, "1899-01-01"),
     ("2006", paths.DATA_KML_COAST_2006, "2006-01-01"),
+    ("2009", paths.DATA_KML_COAST_2009, "2009-04-20"),   # 1.10.0: the 20 April 2009 imagery
     ("2017", paths.DATA_KML_COAST_2017, "2017-03-24"),
     ("2021", paths.DATA_KML_COAST_2021, "2021-04-04"),
     ("2026", paths.DATA_KML_COAST_2026, "2026-03-31"),
@@ -234,7 +263,29 @@ EPOCHS = [
 # The pairs reported. Consecutive intervals show the shape of the series; the
 # two spans are what the documents would quote.
 INTERVALS = [("1899", "2006"), ("2006", "2017"), ("2017", "2021"),
-             ("2021", "2026"), ("2006", "2026"), ("1899", "2026")]
+             ("2021", "2026"), ("2006", "2026"), ("1899", "2026"),
+             ("2006", "2009"), ("2009", "2017")]          # 1.10.0: the 2009 split
+# The intervals also measured on the shared modern frontage band. The band is
+# the common extent of MODERN_BAND_EPOCHS only: 2009 spans it at both ends, so
+# adding it would not move the band, and leaving it out says so by construction.
+MODERN_BAND_EPOCHS = ("2006", "2017", "2021", "2026")
+MODERN_INTERVALS = (("2006", "2017"), ("2017", "2021"), ("2021", "2026"),
+                    ("2006", "2026"), ("2006", "2009"), ("2009", "2017"))
+# The epochs whose vertices define the local projection origin: those of 1.9.0.
+# A new epoch's vertices would shift the origin and move every committed number
+# by a few centimetres for no reason, so 2009 is left out of it.
+ORIGIN_EPOCHS = ("1899", "2006", "2017", "2021", "2026")
+# Epochs measured on the COMMON 2026 normals in 40_02 (ray from each 2026 normal
+# origin to the earlier line), so per-transect retreat can be compared across
+# intervals on one set of transects.
+COMMON_NORMAL_EPOCHS = ("2006", "2009", "2017", "2021")
+# The beach car park: Martin recalls the January 2014 storm taking 10-15 m of
+# dune there. Its position is CEH15's, which DIPwells.kml describes as "CAR
+# PARK" (Features.kml's road, Line 23, ends a little beyond it). Transects whose
+# 2026 normal origin lies within CAR_PARK_RADIUS_M of the frontage point nearest
+# CEH15 are the car-park stretch.
+CAR_PARK_WELL = "ceh15"
+CAR_PARK_RADIUS_M = 250.0
 FLOOR_INTERVAL = ("2006", "2026")   # longest modern interval; the floor test
 
 # Storm pairs — (label, earlier path, earlier date, later path, later date).
@@ -1137,6 +1188,315 @@ def _figure(measured, out_path):
     plt.close(fig)
 
 
+def _common_normals(nrm, base, epoch_line, lat0, lon0):
+    """40_02 on COMMON transects (1.10.0): from each 2026 normal origin of the
+    floor interval, the signed ray to every earlier line of
+    COMMON_NORMAL_EPOCHS (positive = that line lies seaward, i.e. the dune edge
+    has retreated since), and the consecutive retreat a->b = ray_a - ray_b on
+    those same transects. Returns the frame and the car-park report rows."""
+    S, N = base["_S"], base["_N"]
+    ok = np.asarray(base["_ok"], dtype=bool)
+    en = _local_to_osgb(S, lat0, lon0)
+    nrm["E_osgb"], nrm["N_osgb"] = en[:, 0], en[:, 1]
+    nrm["in_floor_band"] = ok
+    for ep in COMMON_NORMAL_EPOCHS:
+        nrm[f"ray_2026_to_{ep}_m"] = [(_ray_signed(S[k], N[k], epoch_line[ep], MAX_RANGE_M)
+                                      if ok[k] else np.nan) for k in range(len(S))]
+    seq = COMMON_NORMAL_EPOCHS + ("2026",)
+    for a, b in zip(seq[:-1], seq[1:]):
+        rb = 0.0 if b == "2026" else nrm[f"ray_2026_to_{b}_m"]
+        nrm[f"common_{a}_{b}_m"] = nrm[f"ray_2026_to_{a}_m"] - rb
+    rows = []
+    loc = pd.read_csv(paths.INT_LOCATIONS)
+    loc["well"] = loc["Name"].astype(str).str.strip().str.lower()
+    cp = loc[loc["well"] == CAR_PARK_WELL]
+    if cp.empty:
+        warn(f"{CAR_PARK_WELL} not in {paths.INT_LOCATIONS.name}: no car-park stretch")
+        nrm["car_park_stretch"] = False
+        return nrm, rows
+    ce, cn = float(cp["E"].iloc[0]), float(cp["N"].iloc[0])
+    d_cp = np.hypot(nrm["E_osgb"] - ce, nrm["N_osgb"] - cn)
+    d_cp = d_cp.where(ok)
+    k0 = int(d_cp.idxmin())
+    near = (np.hypot(nrm["E_osgb"] - nrm.loc[k0, "E_osgb"], nrm["N_osgb"] - nrm.loc[k0, "N_osgb"])
+            <= CAR_PARK_RADIUS_M) & ok
+    nrm["car_park_stretch"] = near
+    info(f"car-park stretch: {int(near.sum())} transects within {CAR_PARK_RADIUS_M:.0f} m of the "
+         f"frontage point nearest {CAR_PARK_WELL.upper()} ({nrm.loc[k0, 'E_osgb']:.0f} E, "
+         f"{nrm.loc[k0, 'N_osgb']:.0f} N; {d_cp.min():.0f} m from the well)")
+    for a, b in zip(seq[:-1], seq[1:]):
+        col = f"common_{a}_{b}_m"
+        v_cp, v_all = nrm.loc[near, col].dropna(), nrm.loc[ok, col].dropna()
+        info(f"    {a}->{b}: car park median {v_cp.median():+.1f} m (n {len(v_cp)}, "
+             f"range {v_cp.min():+.1f} to {v_cp.max():+.1f}); whole band {v_all.median():+.1f} m "
+             f"(n {len(v_all)})")
+        for tag, v in (("carpark", v_cp), ("common_frontage", v_all)):
+            rows.append({"Parameter": f"{tag}_retreat_{a}_{b}_median_m", "Well": "",
+                         "Era": f"{a}-{b}", "Value": float(v.median()) if len(v) else np.nan,
+                         "Unit": "m",
+                         "Note": f"1.10.0: 40_02 column {col} (ray from the 2026 normals; positive = "
+                                 f"retreat), median over {len(v)} transects"
+                                 + (f" within {CAR_PARK_RADIUS_M:.0f} m of the frontage point nearest "
+                                    f"{CAR_PARK_WELL.upper()} (the beach car park)" if tag == "carpark"
+                                    else " of the floor band")})
+    return nrm, rows
+
+
+# ======================================================================
+# Storm winters (1.10.0; Martin 2026-11-25: "a storm table")
+# ======================================================================
+# Onshore for this frontage: the wind from the south-west quadrant and either
+# side of it, 180-300 deg true (Caernarfon Bay faces SW). Thresholds in knots,
+# the unit MIDAS records (wind_speed_unit_id 4, confirmed from each file's
+# header in utils.pet_alternatives.midas_hourly_wind): 34 kt is Beaufort 8
+# (gale), 41 kt Beaufort 9 (severe gale). An EVENT is a day whose strongest
+# onshore hourly mean reaches STORM_EVENT_KT. "Hourly mean" is the SYNOP
+# 10-minute mean reported each hour; the gust is the 10-minute maximum gust,
+# which SYNOP reports only when it is notable, so most hours carry none.
+STORM_ONSHORE_DEG = (180.0, 300.0)
+STORM_GALE_KT = 34.0
+STORM_SEVERE_KT = 41.0
+STORM_EVENT_KT = 40.0
+STORM_WINTERS = ("2004-07-01", "2023-06-30 23:59")   # July-June winters 2004/05-2022/23
+# Tides (Holyhead, BODC processed 15-minute files, placed by Martin in
+# paths.DATA_TIDES_HOLYHEAD; see data/TIDES_PROVENANCE.md). A storm day
+# "coincides with high water" when the day's highest observed level exceeds
+# the winter's STORM_HW_PERCENTILE of daily highest levels.
+STORM_HW_PERCENTILE = 95.0
+BODC_BAD_FLAGS = ("M", "N", "T")   # improbable, null, interpolated
+# Waves (1.11.0): a day is a high-wave day when its largest ERA5 hourly Hs at the
+# frontage point exceeds the RECORD's STORM_HS_PERCENTILE of daily maxima (one
+# threshold for every winter, so winters compare; the tide threshold is per
+# winter because the nodal cycle moves high water between winters).
+STORM_HS_PERCENTILE = 95.0
+# The well-drop windows shaded on 40_11: the span of the 25_21 best-step dates
+# of each first_step_group (Script 25 1.41.0), read from the committed file.
+STORM_DROP_GROUPS = ("2009", "2014-15")
+
+
+def _winter_label(t: pd.Timestamp) -> str:
+    y = t.year if t.month >= 7 else t.year - 1
+    return f"{y}/{str(y + 1)[2:]}"
+
+
+def _read_bodc(folder):
+    """BODC processed tide-gauge files (one per year, *.txt, stored gzipped as
+    *.txt.gz since 1.11.0): 15-minute observed level and the residual (observed
+    minus predicted) the files carry, in m. Values flagged M (improbable), N
+    (null) or T (interpolated) are dropped: the M values include impossible ones
+    (Holyhead 2010 to 32.19 m) in whole flagged months, so BODC's judgement is
+    taken as it stands. Only the folder's top level is read (its recent/
+    monthly files overlap the last yearly one). None when it holds no file."""
+    fd = pathlib.Path(folder)
+    files = sorted(list(fd.glob("*.txt")) + list(fd.glob("*.txt.gz"))) if fd.exists() else []
+    if not files:
+        return None
+    pat = re.compile(r"^\s*\d+\)\s+(\d{4}/\d\d/\d\d)\s+(\d\d:\d\d:\d\d)\s+(-?\d+\.\d+)([A-Z]?)\s+(-?\d+\.\d+)([A-Z]?)")
+    rows = []
+    for f in files:
+        raw = gzip.decompress(f.read_bytes()) if f.suffix == ".gz" else f.read_bytes()
+        for line in raw.decode("utf-8", errors="replace").splitlines():
+            m = pat.match(line)
+            if m:
+                rows.append((m.group(1) + " " + m.group(2),
+                             np.nan if m.group(4) in BODC_BAD_FLAGS else float(m.group(3)),
+                             np.nan if m.group(6) in BODC_BAD_FLAGS else float(m.group(5))))
+    if not rows:
+        warn(f"{folder}: {len(files)} file(s) but no BODC data line parsed — tide columns empty")
+        return None
+    tz = pd.DataFrame(rows, columns=["t", "level_m", "residual_m"])
+    tz["t"] = pd.to_datetime(tz["t"], format="%Y/%m/%d %H:%M:%S")
+    return tz.set_index("t").sort_index()
+
+
+def _read_era5_waves(path):
+    """ERA5 hourly waves at the frontage grid point (1.11.0): time_utc, swh_m (significant height of combined wind
+    waves and swell), mwd_deg (mean direction, from), pp1d_s (peak period). The CSV is the conversion of the CDS
+    NetCDF files by data/waves/era5_to_csv.py (the venv carries no NetCDF4 reader). None when absent."""
+    if not pathlib.Path(path).exists():
+        return None
+    wv = pd.read_csv(path, parse_dates=["time_utc"])
+    return wv.set_index("time_utc").sort_index()
+
+
+def _storm_tables(drop_windows):
+    """40_09 (per winter) and 40_10 (per event day) from MIDAS Valley hourly wind,
+    with Holyhead tide columns when the BODC files are present."""
+    from utils.pet_alternatives import midas_hourly_wind
+    h = midas_hourly_wind(paths.MIDAS_WEATHER_DIR, *STORM_WINTERS)
+    lo, hi = STORM_ONSHORE_DEG
+    h["onshore"] = (h["wind_direction"] >= lo) & (h["wind_direction"] <= hi)
+    h["on_speed"] = h["wind_speed"].where(h["onshore"])
+    h["day"] = h.index.normalize()
+    g = h.groupby("day")
+    day = pd.DataFrame({"on_max_kt": g["on_speed"].max(), "gust_max_kt": g["q10mnt_mxgst_spd"].max(),
+                        "msl_min_hpa": g["msl_pressure"].min(), "n_hours": g["wind_speed"].count()})
+    idx = h.dropna(subset=["on_speed"]).groupby("day")["on_speed"].idxmax()
+    day["dir_at_max_deg"] = h.loc[idx.values, "wind_direction"].set_axis(idx.index)
+    day["winter"] = [_winter_label(t) for t in day.index]
+    tide = _read_bodc(paths.DATA_TIDES_HOLYHEAD)
+    if tide is None:
+        warn(f"no BODC tide files in {paths.DATA_TIDES_HOLYHEAD} (see data/TIDES_PROVENANCE.md): "
+             "40_09 / 40_10 tide columns written EMPTY")
+        day["hw_max_m"] = day["surge_max_m"] = np.nan
+    else:
+        tg = tide.groupby(tide.index.normalize())
+        day["hw_max_m"] = tg["level_m"].max().reindex(day.index)
+        day["surge_max_m"] = tg["residual_m"].max().reindex(day.index)
+        info(f"Holyhead tides: {len(tide)} readings {tide.index.min():%Y-%m-%d} to {tide.index.max():%Y-%m-%d}")
+    # 1.11.0: Barmouth, the gauge south of the frontage, beside Holyhead to its north (own columns, never averaged).
+    tide_b = _read_bodc(paths.DATA_TIDES_BARMOUTH)
+    if tide_b is None:
+        warn(f"no BODC tide files in {paths.DATA_TIDES_BARMOUTH}: Barmouth columns written EMPTY")
+        day["hw_max_barmouth_m"] = day["surge_max_barmouth_m"] = np.nan
+    else:
+        tb = tide_b.groupby(tide_b.index.normalize())
+        day["hw_max_barmouth_m"] = tb["level_m"].max().reindex(day.index)
+        day["surge_max_barmouth_m"] = tb["residual_m"].max().reindex(day.index)
+        info(f"Barmouth tides: {len(tide_b)} readings {tide_b.index.min():%Y-%m-%d} to "
+             f"{tide_b.index.max():%Y-%m-%d}")
+    # 1.11.0: ERA5 waves at the grid point off the frontage (data/WAVES_PROVENANCE.md).
+    wv = _read_era5_waves(paths.DATA_WAVES_ERA5)
+    if wv is None:
+        warn(f"{paths.DATA_WAVES_ERA5.name} absent (see data/WAVES_PROVENANCE.md): wave columns written EMPTY")
+        day["hs_max_m"] = day["tp_at_hs_max_s"] = day["mwd_at_hs_max_deg"] = np.nan
+        hs_thr = np.nan
+    else:
+        wv = wv[(wv.index >= pd.Timestamp(STORM_WINTERS[0])) & (wv.index <= pd.Timestamp(STORM_WINTERS[1]))]
+        wv_ok = wv.dropna(subset=["swh_m"])
+        wv_ok = wv_ok.assign(day=wv_ok.index.normalize())
+        imax = wv_ok.groupby("day")["swh_m"].idxmax()
+        at = wv_ok.loc[imax.values].set_axis(imax.index)
+        day["hs_max_m"] = at["swh_m"].reindex(day.index)
+        day["tp_at_hs_max_s"] = at["pp1d_s"].reindex(day.index)
+        day["mwd_at_hs_max_deg"] = at["mwd_deg"].reindex(day.index)
+        hs_thr = float(np.nanpercentile(day["hs_max_m"], STORM_HS_PERCENTILE))
+        info(f"ERA5 waves: {len(wv_ok)} hours {wv_ok.index.min():%Y-%m-%d} to {wv_ok.index.max():%Y-%m-%d}; "
+             f"record {STORM_HS_PERCENTILE:g}th percentile of daily maximum Hs {hs_thr:.2f} m")
+    day["gale"] = day["on_max_kt"] >= STORM_GALE_KT
+    day["severe"] = day["on_max_kt"] >= STORM_SEVERE_KT
+    wrows = []
+    for w, d in day.groupby("winter", sort=True):
+        thr = (float(np.nanpercentile(d["hw_max_m"], STORM_HW_PERCENTILE))
+               if d["hw_max_m"].notna().any() else np.nan)
+        i_on = d["on_max_kt"].idxmax() if d["on_max_kt"].notna().any() else None
+        i_p = d["msl_min_hpa"].idxmin() if d["msl_min_hpa"].notna().any() else None
+        wrows.append({
+            "winter": w, "start": f"{d.index.min():%Y-%m-%d}", "end": f"{d.index.max():%Y-%m-%d}",
+            "n_days_with_wind": int((d["n_hours"] > 0).sum()),
+            "gale_days_onshore": int(d["gale"].sum()), "severe_gale_days_onshore": int(d["severe"].sum()),
+            "event_days": int((d["on_max_kt"] >= STORM_EVENT_KT).sum()),
+            "max_onshore_mean_kt": float(d["on_max_kt"].max()),
+            "max_onshore_mean_date": f"{i_on:%Y-%m-%d}" if i_on is not None else "",
+            "max_gust_kt": float(d["gust_max_kt"].max()),
+            "min_msl_hpa": float(d["msl_min_hpa"].min()),
+            "min_msl_date": f"{i_p:%Y-%m-%d}" if i_p is not None else "",
+            "tide_days_holyhead": int(d["hw_max_m"].notna().sum()),
+            "tide_days_barmouth": int(d["hw_max_barmouth_m"].notna().sum()),
+            "hw_threshold_m": thr,
+            "gale_days_above_hw_threshold": (int((d["gale"] & (d["hw_max_m"] > thr)).sum())
+                                             if np.isfinite(thr) else np.nan),
+            "max_surge_m": float(d["surge_max_m"].max()) if d["surge_max_m"].notna().any() else np.nan,
+            "max_surge_barmouth_m": (float(d["surge_max_barmouth_m"].max())
+                                     if d["surge_max_barmouth_m"].notna().any() else np.nan),
+            "max_hs_m": float(d["hs_max_m"].max()) if d["hs_max_m"].notna().any() else np.nan,
+            "max_hs_date": f"{d['hs_max_m'].idxmax():%Y-%m-%d}" if d["hs_max_m"].notna().any() else "",
+            "hs_threshold_m": hs_thr,
+            "days_hs_above_threshold": (int((d["hs_max_m"] > hs_thr).sum()) if np.isfinite(hs_thr) else np.nan),
+            "gale_days_hs_above_threshold": (int((d["gale"] & (d["hs_max_m"] > hs_thr)).sum())
+                                             if np.isfinite(hs_thr) else np.nan),
+        })
+    winters = pd.DataFrame(wrows)
+    ev = day[day["on_max_kt"] >= STORM_EVENT_KT].copy()
+    events = pd.DataFrame({
+        "date": [f"{t:%Y-%m-%d}" for t in ev.index], "winter": ev["winter"].values,
+        "max_onshore_mean_kt": ev["on_max_kt"].values, "dir_at_max_deg": ev["dir_at_max_deg"].values,
+        "max_gust_kt": ev["gust_max_kt"].values, "min_msl_hpa": ev["msl_min_hpa"].values,
+        "hw_max_m": ev["hw_max_m"].values, "surge_max_m": ev["surge_max_m"].values,
+        "hw_max_barmouth_m": ev["hw_max_barmouth_m"].values, "surge_max_barmouth_m": ev["surge_max_barmouth_m"].values,
+        "hs_max_m": ev["hs_max_m"].values, "tp_at_hs_max_s": ev["tp_at_hs_max_s"].values,
+        "mwd_at_hs_max_deg": ev["mwd_at_hs_max_deg"].values,
+        "in_drop_window": [next((lab for lab, (a, b) in drop_windows.items() if a <= t <= b), "")
+                           for t in ev.index]})
+    return winters, events
+
+
+def _drop_windows():
+    """The well-drop windows of 25_21 (first_step_group, min..max best-step
+    date over the COASTAL wells preferring a drop), or {} when 25_21 is absent."""
+    if not paths.OUT_25_STEP_VS_TREND.exists():
+        warn(f"{paths.OUT_25_STEP_VS_TREND.name} absent: 40_11 draws no well-drop windows")
+        return {}
+    st = pd.read_csv(paths.OUT_25_STEP_VS_TREND)
+    if "first_step_group" not in st.columns:
+        warn(f"{paths.OUT_25_STEP_VS_TREND.name} has no first_step_group (Script 25 < 1.41.0): no windows")
+        return {}
+    out = {}
+    for lab in STORM_DROP_GROUPS:
+        s = st[(st["first_step_group"].astype(str) == lab) & st["prefers_drop"].astype(bool)
+               & (st["group"] == "coastal")]
+        if len(s):
+            d = pd.to_datetime(s["step_date"] + "-01")
+            out[lab] = (d.min(), d.max() + pd.offsets.MonthEnd(0))
+    return out
+
+
+def _storm_figure(winters, epoch_date, drop_windows, out_path):
+    """40_11: onshore gale and severe-gale days per winter, the shoreline epochs
+    and the well-drop windows."""
+    fig, ax = plt.subplots(figsize=(10, 4.8), facecolor="white")
+    x = np.array([int(w[:4]) + 1.0 for w in winters["winter"]])   # mid-winter, 1 January
+    ax.bar(x - 0.2, winters["gale_days_onshore"], 0.4, color="#4c72b0",
+           label=f"days with onshore mean ≥ {STORM_GALE_KT:.0f} kt (gale)")
+    ax.bar(x + 0.2, winters["severe_gale_days_onshore"], 0.4, color="#c44e52",
+           label=f"days with onshore mean ≥ {STORM_SEVERE_KT:.0f} kt (severe gale)")
+    for (lab, (a, b)), col in zip(drop_windows.items(), ("#f0c040", "#90c890")):
+        ax.axvspan(a.year + (a.dayofyear - 1) / 365.25, b.year + b.dayofyear / 365.25, color=col,
+                   alpha=0.45, zorder=0, label=f"coastal well drops, {lab} group ({a:%b %Y}–{b:%b %Y})")
+    ymax = max(1.0, float(winters["gale_days_onshore"].max()))
+    for name, t in epoch_date.items():
+        if name == "1899":
+            continue
+        xv = t.year + (t.dayofyear - 1) / 365.25
+        ax.axvline(xv, color="0.3", ls="--", lw=0.9, zorder=1)
+        ax.text(xv, ymax * 1.45, name, ha="center", va="bottom", fontsize=8.5, color="0.3",
+                bbox=dict(fc="white", ec="none", pad=0.5))
+    ax.set_xlim(2004.3, 2026.6)
+    ax.set_ylim(0, ymax * 1.55)
+    ax.set_xticks(range(2005, 2027, 2))
+    ax.set_xlabel("winter (July–June), plotted at 1 January")
+    ax.set_ylabel("days per winter")
+    ax.set_title("Onshore (180–300°) gales at Valley, with the shoreline epochs (dashed)", fontsize=11)
+    ax.legend(fontsize=8, frameon=False, loc="upper right", bbox_to_anchor=(1.0, 0.93), ncol=2)
+    fig.tight_layout()
+    render_figure(fig, out_path)
+    plt.close(fig)
+
+
+def _storm_report_rows(winters, events):
+    rows = []
+
+    def _r(k, v, u, era, note):
+        rows.append({"Parameter": k, "Well": "", "Era": era, "Unit": u,
+                     "Value": float(v) if pd.notna(v) else np.nan, "Note": note})
+    span = f"{winters['winter'].iloc[0]}-{winters['winter'].iloc[-1]}"
+    _r("storm_n_winters", len(winters), "winters", span, "40_09: July-June winters with MIDAS Valley hourly wind")
+    _r("storm_gale_days_median", winters["gale_days_onshore"].median(), "days", span,
+       f"40_09: median per winter of days with an onshore (180-300 deg) hourly mean >= {STORM_GALE_KT:g} kt")
+    _r("storm_severe_gale_days_median", winters["severe_gale_days_onshore"].median(), "days", span,
+       f"40_09: median per winter of days with an onshore hourly mean >= {STORM_SEVERE_KT:g} kt")
+    _r("storm_n_events", len(events), "days", span,
+       f"40_10: days with an onshore hourly mean >= {STORM_EVENT_KT:g} kt")
+    _r("storm_max_onshore_mean_kt", winters["max_onshore_mean_kt"].max(), "kt", span,
+       "40_09: strongest onshore hourly mean of the record")
+    for r in winters.itertuples():
+        tag = r.winter.replace("/", "_")
+        _r(f"storm_gale_days_{tag}", r.gale_days_onshore, "days", r.winter, "40_09 gale_days_onshore")
+        _r(f"storm_severe_gale_days_{tag}", r.severe_gale_days_onshore, "days", r.winter,
+           "40_09 severe_gale_days_onshore")
+    return rows
+
+
 # Length of each transect as drawn on 40_08 (m landward / seaward of the 2006
 # line). Display only: the measurement is the signed ray of 40_02.
 MAP_TRANSECT_LANDWARD_M = 200.0
@@ -1162,9 +1522,9 @@ def _transect_map(epoch_line, base, lat0, lon0, out_path):
     fig, ax = plt.subplots(figsize=(8.0, 7.2), facecolor="white")
     add_kml_features(ax, paths.DATA_DIR, include_scrapes=False)
     pts = []
-    styles = {"2006": ("0.55", "--"), "2017": ("#1f77b4", "-"),
+    styles = {"2006": ("0.55", "--"), "2009": ("#2ca02c", ":"), "2017": ("#1f77b4", "-"),
               "2021": ("#9467bd", "-"), "2026": ("black", "-")}
-    for name in ("2006", "2017", "2021", "2026"):
+    for name in ("2006", "2009", "2017", "2021", "2026"):
         xy = _local_to_osgb(epoch_line[name], lat0, lon0)
         pts.append(xy)
         col, ls = styles[name]
@@ -1234,7 +1594,8 @@ def main():
 
     phase(1, "Loading coastline epochs")
     raw = {name: _read_kml(path) for name, path, _ in EPOCHS}
-    lat0, lon0 = _projection_origin([a for v in raw.values() for a in v])
+    lat0, lon0 = _projection_origin([a for name, v in raw.items()
+                                     if name in ORIGIN_EPOCHS for a in v])
     info(f"local projection origin {lat0:.4f} N, {lon0:.4f} E")
 
     global _ORIGIN
@@ -1254,13 +1615,17 @@ def main():
          f"dune edge = placemark {edge_i} (median {meds[edge_i]:.1f} m to 2020), "
          f"high water = placemark {hwm_i} ({meds[hwm_i]:.1f} m)")
     epoch_line = {"1899": lines["1899"][edge_i], "2006": lines["2006"][0],
-                  "2017": lines["2017"][0], "2021": lines["2021"][0],
+                  "2009": lines["2009"][0], "2017": lines["2017"][0], "2021": lines["2021"][0],
                   "2026": lines["2026"][0]}
     epoch_date = {n: pd.Timestamp(d) for n, _, d in EPOCHS}
 
     phase(2, "Common frontage and normal orientation")
     keep_lo, keep_hi = _common_extent(
-        [epoch_line[n] for n in ("2006", "2017", "2021", "2026")], SPACING_M)
+        [epoch_line[n] for n in MODERN_BAND_EPOCHS], SPACING_M)
+    _lo9, _hi9 = _common_extent([epoch_line[n] for n in MODERN_BAND_EPOCHS + ("2009",)], SPACING_M)
+    if (_lo9, _hi9) != (keep_lo, keep_hi):
+        warn(f"coast2009 does NOT span the modern band ({_lo9:.0f}-{_hi9:.0f} against "
+             f"{keep_lo:.0f}-{keep_hi:.0f} m): its intervals on that band are partial")
     info(f"common northing band {keep_lo:.0f} to {keep_hi:.0f} m local "
          f"(span {keep_hi - keep_lo:.0f} m) — restricted by EXTENT, not hit-success")
     S_chk, _ = _resample(epoch_line["2026"], SPACING_M)
@@ -1299,8 +1664,7 @@ def main():
         step(f"{a}→{b}: median {m['median_m']:.3f} m over {yrs:.1f} yr "
              f"= {m['rate_m_yr']:.3f} m/yr  (n={m['n']}, "
              f"progradation {m['n_progradation']}, nearest {m['nearest_median_m']:.3f} m)")
-    for a, b in (("2006", "2017"), ("2017", "2021"), ("2021", "2026"),
-                 ("2006", "2026")):
+    for a, b in MODERN_INTERVALS:
         mc = _measure(epoch_line[a], epoch_line[b], years[(a, b)], inland_xy,
                       keep_lo, keep_hi)
         modern_common[(a, b)] = mc
@@ -1453,6 +1817,8 @@ def main():
         if m is not None and len(m["_ray"]) == len(nrm):
             nrm[f"signed_{a}_{b}_m"] = m["_ray"]
             nrm[f"nearest_{a}_{b}_m"] = m["_near"]
+    nrm, cp_rows = _common_normals(nrm, base, epoch_line, lat0, lon0)
+    rn_df = pd.concat([rn_df, pd.DataFrame(cp_rows)], ignore_index=True)
     nrm.to_csv(paths.OUT_40_NORMALS, index=False)
     saved(paths.OUT_40_NORMALS.name, f"{len(nrm)} normals")
 
@@ -1467,6 +1833,16 @@ def main():
     # how a displacement acquires one.
     storm_df.to_csv(paths.OUT_40_STORM_PAIR, index=False)
     saved(paths.OUT_40_STORM_PAIR.name, f"{len(storm_df)} pair(s), no rate emitted")
+    for a, b in (("2006", "2009"), ("2009", "2017")):
+        mc = modern_common.get((a, b))
+        if mc is not None:
+            rn_df = pd.concat([rn_df, pd.DataFrame([{
+                "Parameter": f"retreat_{a}_{b}_median_m", "Well": "",
+                "Era": f"{epoch_date[a].date()} to {epoch_date[b].date()}",
+                "Value": mc["median_m"], "Unit": "m",
+                "Note": f"1.10.0: signed shore-normal median on the modern_common_frontage "
+                        f"band ({mc['n']} normals, {mc['years']:.2f} yr; rate in 40_01)"}])],
+                ignore_index=True)
     rn_df.to_csv(paths.OUT_40_REPORT_NUMBERS, index=False)
     saved(paths.OUT_40_REPORT_NUMBERS.name, f"{len(rn_df)} value(s)")
 
@@ -1474,6 +1850,22 @@ def main():
     saved(paths.OUT_40_FIG.name)
     _transect_map(epoch_line, base, lat0, lon0, paths.OUT_40_TRANSECT_MAP)
     saved(paths.OUT_40_TRANSECT_MAP.name)
+
+    phase(9, "Storm winters (MIDAS Valley wind; Holyhead tides when present)")
+    drop_windows = _drop_windows()
+    winters, events = _storm_tables(drop_windows)
+    winters.to_csv(paths.OUT_40_STORM_WINTERS, index=False)
+    saved(paths.OUT_40_STORM_WINTERS.name, f"{len(winters)} winters")
+    events.to_csv(paths.OUT_40_STORM_EVENTS, index=False)
+    saved(paths.OUT_40_STORM_EVENTS.name, f"{len(events)} event days")
+    print(winters[["winter", "gale_days_onshore", "severe_gale_days_onshore", "event_days",
+                   "max_onshore_mean_kt", "max_onshore_mean_date", "max_gust_kt", "min_msl_hpa"]]
+          .to_string(index=False))
+    _storm_figure(winters, epoch_date, drop_windows, paths.OUT_40_STORM_FIG)
+    saved(paths.OUT_40_STORM_FIG.name)
+    rn_df = pd.concat([rn_df, pd.DataFrame(_storm_report_rows(winters, events))], ignore_index=True)
+    rn_df.to_csv(paths.OUT_40_REPORT_NUMBERS, index=False)
+    saved(paths.OUT_40_REPORT_NUMBERS.name, f"{len(rn_df)} value(s), storm_* included")
 
     for a in (reg, syn):
         if a is not None and not a["passed"]:

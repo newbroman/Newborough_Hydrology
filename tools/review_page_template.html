@@ -9,17 +9,17 @@
    mark; figures shown with their captions. */
 :root {
   --bg: #f5f6f4; --sheet: #ffffff; --ink: #1c2226; --muted: #5d676d; --rule: #d9ddda;
-  --accent: #1f6a66; --accent-soft: #e2efed; --edit: #a35a14; --edit-soft: #fbf0e4; --done: #2f7a3a;
+  --accent: #1f6a66; --accent-soft: #e2efed; --edit: #a35a14; --edit-soft: #fbf0e4; --done: #2f7a3a; --draft: #3b5bab; --draft-soft: #e8edf8;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
   --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #15191b; --sheet: #1c2124; --ink: #e3e7e5; --muted: #99a3a8; --rule: #33393c;
-  --accent: #6cc0b8; --accent-soft: #1d3331; --edit: #e6a35c; --edit-soft: #33281c; --done: #7cc98a; color-scheme: dark } }
+  --accent: #6cc0b8; --accent-soft: #1d3331; --edit: #e6a35c; --edit-soft: #33281c; --done: #7cc98a; --draft: #8fa8ec; --draft-soft: #1f2536; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #15191b; --sheet: #1c2124; --ink: #e3e7e5; --muted: #99a3a8; --rule: #33393c;
-  --accent: #6cc0b8; --accent-soft: #1d3331; --edit: #e6a35c; --edit-soft: #33281c; --done: #7cc98a; color-scheme: dark }
+  --accent: #6cc0b8; --accent-soft: #1d3331; --edit: #e6a35c; --edit-soft: #33281c; --done: #7cc98a; --draft: #8fa8ec; --draft-soft: #1f2536; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font-family: var(--serif); margin: 0; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
 .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--rule);
@@ -69,7 +69,14 @@ figure.fig.missing { font-family: var(--sans); font-size: 13px; color: var(--mut
 figure.fig.wide { max-width: none; }
 .tbl { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; margin: .3rem 0 .8rem 2.25rem; }
 .tbl pre { font: 12px/1.45 var(--mono); margin: 0; padding: .6rem .8rem; color: var(--ink); font-variant-numeric: tabular-nums; }
-.only-edited .blk:not(.edited):not(.noted) { display: none; }
+.blk.draft .p, .blk.draft .li, .blk.draft .cap { border-left-color: var(--draft); background: var(--draft-soft); }
+.dtag { font: 600 11px var(--sans); color: var(--draft); letter-spacing: .04em; text-transform: uppercase; margin: .6rem 0 0 .5rem; }
+.dtag details { display: inline; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.dtag summary { display: inline; cursor: pointer; text-decoration: underline; margin-left: .5rem; }
+.dtag .was { white-space: pre-wrap; font: 14px/1.5 var(--serif, Georgia, serif); color: var(--muted); border-left: 3px solid var(--rule); padding: .3rem .6rem; margin: .3rem 0; }
+.del { font-size: 15px; line-height: 1.5; color: var(--muted); text-decoration: line-through; padding: .3rem .5rem; border-left: 3px solid var(--edit); margin: .35rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+h2.draft::after, h3.draft::after, h4.draft::after { content: " · proposed"; font-size: 11px; font-weight: 600; color: var(--draft); text-transform: uppercase; letter-spacing: .04em; }
+.only-edited .blk:not(.edited):not(.noted):not(.draft):not(.delblk) { display: none; }
 .only-edited .ro, .only-edited figure.fig, .only-edited .tbl { display: none; }
 .loading { font-family: var(--sans); color: var(--muted); }
 @media (max-width: 560px) { .blk { grid-template-columns: 1.4rem minmax(0,1fr); } .how, .orphans, figure.fig, .tbl, .ro { margin-left: 0; } .p, .li { font-size: 16.5px; } .gut { padding-right: .35rem; } }
@@ -153,14 +160,15 @@ function editableBlock(b, n, doc) {
   el.spellcheck = true; el.setAttribute("role", "textbox"); el.setAttribute("aria-multiline", "true");
   el.setAttribute("aria-label", (b.k === "cap" ? "Figure caption in " : "Paragraph " + n + " of ") + b.sec);
   const e = saved[b.id];
-  el.textContent = e && e.text !== undefined ? e.text : b.t;
+  // 1.2.0: an edit saved against other text (the paragraph before a proposal) does not hide the proposal
+  el.textContent = e && e.text !== undefined && (!b.chg || e.orig === b.t) ? e.text : b.t;
   el.addEventListener("paste", ev => { if (el.contentEditable === "true") { ev.preventDefault(); const t = (ev.clipboardData || window.clipboardData).getData("text/plain"); document.execCommand("insertText", false, t); } });
   el.addEventListener("input", () => { setState("editing…"); schedule(b, wrap, 1200); });
   el.addEventListener("blur", () => schedule(b, wrap, 0));
   const tools = document.createElement("div"); tools.className = "tools";
   const lbl = document.createElement("span"); lbl.className = "lbl";
   const nb = document.createElement("button"); nb.type = "button"; nb.textContent = "Add note";
-  const rb = document.createElement("button"); rb.type = "button"; rb.textContent = "Revert to " + DATA.short;
+  const rb = document.createElement("button"); rb.type = "button"; rb.textContent = b.chg ? "Revert to the proposal" : "Revert to " + DATA.short;
   tools.append(lbl, nb, rb);
   let note = null;
   const addNote = (val) => {
@@ -174,6 +182,16 @@ function editableBlock(b, n, doc) {
   nb.addEventListener("click", () => { addNote(""); note.focus(); });
   rb.addEventListener("click", () => { el.textContent = b.t; if (note) { note.value = ""; } schedule(b, wrap, 0); });
   if (e && e.note) addNote(e.note);
+  if (b.chg) {
+    wrap.classList.add("draft");
+    const tag = document.createElement("div"); tag.className = "dtag";
+    tag.textContent = b.chg === "new" ? "Proposed · new" : "Proposed · changed";
+    if (b.was) {
+      const d = document.createElement("details"); const sm = document.createElement("summary"); sm.textContent = "show the current text";
+      const w = document.createElement("div"); w.className = "was"; w.textContent = b.was; d.append(sm, w); tag.appendChild(d);
+    }
+    txt.appendChild(tag);
+  }
   txt.append(el, tools); wrap.append(gut, txt); doc.appendChild(wrap);
   markBlock(b, wrap);
 }
@@ -184,14 +202,23 @@ function render() {
   jump.length = 1;
   let n = 0;
   for (const b of DATA.blocks) {
+    if (b.k === "del") {
+      const w = document.createElement("div"); w.className = "blk delblk";
+      const g = document.createElement("div"); g.className = "gut";
+      const x = document.createElement("div"); x.className = "txt";
+      const tg = document.createElement("div"); tg.className = "dtag"; tg.style.color = "var(--edit)";
+      tg.textContent = "Proposed · deleted" + (b.was_k === "h" ? " heading" : b.was_k === "fig" ? " figure" : b.was_k === "table" ? " table" : "");
+      const d = document.createElement("div"); d.className = "del"; d.textContent = b.t;
+      x.append(tg, d); w.append(g, x); doc.appendChild(w); continue;
+    }
     if (b.k === "h") {
       const h = document.createElement("h" + Math.min(4, b.lvl));
-      h.textContent = b.t; h.id = "s-" + b.id; doc.appendChild(h);
+      h.textContent = b.t; h.id = "s-" + b.id; if (b.chg) h.classList.add("draft"); doc.appendChild(h);
       const o = document.createElement("option"); o.value = h.id; o.textContent = (b.lvl > 1 ? " " : "") + b.t; jump.appendChild(o);
       continue;
     }
     if (b.k === "fig") {
-      const f = document.createElement("figure"); f.className = "fig";
+      const f = document.createElement("figure"); f.className = "fig"; if (b.chg) f.style.outline = "3px solid var(--draft)";
       if (b.img) {
         const a = document.createElement("a"); a.href = b.img; a.target = "_blank"; a.rel = "noopener";
         const im = document.createElement("img"); im.src = b.img; im.loading = "lazy"; im.decoding = "async";
@@ -228,6 +255,11 @@ $("only").addEventListener("click", ev => { const on = ev.currentTarget.getAttri
     DATA = await r.json();
   } catch (err) { $("doc").textContent = "Could not load the text (" + err.message + "). Reload the page to try again."; setState(""); return; }
   $("ver").textContent = DATA.short + " · ODT " + DATA.sha.slice(0, 8);
+  // 1.2.0: a draft page says what the marks mean
+  if (DATA.blocks.some(b => b.chg || b.k === "del")) {
+    const h = document.querySelector(".how");
+    h.insertAdjacentHTML("beforeend", " <b>Proposed changes</b> are marked in blue, with the current text one click away; proposed deletions are struck through. Edit a proposal in place, or add a note to it; \"Show edited only\" also shows every proposal.");
+  }
   render();
   setState("connecting to the store…");
   let db = null;

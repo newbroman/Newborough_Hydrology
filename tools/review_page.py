@@ -26,7 +26,13 @@ tools/odt_edit.py as the next version. Numbers are fields: the page says so, and
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-24. --keep-ids and --json-name: rebuild an existing page without
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-26 (Martin: "change the existing editing document to include the
+#   new drafts, so I can review them in place"). --compare-to CURRENT_MIRROR: the page is built from a DRAFT mirror and
+#   every block that differs from the current one is marked - "chg": "changed" (with "was", the current text, shown
+#   one click away) or "new" - and every block the draft removes is shown struck through ("k": "del", read only). A
+#   changed block paired one-to-one with a current one keeps that block's id, so a note already saved on it stays
+#   beside the proposal. --version-label names the draft (edits saved on the page record it).
+# 1.1.0  # Hollingham (2026) — 2026-11-24. --keep-ids and --json-name: rebuild an existing page without
 #   orphaning the edits already saved on it (the Paper 1 editing copy held two).
 # 1.0.0  # Hollingham (2026) — 2026-11-24. New: the Paper 1 editing copy (working/updates/paper1_edit/,
 #   2026-11-23) generalised to any mirrored document, with the figures shown.
@@ -173,21 +179,76 @@ def keep_ids(blocks: list[dict], old: list[dict]) -> int:
     return n
 
 
+def mark_changes(blocks: list[dict], cur: list[dict]) -> tuple[list[dict], dict]:
+    """1.2.0: compare the draft's blocks with the current mirror's (both already carrying the live page's ids where
+    the text is unchanged). Returns the draft's blocks with the deletions interleaved, and counts."""
+    import difflib
+    key = lambda b: (b["k"], b.get("t", ""), b.get("name", ""))
+    sm = difflib.SequenceMatcher(a=[key(b) for b in cur], b=[key(b) for b in blocks], autojunk=False)
+    out: list[dict] = []
+    n = {"changed": 0, "new": 0, "deleted": 0}
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op == "equal":
+            out.extend(blocks[j1:j2]); continue
+        olds, news = cur[i1:i2], blocks[j1:j2]
+        # pair each new block with the most similar unpaired current block of the same kind (ratio >= 0.35);
+        # the rest are deletions and additions. Deletions are shown where the current text stood.
+        pair: dict[int, int] = {}
+        used: set[int] = set()
+        for jn, b in enumerate(news):
+            best, bi = 0.0, None
+            for io, o in enumerate(olds):
+                if io in used or o["k"] != b["k"]:
+                    continue
+                r = difflib.SequenceMatcher(a=o.get("t", ""), b=b.get("t", ""), autojunk=False).ratio()
+                if r > best:
+                    best, bi = r, io
+            if bi is not None and best >= 0.35:
+                pair[jn] = bi; used.add(bi)
+        for io, o in enumerate(olds):
+            if io not in used and o["k"] in ("p", "li", "cap", "h", "fig", "table"):
+                out.append({"id": "del_" + o["id"], "k": "del", "sec": o.get("sec", ""), "t": o.get("t", "")
+                            or ("[figure " + o.get("name", "") + "]"), "was_k": o["k"]})
+                n["deleted"] += 1
+        for jn, b in enumerate(news):
+            if jn in pair:
+                o = olds[pair[jn]]
+                b["chg"], b["was"] = "changed", o.get("t", "")
+                if b["k"] in ("p", "li", "cap"):
+                    b["id"] = o["id"]          # a note saved on the current paragraph stays beside the proposal
+                n["changed"] += 1
+            else:
+                b["chg"] = "new"; n["new"] += 1
+            out.append(b)
+    return out, n
+
+
 def build(mirror: pathlib.Path, title: str | None = None, out_root: pathlib.Path | None = None,
-          json_name: str | None = None, old_ids: pathlib.Path | None = None) -> dict:
+          json_name: str | None = None, old_ids: pathlib.Path | None = None,
+          compare_to: pathlib.Path | None = None, version_label: str | None = None) -> dict:
     md = mirror.read_text(encoding="utf-8")
     odt_rel, sha = source_odt(md)
     name = mirror.stem
     out = (out_root or REPO / "scratch" / "review") / name
     out.mkdir(parents=True, exist_ok=True)
     blocks = parse(md)
-    kept = keep_ids(blocks, json.loads(old_ids.read_text(encoding="utf-8"))["blocks"]) if old_ids else 0
+    old_blocks = json.loads(old_ids.read_text(encoding="utf-8"))["blocks"] if old_ids else []
+    kept = keep_ids(blocks, old_blocks) if old_ids else 0
+    changes = None
+    if compare_to:
+        cur = parse(compare_to.read_text(encoding="utf-8"))
+        if old_ids:
+            keep_ids(cur, old_blocks)
+        blocks, changes = mark_changes(blocks, cur)
     figbytes = 0
     if odt_rel and (REPO / odt_rel).is_file():
         figbytes = extract_figures(REPO / odt_rel, blocks, out)
     version = pathlib.Path(odt_rel).stem if odt_rel else name
     short = re.sub(r"^[A-Za-z]+\d*_", "", version) if re.search(r"_v\d", version) else version
-    pub = [{k: b[k] for k in ("id", "k", "lvl", "sec", "t", "img", "w", "h", "alt", "name") if k in b} for b in blocks]
+    if version_label:
+        version, short = version_label, version_label
+    pub = [{k: b[k] for k in ("id", "k", "lvl", "sec", "t", "img", "w", "h", "alt", "name", "chg", "was", "was_k")
+            if k in b} for b in blocks]
     jname = json_name or f"{name}.json"
     (out / jname).write_text(json.dumps({"version": version, "short": short, "sha": sha, "blocks": pub},
                                                  ensure_ascii=False), encoding="utf-8")
@@ -204,6 +265,7 @@ def build(mirror: pathlib.Path, title: str | None = None, out_root: pathlib.Path
     (out / "index.html").write_text(html, encoding="utf-8")
     figs = [b for b in blocks if b["k"] == "fig"]
     return dict(out=out, name=name, jname=jname, kept=kept, version=version, blocks=len(blocks), figs=len(figs),
+                changes=changes,
                 figs_found=sum(1 for b in figs if "img" in b), figbytes=figbytes,
                 editable=sum(1 for b in blocks if b["k"] in ("p", "li", "cap")))
 
@@ -234,6 +296,17 @@ def selftest() -> int:
         ok &= "img" not in b[6]         # absent from the ODT: shown as missing, not an error
     old = [{"id": "old_1", "k": "p", "t": b[1]["t"]}, {"id": "old_2", "k": "p", "t": "gone"}]
     ok &= keep_ids(b, old) == 1 and b[1]["id"] == "old_1"
+    # 1.2.0: a changed paragraph keeps its id and carries the current text; a removed one shows as a deletion; an
+    # added one is "new"; unchanged ones are unmarked.
+    cur = [{"id": "c1", "k": "p", "t": "same"}, {"id": "c2", "k": "p", "t": "old wording"},
+           {"id": "c3", "k": "p", "t": "to go"}]
+    dr = [{"id": "d1", "k": "p", "t": "same"}, {"id": "d2", "k": "p", "t": "new wording"},
+          {"id": "d4", "k": "h", "lvl": 2, "t": "3.4 Added"}]
+    m, cnt = mark_changes(dr, cur)
+    ok &= [x.get("chg") or x["k"] for x in m] == ["p", "del", "changed", "new"]
+    ok &= "chg" not in m[0] and cnt["deleted"] >= 1
+    ch = [x for x in m if x.get("chg") == "changed"]
+    ok &= not ch or (ch[0]["id"] == "c2" and ch[0]["was"] == "old wording")
     print(f"  review_page --selftest: {'OK' if ok else 'FAIL'}")
     return 0 if ok else 1
 
@@ -245,6 +318,9 @@ def main() -> int:
     ap.add_argument("--json-name", help="the page's data file name (keep an existing page's, e.g. paper1.json)")
     ap.add_argument("--keep-ids", help="an earlier page's blocks json: reuse its ids for unchanged paragraphs, so "
                                        "edits already saved there stay attached")
+    ap.add_argument("--compare-to", help="1.2.0: the CURRENT mirror; the page marks every block the draft changes, adds "
+                                         "or removes")
+    ap.add_argument("--version-label", help="1.2.0: the draft's name on the page, e.g. 'v1_116 draft'")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -253,13 +329,16 @@ def main() -> int:
         ap.error("name a mirror, e.g. report_edits/text/report9.md")
     mirror = (REPO / a.mirror).resolve() if not pathlib.Path(a.mirror).is_absolute() else pathlib.Path(a.mirror)
     r = build(mirror, a.title, json_name=a.json_name,
-              old_ids=(REPO / a.keep_ids) if a.keep_ids else None)
+              old_ids=(REPO / a.keep_ids) if a.keep_ids else None,
+              compare_to=(REPO / a.compare_to) if a.compare_to else None, version_label=a.version_label)
     out = r["out"]
     files = sorted(p for p in out.rglob("*") if p.is_file() and p.name != "index.html")
     size = sum(p.stat().st_size for p in files)
     print(f"review_page {__version__}: {r['name']} ({r['version']}): {r['blocks']} blocks, {r['editable']} editable, "
           f"{r['figs_found']} of {r['figs']} figures ({r['figbytes'] / 1e6:.1f} MB); page files {size / 1e6:.1f} MB"
-          + (f"; {r['kept']} earlier id(s) kept" if a.keep_ids else ""))
+          + (f"; {r['kept']} earlier id(s) kept" if a.keep_ids else "")
+          + (f"; proposed: {r['changes']['changed']} changed, {r['changes']['new']} new, "
+             f"{r['changes']['deleted']} deleted" if r.get("changes") else ""))
     if r["figs_found"] < r["figs"]:
         print(f"  {r['figs'] - r['figs_found']} figure(s) not found in the ODT or not readable: shown as missing")
     if size > PUBLISH_BUDGET:

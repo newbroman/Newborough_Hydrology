@@ -3,7 +3,8 @@
 Hourly ERA5 wave fields off the Newborough frontage, for Script 40's storm table (`40_09_storm_winters.csv`,
 `40_10_storm_events.csv`; Martin 2026-11-25: "a storm table", with waves beside the Valley wind and the tides).
 
-- Added 2026-11-25. Kept in the PRIVATE repository (force-added; `.gitignore` keeps it out of the public one).
+- Added 2026-11-25. Public since 2026-11-26 (Martin), as for MIDAS and Sentinel: the converted series and both
+  scripts. The raw CDS NetCDF files and the CDS job list stay in the private repository (`.gitignore`).
 - Read only by `src/40_shoreline_retreat.py` 1.11.0 (`_read_era5_waves`, `paths.DATA_WAVES_ERA5`).
 
 ## Source

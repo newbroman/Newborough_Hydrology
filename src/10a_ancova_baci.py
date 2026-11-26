@@ -33,7 +33,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-11-24 (J-16 §4.6; Martin: "bind the 4 fields"). Four p-values
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-11-26 (Martin: "Add the 2014–15 term inside Script 10a as a
+#   sensitivity"). 10a_16_control_step_2014_sensitivity.csv: every control tier x zone refitted with one extra
+#   regressor, a step 1[t >= t*] at the best-AIC month of 2014-06..2015-06 (the winter 2014-15 drop at CEH17/CEH19 and
+#   across the site, inside the clearfell BEFORE period); Ctrl_step_2014_* report rows. run_ancova() gains
+#   extra_cols=None. Additive: results[] untouched, guarded.
+# 1.27.0  # Hollingham (2026) — 2026-11-24 (J-16 §4.6; Martin: "bind the 4 fields"). Four p-values
 #   report9 quotes get rows of their own: ancova_{forest,climate}_impact_cwb_x_fell_p, ancova_climate_edge_cwb_x_fell_p
 #   and ancova_forest_impact_curv_jointF_p. They were in Notes only, and the text showed them through unrelated
 #   fields that happened to display the same digits (ANCOVA_Combined_Impact_Oct2023_step, ...). Emit-only.
@@ -274,7 +279,7 @@ from utils.clearfell_common import (
 )
 from utils.paths import (make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD, OUT_10A_PAIRED_ATTRIBUTION,
                         OUT_10A_DRIFT_EQUIVALENCE,
-                        OUT_10A_REPLANT_PROXIMITY, OUT_10A_CONTROL_SUBSET,
+                        OUT_10A_REPLANT_PROXIMITY, OUT_10A_CONTROL_SUBSET, OUT_10A_CTRL_STEP_2014,
                         OUT_10A_ERA_SPLIT, OUT_10A_ERA_FIG, OUT_20_REPORT_NUMBERS, INT_LOCATIONS,
                         DATA_FELLING_1998_1, DATA_FELLING_1998_2,
                         DATA_FELLING_1998_3)
@@ -691,7 +696,7 @@ def main():
 
 
     def run_ancova(df, include_drift=None, include_scrape2=False,
-                   include_easting=None, hac_lags=None):
+                   include_easting=None, hac_lags=None, extra_cols=None):
         """Run ANCOVA on a prepared DataFrame.
 
     Parameters
@@ -744,6 +749,11 @@ def main():
             else:
                 cols.append(dcol)
                 col_names.append(dcol)
+
+        # 1.28.0: extra regressors for a sensitivity (10a_16). None - every published fit - adds nothing.
+        for c in (extra_cols or []):
+            cols.append(c)
+            col_names.append(c)
 
         X = np.column_stack([np.ones(len(df))] + [df[c].values for c in cols])
 
@@ -1978,6 +1988,48 @@ def main():
     info(f"10a_12 guard OK: all5/free_trend step {_all5['step_m'] * 1000:+.1f} mm "
          "reproduces the 10a_01 headline to 1e-9 m.")
 
+    # ---- 10a_16: a 2014-15 step at the controls (1.28.0; Martin 2026-11-26) ------
+    # The coastal controls CEH17/CEH19 (in the Combined tier) and other wells dropped in winter 2014-15, inside the
+    # clearfell BEFORE period; the drift term is a straight line and cannot take a step. Each tier x zone is refitted
+    # with one extra regressor 1[t >= t*], t* the best-AIC month in CTRL_STEP_2014_SEARCH, everything else as published.
+    # SENSITIVITY, not the headline: results[] is not touched, and the guard below proves it.
+    CTRL_STEP_2014_SEARCH = ('2014-06-01', '2015-06-01')
+    rows16 = []
+    for (_cl, _zl), _df0 in ancova_frames.items():
+        _base = results[(_cl, _zl)]
+        _best = None
+        for _t in pd.date_range(*CTRL_STEP_2014_SEARCH, freq='MS'):
+            _dfx = _df0.copy()
+            _dfx['ctrl_step_2014'] = (_dfx.index >= _t).astype(float)
+            _f = run_ancova(_dfx, include_drift=bool(_df0['has_drift'].iloc[0]), extra_cols=['ctrl_step_2014'])
+            if _best is None or _f['aic'] < _best[1]['aic']:
+                _best = (_t, _f)
+        _t, _f = _best
+        _j = _f['col_names'].index('ctrl_step_2014')
+        rows16.append({
+            'control': _cl, 'zone': _zl, 'n': int(_f['n']),
+            'published_step_mm': float(_base['clearfell_step']) * 1000.0,
+            'published_se_hac_mm': float(_base['clearfell_se_hac']) * 1000.0,
+            'step_2014_date': f"{_t:%Y-%m}",
+            'step_2014_mm': float(_f['b'][_j]) * 1000.0, 'step_2014_se_mm': float(_f['se'][_j]) * 1000.0,
+            'dAIC_with_step': float(_f['aic'] - _base['aic']),
+            'with_step_clearfell_mm': float(_f['clearfell_step']) * 1000.0,
+            'with_step_se_hac_mm': float(_f['clearfell_se_hac']) * 1000.0,
+            'with_step_p_hac': float(_f['clearfell_p_hac']),
+            'change_mm': (float(_f['clearfell_step']) - float(_base['clearfell_step'])) * 1000.0,
+        })
+    ctrl_step_df = pd.DataFrame(rows16)
+    ctrl_step_df.to_csv(OUT_10A_CTRL_STEP_2014, index=False)
+    saved(f"{OUT_10A_CTRL_STEP_2014.name} ({len(ctrl_step_df)} rows)")
+    _pub = pd.Series({(r['control'], r['zone']): r['published_step_mm'] for r in rows16})
+    for (_cl, _zl), _v in _pub.items():
+        if not np.isclose(_v, float(results[(_cl, _zl)]['clearfell_step']) * 1000.0, rtol=0, atol=1e-9):
+            raise AssertionError(f"10a_16 GUARD FAILED: {_cl}/{_zl} published step moved")
+    for r in rows16:
+        info(f"10a_16 {r['control']}/{r['zone']}: clearfell {r['published_step_mm']:+.1f} -> "
+             f"{r['with_step_clearfell_mm']:+.1f} mm with a control step {r['step_2014_mm']:+.1f} mm at "
+             f"{r['step_2014_date']} (dAIC {r['dAIC_with_step']:+.1f})")
+
     # ---- 10a_13: era split x drift-treatment robustness -----------------------
     # W96/D-141 gate: is the early->late decay of the Forest-control step a real
     # relaxation, or an artefact of pinning the coastal drift to one whole-record
@@ -2586,6 +2638,17 @@ def main():
             rpt.add("Scraping_distance_weight", wt, unit="",
                     well=w.upper(), note=f"d={d:.0f}m, λ={SCRAPING_DECAY_LAMBDA:.0f}m")
             print(f"     {w.upper():<8}  d = {d:6.0f} m   weight = {wt:.3f}")
+
+    # -- 10a_16 (1.28.0): the clearfell step with a 2014-15 control step, per tier (sensitivity) --
+    for r in rows16:
+        rpt.add(f"Ctrl_step_2014_{r['control']}_{r['zone']}_clearfell_step", r['with_step_clearfell_mm'] / 1000.0,
+                well=r['zone'], era="Post_felling",
+                note=(f"SENSITIVITY, not the headline: {r['control']} controls, a step 1[t >= {r['step_2014_date']}] "
+                      f"added ({r['step_2014_mm']:+.1f} mm, dAIC {r['dAIC_with_step']:+.1f}); published "
+                      f"{r['published_step_mm']:+.1f} mm; 10a_16_control_step_2014_sensitivity.csv"))
+        rpt.add(f"Ctrl_step_2014_{r['control']}_{r['zone']}_change", r['change_mm'] / 1000.0,
+                well=r['zone'], era="Post_felling",
+                note="10a_16: with-step clearfell step minus the published one")
 
     # -- canopy-confound quotable figures (W96 / D-141) --------------------------
     _dib = subset_lookup.get(('drop_in_block', 'free_trend'))

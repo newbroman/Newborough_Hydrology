@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "2.5.0"  # Hollingham (2026) - 2026-11-25 (latest). DATA_TIDES_BARMOUTH and DATA_WAVES_ERA5 (Script 40
+__version__ = "2.6.0"  # Hollingham (2026) - 2026-11-26. OUT_10A_CTRL_STEP_2014 (Script 10a 1.28.0). Additive.
+# 2.5.0  # Hollingham (2026) - 2026-11-25 (latest). DATA_TIDES_BARMOUTH and DATA_WAVES_ERA5 (Script 40
 #   1.11.0). Additive.
 # 2.4.0  # Hollingham (2026) - 2026-11-25 (later). DATA_KML_COAST_2009 (data/geo/coast2009.kml, the
 #   20 April 2009 dune edge, Martin 2026-10-23), now an epoch of Script 40 1.10.0; OUT_40_STORM_WINTERS (40_09),
@@ -787,6 +788,7 @@ OUT_10A_CONTROL_WELL_SPREAD = DIR_10 / "10a_09_control_well_spread.csv"
 # Additive to the headline BACI estimator (10a_01..10a_10 unchanged).
 OUT_10A_REPLANT_PROXIMITY   = DIR_10 / "10a_11_replant_proximity.csv"
 OUT_10A_CONTROL_SUBSET      = DIR_10 / "10a_12_control_subset_sensitivity.csv"
+OUT_10A_CTRL_STEP_2014      = DIR_10 / "10a_16_control_step_2014_sensitivity.csv"   # 10a 1.28.0
 OUT_10A_ERA_SPLIT           = DIR_10 / "10a_13_era_split.csv"
 # 2026-11-24 (J-16, report9 §4.6 Tables B and C): run_10 1.3.0 assembles them from the consolidation.
 OUT_10_SEASONAL_TABLE       = DIR_10 / "10_16_seasonal_step_table.csv"

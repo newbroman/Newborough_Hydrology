@@ -4,8 +4,9 @@ Tide-gauge records for Script 40's storm table (`40_09_storm_winters.csv`, `40_1
 highest observed level and largest surge residual on each storm day, at the gauges either side of the frontage.
 
 - Added 2026-11-25 (BODC download by Martin Hollingham, uploaded to the claude.ai/code session the same evening).
-- Kept in the PRIVATE repository (force-added; `.gitignore` keeps `/data/tides/` out of the public one). The
-  licence would allow publishing them; they are private because the 2026-11-25 handover asked for it.
+- Public (2026-11-26, Martin, as for MIDAS and Sentinel; they were private for one day, 2026-11-25/26, because the
+  handover asked for it). Contains public sector information licensed under the Open Government Licence v3.0;
+  source: British Oceanographic Data Centre, UK National Tide Gauge Network (National Oceanography Centre).
 - Read only by `src/40_shoreline_retreat.py` 1.11.0 (`_read_bodc`; `paths.DATA_TIDES_HOLYHEAD`,
   `paths.DATA_TIDES_BARMOUTH`).
 

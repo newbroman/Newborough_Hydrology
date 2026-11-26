@@ -99,6 +99,9 @@ EXEMPT = {
     # dated notes/findings - which are not rewritten (CLAUDE.md section 3)
     "scratch/proof/gate_coverage_audit.md", "scratch/proof/unsourced_trace_24l.md",
     "scratch/resolve_martin_2026-09-29.md",
+    # 2026-11-26 (same rule, T-154's option 1; Martin "do the check_all fix"): cited from working/DECISION_LOG.md, a
+    # dated record; a review written to the L14's gitignored scratch/ on 2026-11-24, in no repository
+    "scratch/fable_review_2026-11-24.md",
     # signposts to machine-local directories: _audit_tmp/ is the L14's audit scratch (gitignored), and venv/.bridge
     # exists only where tools/bridge_py.sh has built it (the bridge VM), never in a cloud session
     "_audit_tmp", "venv/.bridge",

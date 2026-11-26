@@ -71,7 +71,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-05 (D-301, D-302, T-137, spec
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-26 (Martin: "the missing session trailers, I approve the fix").
+#   session-trailer no longer fires on doc_lock's OWN commits (subject "doc_lock: ..."): the tool writes them on a
+#   take, release or register update and names the chat in the subject ("... by chat 'X'"), which is the attribution;
+#   it adds no Claude-Session trailer. A named chat is used for claim-coverage as a trailer's would be; a bare
+#   "doc_lock: chat register" commit is a tool commit and is neither a finding nor unattributed. Measured on the
+#   2026-11-26 daily pass: all eight listed trailer findings were doc_lock commits. Selftest 3d. Selftests 10a and 11pre
+#   (intermittent failures 2026-11-25/26, not reproduced in 11 reruns) now print the audit's store state, window and
+#   the fixture's commit counts when they fail (_diag); their assertions are unchanged.
+# 1.0.0  # Hollingham (2026) — 2026-11-05 (D-301, D-302, T-137, spec
 #   NRG_handover_HQ_page_2026-11-05 §8 and §11 phase 3; brief NRG_brief_rule_audit_2026-11-05).
 #   First issue: the fourteen rules above, the lock-history timeline that makes claim-coverage an
 #   evidence check rather than a guess, a bounded first window, suppression with a reason, and a
@@ -395,6 +403,9 @@ def rule_decision_fields(a: Audit, cs: list[dict]) -> None:
                   if body.strip() else "")
 
 
+DOC_LOCK_SUBJECT = "doc_lock:"   # 1.1.0: the prefix doc_lock writes on its own commits
+
+
 def rule_claims_and_trailers(a: Audit, cs: list[dict], timeline: list[dict],
                              reg: list[dict]) -> None:
     """claim-coverage and session-trailer. See the docstring on attribution."""
@@ -407,10 +418,16 @@ def rule_claims_and_trailers(a: Audit, cs: list[dict], timeline: list[dict],
     unattributed = []
     for c in cs:
         chat = None
-        if c["session"]:
+        # 1.1.0: doc_lock's own commits are attributed by their subject, not by a trailer.
+        if c["subject"].startswith(DOC_LOCK_SUBJECT) and not c["session"]:
+            m = re.search(r"by chat '([^']+)'", c["subject"])
+            if not m:
+                continue                          # "doc_lock: chat register" - a tool commit, nothing to attribute
+            chat = m.group(1)
+        elif c["session"]:
             chat = links.get(c["session"]) or next(
                 (v for k, v in links.items() if k and (k in c["session"] or c["session"] in k)), None)
-        else:
+        if chat is None and not c["session"]:
             a.add("session-trailer", c["sha"], f"commit {c['sha']} carries no Claude-Session trailer",
                   "Spec §6: the trailer is what lets a commit be matched to a registered chat. "
                   "Without it this commit cannot be audited against the claim it was made under.",
@@ -851,6 +868,21 @@ def _commit(tree: pathlib.Path, paths: list[str], message: str, private: bool = 
     return p.stdout.strip()[:8]
 
 
+def _diag(p: dict, tree: pathlib.Path) -> str:
+    """1.1.0: what a failing override test saw - 10a and 11pre failed intermittently on 2026-11-25/26 and passed
+    on every rerun, so a failure now reports the audit's store state and window and the fixture's commits."""
+    def n(gd):
+        r = subprocess.run(["git", f"--git-dir={tree / gd}", "rev-list", "--count", "--all"],
+                           capture_output=True, text=True)
+        return r.stdout.strip() or r.stderr.strip()[:80]
+    return (f"\n  diag: store={p.get('store')} can_report={p.get('can_report')} window={p.get('window')} "
+            f"public_commits={n('.git')} private_commits={n('.git-working')} "
+            f"overrides_file={(tree / OVERRIDES_PATH).exists()}")
+
+
+OVERRIDES_PATH = "working/claim_overrides.csv"
+
+
 def _run(args: list[str], tree: pathlib.Path, **env_extra) -> tuple[int, str]:
     env = dict(os.environ, NRG_REPO_ROOT=str(tree))
     # Every NRG_* override that would reach into a throwaway tree is cleared, not just the three
@@ -994,6 +1026,17 @@ def _selftest() -> int:
                     if f["rule"] == "session-trailer" and f["commit"]
                     and "with a trailer" in f.get("evidence", "")],
                json.dumps(p3b.get("findings"), indent=1)[:500])
+
+        # 3d (1.1.0). doc_lock's own commits are attributed by subject: no trailer finding.
+        (t3 / "a.txt").write_text("3", encoding="utf-8")
+        _commit(t3, ["a.txt"], "doc_lock: tools claimed by chat 'c'")
+        (t3 / "a.txt").write_text("4", encoding="utf-8")
+        _commit(t3, ["a.txt"], "doc_lock: chat register")
+        p3d = payload(t3, NRG_RULE_AUDIT_SINCE="HEAD~2")
+        check_("3d doc_lock's own commits raise no session-trailer finding",
+               not [f for f in p3d["findings"] if f["rule"] == "session-trailer"
+                    and str(f.get("evidence", "")).startswith("doc_lock:")],
+               json.dumps(p3d.get("findings"), indent=1)[:500])
 
         # 4. A commit with no handover entry is a finding; with a complete one, none.
         t4 = T / "handover"
@@ -1179,10 +1222,11 @@ def _selftest() -> int:
             "when,action,claim,from_chat,to_chat,by,note\n"
             f"{stamp()},forced-take,doc:PaperM,A,B,martin,took it over\n", encoding="utf-8")
         _commit(t10, ["working/claim_overrides.csv"], "an override", private=True)
-        ov = [f for f in payload(t10)["findings"] if f["rule"] == "override"]
+        p10 = payload(t10)
+        ov = [f for f in p10["findings"] if f["rule"] == "override"]
         check_("10a a forced take is a serious finding naming who signed it",
                bool(ov) and ov[0]["serious"] and "martin" in ov[0]["title"],
-               json.dumps(ov, indent=1)[:500])
+               json.dumps(ov, indent=1)[:500] + _diag(p10, t10))
 
         # 11. Suppression needs a REASON; a bare row suppresses nothing.
         t11 = T / "suppress"
@@ -1191,9 +1235,10 @@ def _selftest() -> int:
             "when,action,claim,from_chat,to_chat,by,note\n"
             f"{stamp()},forced-take,doc:X,A,B,martin,n\n", encoding="utf-8")
         _commit(t11, ["working/claim_overrides.csv"], "an override", private=True)
-        ovr11 = [f for f in payload(t11)["findings"] if f["rule"] == "override"]
+        p11pre = payload(t11)
+        ovr11 = [f for f in p11pre["findings"] if f["rule"] == "override"]
         check_("11pre an override finding exists to suppress", bool(ovr11),
-               json.dumps(payload(t11).get("findings"), indent=1)[:400])
+               json.dumps(p11pre.get("findings"), indent=1)[:400] + _diag(p11pre, t11))
         subj = ovr11[0]["subject"] if ovr11 else "none"
         (t11 / "working/rule_audit_suppress.csv").write_text(
             "rule,subject,reason,by,when\n" f"override,{subj},,martin,{stamp()}\n", encoding="utf-8")

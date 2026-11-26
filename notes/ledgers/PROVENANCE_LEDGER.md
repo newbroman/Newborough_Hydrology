@@ -204,7 +204,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (578)
+## Outputs no exhibit renders (579)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -344,6 +344,7 @@
 - `10a_11_replant_proximity.csv`
 - `10a_12_control_subset_sensitivity.csv`
 - `10a_15_paired_attribution.csv`
+- `10a_16_control_step_2014_sensitivity.csv`
 - `10a_S1_baci_timeseries_impact_3panel.png`
 - `10a_S2_baci_timeseries_edge_3panel.png`
 - `10a_S3_climate_sensitivity_3panel.png`
@@ -607,4 +608,3 @@
 - `37_scale_factors_by_window.csv`
 - `37b_report_numbers.csv`
 - `38_report_numbers.csv`
-- `38_transect.csv`

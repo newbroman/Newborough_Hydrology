@@ -18,13 +18,27 @@ Hourly ERA5 wave fields off the Newborough frontage, for Script 40's storm table
 | **Downloaded** | 2026-11-25/26, by a claude.ai/code session on Martin's CDS account (API key held as a network secret, never in the repository) |
 | **Request** | product_type reanalysis; variables `significant_height_of_combined_wind_waves_and_swell`, `mean_wave_direction`, `peak_wave_period`; every hour 2004-01-01 to 2023-12-31; area N 53.5, W -5.0, S 52.8, E -4.0; NetCDF, unarchived; one request per half-year (`download_era5_waves.py`) |
 
+## The route actually used: Google's public copy (2026-11-26)
+
+The CDS queue did not start a single half-year job in over 10 hours (2026-11-25/26), so on Martin's word ("use Google")
+the series was read from **Google's public ARCO-ERA5 copy**: `gs://gcp-public-data-arco-era5/raw/date-variable-single_level/`
+(served at `https://storage.googleapis.com/gcp-public-data-arco-era5/...`), which holds ERA5 single-level fields as ECMWF
+distributes them, one global 0.25-degree NetCDF3 file per day per variable; public, no account. The product, licence and
+citation above are unchanged: it is the same ERA5 reanalysis (ARCO-ERA5: Carver & Merose (2023), Google Research).
+`era5_gcs_point.py` parses each file's header and fetches only the 24 hourly values at the point (HTTP range reads of
+2 bytes each, unpacked with the file's own scale_factor / add_offset) - not the 50 MB file.
+
+**Checked against the CDS:** January 2004 at 53.0 N 4.5 W, from the one CDS file that arrived: Hs 1.28 m, mean direction
+248.4 deg, peak period 6.23 s. From Google: 1.28 m, 248.4 deg, 6.23 s. Identical at the quoted precision.
+
 ## What is held
 
 | File | What |
 |---|---|
-| `era5_waves_YYYY_H1.nc`, `_H2.nc` | CDS NetCDF4 as downloaded, unaltered: 40 files, Jan-Jun and Jul-Dec of 2004-2023. Grid 2 x 3 points at 0.5 deg (53.5, 53.0 N x 5.0, 4.5, 4.0 W); `swh` (m), `mwd` (degree true, direction FROM), `pp1d` (s) |
-| `era5_waves_frontage_hourly.csv.gz` | **The pipeline input.** `era5_to_csv.py`: the point 53.0 N, 4.5 W only, columns `time_utc, swh_m, mwd_deg, pp1d_s`, gzip with no timestamp (byte-reproducible) |
-| `download_era5_waves.py`, `era5_to_csv.py` | the download and the conversion; neither runs in the pipeline |
+| `era5_waves_frontage_hourly.csv.gz` | **The pipeline input.** The point 53.0 N, 4.5 W, hourly 2004-01-01 00:00 to 2023-12-31 23:00 UTC, columns `time_utc, swh_m, mwd_deg, pp1d_s`, gzip with no timestamp (byte-reproducible). Written by `era5_gcs_point.py` |
+| `era5_gcs_point.py` | the route used: Google's copy, point values by range read |
+| `download_era5_waves.py`, `era5_to_csv.py` | the CDS route (half-year NetCDF jobs, then conversion): kept, not used for the committed series |
+| `gcs_cache/YYYY.csv` | per-year working files of the Google route (gitignored; rebuildable) |
 
 **Why one point.** 53.0 N, 4.5 W is open Caernarfon Bay, about 16 km south-west of Llanddwyn and the grid point
 nearest the eroding frontage; the frontage faces it. 53.5 N lies north of Anglesey (Irish Sea, the wrong exposure);
@@ -42,4 +56,7 @@ period 5.9-6.6 s.
 
 ## sha256
 
-Written below when the download completes.
+`era5_waves_frontage_hourly.csv.gz` (2.0 MB; 175,320 hours, 2004-01-01 00:00 to 2023-12-31 23:00 UTC, no gaps, no missing
+values; written 2026-11-26): `6ce117572af7d6a3a9084ee8347b3282ebd5f589b77550451a7418d79ea7c49d`.
+Two days, 2023-11-09 and 2023-11-10, are held by Google as NetCDF4/HDF5 rather than NetCDF3; `era5_gcs_point.py` reads them
+with h5py and they join their neighbours continuously (8 Nov 23:00 Hs 1.42 m, 9 Nov 00:00 1.36 m).

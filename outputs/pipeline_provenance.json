@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T07:27:55",
+ "generated": "2026-11-26T09:55:15",
  "orchestrator": "2.33.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1286,8 +1286,8 @@
     "outputs/40_shoreline_retreat/40_06_coastal_sensitivity.csv": "c088887190816996806e4850dc3d371ec0b92f054f91e898f0eb03f4d56b3d71",
     "outputs/40_shoreline_retreat/40_07_storm_pair.csv": "8993a91472500d395d176029d95ec0096c0d744f0143f657880375dd4ee23c37",
     "outputs/40_shoreline_retreat/40_08_transect_map.png": "a4db39a9607ade39d35e89fa41f2acbfa011fe1196359eb5475748069441fc47",
-    "outputs/40_shoreline_retreat/40_09_storm_winters.csv": "c532c75d3806cabf4aa95103d6652634ae5a5d33a1723a5a1ab306967a3003f5",
-    "outputs/40_shoreline_retreat/40_10_storm_events.csv": "97cb002fd72079ce13b1e1c3970ffddfa932f205df32c9d498d0e19c1f56f18f",
+    "outputs/40_shoreline_retreat/40_09_storm_winters.csv": "db900a955313809867ed8530c2e61a181ce05f31c5ac86a6285f458c7f6806e8",
+    "outputs/40_shoreline_retreat/40_10_storm_events.csv": "ee147ed83ac6fda16d55f84ed45eeae3f99d7bdcf4d1ca5cfab49ea005a18c69",
     "outputs/40_shoreline_retreat/40_11_storm_winters.png": "ccf94ac8e1f231e4591b0cbb137ab1922881bd98ba8fd93768290a55a85290b5",
     "outputs/40_shoreline_retreat/40_report_numbers.csv": "1b3e9ffb13b25309bdf98e4ad46ea99930842f6349019c07e6d8bf216ffce6b5"
    },
@@ -1314,9 +1314,11 @@
     "outputs/25_coastal_gradient/25_21_step_vs_trend.csv": "e2ac48c293b277fead8298f5775a2c925a5f13f5e84b5fc6376a74ec81a24b05",
     "outputs/38_coastal_transect/38_transect.csv": "a21803644b427f9e801e740c14295ca9cf34024751bb0d37fc4d58232a70b38c"
    },
-   "inputs_unresolved": [],
-   "seconds": 11.1,
-   "started": "2026-11-26T00:39:14",
+   "inputs_unresolved": [
+    "era5_waves_frontage_hourly.csv"
+   ],
+   "seconds": 8.8,
+   "started": "2026-11-26T09:55:06",
    "version": "1.11.0"
   },
   "41_canopy_cover.py": {

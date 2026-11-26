@@ -179,6 +179,7 @@ docs/papers/paper_2/PAPER2_EDITS.md
 /data/waves/*.nc
 /data/waves/*.part
 /data/waves/era5_jobs.json
+/data/waves/gcs_cache/
 
 # Google Earth Pro screen captures — the imagery series behind Script 41.
 # Licensed basemap (Bluesky, Infoterra Ltd & COWI A/S), and committing it to a

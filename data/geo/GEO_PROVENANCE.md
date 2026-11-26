@@ -828,6 +828,11 @@ corroborated by the `atom:link` in every one of them. Each keeps its original
 Google Earth layer name internally (*"CEH18 scrape.kml"*, *"Scrape A.kml"*, and
 so on).
 
+**Date of `Scrape_A` and `Scrape_B` (2026-11-26, Martin):** both were dug at the same time as the CEH36 scrape,
+April 2015 (`config.SCRAPING_DATE_ISO`). Neither contains a well; CEH22 stands 79 m from `Scrape_A` and 104 m from
+`Scrape_B`, CEH21 130 m and 188 m (EPSG:27700 distance to the footprint). Martin attributes CEH22's continuing
+deepening after 2015 to them (`working/updates/analysis_2026-11-26/ceh21_ceh22_case.py`).
+
 **Dates: the author's recollection, and labelled as such.** Martin states
 (2026-08-29) that the intervention dates are from memory. One is different:
 `config.py:508` calls **CEH36 the "documented April 2015 dune-scrape site"**, so

@@ -44,7 +44,7 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
+__version__ = "1.136.0"  # 2026-11-27 (D-349 (8)): LANDCOVER_EDGE_M = 50 and LANDCOVER_EDGE_POLYGONS replace LANDCOVER_SET_ASIDE_WELLS (the edge rule). Was "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
 #   every partition and model fit (fit_ssm's default, model_utils 1.15.0; Script 02's clustering; the full-record
 #   cluster and water-balance series). CLUSTER_HYDRO_WINDOW_START follows it. CLUSTER_LABELS[3] is "C3 (Western Dune)"
 #   (Martin: "c3, rename to western dune"); ids and colours unchanged.
@@ -704,9 +704,12 @@ CONSENSUS_SEEDS   = (11, 1, 2, 3, 4)
 CONSENSUS_N_BOOT  = 2000
 # D-348 (6): the Ward tree's k = 7 cut, reported as the sub-structure inside the four clusters; nothing is fitted to it.
 CLUSTER_SUBGROUP_K = 7
-# D-348 (5): wells set aside from the land-cover groups in every analysis (cover changed inside the record).
-# WMC3 is the only reference well in the December 2017 clearfell, and Paper 2's BACI impact well.
-LANDCOVER_SET_ASIDE_WELLS = ("wmc3",)
+# D-349 (8) (2026-11-27; replaces D-348's single set-aside well WMC3): a well inside a land-cover MANAGEMENT
+# boundary - the December 2017 clearfell or the 1995 broadleaf restock - or within LANDCOVER_EDGE_M of one is an EDGE
+# well. Its land cover is ambiguous, so it leaves every per-well forest/open comparison and the land-cover groups of a
+# mixed cluster (C3); single-cover clusters keep it. The distance was fixed before the list was read (Martin).
+LANDCOVER_EDGE_M = 50.0
+LANDCOVER_EDGE_POLYGONS = ("clearfell.geojson", "broadleaf_restock.geojson")   # under data/geo/
 
 # SSM displacement reference datum. The state-space model fits β₃ on
 # displacement above this depth (h_disp = DRAINAGE_DATUM + h_depth, where

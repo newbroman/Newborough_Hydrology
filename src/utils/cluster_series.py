@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-__version__ = "1.1.0"  # 2026-11-27 (D-348): cluster_level_members / in_cluster_level, the one rule every centroid
+__version__ = "1.2.0"  # 2026-11-27 (D-349 (8)): edge_lookup / is_edge (the 50 m management-boundary rule); land_cover_lookup returns open/forest only. Was "1.1.0"  # 2026-11-27 (D-348): cluster_level_members / in_cluster_level, the one rule every centroid
 #   uses: a group's cluster-level members are its wells with In_Cluster_Level true (boundary and set-aside wells out).
 # 1.0.0  # Hollingham (2026) - 2026-09-26. D-202: fixed_effect_series and
 #   fixed_effect_centroids lifted from Script 14 1.8.0 so Scripts 14 and 26 share one
@@ -116,15 +116,36 @@ def group_of(hydro_cluster: int, land_cover: str) -> int:
 
 
 def land_cover_lookup() -> dict[str, str]:
-    """D-348 (5): each well's fixed land cover, open / forest by 01_locations.in_forest, set aside for
-    config.LANDCOVER_SET_ASIDE_WELLS; keyed by the lower-cased normalized well name."""
-    from utils.config import LANDCOVER_SET_ASIDE_WELLS
+    """D-348 (5): each well's fixed land cover, "open" or "forest" by 01_locations.in_forest; keyed by the lower-cased
+    normalized well name. (1.2.0: the old "set aside" value is gone; edge wells are edge_lookup()'s, D-349 (8).)"""
     from utils.paths import INT_LOCATIONS
     from utils.data_utils import normalize_well_name
     loc = pd.read_csv(INT_LOCATIONS)
-    aside = {w.lower() for w in LANDCOVER_SET_ASIDE_WELLS}
-    out = {}
-    for name, f in zip(loc["Name"].astype(str), loc["in_forest"].astype(bool)):
-        k = normalize_well_name(name).lower()
-        out[k] = "set aside" if k in aside else ("forest" if f else "open")
-    return out
+    return {normalize_well_name(n).lower(): ("forest" if f else "open")
+            for n, f in zip(loc["Name"].astype(str), loc["in_forest"].astype(bool))}
+
+
+def edge_lookup() -> dict[str, float]:
+    """D-349 (8): each well's distance (m) to the nearest land-cover MANAGEMENT boundary (config.LANDCOVER_EDGE_POLYGONS:
+    the 2017 clearfell and the 1995 broadleaf restock); 0 inside one. A well at or within config.LANDCOVER_EDGE_M is an
+    edge well. Keyed by the lower-cased normalized well name."""
+    import json
+    from shapely.geometry import shape, Point
+    from shapely.ops import unary_union
+    from utils.config import LANDCOVER_EDGE_POLYGONS
+    from utils.paths import INT_LOCATIONS, DATA_DIR
+    from utils.data_utils import normalize_well_name
+    geo = unary_union([shape(f["geometry"]) for g in LANDCOVER_EDGE_POLYGONS
+                       for f in json.loads((DATA_DIR / "geo" / g).read_text())["features"]])
+    loc = pd.read_csv(INT_LOCATIONS)
+    return {normalize_well_name(n).lower(): float(geo.distance(Point(e, nn)))
+            for n, e, nn in zip(loc["Name"].astype(str), loc["E"], loc["N"])}
+
+
+def is_edge(name: str, _cache: dict = {}) -> bool:
+    """D-349 (8): True for an edge well (within config.LANDCOVER_EDGE_M of a land-cover management boundary)."""
+    from utils.config import LANDCOVER_EDGE_M
+    from utils.data_utils import normalize_well_name
+    if "d" not in _cache:
+        _cache["d"] = edge_lookup()
+    return _cache["d"].get(normalize_well_name(str(name)).lower(), float("inf")) <= LANDCOVER_EDGE_M

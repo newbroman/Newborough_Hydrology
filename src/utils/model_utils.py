@@ -51,9 +51,15 @@ _FIT_START_DEFAULT = object()      # 1.15.0 (D-347): "use config.RECORD_FIT_STAR
 
 
 def _fit_start(start):
-    """1.15.0: the first month a fit may use. The default is config.RECORD_FIT_START; None means no limit."""
+    """The first month a fit may use: a date, or None for no limit.
+
+    1.16.0 (D-349 (1)): there is no default. Every caller states its window, start=config.RECORD_FIT_START or
+    start=None. The 1.15.0 default (D-347) cut every series at January 2010 silently. That shortened fits whose callers
+    lay out their own windows (record-length blocks, split tests, scoring frames), and it emptied Script 25's
+    before-the-2009-step fits through the censored fit's inner calls. A call that states nothing now fails here."""
     if start is _FIT_START_DEFAULT:
-        start = RECORD_FIT_START
+        raise TypeError("fit_ssm: state the window - start=config.RECORD_FIT_START (D-347) or start=None "
+                        "(the whole series) - D-349 (1): there is no default")
     return pd.Timestamp(start) if start else None
 
 
@@ -70,7 +76,7 @@ def _from(obj, t0):
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347: one record window). fit_ssm and fit_ssm_censored
+__version__ = "1.16.0"  # 2026-11-27 (D-349 (1)): no default window - every fit_ssm / fit_ssm_censored / fit_ssm_intercept call states start=; start=None is passed on every inner path (the censored fit's OLS calls, the Model B bound refit); extra regressors are cut with the series. Was "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347: one record window). fit_ssm and fit_ssm_censored
 #   start at config.RECORD_FIT_START (January 2010) unless told otherwise: `start=None` fits the whole series, for the
 #   analyses whose subject is 2005-09 (D-347 (5): the coastal step tests), and any ISO date fits from there. A window
 #   (`window=`, months ending at the last reading) inside the record is unchanged; a pre-built frame is cut the same way.
@@ -418,6 +424,8 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
     """
     _t0 = _fit_start(start)
     h_series, dry_bound, provenance = _from(h_series, _t0), _from(dry_bound, _t0), _from(provenance, _t0)
+    if extra_regressors:                                     # 1.16.0 (D-349): cut with the series
+        extra_regressors = {k: _from(v, _t0) for k, v in extra_regressors.items()}
     if pre_built_frame is not None:
         pre_built_frame = _from(pre_built_frame, _t0)
     if dry_bound is not None:
@@ -550,7 +558,7 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
     if intercept and fixed_beta_3 is None and _b3 < MODEL_B_BETA3_MIN:
         bound = fit_ssm(pre_built_frame=df, min_obs=min_obs, intercept=True,
                         extra_regressors=extra_regressors, fixed_beta_3=MODEL_B_BETA3_MIN,
-                        with_corr=with_corr)
+                        with_corr=with_corr, start=None)   # 1.16.0: df is already this fit's frame
         if bound is None:
             return None
         # R² against Δh itself, not the offset left-hand side the fixed path regresses
@@ -572,7 +580,7 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def fit_ssm_intercept(h_series, climate, lag=None, window=None,
-                      drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS, dry_bound=None):
+                      drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS, dry_bound=None, start=_FIT_START_DEFAULT):
     """
     Fit the SSM with a constant intercept term (Model B).
 
@@ -604,7 +612,7 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     """
     return fit_ssm(h_series, climate, lag=lag, window=window,
                    drainage_datum=drainage_datum, min_obs=min_obs,
-                   intercept=True, dry_bound=dry_bound)
+                   intercept=True, dry_bound=dry_bound, start=start)   # 1.16.0: the caller's window
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -858,11 +866,11 @@ def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
     def _ols():
         sub = h_masked.iloc[max(win[0] - 1, 0): win[1] + 1]
         return fit_ssm(sub, climate, lag=lag, window=None, drainage_datum=drainage_datum,
-                       min_obs=min_obs, intercept=intercept, with_corr=with_corr)
+                       min_obs=min_obs, intercept=intercept, with_corr=with_corr, start=None)   # 1.16.0: cut above
     if n_cens == 0 and not force_ml:
         if dry_bound is None or not np.isfinite(lay["c"]).any():
             return fit_ssm(h_series, climate, lag=lag, window=window, drainage_datum=drainage_datum,
-                           min_obs=min_obs, intercept=intercept, with_corr=with_corr)
+                           min_obs=min_obs, intercept=intercept, with_corr=with_corr, start=None)   # 1.16.0: cut above
         out = _ols()
         if out is not None:
             out.update(n_censored=0, n_transitions=out["n"], method="ols")

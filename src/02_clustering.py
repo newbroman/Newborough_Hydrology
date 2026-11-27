@@ -14,7 +14,7 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.22.0"  # 2026-11-27 (D-348): k = 4 (pipeline_params), anchors for four clusters, membership by bootstrap consensus, the Boundary flag, land cover and the cluster-level groups (C3o, C3f), the k = 7 sub-group. Was "1.21.0"  # 2026-11-27: Ward on sqrt(2(1 - r)), the Euclidean distance between standardized series, not 1 - r (Fable review; Martin: "decide after a full test"). Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
+__version__ = "1.23.0"  # 2026-11-27 (D-349): the Edge flag (50 m from the clearfell or broadleaf restock) and its rule for mixed clusters; consensus-placed wells are boundary wells; silhouette key named for the chosen k. Was "1.22.0"  # 2026-11-27 (D-348): k = 4 (pipeline_params), anchors for four clusters, membership by bootstrap consensus, the Boundary flag, land cover and the cluster-level groups (C3o, C3f), the k = 7 sub-group. Was "1.21.0"  # 2026-11-27: Ward on sqrt(2(1 - r)), the Euclidean distance between standardized series, not 1 - r (Fable review; Martin: "decide after a full test"). Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
 #   formed on config.RECORD_FIT_START onward (January 2010); the C3 anchor is ceh10 (nw1 joins C2 on that record);
 #   C3 is named Western Dune (config). The period split now reads 2010-17 against 2018-26.
 # 1.19.0  # Hollingham (2026) — 2026-11-25 (D-343; Martin: "I want to see the pre 2018 cluster results and
@@ -159,7 +159,7 @@ from utils.config import (
     HYDRO_CLUSTER_LABELS as CLUSTER_LABELS,   # 1.22.0 (D-348): every label in this script is a hydrogeological cluster
     CLUSTER_LABELS as GROUP_LABELS,           #   ... and the cluster-level groups only where the membership is written
     GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_SEEDS, CONSENSUS_N_BOOT, CLUSTER_SUBGROUP_K,
-    LANDCOVER_SET_ASIDE_WELLS,
+    LANDCOVER_EDGE_M,
     REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES, MIN_RECORD_MONTHS,
     CLUSTER_K_SWEEP_MIN, CLUSTER_K_SWEEP_MAX, CLUSTER_BOOT_K_RANGE, CLUSTER_BOOT_N,
     CLUSTER_BOOT_SEED,
@@ -170,7 +170,7 @@ from utils.config import (
     FOREST_CIDS, MODEL_AB_SPLIT_DATE,
 )
 from utils.data_utils import normalize_well_name
-from utils.cluster_series import cluster_level_members, in_cluster_level   # 1.22.0 (D-348)
+from utils.cluster_series import cluster_level_members, in_cluster_level, edge_lookup   # 1.22.0 (D-348); 1.23.0
 from utils.paths import (
     make_all_dirs,
     INT_CLIMATE, INT_WELLS_CLEAN, INT_CLUSTER_STATS, INT_LOCATIONS,
@@ -1020,7 +1020,7 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
            note="first month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_START)")
     rr.add("cluster_hydro_window_end", CLUSTER_HYDRO_WINDOW_END, unit="date",
            note="last month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_END)")
-    rr.add("silhouette_k5", float(sweep.loc[NUM_CLUSTERS, "silhouette"]), unit="",
+    rr.add(f"silhouette_k{NUM_CLUSTERS}", float(sweep.loc[NUM_CLUSTERS, "silhouette"]), unit="",   # 1.23.0: was "_k5"
            era=f"k={NUM_CLUSTERS}", note="silhouette at chosen k on the 66-well reference network")
     rr.add("calinski_harabasz_k5", float(sweep.loc[NUM_CLUSTERS, "calinski_harabasz"]), unit="",
            era=f"k={NUM_CLUSTERS}", note="Calinski-Harabasz at chosen k")
@@ -1032,7 +1032,7 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
            note=f"k maximising Calinski-Harabasz (={float(sweep['calinski_harabasz'].max()):.2f})")
     for _k in sweep.index:
         if _k == NUM_CLUSTERS:
-            continue                                   # silhouette_k5 is the row above; one key, one row
+            continue                                   # the chosen k's key is the row above; one key, one row
         rr.add(f"silhouette_k{_k}", float(sweep.loc[_k, "silhouette"]), unit="",
                era=f"k={_k}", note="per-k silhouette (Fig 6 series)")
     # --- month-wise stability (D-030) ---------------------------------------
@@ -2119,8 +2119,11 @@ if __name__ == "__main__":
     _forest = dict(zip(_loc["Name"].astype(str).map(lambda x: normalize_well_name(x).lower()),
                        _loc["in_forest"].astype(bool)))
     _norm = [normalize_well_name(col).lower() for col in wells_ref.columns]
-    _set_aside = [n in {w.lower() for w in LANDCOVER_SET_ASIDE_WELLS} for n in _norm]
-    _land = ["set aside" if sa else ("forest" if _forest.get(n, False) else "open") for n, sa in zip(_norm, _set_aside)]
+    # 1.23.0 (D-349 (8)): land cover is open / forest by the polygon; the EDGE flag marks wells within
+    # config.LANDCOVER_EDGE_M of a management boundary (the 2017 clearfell, the 1995 broadleaf restock).
+    _land = ["forest" if _forest.get(n, False) else "open" for n in _norm]
+    _edist = edge_lookup()
+    _edge = [_edist.get(n, float("inf")) <= LANDCOVER_EDGE_M for n in _norm]
     _c3f = [k for k, h in GROUP_HYDRO_CLUSTER.items() if h == 3 and k != 3][0]
     _group = [(_c3f if (h == 3 and lc == "forest") else int(h)) for h, lc in zip(sub_clusters, _land)]
 
@@ -2131,11 +2134,17 @@ if __name__ == "__main__":
         "Hydro_Cluster": sub_clusters,                 # the hydrogeological cluster (1-4)
         "Ward_Cluster":  sub_clusters_ward,            # Ward's own assignment, before the consensus placement
         "Land_Cover":    _land,
+        "Edge":          _edge,
         "Consensus_Margin": _cons["Consensus_Margin"].values,
-        "Boundary":      _cons["Boundary"].values,
+        # 1.23.0 (D-349 (10)): a well placed by consensus is always a boundary well
+        "Boundary":      _cons["Boundary"].values | (_cons["Ward_Cluster"].values != _cons["Cluster"].values),
         "Subgroup_k7":   _sub7,
     })
-    cluster_df["In_Cluster_Level"] = ~cluster_df["Boundary"].astype(bool) & (cluster_df["Land_Cover"] != "set aside")
+    # 1.23.0 (D-349 (8)): an edge well leaves the land-cover groups of a MIXED cluster (one whose wells are not all one
+    # cover: C3); single-cover clusters keep it
+    _mixed = {h for h, g in cluster_df.groupby("Hydro_Cluster") if g["Land_Cover"].nunique() > 1}
+    cluster_df["In_Cluster_Level"] = (~cluster_df["Boundary"].astype(bool)
+                                      & ~(cluster_df["Edge"].astype(bool) & cluster_df["Hydro_Cluster"].isin(_mixed)))
     cluster_df["Cluster_Label"] = cluster_df["Cluster"].map(GROUP_LABELS).fillna(
         cluster_df["Cluster"].apply(lambda c: f"C{int(c)}")
     )

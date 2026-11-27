@@ -14,7 +14,7 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
+__version__ = "1.22.0"  # 2026-11-27 (D-348): k = 4 (pipeline_params), anchors for four clusters, membership by bootstrap consensus, the Boundary flag, land cover and the cluster-level groups (C3o, C3f), the k = 7 sub-group. Was "1.21.0"  # 2026-11-27: Ward on sqrt(2(1 - r)), the Euclidean distance between standardized series, not 1 - r (Fable review; Martin: "decide after a full test"). Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
 #   formed on config.RECORD_FIT_START onward (January 2010); the C3 anchor is ceh10 (nw1 joins C2 on that record);
 #   C3 is named Western Dune (config). The period split now reads 2010-17 against 2018-26.
 # 1.19.0  # Hollingham (2026) — 2026-11-25 (D-343; Martin: "I want to see the pre 2018 cluster results and
@@ -155,7 +155,11 @@ from sklearn.metrics import (silhouette_score, calinski_harabasz_score,
                              adjusted_rand_score)
 
 from utils.config import (
-    CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS,
+    CLUSTER_COLOURS, CLUSTER_COLOURS_BW,
+    HYDRO_CLUSTER_LABELS as CLUSTER_LABELS,   # 1.22.0 (D-348): every label in this script is a hydrogeological cluster
+    CLUSTER_LABELS as GROUP_LABELS,           #   ... and the cluster-level groups only where the membership is written
+    GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_SEEDS, CONSENSUS_N_BOOT, CLUSTER_SUBGROUP_K,
+    LANDCOVER_SET_ASIDE_WELLS,
     REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES, MIN_RECORD_MONTHS,
     CLUSTER_K_SWEEP_MIN, CLUSTER_K_SWEEP_MAX, CLUSTER_BOOT_K_RANGE, CLUSTER_BOOT_N,
     CLUSTER_BOOT_SEED,
@@ -166,6 +170,7 @@ from utils.config import (
     FOREST_CIDS, MODEL_AB_SPLIT_DATE,
 )
 from utils.data_utils import normalize_well_name
+from utils.cluster_series import cluster_level_members, in_cluster_level   # 1.22.0 (D-348)
 from utils.paths import (
     make_all_dirs,
     INT_CLIMATE, INT_WELLS_CLEAN, INT_CLUSTER_STATS, INT_LOCATIONS,
@@ -275,19 +280,19 @@ AMP_SUMMER_MONTHS     = (6, 7, 8, 9)
 #
 #   Cluster 1 = Lake               (anchors: ceh5, ceh11)
 #   Cluster 2 = Dune               (anchors: d10)
-#   Cluster 3 = Western Dune       (anchors: ceh10; D-347, was Western Residual / nw1)
+#   Cluster 3 = Western Dune       (anchors: ceh18, ceh4; D-348, k = 4: was ceh10 under D-347, which is a D-348
+#                                   boundary well in C2)
 #   Cluster 4 = Main Forest        (anchors: ceh2)
-#   Cluster 5 = Coastal Forest     (anchors: ceh16, nw9)
+#   (D-348: no Cluster 5. The cluster-level group 5, C3f, is the Western Dune's forest wells, set from land cover
+#    after the partition, not by Ward's.)
 #
 # Human-readable labels are defined in utils/config.CLUSTER_LABELS.
 # ──────────────────────────────────────────────────────────────────────────────
 CLUSTER_ID_ANCHORS: dict[int, tuple[str, ...]] = {
     1: ("ceh5", "ceh11"),      # Lake (ceh11 weakest member, flag in methods)
     2: ("d10",),               # Dune
-    3: ("ceh10",),             # Western Dune (D-347: was nw1, which joins C2 on the 2010 record; ceh10 is C3 in
-                               #   the published partition, the 2010 one and both of its halves)
+    3: ("ceh18", "ceh4"),      # Western Dune (D-348: core wells, consensus margin > 0.5 in every seed)
     4: ("ceh2",),              # Main Forest
-    5: ("ceh16", "nw9"),       # Coastal Forest
 }
 
 # Guard: anchors and config labels must describe the same cluster IDs.
@@ -419,16 +424,69 @@ def _remap_cluster_ids_by_anchor(
 
 
 def _correlation_distance(wells: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Return (condensed distance vector, square distance matrix) from 1 - r."""
+    """Return (condensed distance vector, square distance matrix): sqrt(2(1 - r)).
+
+    1.21.0 (2026-11-27, the Fable review of the window test): Ward's linkage assumes a Euclidean distance, and 1 - r is
+    not one. sqrt(2(1 - r)) is the Euclidean distance between two standardized series (z-scores over their common
+    months, divided by sqrt(n - 1)), so Ward's merge criterion is then the within-cluster variance it claims to be.
+    The ordering of pairs is unchanged; the linkage is not. Before 1.21.0 this returned 1 - r.
+    fillna(0) stays for subsamples (bootstrap, split halves) in which a pair can share no months; on the reference
+    network every pair shares at least 111 months (measured 2026-11-27), so it never fires there."""
     corr = wells.corr().fillna(0).values
     square = 1.0 - corr
     # Guard against tiny numerical negatives on the diagonal / near-identical series.
-    square = np.clip(square, 0.0, None)
+    square = np.sqrt(2.0 * np.clip(square, 0.0, None))
     np.fill_diagonal(square, 0.0)
     # Force symmetry (pandas.corr should already be symmetric to machine precision).
     square = (square + square.T) / 2.0
     condensed = squareform(square, checks=False)
     return condensed, square
+
+
+def consensus_membership(wells_ref: pd.DataFrame, labels: np.ndarray, k: int) -> pd.DataFrame:
+    """D-348 (3)-(4): membership by bootstrap consensus, and the boundary flag.
+
+    Year-block bootstrap of the clustering window: whole calendar years drawn with replacement, Ward on Script 02's
+    distance at the same k, CONSENSUS_N_BOOT replicates for each seed in CONSENSUS_SEEDS. For each well, the margin is
+    its mean co-assignment with the other members of its own cluster minus that with its nearest other cluster,
+    averaged over the seeds.
+      - margin < 0: the well co-assigns more with another cluster, and is placed there (D-348 (3)); the margin is then
+        recomputed against the new membership.
+      - margin < BOUNDARY_MARGIN: a boundary well (D-348 (4)).
+    Returns one row per well: Ward_Cluster, Cluster (after placement), Consensus_Margin, Boundary.
+    """
+    years = sorted(set(wells_ref.index.year))
+    by_year = {y: wells_ref[wells_ref.index.year == y] for y in years}
+    n = wells_ref.shape[1]
+    co = np.zeros((len(CONSENSUS_SEEDS), n, n))
+    for si, seed in enumerate(CONSENSUS_SEEDS):
+        rng = np.random.default_rng(seed)
+        for _ in range(CONSENSUS_N_BOOT):
+            d = pd.concat([by_year[y] for y in rng.choice(years, len(years))])
+            d.index = pd.RangeIndex(len(d))
+            _, sq = _correlation_distance(d)
+            b = fcluster(linkage(squareform(sq, checks=False), method="ward"), t=k, criterion="maxclust")
+            co[si] += b[:, None] == b[None, :]
+        co[si] /= CONSENSUS_N_BOOT
+
+    def margins(lab: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        m = np.zeros((len(CONSENSUS_SEEDS), n)); best = np.zeros(n, dtype=int)
+        for si in range(len(CONSENSUS_SEEDS)):
+            for i in range(n):
+                own = (lab == lab[i]); own[i] = False
+                others = {g: co[si, i, lab == g].mean() for g in np.unique(lab) if g != lab[i]}
+                g2 = max(others, key=others.get)
+                m[si, i] = (co[si, i, own].mean() if own.any() else 1.0) - others[g2]
+                if si == 0: best[i] = g2
+        return m.mean(axis=0), best
+
+    ward = np.asarray(labels).copy()
+    marg, best = margins(ward)
+    placed = np.where(marg < 0, best, ward)
+    if (placed != ward).any():
+        marg, _ = margins(placed)
+    return pd.DataFrame({"Ward_Cluster": ward, "Cluster": placed, "Consensus_Margin": marg,
+                         "Boundary": marg < BOUNDARY_MARGIN}, index=wells_ref.columns)
 
 
 def k_sweep_validation(wells_ref: pd.DataFrame, k_values: range) -> pd.DataFrame:
@@ -1364,10 +1422,9 @@ def make_cluster_hydrograph_wb_figure() -> pd.DataFrame:
     wells_all = wells_all.apply(pd.to_numeric, errors="coerce")
 
     regional = pd.DataFrame(index=wells_all.index)
-    for cid in range(1, NUM_CLUSTERS + 1):
-        members = cluster_df_local[
-            pd.to_numeric(cluster_df_local["Cluster"], errors="coerce") == cid
-        ]["Name_Original"].astype(str).values
+    # 1.22.0 (D-348): one column per cluster-level GROUP, from its cluster-level members only
+    for cid in sorted(pd.to_numeric(cluster_df_local["Cluster"], errors="coerce").dropna().astype(int).unique()):
+        members = cluster_level_members(cluster_df_local, cid)
         available = [c for c in members if c in wells_all.columns]
         if available:
             regional[f"C{cid}"] = wells_all[available].mean(axis=1)
@@ -1437,7 +1494,7 @@ def make_cluster_hydrograph_wb_figure() -> pd.DataFrame:
             regional.index,
             regional[f"C{cid}"].values,
             color=CLUSTER_COLOURS[cid],
-            label=CLUSTER_LABELS[cid],
+            label=GROUP_LABELS[cid],
             lw=LW.get(cid, 1.6),
             ls=LINES.get(cid, "-"),
             alpha=0.92,
@@ -1476,12 +1533,15 @@ def add_cluster_membership_numbers(rr: ReportNumbers, cluster_df: pd.DataFrame,
     for cid, n in counts.items():
         rr.add("cluster_n_wells", int(n), unit="wells", well=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"),
                note="members of the canonical cluster (02_cluster_stats.csv)")
-    n_forest = int(counts.reindex(list(FOREST_CIDS)).fillna(0).sum())
+    # 1.22.0 (D-348): the forest GROUPS (C4 and C3f, config.FOREST_CIDS), by land cover, every well
+    _g = pd.to_numeric(cluster_df.get("Group", cluster_df["Cluster"]), errors="coerce")
+    n_forest = int(_g.isin(list(FOREST_CIDS)).sum())
     rr.add("forest_clusters_n_wells", n_forest, unit="wells",
-           well=" + ".join(CLUSTER_LABELS.get(int(c), f"C{int(c)}") for c in FOREST_CIDS),
-           note=f"members of the forest clusters (config.FOREST_CIDS) of the {len(cluster_df)}-well reference network")
+           well=" + ".join(GROUP_LABELS.get(int(c), f"C{int(c)}") for c in FOREST_CIDS),
+           note=f"wells of the forest groups (config.FOREST_CIDS: C4 and C3f, D-348) of the {len(cluster_df)}-well "
+                f"reference network, boundary wells included")
     rr.add("ward_top_merge_distance", float(Z[-1, 2]), unit="",
-           note="height of the final (top) Ward merge of the reference dendrogram, 1 - r correlation "
+           note="height of the final (top) Ward merge of the reference dendrogram, sqrt(2(1 - r)) correlation "
                 "distance (02_01_dendrogram.png); the primary binary division")
 
 
@@ -1601,7 +1661,9 @@ def make_cluster_spaghetti_figure() -> None:
         avail = [c for c in members if c in wells_all.columns]
         if not avail:
             continue
-        cm = wells_all[avail].mean(axis=1)
+        # 1.22.0 (D-348): thin lines for every well of the group; the bold mean from its cluster-level members
+        _lvl = [c for c in cluster_level_members(cluster_df_local, cid) if c in wells_all.columns] or avail
+        cm = wells_all[_lvl].mean(axis=1)
         for wl in avail:
             ax.plot(wells_all.index, wells_all[wl].values,
                     color=CLUSTER_COLOURS[cid], lw=0.6, alpha=0.45, zorder=2)
@@ -1609,7 +1671,7 @@ def make_cluster_spaghetti_figure() -> None:
                 color=CLUSTER_COLOURS[cid], lw=2.2, alpha=0.98, zorder=5)
         n_wells += len(avail)
         ax.axhline(0, color="black", lw=0.6, ls=":", alpha=0.4)
-        ax.set_title(f"{CLUSTER_LABELS[cid]}  (n={len(avail)})", fontsize=10,
+        ax.set_title(f"{GROUP_LABELS[cid]}  (n={len(avail)}; mean of {len(_lvl)})", fontsize=10,
                      loc="left", color=CLUSTER_COLOURS[cid], fontweight="bold",
                      pad=2)
         ax.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
@@ -1713,7 +1775,7 @@ def compute_cluster_amplitude_descriptors(
     # in 02_cluster_stats.csv exactly. If a caller skips the remap, fail
     # loudly here rather than write a file with raw fcluster IDs.
     cluster_ids_seen = set(int(c) for c in cluster_df["Cluster"].dropna().unique())
-    canonical_ids    = set(CLUSTER_ID_ANCHORS.keys())
+    canonical_ids    = set(GROUP_LABELS.keys())     # 1.22.0 (D-348): the cluster-level groups
     if not cluster_ids_seen.issubset(canonical_ids):
         raise RuntimeError(
             f"compute_cluster_amplitude_descriptors received cluster IDs "
@@ -1810,9 +1872,12 @@ def compute_cluster_amplitude_descriptors(
                                              if len(post_vals) else np.nan,
         })
 
-    summary = per_well.groupby("cluster").apply(_cluster_agg).reset_index()
+    # 1.22.0 (D-348): the per-cluster summary from each group's cluster-level members
+    _lvl = set(cluster_df.loc[in_cluster_level(cluster_df), "Name_Original"].astype(str))
+    per_well["in_cluster_level"] = per_well["well"].astype(str).isin(_lvl)
+    summary = per_well[per_well["in_cluster_level"]].groupby("cluster").apply(_cluster_agg).reset_index()
     summary.insert(1, "cluster_name",
-                   summary["cluster"].map(lambda c: CLUSTER_LABELS.get(int(c), f"C{int(c)}")))
+                   summary["cluster"].map(lambda c: GROUP_LABELS.get(int(c), f"C{int(c)}")))
     summary = summary.rename(columns={"cluster": "cluster_id"})
 
     # 1.13.0: the unrounded per-cluster summary rides on the returned frame for
@@ -1864,7 +1929,7 @@ def compute_cluster_amplitude_descriptors(
 
     xtick_labels = []
     for i, cid in enumerate(order):
-        label_full = CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
+        label_full = GROUP_LABELS.get(int(cid), f"C{int(cid)}")
         # "C1 (Lake)" -> two-line "C1\nLake"
         if "(" in label_full and label_full.endswith(")"):
             ctag, cname = label_full.split("(", 1)
@@ -1892,7 +1957,7 @@ def compute_cluster_amplitude_descriptors(
     print("\n--- Amplitude quick look (post-2018) ---")
     for _, row in summary.iterrows():
         cid       = int(row["cluster_id"])
-        name      = CLUSTER_LABELS.get(cid, f"C{cid}")
+        name      = GROUP_LABELS.get(cid, f"C{cid}")
         n         = int(row["n_wells"])
         med_post  = row["median_p90_p10_post2018"]
         lo        = row["post2018_p90_p10_min"]
@@ -1925,7 +1990,7 @@ def add_amplitude_ratio_numbers(rr: ReportNumbers, per_well: pd.DataFrame) -> No
         if len(vals) < 2 or vals.min() <= 0:
             continue
         rr.add("post2018_p90_p10_max_min_ratio", float(vals.max() / vals.min()), unit="",
-               well=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"),
+               well=GROUP_LABELS.get(int(cid), f"C{int(cid)}"),
                note=f"largest / smallest member post-2018 p90-p10 amplitude, n={len(vals)} wells "
                     f"(02_08_cluster_amplitude_per_well.csv)")
 
@@ -1943,7 +2008,7 @@ def add_amplitude_damping_numbers(rr: ReportNumbers, per_well: pd.DataFrame) -> 
         return
     for _, r in summ.iterrows():
         cid = int(r["cluster_id"])
-        lab = CLUSTER_LABELS.get(cid, f"C{cid}")
+        lab = GROUP_LABELS.get(cid, f"C{cid}")
         rr.add(f"c{cid}_amp_change_pct", float(r["amplitude_damping_pct"]), unit="%", well=lab,
                note=f"{lab}: fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of "
                     f"pre-2018 (positive = damping), raw levels, n={int(r['n_wells'])} wells "
@@ -2036,15 +2101,49 @@ if __name__ == "__main__":
     )
     sub_clusters = np.array([raw_to_canonical[c] for c in sub_clusters_raw])
 
+    # 1.22.0 (D-348 (3)): membership by bootstrap consensus. A well that co-assigns more with another cluster than
+    # with its Ward cluster is placed there (at present D9 -> C2); the margin then flags the boundary wells (D-348 (4)).
+    _cons = consensus_membership(wells_ref, sub_clusters, WARDS_K)
+    _moved = _cons.index[_cons["Ward_Cluster"] != _cons["Cluster"]]
+    for _w in _moved:
+        note(f"consensus placement (D-348 (3)): {_w} Ward C{int(_cons.at[_w, 'Ward_Cluster'])} -> "
+             f"C{int(_cons.at[_w, 'Cluster'])}")
+    sub_clusters_ward = sub_clusters
+    sub_clusters = _cons["Cluster"].values.astype(int)
+    _sub7 = fcluster(Z, t=CLUSTER_SUBGROUP_K, criterion="maxclust")     # D-348 (6): reported, never fitted
+
+    # D-348 (5): land cover per well from the forest polygon (01_locations.in_forest); the set-aside wells
+    # (config.LANDCOVER_SET_ASIDE_WELLS, WMC3) are in no land-cover group. Group = cluster x land cover: the
+    # Western Dune's forest wells are group 5 (C3f); every other well keeps its cluster's id.
+    _loc = pd.read_csv(INT_LOCATIONS)
+    _forest = dict(zip(_loc["Name"].astype(str).map(lambda x: normalize_well_name(x).lower()),
+                       _loc["in_forest"].astype(bool)))
+    _norm = [normalize_well_name(col).lower() for col in wells_ref.columns]
+    _set_aside = [n in {w.lower() for w in LANDCOVER_SET_ASIDE_WELLS} for n in _norm]
+    _land = ["set aside" if sa else ("forest" if _forest.get(n, False) else "open") for n, sa in zip(_norm, _set_aside)]
+    _c3f = [k for k, h in GROUP_HYDRO_CLUSTER.items() if h == 3 and k != 3][0]
+    _group = [(_c3f if (h == 3 and lc == "forest") else int(h)) for h, lc in zip(sub_clusters, _land)]
+
     cluster_df = pd.DataFrame({
         "Match_ID":      [normalize_well_name(col) for col in wells_ref.columns],
         "Name_Original": [str(col) for col in wells_ref.columns],
-        "Cluster":       sub_clusters,
+        "Cluster":       _group,                       # the cluster-level GROUP id (D-348 Note); config.CLUSTER_LABELS
+        "Hydro_Cluster": sub_clusters,                 # the hydrogeological cluster (1-4)
+        "Ward_Cluster":  sub_clusters_ward,            # Ward's own assignment, before the consensus placement
+        "Land_Cover":    _land,
+        "Consensus_Margin": _cons["Consensus_Margin"].values,
+        "Boundary":      _cons["Boundary"].values,
+        "Subgroup_k7":   _sub7,
     })
-    cluster_df["Cluster_Label"] = cluster_df["Cluster"].map(CLUSTER_LABELS).fillna(
+    cluster_df["In_Cluster_Level"] = ~cluster_df["Boundary"].astype(bool) & (cluster_df["Land_Cover"] != "set aside")
+    cluster_df["Cluster_Label"] = cluster_df["Cluster"].map(GROUP_LABELS).fillna(
         cluster_df["Cluster"].apply(lambda c: f"C{int(c)}")
     )
+    cluster_df["Hydro_Cluster_Label"] = cluster_df["Hydro_Cluster"].map(CLUSTER_LABELS)
     cluster_df.to_csv(INT_CLUSTER_STATS, index=False)
+    for _c, _g in cluster_df.groupby("Cluster"):
+        note(f"  group {GROUP_LABELS.get(int(_c))}: {len(_g)} wells, {int(_g['In_Cluster_Level'].sum())} at cluster level")
+    note(f"  boundary wells (margin < {BOUNDARY_MARGIN}): {', '.join(cluster_df.loc[cluster_df['Boundary'], 'Name_Original'])}")
     step(f"Saved cluster stats: {INT_CLUSTER_STATS.name}")
     # 1.18.0: does the partition hold either side of MODEL_AB_SPLIT_DATE (the December 2017 clearfell)?
     _full = pd.Series(sub_clusters, index=wells_ref.columns)
@@ -2086,20 +2185,35 @@ if __name__ == "__main__":
            note="wells carried by both halves")
     rr.add("cluster_period_same_share_both", _ps["same_share_both"], unit="fraction", era=_per,
            note="share of the wells both halves carry that sit in their full-record cluster in both")
-    add_cluster_geography_numbers(rr, cluster_df)
-    add_cluster_membership_numbers(rr, cluster_df, Z)
+    # 1.22.0 (D-348): Script 02's own numbers describe the hydrogeological clusters; the groups are counted beside them
+    _hyd = cluster_df.assign(Group=cluster_df["Cluster"], Cluster=cluster_df["Hydro_Cluster"])
+    add_cluster_geography_numbers(rr, _hyd)
+    add_cluster_membership_numbers(rr, _hyd, Z)
+    for _c, _g in cluster_df.groupby("Cluster"):
+        rr.add("group_n_wells", int(len(_g)), unit="wells", well=GROUP_LABELS.get(int(_c), f"C{int(_c)}"),
+               note="wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included")
+        rr.add("group_n_wells_cluster_level", int(_g["In_Cluster_Level"].sum()), unit="wells",
+               well=GROUP_LABELS.get(int(_c), f"C{int(_c)}"),
+               note="wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)")
+    rr.add("boundary_n_wells", int(cluster_df["Boundary"].sum()), unit="wells",
+           note=f"wells whose consensus margin is below config.BOUNDARY_MARGIN = {BOUNDARY_MARGIN} (D-348 (4))")
+    rr.add("consensus_placed_n_wells", int(len(_moved)), unit="wells",
+           note="wells placed by consensus in another cluster than Ward's (D-348 (3)): " + (", ".join(_moved) or "none"))
+    rr.add("boundary_margin", BOUNDARY_MARGIN, unit="", note="config.BOUNDARY_MARGIN (D-348 (4))")
+    rr.add("consensus_n_boot", CONSENSUS_N_BOOT * len(CONSENSUS_SEEDS), unit="replicates",
+           note=f"year-block bootstrap replicates of the consensus ({len(CONSENSUS_SEEDS)} seeds x {CONSENSUS_N_BOOT})")
     rr.add("amplitude_min_obs_per_window", AMP_MIN_OBS_PER_WIN, unit="count",
            note="months a well needs in a window for its p90-p10 amplitude: two annual cycles")
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the cluster geography rows
     step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the cluster geography)")
     print("     Cluster sizes (canonical IDs):")
-    for cid, grp in cluster_df.groupby("Cluster"):
+    for cid, grp in cluster_df.groupby("Hydro_Cluster"):
         print(f"       {CLUSTER_LABELS.get(int(cid), f'C{int(cid)}'):30s} n={len(grp)}")
 
     # --- Dendrogram --------------------------------------------------------
     step("Generating Dendrogram...")
     fig, ax = plt.subplots(figsize=(15, 8), dpi=300)
-    ax.set_title("Reference network behavioural clustering (Ward's, k=5)",
+    ax.set_title(f"Reference network behavioural clustering (Ward's, k={WARDS_K})",
                  fontsize=14, fontweight="bold")
 
     _clr = CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
@@ -2111,7 +2225,7 @@ if __name__ == "__main__":
     )
     label_to_cluster = {}
     for _, row in cluster_df.iterrows():
-        label_to_cluster[normalize_well_name(row["Name_Original"])] = int(row["Cluster"])
+        label_to_cluster[normalize_well_name(row["Name_Original"])] = int(row["Hydro_Cluster"])
 
     # Colour tick labels by cluster
     for tick in ax.get_xmajorticklabels():

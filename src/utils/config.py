@@ -44,7 +44,7 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
+__version__ = "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
 #   every partition and model fit (fit_ssm's default, model_utils 1.15.0; Script 02's clustering; the full-record
 #   cluster and water-balance series). CLUSTER_HYDRO_WINDOW_START follows it. CLUSTER_LABELS[3] is "C3 (Western Dune)"
 #   (Martin: "c3, rename to western dune"); ids and colours unchanged.
@@ -627,9 +627,9 @@ PEARSON_MCA_THRESH   = 0.90
 CLUSTER_COLOURS = {
     1: "#1a6faf",   # C1 Lake — old C1 blue
     2: "#2ca02c",   # C2 Dune — old C2 green
-    3: "#d62728",   # C3 Western Residual — old C3 red
+    3: "#d62728",   # C3o Western Dune (open) — old C3 red
     4: "#7f77dd",   # C4 Main Forest — old C4 purple
-    5: "#8B4513",   # C5 Coastal Forest — brown (saddlebrown)
+    5: "#8B4513",   # C3f Western Dune (forest), the former C5 — brown (saddlebrown)
     6: "#0072B2",   # reserved
 }
 
@@ -675,13 +675,38 @@ BW_LINESTYLES = [
 # Darker lines for primary series, lighter for secondary/reference.
 BW_LINE_COLOURS = ["#000000", "#555555", "#888888", "#333333", "#aaaaaa", "#666666"]
 
+# D-348 (2026-11-27): FOUR hydrogeological clusters (Script 02, Ward on sqrt(2(1 - r)), k = 4), with land cover as a
+# second level. Cluster-level work runs on FIVE GROUPS = hydrogeological cluster x land cover (D-348 Note
+# 2026-11-27). Group ids 1-4 keep their cluster's number; group 5 is the Western Dune's FOREST group (the five
+# former C5 wells), not a fifth cluster. So "C5" in a report-number key or a column name means C3 forest.
+# FOREST_CIDS below is therefore unchanged, (4, 5): the forest groups at cluster level and per well.
+HYDRO_CLUSTER_LABELS = {
+    1: "C1 (Lake Edge)",
+    2: "C2 (Dune)",
+    3: "C3 (Western Dune)",
+    4: "C4 (Main Forest)",
+}
 CLUSTER_LABELS = {
     1: "C1 (Lake Edge)",
     2: "C2 (Dune)",
-    3: "C3 (Western Dune)",              # D-347 (2026-11-26): was "C3 (Western Residual)"
+    3: "C3o (Western Dune, open)",      # D-348: the Western Dune's open wells (was "C3 (Western Dune)", D-347)
     4: "C4 (Main Forest)",
-    5: "C5 (Coastal Forest)",
+    5: "C3f (Western Dune, forest)",    # D-348: the Western Dune's forest wells; was the cluster "C5 (Coastal Forest)"
 }
+CLUSTER_SHORT = {1: "C1", 2: "C2", 3: "C3o", 4: "C4", 5: "C3f"}   # tight tables (Martin, 2026-11-27)
+GROUP_HYDRO_CLUSTER = {1: 1, 2: 2, 3: 3, 4: 4, 5: 3}              # group id -> its hydrogeological cluster
+# D-348 (3)-(4): membership by bootstrap consensus and the boundary flag (Script 02). Year-block bootstrap of the
+# clustering window, CONSENSUS_N_BOOT replicates per seed; a well's margin is its co-assignment with its own cluster
+# minus that with its nearest other cluster, averaged over the seeds. Margin < 0: placed in the other cluster.
+# Margin < BOUNDARY_MARGIN: a boundary well, left out of every cluster-level quantity.
+BOUNDARY_MARGIN   = 0.25
+CONSENSUS_SEEDS   = (11, 1, 2, 3, 4)
+CONSENSUS_N_BOOT  = 2000
+# D-348 (6): the Ward tree's k = 7 cut, reported as the sub-structure inside the four clusters; nothing is fitted to it.
+CLUSTER_SUBGROUP_K = 7
+# D-348 (5): wells set aside from the land-cover groups in every analysis (cover changed inside the record).
+# WMC3 is the only reference well in the December 2017 clearfell, and Paper 2's BACI impact well.
+LANDCOVER_SET_ASIDE_WELLS = ("wmc3",)
 
 # SSM displacement reference datum. The state-space model fits β₃ on
 # displacement above this depth (h_disp = DRAINAGE_DATUM + h_depth, where
@@ -1015,9 +1040,10 @@ INTERCEPTION_SWEEP_MIN  = 0.00
 INTERCEPTION_SWEEP_MAX  = 0.40
 INTERCEPTION_SWEEP_STEP = 0.02
 
-# Cluster IDs carrying forest canopy (Corsican pine). These receive the
+# Group IDs carrying forest canopy (Corsican pine). These receive the
 # interception correction in water-balance, WTF, and scenario scripts.
-# Under k=5: C4 (Main Forest) and C5 (Coastal Forest).
+# D-348: groups 4 (C4 Main Forest) and 5 (C3f, the Western Dune's forest wells). Under k = 5 these were the clusters
+# C4 and C5; the ids are unchanged, so every consumer of FOREST_CIDS keeps working (land cover by group, D-348 (5)).
 FOREST_CIDS = (4, 5)
 # The percentiles report9 SS4.9.2 quotes for the spread of per-well SSM R2 across the open-dune wells
 # (the clusters not in FOREST_CIDS): the middle 80 % of wells, so one unusual well at either end does

@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import pandas as pd
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-26. D-202: fixed_effect_series and
+__version__ = "1.1.0"  # 2026-11-27 (D-348): cluster_level_members / in_cluster_level, the one rule every centroid
+#   uses: a group's cluster-level members are its wells with In_Cluster_Level true (boundary and set-aside wells out).
+# 1.0.0  # Hollingham (2026) - 2026-09-26. D-202: fixed_effect_series and
 #   fixed_effect_centroids lifted from Script 14 1.8.0 so Scripts 14 and 26 share one
 #   implementation. No value change for Script 14.
 
@@ -82,3 +84,20 @@ def fixed_effect_centroids(wells: pd.DataFrame, cluster_stats: pd.DataFrame) -> 
     df = pd.DataFrame(out)
     df.index.name = "Date"
     return df
+
+
+def in_cluster_level(membership: pd.DataFrame) -> pd.Series:
+    """D-348: True for wells that enter cluster-level quantities (centroids, coefficients, balances, cluster tests).
+
+    Reads the In_Cluster_Level column that Script 02 writes and Script 03 carries into 03_master_data.csv. A
+    membership table without it (an output written before D-348) counts every well, as before."""
+    if "In_Cluster_Level" not in membership.columns:
+        return pd.Series(True, index=membership.index)
+    return membership["In_Cluster_Level"].astype(str).str.lower().isin({"true", "1", "1.0"})
+
+
+def cluster_level_members(membership: pd.DataFrame, cid: int, name_col: str = "Name_Original",
+                          cluster_col: str = "Cluster") -> list[str]:
+    """D-348: the wells of group `cid` that a cluster-level quantity uses (In_Cluster_Level), by `name_col`."""
+    g = pd.to_numeric(membership[cluster_col], errors="coerce") == int(cid)
+    return membership.loc[g & in_cluster_level(membership), name_col].astype(str).tolist()

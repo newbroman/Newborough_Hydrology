@@ -78,7 +78,7 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
+__version__ = "1.4.1"  # 2026-11-27: Ward on sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
 #   cells (Martin: "might be better to put the well names in the table cells"); the grey still carries the count.
 # "1.3.0"  # Hollingham (2026) - 2026-11-24 (T-220, D-334). Figure 51_07 panel (a) draws the Model B
 #   SSM run and no longer the Model A fixed-floor column; Model A stays in the CSV and report numbers as reference.
@@ -166,11 +166,12 @@ def _dist(xy, a, b) -> float:
 # Part 1: the CCW wells, 1989-96 against the modern clusters
 # ──────────────────────────────────────────────────────────────────────────────
 def _ward_clusters(df: pd.DataFrame, k: int) -> pd.Series:
-    """Script 02's clustering: Ward's linkage on 1 - Pearson r (its _correlation_distance)."""
+    """Script 02's clustering: Ward's linkage on sqrt(2(1 - Pearson r)) (its _correlation_distance; 1.4.1, 2026-11-27,
+    was 1 - r, as Script 02 before 1.21.0)."""
     from scipy.cluster.hierarchy import fcluster, linkage
     from scipy.spatial.distance import squareform
     corr = df.corr().fillna(0).values
-    sq = np.clip(1.0 - corr, 0.0, None)
+    sq = np.sqrt(2.0 * np.clip(1.0 - corr, 0.0, None))
     np.fill_diagonal(sq, 0.0)
     sq = (sq + sq.T) / 2.0
     lab = fcluster(linkage(squareform(sq, checks=False), method="ward"), k, criterion="maxclust")

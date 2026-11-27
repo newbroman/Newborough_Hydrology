@@ -72,7 +72,7 @@ from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
 
-__version__ = "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+__version__ = "1.4.3"  # 2026-11-27: the correlation distances are sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
 #   ignore (RuntimeWarning) is removed, with its now-unused `import warnings`: no pipeline
 #   module silences its warnings (T-81, D-155). Probed with the filter off
 #   against the committed CSVs, this module raised no warning; outputs unchanged.
@@ -327,10 +327,11 @@ def banded_dtw(a, b, window):
 
 
 def _corr_distance(matrix, method):
-    """1 - corr distance, pairwise-complete, exactly as Script 02's
-    _correlation_distance (pandas .corr, fillna(0), clip, symmetrise)."""
+    """sqrt(2(1 - corr)) distance, pairwise-complete, exactly as Script 02's
+    _correlation_distance (pandas .corr, fillna(0), clip, symmetrise). 1.4.3 (2026-11-27): was 1 - corr; Ward needs
+    the Euclidean form, as Script 02 1.21.0."""
     corr = matrix.corr(method=method).fillna(0).values
-    sq = np.clip(1.0 - corr, 0.0, None)
+    sq = np.sqrt(2.0 * np.clip(1.0 - corr, 0.0, None))
     np.fill_diagonal(sq, 0.0)
     sq = (sq + sq.T) / 2.0
     return sq, list(matrix.columns)

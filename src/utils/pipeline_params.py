@@ -40,7 +40,7 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-11-27 (D-347 full rerun, defaults_lint): _DEFAULTS["drawdown_lambda_m"] 172.1 -> 154.1
+__version__ = "1.22.0"  # 2026-11-27 (D-348): REQUESTED_N_CLUSTERS 5 -> 4. Was "1.21.0"  # Hollingham (2026) - 2026-11-27 (D-347 full rerun, defaults_lint): _DEFAULTS["drawdown_lambda_m"] 172.1 -> 154.1
 #   (Script 20 takes C3 Western Dune's Model B beta_3, and C3 is re-formed on 2010 onward with 13 wells) and
 #   _DEFAULTS["scrape_offsite_100m_vol"] -27.8 -> -26.1 (09d with that lambda).
 # 1.20.0  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). Adds coast_event_retreat_m
@@ -302,7 +302,10 @@ CV_RNG_SEED         = 20260625    # fixed seed for reproducible permutation/boot
 # A run may override the target via the NRG_N_CLUSTERS environment variable
 # (e.g. run_analysis.py --clusters N), so the run parameters can request the
 # count explicitly; absent that, the documented default applies.
-REQUESTED_N_CLUSTERS = 5  # analyst-fixed clustering target (see note above)
+# D-348 (2026-11-27): FOUR. Script 02's Ward linkage ran on 1 - r until 1.21.0; on the Euclidean sqrt(2(1 - r))
+# the tree's largest merge-height ratio is at k = 4 (1.55, against 1.08 at k = 5), and every start from 2005 to 2010
+# gives the identical k = 4 partition. The note above describes the k = 5 choice it replaces.
+REQUESTED_N_CLUSTERS = 4  # analyst-fixed clustering target (D-348; was 5)
 
 
 def get_requested_n_clusters() -> int:

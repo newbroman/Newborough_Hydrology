@@ -88,7 +88,7 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.33.0"  # Hollingham (2026) - 2026-11-22. cluster_well_median_beta_3_drainage per cluster (03_report_numbers):
+__version__ = "1.34.0"  # 2026-11-27 (D-348): centroids, the composition check and the open-dune warren fit from cluster-level members only; 03_master_data.csv carries the D-348 membership columns. Was "1.33.0"  # Hollingham (2026) - 2026-11-22. cluster_well_median_beta_3_drainage per cluster (03_report_numbers):
 #   report9 quotes the C4 per-well median beta_3 beside NW10's, and it had no key (Martin: "creae one").
 __version_prev__ = "1.32.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
 #   questions"). Every Model B row also carries se_alpha and corr_alpha_beta_3 (fit_ssm's with_corr, now on for the
@@ -324,6 +324,7 @@ import statsmodels.api as sm
 from scipy import stats as scipy_stats
 
 from utils.data_utils import normalize_well_name
+from utils.cluster_series import in_cluster_level   # 1.34.0 (D-348)
 from utils.paths import (
     make_all_dirs,
     INT_LOCATIONS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELL_ELEVATIONS,
@@ -478,7 +479,7 @@ def load_amplitude_heterogeneity(cluster_ids: list[int],
         amp_df["_well_norm"] = amp_df["well"].apply(
             lambda w: normalize_well_name(str(w))
         )
-        cdf = cluster_df[["Match_ID", "Cluster"]].copy()
+        cdf = cluster_df[in_cluster_level(cluster_df)][["Match_ID", "Cluster"]].copy()   # D-348: cluster-level wells
         cdf["_well_norm"] = cdf["Match_ID"].apply(normalize_well_name)
         merged = amp_df.merge(cdf[["_well_norm", "Cluster"]],
                                on="_well_norm", how="left",
@@ -3458,6 +3459,13 @@ def main() -> None:
     print("\n -> Fitting per-well SSM and computing LCSC...")
     master_df = per_well_fits(cluster_df, locs_clean, wells_clean,
                                climate, well_col_lookup)
+    # D-348: carry Script 02's membership columns into the master table every consumer reads
+    _mcols = [c for c in ("Hydro_Cluster", "Ward_Cluster", "Land_Cover", "Consensus_Margin", "Boundary",
+                          "In_Cluster_Level", "Subgroup_k7", "Hydro_Cluster_Label") if c in cluster_df.columns]
+    if _mcols:
+        _m = cluster_df[["Name_Original"] + _mcols].drop_duplicates("Name_Original")
+        master_df = master_df.drop(columns=[c for c in _mcols if c in master_df.columns]).merge(
+            _m, on="Name_Original", how="left")
     master_df.to_csv(INT_MASTER_DATA, index=False)
     print(f" -> Saved: {INT_MASTER_DATA.name} "
           f"({len(master_df)} wells)")
@@ -3557,7 +3565,10 @@ def main() -> None:
     saved(f"{OUT_03_DRY_FILL.name}")
     _tick("Building cluster centroids")
     print("\n -> Building cluster centroids...")
-    centroids = build_cluster_centroids(cluster_df, wells_filled,
+    # D-348: centroids from each group's cluster-level members (boundary and set-aside wells out)
+    cluster_df_lvl = cluster_df[in_cluster_level(cluster_df)].copy()
+    info(f"  cluster level: {len(cluster_df_lvl)} of {len(cluster_df)} wells (D-348: boundary and set-aside out)")
+    centroids = build_cluster_centroids(cluster_df_lvl, wells_filled,
                                           well_col_lookup)
 
     # ---- Centroid headline fits (the CSV the report cites) ----
@@ -3569,7 +3580,7 @@ def main() -> None:
 
     # ---- The film's one rule: the open-dune warren (T-129, D-289) ----
     step("Open-dune warren fit for the film (one rule, pooled member wells)...")
-    warren_df = warren_open_dune_fit(cluster_df, wells_filled, well_col_lookup, climate)
+    warren_df = warren_open_dune_fit(cluster_df_lvl, wells_filled, well_col_lookup, climate)   # D-348
     warren_df.to_csv(OUT_03_WARREN, index=False)
     _w = warren_df.iloc[0]
     info(f"  {_w['clusters']}: {int(_w['n_wells'])} wells, beta_1 {_w['beta_1_recharge']:.3f}, "
@@ -3608,7 +3619,7 @@ def main() -> None:
 
     # ---- Centroid composition sensitivity (diagnostic; headline unchanged) ----
     step("Centroid composition sensitivity (growing vs stable membership)...")
-    comp_df = centroid_composition_sensitivity(cluster_df, wells_filled,
+    comp_df = centroid_composition_sensitivity(cluster_df_lvl, wells_filled,
                                                 well_col_lookup, centroids,
                                                 climate)
     # Inline DIR_03 path, matching this script's convention for its secondary

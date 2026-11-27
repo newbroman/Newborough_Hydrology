@@ -44,7 +44,11 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.133.0"  # Hollingham (2026) - 2026-11-25 (Martin: the shore-clearance date is not known; aerial
+__version__ = "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
+#   every partition and model fit (fit_ssm's default, model_utils 1.15.0; Script 02's clustering; the full-record
+#   cluster and water-balance series). CLUSTER_HYDRO_WINDOW_START follows it. CLUSTER_LABELS[3] is "C3 (Western Dune)"
+#   (Martin: "c3, rename to western dune"); ids and colours unchanged.
+# 1.133.0  # Hollingham (2026) - 2026-11-25 (Martin: the shore-clearance date is not known; aerial
 #   imagery brackets it between May 2012 and March 2017). E8F_STEP_WINDOW widened from 2014-10..2015-04 to 2012-06..2017-03
 #   so Script 50d's E8f estimates the date; the E8f note corrected.
 # 1.132.0  # Hollingham (2026) - 2026-11-23 (J-33). COAST_RETREAT_M (6 m) is superseded as the drawn
@@ -674,7 +678,7 @@ BW_LINE_COLOURS = ["#000000", "#555555", "#888888", "#333333", "#aaaaaa", "#6666
 CLUSTER_LABELS = {
     1: "C1 (Lake Edge)",
     2: "C2 (Dune)",
-    3: "C3 (Western Residual)",
+    3: "C3 (Western Dune)",              # D-347 (2026-11-26): was "C3 (Western Residual)"
     4: "C4 (Main Forest)",
     5: "C5 (Coastal Forest)",
 }
@@ -3179,7 +3183,10 @@ CLUSTER_BOOT_N          = 1000       # resamples per k (the rebuild handover's v
 # spaghetti figure) and of the cluster mean levels emitted from them
 # (cluster_mean_level_m in 02_report_numbers.csv). Relocated from Script 02 literals
 # on 2026-09-25; values unchanged.
-CLUSTER_HYDRO_WINDOW_START = "2006-12-01"
+# D-347 (2026-11-26): the first month of every partition and every model fit. 2005-09 is the high stand that ended in
+# the 2009 drop; analyses whose subject it is pass start=None to fit_ssm (Script 25's step tests).
+RECORD_FIT_START = "2010-01-01"
+CLUSTER_HYDRO_WINDOW_START = RECORD_FIT_START       # D-347; was "2006-12-01"
 CLUSTER_HYDRO_WINDOW_END   = "2025-12-01"
 # Uncertainty of Script 10m's raw WMC3-minus-forest-control era steps (D-200).
 # The standard error of each era mean is Newey-West (Bartlett kernel) with this many

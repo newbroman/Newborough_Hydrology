@@ -64,18 +64,18 @@ C1 Eastern lake-buffer (observed),observed,9,Sep,0.9639
 C1 Eastern lake-buffer (observed),observed,10,Oct,0.724
 C1 Eastern lake-buffer (observed),observed,11,Nov,0.5467
 C1 Eastern lake-buffer (observed),observed,12,Dec,0.3953
-C2 Eastern mature dune (observed),observed,1,Jan,-0.1283
-C2 Eastern mature dune (observed),observed,2,Feb,-0.1264
-C2 Eastern mature dune (observed),observed,3,Mar,-0.0975
-C2 Eastern mature dune (observed),observed,4,Apr,0.0479
-C2 Eastern mature dune (observed),observed,5,May,0.1944
-C2 Eastern mature dune (observed),observed,6,Jun,0.3732
-C2 Eastern mature dune (observed),observed,7,Jul,0.5309
-C2 Eastern mature dune (observed),observed,8,Aug,0.6822
-C2 Eastern mature dune (observed),observed,9,Sep,0.6528
-C2 Eastern mature dune (observed),observed,10,Oct,0.3064
-C2 Eastern mature dune (observed),observed,11,Nov,0.0851
-C2 Eastern mature dune (observed),observed,12,Dec,-0.067
+C2 Eastern mature dune (observed),observed,1,Jan,-0.1168
+C2 Eastern mature dune (observed),observed,2,Feb,-0.113
+C2 Eastern mature dune (observed),observed,3,Mar,-0.0688
+C2 Eastern mature dune (observed),observed,4,Apr,0.0928
+C2 Eastern mature dune (observed),observed,5,May,0.228
+C2 Eastern mature dune (observed),observed,6,Jun,0.3985
+C2 Eastern mature dune (observed),observed,7,Jul,0.5463
+C2 Eastern mature dune (observed),observed,8,Aug,0.5716
+C2 Eastern mature dune (observed),observed,9,Sep,0.5467
+C2 Eastern mature dune (observed),observed,10,Oct,0.3298
+C2 Eastern mature dune (observed),observed,11,Nov,0.1355
+C2 Eastern mature dune (observed),observed,12,Dec,-0.0429
 
 # BLOCK 2 — trough / separation summary. Sep_vs_baseline_at_baseline_trough_m anchors all series at the baseline trough month; Max_summer_separation_m is the largest Jun-Sep departure from baseline.
 Series,Series_type,Trough_month,Trough_month_num,Trough_depth_m,Sep_vs_baseline_at_baseline_trough_m,Max_summer_separation_m,Max_summer_separation_month
@@ -84,4 +84,4 @@ Observed C4 baseline,observed,Sep,9,1.5555,0.0,0.0,Jun
 "Clearfell observed step, annual",benchmark,Sep,9,1.4473,0.1082,0.1082,Jun
 "Clearfell observed step, by season",benchmark,Sep,9,1.5565,-0.001,-0.001,Jun
 C1 Eastern lake-buffer (observed),observed,Jul,7,1.1004,0.5917,0.5917,Sep
-C2 Eastern mature dune (observed),observed,Aug,8,0.6822,0.9027,0.9027,Sep
+C2 Eastern mature dune (observed),observed,Aug,8,0.5716,1.0089,1.0089,Sep

@@ -1,107 +1,107 @@
 Parameter,Well,Era,Value,Unit,Note
 depth_dependent_pet_best_inv_L_E,C1,,0.0,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
-depth_dependent_pet_best_inv_L_E,C2,,0.75,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
-depth_dependent_pet_best_inv_L_E,C3,,0.95,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
+depth_dependent_pet_best_inv_L_E,C2,,0.95,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
+depth_dependent_pet_best_inv_L_E,C3,,1.2,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
 depth_dependent_pet_best_inv_L_E,C4,,0.2,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
-depth_dependent_pet_best_inv_L_E,C5,,1.05,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
-depth_dependent_pet_L_E_m,C2,,1.3333333333333333,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
-depth_dependent_pet_L_E_m,C3,,1.0526315789473684,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
+depth_dependent_pet_best_inv_L_E,C5,,0.7,m^-1,"Best-fit inverse PET attenuation length 1/L_E (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_inv_L_E"
+depth_dependent_pet_L_E_m,C2,,1.0526315789473684,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
+depth_dependent_pet_L_E_m,C3,,0.8333333333333334,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
 depth_dependent_pet_L_E_m,C4,,5.0,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
-depth_dependent_pet_L_E_m,C5,,0.9523809523809523,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
-depth_dependent_pet_drainage_share_ssm_full_pct,C1,,37.846058550990655,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 238)"
+depth_dependent_pet_L_E_m,C5,,1.4285714285714286,m,"attenuation length of evaporative draw L_E (the 1/e decay depth), the reciprocal of the best-fit inverse length (depth_dependent_pet_best_inv_L_E), unrounded"
+depth_dependent_pet_drainage_share_ssm_full_pct,C1,,38.914602203221264,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 238)"
 depth_dependent_pet_drainage_share_ddp_full_pct,C1,,38.78597903468818,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
-depth_dependent_pet_drainage_share_shift_full_pts,C1,,0.9399204836975272,percentage points,"Model B: depth-dependent minus standard, full record"
+depth_dependent_pet_drainage_share_shift_full_pts,C1,,-0.12862316853308187,percentage points,"Model B: depth-dependent minus standard, full record"
 depth_dependent_pet_best_inv_L_E_full,C1,,0.25,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
-depth_dependent_pet_check_ssm_full_vs_03,C1,,0.0,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
-depth_dependent_pet_drainage_share_ssm_full_pct,C2,,44.981053407884026,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
-depth_dependent_pet_drainage_share_ddp_full_pct,C2,,44.98105340788442,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
-depth_dependent_pet_drainage_share_shift_full_pts,C2,,3.907985046680551e-13,percentage points,"Model B: depth-dependent minus standard, full record"
-depth_dependent_pet_best_inv_L_E_full,C2,,0.0,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
-depth_dependent_pet_check_ssm_full_vs_03,C2,,7.105427357601002e-15,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
-depth_dependent_pet_drainage_share_ssm_full_pct,C3,,56.36382063233664,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
-depth_dependent_pet_drainage_share_ddp_full_pct,C3,,60.91299346290685,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
-depth_dependent_pet_drainage_share_shift_full_pts,C3,,4.549172830570207,percentage points,"Model B: depth-dependent minus standard, full record"
-depth_dependent_pet_best_inv_L_E_full,C3,,1.0,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
-depth_dependent_pet_check_ssm_full_vs_03,C3,,-1.4210854715202004e-14,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
-depth_dependent_pet_drainage_share_ssm_full_pct,C4,,29.110764497146935,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 238)"
-depth_dependent_pet_drainage_share_ddp_full_pct,C4,,29.696933733473312,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
-depth_dependent_pet_drainage_share_shift_full_pts,C4,,0.5861692363263771,percentage points,"Model B: depth-dependent minus standard, full record"
+depth_dependent_pet_check_ssm_full_vs_03,C1,,-1.252628825961402,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C2,,48.579030694003364,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C2,,49.180812881811185,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C2,,0.6017821878078209,percentage points,"Model B: depth-dependent minus standard, full record"
+depth_dependent_pet_best_inv_L_E_full,C2,,0.3,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C2,,-0.7666505759894875,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C3,,59.137964469331074,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C3,,63.33967254353134,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C3,,4.201708074200269,percentage points,"Model B: depth-dependent minus standard, full record"
+depth_dependent_pet_best_inv_L_E_full,C3,,1.1,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C3,,-0.07967801741207126,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C4,,26.332204338247326,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 238)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C4,,29.69863651178284,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C4,,3.3664321735355145,percentage points,"Model B: depth-dependent minus standard, full record"
 depth_dependent_pet_best_inv_L_E_full,C4,,0.3,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
-depth_dependent_pet_check_ssm_full_vs_03,C4,,2.1316282072803006e-14,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
-depth_dependent_pet_drainage_share_ssm_full_pct,C5,,61.03185002793454,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 240)"
-depth_dependent_pet_drainage_share_ddp_full_pct,C5,,61.03185002793448,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
-depth_dependent_pet_drainage_share_shift_full_pts,C5,,-5.684341886080802e-14,percentage points,"Model B: depth-dependent minus standard, full record"
-depth_dependent_pet_best_inv_L_E_full,C5,,0.0,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
-depth_dependent_pet_check_ssm_full_vs_03,C5,,5.684341886080802e-14,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
+depth_dependent_pet_check_ssm_full_vs_03,C4,,0.3044012158383964,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C5,,55.42713463725591,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C5,,60.08874346254771,%,"Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C5,,4.6616088252918,percentage points,"Model B: depth-dependent minus standard, full record"
+depth_dependent_pet_best_inv_L_E_full,C5,,0.9,m^-1,Model B: best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C5,,-0.014667184419522528,percentage points,identity check (D-332): full-record Model B standard share less the share of Script 03's Model B centroid coefficients (03_03) on the same months (expected 0)
 depth_dependent_pet_best_inv_L_E_model_a,C1,,2.4,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
 depth_dependent_pet_L_E_m_model_a,C1,,0.4166666666666667,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
 depth_dependent_pet_drainage_share_ssm_pct_model_a,C1,,93.73851336318673,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
 depth_dependent_pet_drainage_share_ddp_pct_model_a,C1,,68.89025090213325,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
 depth_dependent_pet_drainage_share_shift_pts_model_a,C1,,-24.84826246105348,percentage points,Model A: depth-dependent minus standard
-depth_dependent_pet_best_inv_L_E_model_a,C2,,1.05,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
-depth_dependent_pet_L_E_m_model_a,C2,,0.9523809523809523,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
-depth_dependent_pet_drainage_share_ssm_pct_model_a,C2,,72.60019643540119,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
-depth_dependent_pet_drainage_share_ddp_pct_model_a,C2,,57.89909100929841,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
-depth_dependent_pet_drainage_share_shift_pts_model_a,C2,,-14.701105426102778,percentage points,Model A: depth-dependent minus standard
-depth_dependent_pet_best_inv_L_E_model_a,C3,,0.5,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
-depth_dependent_pet_L_E_m_model_a,C3,,2.0,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
-depth_dependent_pet_drainage_share_ssm_pct_model_a,C3,,67.51055624322275,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
-depth_dependent_pet_drainage_share_ddp_pct_model_a,C3,,59.86952869399241,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
-depth_dependent_pet_drainage_share_shift_pts_model_a,C3,,-7.641027549230344,percentage points,Model A: depth-dependent minus standard
+depth_dependent_pet_best_inv_L_E_model_a,C2,,0.85,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
+depth_dependent_pet_L_E_m_model_a,C2,,1.1764705882352942,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
+depth_dependent_pet_drainage_share_ssm_pct_model_a,C2,,71.29697032449974,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
+depth_dependent_pet_drainage_share_ddp_pct_model_a,C2,,59.13995218079958,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
+depth_dependent_pet_drainage_share_shift_pts_model_a,C2,,-12.157018143700157,percentage points,Model A: depth-dependent minus standard
+depth_dependent_pet_best_inv_L_E_model_a,C3,,0.65,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
+depth_dependent_pet_L_E_m_model_a,C3,,1.5384615384615383,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
+depth_dependent_pet_drainage_share_ssm_pct_model_a,C3,,71.8338132464863,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
+depth_dependent_pet_drainage_share_ddp_pct_model_a,C3,,61.866726993219594,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
+depth_dependent_pet_drainage_share_shift_pts_model_a,C3,,-9.967086253266707,percentage points,Model A: depth-dependent minus standard
 depth_dependent_pet_best_inv_L_E_model_a,C4,,0.1,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
 depth_dependent_pet_L_E_m_model_a,C4,,10.0,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
-depth_dependent_pet_drainage_share_ssm_pct_model_a,C4,,16.749035223559012,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
-depth_dependent_pet_drainage_share_ddp_pct_model_a,C4,,10.861576198021407,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
-depth_dependent_pet_drainage_share_shift_pts_model_a,C4,,-5.887459025537606,percentage points,Model A: depth-dependent minus standard
-depth_dependent_pet_best_inv_L_E_model_a,C5,,0.4,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
-depth_dependent_pet_L_E_m_model_a,C5,,2.5,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
-depth_dependent_pet_drainage_share_ssm_pct_model_a,C5,,63.35522441131399,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
-depth_dependent_pet_drainage_share_ddp_pct_model_a,C5,,58.00337702813445,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
-depth_dependent_pet_drainage_share_shift_pts_model_a,C5,,-5.351847383179539,percentage points,Model A: depth-dependent minus standard
-depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C1,,85.08856523077777,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
+depth_dependent_pet_drainage_share_ssm_pct_model_a,C4,,16.731710866378915,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
+depth_dependent_pet_drainage_share_ddp_pct_model_a,C4,,10.842432272972427,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
+depth_dependent_pet_drainage_share_shift_pts_model_a,C4,,-5.8892785934064875,percentage points,Model A: depth-dependent minus standard
+depth_dependent_pet_best_inv_L_E_model_a,C5,,0.3,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the comparison window
+depth_dependent_pet_L_E_m_model_a,C5,,3.3333333333333335,m,Model A at DRAINAGE_DATUM: attenuation length L_E on the comparison window
+depth_dependent_pet_drainage_share_ssm_pct_model_a,C5,,57.53405319682263,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, centroid on the comparison window"
+depth_dependent_pet_drainage_share_ddp_pct_model_a,C5,,52.46597556297955,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, comparison window"
+depth_dependent_pet_drainage_share_shift_pts_model_a,C5,,-5.068077633843082,percentage points,Model A: depth-dependent minus standard
+depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C1,,86.35470761743659,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
 depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C1,,56.8626213213119,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
-depth_dependent_pet_drainage_share_shift_full_pts_model_a,C1,,-28.225943909465876,percentage points,"Model A: depth-dependent minus standard, full record"
+depth_dependent_pet_drainage_share_shift_full_pts_model_a,C1,,-29.49208629612469,percentage points,"Model A: depth-dependent minus standard, full record"
 depth_dependent_pet_best_inv_L_E_full_model_a,C1,,2.2,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the full record
-depth_dependent_pet_check_ssm_full_vs_03_model_a,C1,,-1.4210854715202004e-14,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
-depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C2,,66.36102750869003,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
-depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C2,,55.89968925695585,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
-depth_dependent_pet_drainage_share_shift_full_pts_model_a,C2,,-10.461338251734176,percentage points,"Model A: depth-dependent minus standard, full record"
+depth_dependent_pet_check_ssm_full_vs_03_model_a,C1,,-0.6572109445694139,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
+depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C2,,66.98760486436602,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
+depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C2,,56.30707448178839,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
+depth_dependent_pet_drainage_share_shift_full_pts_model_a,C2,,-10.68053038257763,percentage points,"Model A: depth-dependent minus standard, full record"
 depth_dependent_pet_best_inv_L_E_full_model_a,C2,,0.75,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the full record
-depth_dependent_pet_check_ssm_full_vs_03_model_a,C2,,-9.947598300641403e-14,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
-depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C3,,64.56786634738758,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
-depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C3,,58.07805480368942,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
-depth_dependent_pet_drainage_share_shift_full_pts_model_a,C3,,-6.48981154369816,percentage points,"Model A: depth-dependent minus standard, full record"
+depth_dependent_pet_check_ssm_full_vs_03_model_a,C2,,-0.517343190135577,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
+depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C3,,69.62974554894357,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
+depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C3,,60.502003887316455,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
+depth_dependent_pet_drainage_share_shift_full_pts_model_a,C3,,-9.12774166162712,percentage points,"Model A: depth-dependent minus standard, full record"
 depth_dependent_pet_best_inv_L_E_full_model_a,C3,,0.5,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the full record
-depth_dependent_pet_check_ssm_full_vs_03_model_a,C3,,-5.684341886080802e-14,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
-depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C4,,24.746620756551046,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
-depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C4,,18.849002415346927,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
-depth_dependent_pet_drainage_share_shift_full_pts_model_a,C4,,-5.897618341204119,percentage points,"Model A: depth-dependent minus standard, full record"
+depth_dependent_pet_check_ssm_full_vs_03_model_a,C3,,-0.09955640967837098,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
+depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C4,,24.2299672152286,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
+depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C4,,18.842955863298815,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
+depth_dependent_pet_drainage_share_shift_full_pts_model_a,C4,,-5.387011351929786,percentage points,"Model A: depth-dependent minus standard, full record"
 depth_dependent_pet_best_inv_L_E_full_model_a,C4,,0.15,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the full record
-depth_dependent_pet_check_ssm_full_vs_03_model_a,C4,,-7.105427357601002e-14,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
-depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C5,,60.99003586617077,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
-depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C5,,60.99003586617077,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
-depth_dependent_pet_drainage_share_shift_full_pts_model_a,C5,,0.0,percentage points,"Model A: depth-dependent minus standard, full record"
-depth_dependent_pet_best_inv_L_E_full_model_a,C5,,0.0,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the full record
-depth_dependent_pet_check_ssm_full_vs_03_model_a,C5,,4.263256414560601e-14,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
+depth_dependent_pet_check_ssm_full_vs_03_model_a,C4,,0.28424465786170217,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
+depth_dependent_pet_drainage_share_ssm_full_pct_model_a,C5,,58.862556966628034,%,"Model A at DRAINAGE_DATUM: drainage share, standard SSM, full record"
+depth_dependent_pet_drainage_share_ddp_full_pct_model_a,C5,,49.07014208175101,%,"Model A at DRAINAGE_DATUM: drainage share, depth-dependent, full record"
+depth_dependent_pet_drainage_share_shift_full_pts_model_a,C5,,-9.792414884877026,percentage points,"Model A: depth-dependent minus standard, full record"
+depth_dependent_pet_best_inv_L_E_full_model_a,C5,,0.5,m^-1,Model A at DRAINAGE_DATUM: best-fit 1/L_E on the full record
+depth_dependent_pet_check_ssm_full_vs_03_model_a,C5,,-0.009656019289046469,percentage points,"identity check: full-record Model A standard share less Script 03's partition at the project datum (03_12, Model A) (expected 0)"
 ddp_per_well_n_wells,,,66.0,count,"reference wells fitted under the depth-dependent form (comparison window, cluster L_E)"
-ddp_per_well_n_identified,,,30.0,count,"of which identified (Model B, D-332: beta_1, beta_2 > 0; beta_3 by response_identified, 4 parameters; implied base below ground)"
-ddp_per_well_n_excluded_datum,,,2.0,count,"reference wells whose Model B depth-dependent set has its implied base DRAINAGE_DATUM - alpha/beta_3 not below ground, left out (D-332) (ceh13 -105.88 m, ceh14 -1252.00 m)"
-ddp_per_well_n_bound_binds,,,15.0,count,reference wells whose Model B depth-dependent beta_3 sits at MODEL_B_BETA3_MIN (D-332)
-ddp_per_well_dnse_median,,,0.005028961193751569,,"median iterative NSE gain of the depth-dependent set over the 1/L_E = 0 refit, per well"
+ddp_per_well_n_identified,,,20.0,count,"of which identified (Model B, D-332: beta_1, beta_2 > 0; beta_3 by response_identified, 4 parameters; implied base below ground)"
+ddp_per_well_n_excluded_datum,,,2.0,count,"reference wells whose Model B depth-dependent set has its implied base DRAINAGE_DATUM - alpha/beta_3 not below ground, left out (D-332) (ceh13 -105.88 m, ceh14 -1255.97 m)"
+ddp_per_well_n_bound_binds,,,16.0,count,reference wells whose Model B depth-dependent beta_3 sits at MODEL_B_BETA3_MIN (D-332)
+ddp_per_well_dnse_median,,,0.008118430056028414,,"median iterative NSE gain of the depth-dependent set over the 1/L_E = 0 refit, per well"
 ddp_per_well_check_b3_k0_vs_03,,,0.07421879016043334,,"identity check (D-332, Model B): max |beta_3 at 1/L_E = 0 less 03_master_data beta_3_drainage (Model B)| over the wells (expected near 0; Script 03 fits dry months censored, this script fits the filled frame)"
-ddp_per_well_check_b3_k0_vs_03_model_a,,,0.005914473599738138,,"identity check, Model A: max |beta_3 at 1/L_E = 0, no intercept, less 03_master_data beta_3_drainage_model_a| over the wells"
+ddp_per_well_check_b3_k0_vs_03_model_a,,,0.005758961533328756,,"identity check, Model A: max |beta_3 at 1/L_E = 0, no intercept, less 03_master_data beta_3_drainage_model_a| over the wells"
 depth_dependent_pet_drainage_share_ssm_pct,C1,,54.15225745671476,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
 depth_dependent_pet_drainage_share_ddp_pct,C1,,54.152257456714906,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
 depth_dependent_pet_drainage_share_shift_pts,C1,,1.4921397450962104e-13,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
-depth_dependent_pet_drainage_share_ssm_pct,C2,,50.21350140590168,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
-depth_dependent_pet_drainage_share_ddp_pct,C2,,55.417415763944916,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
-depth_dependent_pet_drainage_share_shift_pts,C2,,5.203914358043235,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
-depth_dependent_pet_drainage_share_ssm_pct,C3,,61.36205269094606,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
-depth_dependent_pet_drainage_share_ddp_pct,C3,,64.89614593457922,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
-depth_dependent_pet_drainage_share_shift_pts,C3,,3.5340932436331656,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
-depth_dependent_pet_drainage_share_ssm_pct,C4,,18.19999127740844,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
-depth_dependent_pet_drainage_share_ddp_pct,C4,,14.19696514428436,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
-depth_dependent_pet_drainage_share_shift_pts,C4,,-4.003026133124081,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
-depth_dependent_pet_drainage_share_ssm_pct,C5,,55.52018811356919,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
-depth_dependent_pet_drainage_share_ddp_pct,C5,,58.85611306791888,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
-depth_dependent_pet_drainage_share_shift_pts,C5,,3.335924954349693,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C2,,54.07584282226004,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C2,,60.53445080435546,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
+depth_dependent_pet_drainage_share_shift_pts,C2,,6.458607982095415,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C3,,63.81261159898516,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C3,,66.33809986029787,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
+depth_dependent_pet_drainage_share_shift_pts,C3,,2.5254882613127165,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C4,,18.174910127201816,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C4,,14.171584729621257,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
+depth_dependent_pet_drainage_share_shift_pts,C4,,-4.003325397580559,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C5,,54.10349102412749,%,"Model B (D-332): drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C5,,56.38286411748486,%,the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E
+depth_dependent_pet_drainage_share_shift_pts,C5,,2.279373093357364,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET

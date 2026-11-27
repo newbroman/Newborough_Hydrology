@@ -202,7 +202,7 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
+__version__ = "2.33.1"  # 2026-11-27 (D-347 run): a provenance record whose script no longer exists in src/ is dropped when the file is rewritten (50_record_length.py, split into 50a-e by J-15, was carried forward and went stale when its inputs moved). Was "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
 #   pass token from NRG_RUN_SCOPE_ID when tools/run_scope.py sets it, so a scoped run of several steps is one pass.
 # 2.32.0  # Hollingham (2026) - 2026-11-24 (Fable review). After each successful step, record the code
 #   that ran (tools/code_signature.py -> outputs/pipeline_code_signatures.json); output_lag 1.2.0 judges by it.
@@ -1446,6 +1446,9 @@ def _record_provenance(script_name: str, record: dict) -> None:
         prov["orchestrator"] = __version__
         prov["generated"] = datetime.datetime.now().isoformat(timespec="seconds")
         prov.setdefault("steps", {})[script_name] = record
+        # 2.33.1: a record for a script that no longer exists is history, not provenance
+        for _gone in [k for k in prov["steps"] if k.endswith(".py") and not (SRC_DIR / k).exists()]:
+            del prov["steps"][_gone]
         OUT_DIR.mkdir(exist_ok=True)
         OUT_PROVENANCE.write_text(json.dumps(prov, indent=1, sort_keys=True), encoding="utf-8")
     except Exception as exc:                        # noqa: BLE001 — never block a run

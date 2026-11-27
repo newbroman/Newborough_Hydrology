@@ -40,7 +40,10 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). Adds coast_event_retreat_m
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-11-27 (D-347 full rerun, defaults_lint): _DEFAULTS["drawdown_lambda_m"] 172.1 -> 154.1
+#   (Script 20 takes C3 Western Dune's Model B beta_3, and C3 is re-formed on 2010 onward with 13 wells) and
+#   _DEFAULTS["scrape_offsite_100m_vol"] -27.8 -> -26.1 (09d with that lambda).
+# 1.20.0  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). Adds coast_event_retreat_m
 #   = 8.9483, the first-pass fallback for the single-event retreat now that it is MEASURED by Script 40
 #   (the 2019-20 winter median displacement) rather than config.COAST_RETREAT_M = 6.0. mech_coastal_storm_mm
 #   follows (09f_01 coastal_storm_head_mm, renamed from coastal_6m_storm_head_mm); its value is refreshed
@@ -358,14 +361,14 @@ _DEFAULTS = {
     # -29.0 / 894, which is the PRE-D-046 parameter block T-18c spent a morning
     # clearing out of the Methods Supplement. Leaving the same pair here as the
     # pipeline's own fallback is how it would have come back.
-    "drawdown_lambda_m":        172.1,   # 20_report_numbers.csv (drawdown_lambda);
+    "drawdown_lambda_m":        154.1,   # 20_report_numbers.csv (drawdown_lambda);
                                          # 221.3 until Script 20 1.45.0 took β₃ per
                                          # day from config.DAYS_PER_MONTH (2026-09-26)
     "coast_delta0_mm_yr":       -31.28,  # 25_01 forest_free/linear_capped δ₀;
                                          # was -29.0, the pre-D-046 value
     "coast_reach_L_m":          902.0,   # 25_01 forest_free/linear_capped L;
                                          # was 894.0, the pre-D-046 value
-    "scrape_offsite_100m_vol":  -27.8,   # 09d_01 Scraping (off-site 100 m)
+    "scrape_offsite_100m_vol":  -26.1,   # 09d_01 Scraping (off-site 100 m)
                                          # mm w.e./month; was -30.3
     "clearfell_recovery_mm":    108.2,   # 10a ANCOVA_Forest_Impact_clearfell_step
                                          # ×1000 = 113.09; was 119.6 — see M31

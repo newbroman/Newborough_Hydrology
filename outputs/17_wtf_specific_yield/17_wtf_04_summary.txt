@@ -10,21 +10,21 @@ Method: Healy and Cook (2002)
 
 APPROACH A — OLS Regression (winter months, origin-forced)
 ----------------------------------------------------------------------
-  C1 (Lake Edge)                    S_a = 0.236  ±0.0116 (SE)  R² = 0.878  n = 58
-  C2 (Dune)                         S_a = 0.254  ±0.0114 (SE)  R² = 0.888  n = 64
-  C3 (Western Residual)             S_a = 0.230  ±0.0071 (SE)  R² = 0.944  n = 64
-  C4 (Main Forest)                  S_a = 0.273  ±0.0150 (SE)  R² = 0.864  n = 53
-  C5 (Coastal Forest)               S_a = 0.308  ±0.0144 (SE)  R² = 0.887  n = 59
+  C1 (Lake Edge)                    S_a = 0.231  ±0.0113 (SE)  R² = 0.880  n = 58
+  C2 (Dune)                         S_a = 0.243  ±0.0092 (SE)  R² = 0.917  n = 64
+  C3 (Western Dune)                 S_a = 0.222  ±0.0068 (SE)  R² = 0.944  n = 65
+  C4 (Main Forest)                  S_a = 0.279  ±0.0159 (SE)  R² = 0.856  n = 53
+  C5 (Coastal Forest)               S_a = 0.269  ±0.0113 (SE)  R² = 0.900  n = 64
 
 APPROACH B — Event Median (rising limb months)
 ----------------------------------------------------------------------
   C1 (Lake Edge)                    S_a = 0.210  IQR [0.131, 0.258]  n = 59
-  C2 (Dune)                         S_a = 0.270  IQR [0.202, 0.341]  n = 62
-  C3 (Western Residual)             S_a = 0.312  IQR [0.261, 0.394]  n = 58
+  C2 (Dune)                         S_a = 0.296  IQR [0.217, 0.360]  n = 68
+  C3 (Western Dune)                 S_a = 0.336  IQR [0.267, 0.400]  n = 63
   C4 (Main Forest)                  S_a = 0.321  IQR [0.259, 0.417]  n = 52
-  C5 (Coastal Forest)               S_a = 0.364  IQR [0.329, 0.434]  n = 36
-  C4 (Main Forest) (corrected)      S_a = 0.256  IQR [0.186, 0.337]  n = 64   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
-  C5 (Coastal Forest) (corrected)   S_a = 0.316  IQR [0.248, 0.396]  n = 52   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C5 (Coastal Forest)               S_a = 0.369  IQR [0.317, 0.420]  n = 49
+  C4 (Main Forest) (corrected)      S_a = 0.256  IQR [0.186, 0.338]  n = 64   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C5 (Coastal Forest) (corrected)   S_a = 0.282  IQR [0.228, 0.366]  n = 68   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
 
 APPROACH C — Rapid Recharge Events (Crosbie et al., 2005)
 ----------------------------------------------------------------------
@@ -33,21 +33,21 @@ APPROACH C — Rapid Recharge Events (Crosbie et al., 2005)
   Cluster S_a = median of episode Sy_i, 95% CI from 1000 bootstraps.
 
   C1 (Lake Edge)                    S_a = 0.180  95% CI [0.101, 0.220]  n = 19
-  C2 (Dune)                         S_a = 0.274  95% CI [0.213, 0.334]  n = 20
-  C3 (Western Residual)             S_a = 0.314  95% CI [0.243, 0.389]  n = 17
-  C4 (Main Forest)                  S_a = 0.306  95% CI [0.236, 0.361]  n = 13   [interception-corrected]
-  C5 (Coastal Forest)               S_a = 0.311  95% CI [0.281, 0.337]  n = 14   [interception-corrected]
+  C2 (Dune)                         S_a = 0.311  95% CI [0.223, 0.345]  n = 20
+  C3 (Western Dune)                 S_a = 0.321  95% CI [0.202, 0.349]  n = 17
+  C4 (Main Forest)                  S_a = 0.306  95% CI [0.236, 0.359]  n = 13   [interception-corrected]
+  C5 (Coastal Forest)               S_a = 0.271  95% CI [0.235, 0.348]  n = 15   [interception-corrected]
 
 COMPARISON WITH ASSUMED VALUES
 ----------------------------------------------------------------------
   Cluster                            Assumed       OLS     Event     Rapid
-  C1 (Lake Edge)                       0.080     0.236     0.210     0.180
-  C2 (Dune)                            0.120     0.254     0.270     0.274
-  C3 (Western Residual)                0.120     0.230     0.312     0.314
-  C4 (Main Forest)                     0.120     0.273     0.321     0.306
-  C5 (Coastal Forest)                  0.120     0.308     0.364     0.311
+  C1 (Lake Edge)                       0.080     0.231     0.210     0.180
+  C2 (Dune)                            0.120     0.243     0.296     0.311
+  C3 (Western Dune)                    0.120     0.222     0.336     0.321
+  C4 (Main Forest)                     0.120     0.279     0.321     0.306
+  C5 (Coastal Forest)                  0.120     0.269     0.369     0.271
   C4 (Main Forest) (corrected)         0.120       n/a     0.256         -
-  C5 (Coastal Forest) (corrected)      0.120       n/a     0.316         -
+  C5 (Coastal Forest) (corrected)      0.120       n/a     0.282         -
 
 NOTES
 ----------------------------------------------------------------------

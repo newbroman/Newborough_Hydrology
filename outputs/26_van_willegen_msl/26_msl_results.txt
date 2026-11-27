@@ -17,10 +17,10 @@ Network coverage:
 Most recent (window-end) MSL5 by cluster, m below ground:
   Window end year : 2025
   C1 (Lake Edge)       n=  8  MSL5 mean=-0.133 m  median=-0.132 m  MAX5 mean=+0.129 m
-  C2 (Dune)            n= 23  MSL5 mean=-0.190 m  median=-0.128 m  MAX5 mean=-0.003 m
-  C3 (Western Residual) n= 30  MSL5 mean=-0.398 m  median=-0.358 m  MAX5 mean=-0.194 m
+  C2 (Dune)            n= 32  MSL5 mean=-0.243 m  median=-0.165 m  MAX5 mean=-0.052 m
+  C3 (Western Dune)    n= 17  MSL5 mean=-0.415 m  median=-0.393 m  MAX5 mean=-0.211 m
   C4 (Main Forest)     n= 10  MSL5 mean=-0.792 m  median=-0.715 m  MAX5 mean=-0.549 m
-  C5 (Coastal Forest)  n= 11  MSL5 mean=-1.157 m  median=-1.153 m  MAX5 mean=-0.995 m
+  C5 (Coastal Forest)  n= 15  MSL5 mean=-0.947 m  median=-0.923 m  MAX5 mean=-0.774 m
 
 Curreli (2013) reference values:
   SD15b (wet slack)  : −0.61 m below ground

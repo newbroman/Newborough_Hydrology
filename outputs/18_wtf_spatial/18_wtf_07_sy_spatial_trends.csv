@@ -1,43 +1,43 @@
 block,series,metric,value,n,unit
-open_dune_plane,corrected,n,52.0,52,wells
-open_dune_plane,corrected,r2,0.6097093938962678,52,-
-open_dune_plane,corrected,const,0.2768574043346797,52,S_a
-open_dune_plane,corrected,coef_E_per_km,-0.05422264380007179,52,S_a/km
-open_dune_plane,corrected,p_E,5.201038610716005e-08,52,p
-open_dune_plane,corrected,coef_N_per_km,-0.04395569660666472,52,S_a/km
-open_dune_plane,corrected,p_N,3.5885566151530327e-06,52,p
-open_dune_plane,corrected,grad_per_km,0.0698011344094537,52,S_a/km
-open_dune_plane,corrected,azimuth_deg,230.96997626610823,52,degrees
-open_dune_plane,corrected,resid_sd,0.030704750366489664,52,S_a
-open_dune_plane,corrected,centroid_E,242177.71132692308,52,m
-open_dune_plane,corrected,centroid_N,363674.9527692307,52,m
-forest_corr,corrected,r_vs_Elevation,-0.9330905323150142,14,Pearson r
-forest_corr,corrected,p_vs_Elevation,1.120259089061091e-06,14,p
-forest_corr,corrected,r_vs_Dist_from_ridge,0.8092328697998056,14,Pearson r
-forest_corr,corrected,p_vs_Dist_from_ridge,0.0004550188188309131,14,p
-forest_corr,corrected,r_vs_Easting,-0.6532603818374401,14,Pearson r
-forest_corr,corrected,p_vs_Easting,0.011298333136742125,14,p
-forest_corr,uncorrected,r_vs_Elevation,-0.8222124576162985,14,Pearson r
-forest_corr,uncorrected,p_vs_Elevation,0.000307204062931567,14,p
-forest_corr,uncorrected,r_vs_Dist_from_ridge,0.7040622129010826,14,Pearson r
-forest_corr,uncorrected,p_vs_Dist_from_ridge,0.0049447598066397385,14,p
-forest_corr,uncorrected,r_vs_Easting,-0.5404225481693244,14,Pearson r
-forest_corr,uncorrected,p_vs_Easting,0.04602507380962104,14,p
-forest_corr,corrected_drop_ceh14,r_vs_Elevation,-0.9060260785630847,13,Pearson r
-forest_corr,corrected_drop_ceh14,p_vs_Elevation,1.992728151011294e-05,13,p
-forest_corr,corrected_drop_ceh14,r_vs_Dist_from_ridge,0.7570032360958917,13,Pearson r
-forest_corr,corrected_drop_ceh14,p_vs_Dist_from_ridge,0.002734954760468335,13,p
-forest_corr,corrected_drop_ceh14,r_vs_Easting,-0.6265619182750296,13,Pearson r
-forest_corr,corrected_drop_ceh14,p_vs_Easting,0.021936878404946823,13,p
-forest_corr,corrected_drop_ceh13,r_vs_Elevation,-0.9294625812197521,13,Pearson r
-forest_corr,corrected_drop_ceh13,p_vs_Elevation,4.307525475488939e-06,13,p
-forest_corr,corrected_drop_ceh13,r_vs_Dist_from_ridge,0.8358647253919822,13,Pearson r
-forest_corr,corrected_drop_ceh13,p_vs_Dist_from_ridge,0.00037194208925723994,13,p
-forest_corr,corrected_drop_ceh13,r_vs_Easting,-0.7536131446543451,13,Pearson r
-forest_corr,corrected_drop_ceh13,p_vs_Easting,0.0029305709359198754,13,p
-forest_corr,corrected_drop_ceh13_ceh14,r_vs_Elevation,-0.8933038168967888,12,Pearson r
-forest_corr,corrected_drop_ceh13_ceh14,p_vs_Elevation,9.081519487843021e-05,12,p
-forest_corr,corrected_drop_ceh13_ceh14,r_vs_Dist_from_ridge,0.7927097887866907,12,Pearson r
-forest_corr,corrected_drop_ceh13_ceh14,p_vs_Dist_from_ridge,0.002103282170678315,12,p
-forest_corr,corrected_drop_ceh13_ceh14,r_vs_Easting,-0.7668819229928188,12,Pearson r
-forest_corr,corrected_drop_ceh13_ceh14,p_vs_Easting,0.0036099377106336376,12,p
+open_dune_plane,corrected,n,47.0,47,wells
+open_dune_plane,corrected,r2,0.5808511966446872,47,-
+open_dune_plane,corrected,const,0.27184779186731683,47,S_a
+open_dune_plane,corrected,coef_E_per_km,-0.05260023949662315,47,S_a/km
+open_dune_plane,corrected,p_E,1.7014665117370352e-06,47,p
+open_dune_plane,corrected,coef_N_per_km,-0.0428207221749001,47,S_a/km
+open_dune_plane,corrected,p_N,1.1138138439311793e-05,47,p
+open_dune_plane,corrected,grad_per_km,0.06782624449784977,47,S_a/km
+open_dune_plane,corrected,azimuth_deg,230.8517067884588,47,degrees
+open_dune_plane,corrected,resid_sd,0.03130983292510602,47,S_a
+open_dune_plane,corrected,centroid_E,242246.25302127659,47,m
+open_dune_plane,corrected,centroid_N,363683.1491914894,47,m
+forest_corr,corrected,r_vs_Elevation,-0.8688987050123054,19,Pearson r
+forest_corr,corrected,p_vs_Elevation,1.3878636921091176e-06,19,p
+forest_corr,corrected,r_vs_Dist_from_ridge,0.7827261589743505,19,Pearson r
+forest_corr,corrected,p_vs_Dist_from_ridge,7.447294201456614e-05,19,p
+forest_corr,corrected,r_vs_Easting,-0.6632568875386817,19,Pearson r
+forest_corr,corrected,p_vs_Easting,0.0019642597016158187,19,p
+forest_corr,uncorrected,r_vs_Elevation,-0.847203677252779,19,Pearson r
+forest_corr,uncorrected,p_vs_Elevation,4.721423263220753e-06,19,p
+forest_corr,uncorrected,r_vs_Dist_from_ridge,0.7322882410176034,19,Pearson r
+forest_corr,uncorrected,p_vs_Dist_from_ridge,0.00036393749256988597,19,p
+forest_corr,uncorrected,r_vs_Easting,-0.3456816527190746,19,Pearson r
+forest_corr,uncorrected,p_vs_Easting,0.14716095563948983,19,p
+forest_corr,corrected_drop_ceh14,r_vs_Elevation,-0.8575750960340368,18,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Elevation,5.3921222893711125e-06,18,p
+forest_corr,corrected_drop_ceh14,r_vs_Dist_from_ridge,0.7458826487111326,18,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Dist_from_ridge,0.0003794811006595405,18,p
+forest_corr,corrected_drop_ceh14,r_vs_Easting,-0.6876569014406468,18,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Easting,0.001611168948694183,18,p
+forest_corr,corrected_drop_ceh13,r_vs_Elevation,-0.862152510878683,18,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Elevation,4.21524365638585e-06,18,p
+forest_corr,corrected_drop_ceh13,r_vs_Dist_from_ridge,0.7947706696517897,18,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Dist_from_ridge,8.122081037190615e-05,18,p
+forest_corr,corrected_drop_ceh13,r_vs_Easting,-0.7443738797765824,18,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Easting,0.0003958079603646754,18,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Elevation,-0.8471834108747329,17,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Elevation,1.7750360712863876e-05,17,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Dist_from_ridge,0.756540005498705,17,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Dist_from_ridge,0.00044000666592509025,17,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Easting,-0.7845862061755707,17,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Easting,0.0001919884973728643,17,p

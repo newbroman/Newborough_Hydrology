@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "2.6.0"  # Hollingham (2026) - 2026-11-26. OUT_10A_CTRL_STEP_2014 (Script 10a 1.28.0). Additive.
+__version__ = "2.7.0"  # Hollingham (2026) - 2026-11-26. OUT_07_COEFF_CLUSTER_TEST (Script 07 1.10.0, D-347). Additive.
+# 2.6.0  # Hollingham (2026) - 2026-11-26. OUT_10A_CTRL_STEP_2014 (Script 10a 1.28.0). Additive.
 # 2.5.0  # Hollingham (2026) - 2026-11-25 (latest). DATA_TIDES_BARMOUTH and DATA_WAVES_ERA5 (Script 40
 #   1.11.0). Additive.
 # 2.4.0  # Hollingham (2026) - 2026-11-25 (later). DATA_KML_COAST_2009 (data/geo/coast2009.kml, the
@@ -678,6 +679,7 @@ OUT_07_MAPS_DATA            = DIR_07 / "07_coeff_maps_data.csv"
 OUT_07_CLUSTER_COEFF_MEANS  = DIR_07 / "07_cluster_coeff_means.csv"   # §4.9 per-cluster mean β₁/β₂/β₃ (3.7 m datum)
 OUT_07_REPORT_NUMBERS       = DIR_07 / "07_report_numbers.csv"        # §4.9 cited coefficient stats
 OUT_07_CLUSTERS_VS_COVARIATES = DIR_07 / "07_05_clusters_vs_covariates.csv"  # T-73: per-well β on six covariates, with and without cluster labels
+OUT_07_COEFF_CLUSTER_TEST  = DIR_07 / "07_06_coeff_cluster_test.csv"   # D-347: do the per-well coefficients alone recover the partition?
 
 # Script 08 — Model benchmarking
 OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"

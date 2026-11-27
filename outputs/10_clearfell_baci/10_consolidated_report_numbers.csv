@@ -376,8 +376,8 @@ paired_WMC3_Forest_dAIC_pet,WMC3,,0.6844359547725389,,"AIC change for a step tha
 paired_WMC3_Forest_profile_corr_rain,WMC3,,0.6121868957708252,,correlation of the monthly post-felling profile with the rain climatology (10a_15_paired_attribution.csv),10a
 paired_WMC3_Forest_profile_corr_pet,WMC3,,-0.0804711282361935,,correlation of the monthly post-felling profile with the PET climatology (10a_15_paired_attribution.csv),10a
 paired_WMC3_Forest_p_winter_eq_summer,WMC3,,0.1400865987088137,,HAC p that the winter and summer steps are equal (10a_15_paired_attribution.csv),10a
-forest_zone_n_wells,,,14.0,wells,wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 9 + C5 5),10c
-R2_easting_only,beta_1_recharge,,0.229396470100413,,"R2 of beta_1 on easting alone over the forest-zone wells (Pearson r squared, r = 0.4790), n=14",10c
+forest_zone_n_wells,,,19.0,wells,wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 9 + C5 10),10c
+R2_easting_only,beta_1_recharge,,0.4059119764861104,,"R2 of beta_1 on easting alone over the forest-zone wells (Pearson r squared, r = 0.6371), n=19",10c
 nw10_beta1_z_vs_c4,NW10,,2.3037718219757304,SD,"NW10 beta_1 minus the C4 mean, in C4 sample standard deviations (ddof=1), over the n=9 C4 wells including NW10",10c
 SummerMin_WMC3_era_mean,WMC3,Post_felling,-1.6,m,"era-mean Summer_min_m, n_years=7",10d
 SummerMin_WMC3_era_mean,WMC3,Pre_scraping,-1.5733333333333333,m,"era-mean Summer_min_m, n_years=3",10d
@@ -847,28 +847,28 @@ B2_multiplier_clearfell,,,1.0771397421903708,,Edge ratio − Climate Ctrl ratio 
 B2_multiplier_thinning,,,1.0385698710951854,,1 + (clearfell multiplier − 1)/2,10e
 B2_multiplier_clearfell_impact,,,1.0651705034902994,,"Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 and 21 and the shared forestry bars, with no interception recharge term (D-239)",10e
 B2_multiplier_thinning_impact,,,1.0325852517451497,,1 + (B2_multiplier_clearfell_impact − 1)/2,10e
-shield_ratio_canopy_on,Climate Ctrl,,0.9096527001549676,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_off,Climate Ctrl,,1.021980983009756,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_on,Edge,,0.8626104427607216,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_off,Edge,,0.7439936623519551,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_on,Impact,,0.909358153335552,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_off,Impact,,1.0698774136470994,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_on_net,Impact,,0.9997054531805848,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-wmc3_b2_fall_canopy_on_pct,WMC3,,0.029454681941532,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell,10e
-shield_ratio_canopy_off_net,Impact,,1.0478964306373435,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-shield_ratio_canopy_on_net,Edge,,0.9529577426057542,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-shield_ratio_canopy_off_net,Edge,,0.7220126793421991,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-shield_ratio_canopy_on_model_a,Climate Ctrl,,0.9080334808924224,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_off_model_a,Climate Ctrl,,1.0936592264763445,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_on_model_a,Edge,,0.8577231815720885,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_off_model_a,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_on_model_a,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_off_model_a,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
-shield_ratio_canopy_on_net_model_a,Impact,,0.9829249583108584,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-wmc3_b2_fall_canopy_on_pct_model_a,WMC3,,1.7075041689141537,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell,10e
-shield_ratio_canopy_off_net_model_a,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-shield_ratio_canopy_on_net_model_a,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
-shield_ratio_canopy_off_net_model_a,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_on,Climate Ctrl,,0.9063225188430668,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off,Climate Ctrl,,1.0144331059076943,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on,Edge,,0.8632290379375327,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off,Edge,,0.7454426979071045,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on,Impact,,0.9082861946429446,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off,Impact,,1.0759265972088097,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on_net,Impact,,1.0019636757998778,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+wmc3_b2_fall_canopy_on_pct,WMC3,,-0.1963675799877773,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell,10e
+shield_ratio_canopy_off_net,Impact,,1.0614934913011154,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_on_net,Edge,,0.9569065190944658,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_off_net,Edge,,0.7310095919994102,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_on_model_a,Climate Ctrl,,0.905111814036034,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off_model_a,Climate Ctrl,,1.1015603166252204,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on_model_a,Edge,,0.8581458339033478,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off_model_a,Edge,,0.7503393939356046,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on_model_a,Impact,,0.8902818530430537,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off_model_a,Impact,,1.2075470787780738,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on_net_model_a,Impact,,0.9851700390070196,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+wmc3_b2_fall_canopy_on_pct_model_a,WMC3,,1.4829960992980284,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell,10e
+shield_ratio_canopy_off_net_model_a,Impact,,1.1059867621528534,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_on_net_model_a,Edge,,0.9530340198673136,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_off_net_model_a,Edge,,0.6487790773103842,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
 CoeffShift_Impact_mean_db1_model_a,Impact,,-0.0467,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10e
 CoeffShift_Impact_mean_db2_model_a,Impact,,-0.2696,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10e
 CoeffShift_Impact_mean_db3_model_a,Impact,,0.002,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10e
@@ -889,28 +889,28 @@ B2_multiplier_clearfell_model_a,,,1.0474710140473464,,"Edge ratio − Climate Ct
 B2_multiplier_thinning_model_a,,,1.023735507023673,,"1 + (B2_multiplier_clearfell_model_a − 1)/2; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10e
 B2_multiplier_clearfell_impact_model_a,,,0.9519811767100492,,"Impact ratio − Climate Ctrl ratio + 1.0; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10e
 B2_multiplier_thinning_impact_model_a,,,0.9759905883550246,,"1 + (B2_multiplier_clearfell_impact_model_a − 1)/2; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10e
-SSM_Resid_WMC3_step_p_hac,,,0.8607941045164406,,"Newey-West (12 lags) p of the Impact well's normalised-residual step; Welch p = 0.739 (D-240, T-106)",10f
-SSM_Resid_CEH31_step_p_hac,,,0.9229700261562096,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.835 (D-240, T-106)",10f
-SSM_Resid_CEH20_step_p_hac,,,0.0007058608388802,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
-SSM_Resid_CEH30_step_p_hac,,,9.775911047289274e-07,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
-SSM_Resid_CEH16_step_p_hac,,,0.4167349516659484,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.134 (D-240, T-106)",10f
-SSM_Resid_Impact_mean_step,,,0.0084,m,n=1,10f
-SSM_Resid_Edge_mean_step,,,0.043,m,n=4,10f
-SSM_Resid_Forest_Ctrl_mean_step,,,0.0718,m,n=5,10f
-SSM_Resid_Coastal_Ctrl_mean_step,,,-0.0774,m,n=2,10f
-SSM_Resid_Climate_Ctrl_mean_step,,,-0.0408,m,n=5,10f
-SSM_Resid_Impact_minus_Forest_Ctrl_step,,,-0.0633799999999999,m,SSM_Resid_Impact_mean_step (n=1) minus SSM_Resid_Forest_Ctrl_mean_step (n=5),10f
-SSM_Resid_WMC3_step_p_hac_model_a,,,0.0008541540735419,,"Newey-West (12 lags) p of the Impact well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
-SSM_Resid_CEH31_step_p_hac_model_a,,,0.6392344168229209,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.325 (D-240, T-106)",10f
-SSM_Resid_CEH20_step_p_hac_model_a,,,0.0134654850806952,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
-SSM_Resid_CEH30_step_p_hac_model_a,,,0.0091616826213204,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
-SSM_Resid_CEH16_step_p_hac_model_a,,,0.0396672782360107,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
-SSM_Resid_Impact_mean_step_model_a,,,0.0806,m,"n=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
-SSM_Resid_Edge_mean_step_model_a,,,0.0218,m,"n=4; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
-SSM_Resid_Forest_Ctrl_mean_step_model_a,,,0.0533,m,"n=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
-SSM_Resid_Coastal_Ctrl_mean_step_model_a,,,-0.0952,m,"n=2; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
-SSM_Resid_Climate_Ctrl_mean_step_model_a,,,-0.0153,m,"n=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
-SSM_Resid_Impact_minus_Forest_Ctrl_step_model_a,,,0.02726,m,SSM_Resid_Impact_mean_step (n=1) minus SSM_Resid_Forest_Ctrl_mean_step (n=5),10f
+SSM_Resid_WMC3_step_p_hac,,,0.8486075162931117,,"Newey-West (12 lags) p of the Impact well's normalised-residual step; Welch p = 0.727 (D-240, T-106)",10f
+SSM_Resid_CEH31_step_p_hac,,,0.8163169962405594,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.635 (D-240, T-106)",10f
+SSM_Resid_CEH20_step_p_hac,,,0.0005166127590154,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
+SSM_Resid_CEH30_step_p_hac,,,2.623324414701639e-09,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
+SSM_Resid_CEH16_step_p_hac,,,0.2901369862589338,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.053 (D-240, T-106)",10f
+SSM_Resid_Impact_mean_step,,,0.0004,m,n=1,10f
+SSM_Resid_Edge_mean_step,,,0.0313,m,n=4,10f
+SSM_Resid_Forest_Ctrl_mean_step,,,0.0511,m,n=5,10f
+SSM_Resid_Coastal_Ctrl_mean_step,,,-0.0816,m,n=2,10f
+SSM_Resid_Climate_Ctrl_mean_step,,,-0.0185,m,n=5,10f
+SSM_Resid_Impact_minus_Forest_Ctrl_step,,,-0.05068,m,SSM_Resid_Impact_mean_step (n=1) minus SSM_Resid_Forest_Ctrl_mean_step (n=5),10f
+SSM_Resid_WMC3_step_p_hac_model_a,,,0.289703844970239,,"Newey-West (12 lags) p of the Impact well's normalised-residual step; Welch p = 0.047 (D-240, T-106)",10f
+SSM_Resid_CEH31_step_p_hac_model_a,,,0.8172239287916524,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.634 (D-240, T-106)",10f
+SSM_Resid_CEH20_step_p_hac_model_a,,,0.1245374256106787,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.001 (D-240, T-106)",10f
+SSM_Resid_CEH30_step_p_hac_model_a,,,0.0319725035284666,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
+SSM_Resid_CEH16_step_p_hac_model_a,,,0.037346162454441,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)",10f
+SSM_Resid_Impact_mean_step_model_a,,,0.0277,m,"n=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
+SSM_Resid_Edge_mean_step_model_a,,,-0.0011,m,"n=4; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
+SSM_Resid_Forest_Ctrl_mean_step_model_a,,,0.0323,m,"n=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
+SSM_Resid_Coastal_Ctrl_mean_step_model_a,,,-0.1122,m,"n=2; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
+SSM_Resid_Climate_Ctrl_mean_step_model_a,,,0.0125,m,"n=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)",10f
+SSM_Resid_Impact_minus_Forest_Ctrl_step_model_a,,,-0.0046,m,SSM_Resid_Impact_mean_step (n=1) minus SSM_Resid_Forest_Ctrl_mean_step (n=5),10f
 Synth_Impact_step,,,0.1013,m,"p=<0.001, n_donors=6",10f
 Synth_Impact_step_p_hac,,,0.0021891288985293,,"Newey-West (12 lags) p of the synthetic-control step; Welch p = <0.001 (D-240, T-106)",10f
 Synth_Edge_step,,,0.0441,m,"p=0.189, n_donors=6",10f
@@ -927,7 +927,7 @@ Transect_control_baseline_m,,,0.0894979249461831,m,"mean post-fell step of the c
 Rolling_b1_impact_pre,,,2.495833787992492,,,10g
 Rolling_b1_impact_post,,,2.669484500543987,,,10g
 Rolling_b1_shift,,,0.173650712551495,,toward C3,10g
-Rolling_b1_c3_post,,,3.764377057753397,,,10g
+Rolling_b1_c3_post,,,3.792616254529853,,,10g
 synth_FE1_R2_cal,,,0.997837363362488,m,,10h
 synth_FE1_RMSE_mm,,,18.16889836779735,mm,,10h
 synth_FE1_hindcast_months,,,47.0,m,,10h

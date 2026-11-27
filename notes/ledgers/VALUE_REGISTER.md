@@ -140,7 +140,7 @@
 |  | 4 / k4 raw 3 (non-canonical) · median_stability | report8.md |
 |  | 5 / C1 (Lake Edge) · n_wells | report9.md |
 |  | 5 / C2 (Dune) · min_stability | Newborough_Methods_Supplement.md |
-|  | 5 / C3 (Western Residual) · median_stability | report9.md |
+|  | 5 / C3 (Western Dune) · median_stability | report9.md |
 |  | 5 / C4 (Main Forest) · median_stability | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report8.md, report9.md |
 |  | 5 / C4 (Main Forest) · min_stability | report9.md |
 |  | 5 / C5 (Coastal Forest) · n_wells | report9.md |
@@ -150,9 +150,9 @@
 |  | 7 / k7 raw 4 (non-canonical) · median_stability | report8.md |
 | `02_09_cluster_amplitude_summary.csv` | C1 (Lake Edge) · median_p90_p10_post2018 | PAPER1_SI_methods.md, report9.md |
 |  | C2 (Dune) · median_summer_min_post2018 | Supplementary_Material.md |
-|  | C3 (Western Residual) · median_p90_p10_post2018 | PAPER1_SI_methods.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) · median_p90_p10_pre2018 | PAPER1_SI_methods.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) · median_summer_min_post2018 | report9.md |
+|  | C3 (Western Dune) · median_p90_p10_post2018 | PAPER1_SI_methods.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) · median_p90_p10_pre2018 | PAPER1_SI_methods.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) · median_summer_min_post2018 | report9.md |
 |  | C4 (Main Forest) · median_p90_p10_post2018 | report9.md |
 |  | C4 (Main Forest) · median_p90_p10_pre2018 | report9.md |
 | `02_report_numbers.csv` | C1_k6_n_subgroups | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
@@ -166,7 +166,7 @@
 |  | cluster_isolated_ground_elev_m · ceh11 · C1 (Lake Edge) | Newborough_Methods_Supplement.md |
 |  | cluster_mean_level_m · C1 (Lake Edge) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_mean_level_m · C2 (Dune) · 2006-12 to 2025-12 | report9.md |
-|  | cluster_mean_level_m · C3 (Western Residual) · 2006-12 to 2025-12 | report9.md |
+|  | cluster_mean_level_m · C3 (Western Dune) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_mean_level_m · C4 (Main Forest) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_mean_level_m · C5 (Coastal Forest) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_mean_level_offset_m · C5 minus C4 · 2006-12 to 2025-12 | report10.md |
@@ -175,7 +175,7 @@
 |  | cluster_n_wells · C5 (Coastal Forest) | report9.md |
 |  | cluster_others_ground_elev_max_m · C4 (Main Forest) | Newborough_Methods_Supplement.md |
 |  | cluster_others_ground_elev_min_m · C1 (Lake Edge) | report9.md |
-|  | cluster_stability_median · C3 (Western Residual) · k=5 | report9.md |
+|  | cluster_stability_median · C3 (Western Dune) · k=5 | report9.md |
 |  | cluster_stability_median · C4 (Main Forest) · k=5 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report8.md, report9.md |
 |  | cluster_stability_months_median | report10.md |
 |  | post2018_p90_p10_max_min_ratio · C5 (Coastal Forest) | report9.md |
@@ -189,11 +189,11 @@
 |  | C2 (Dune) · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report12.md, report9.md, site_geography.md |
 |  | C2 (Dune) · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report10.md, report12.md, report9.md |
 |  | C2 (Dune) · beta_3_drainage | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report12.md, report9.md |
-|  | C3 (Western Residual) · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
-|  | C3 (Western Residual) · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3 (Western Residual) · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report10.md, report9.md, site_geography.md |
-|  | C3 (Western Residual) · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report10.md, report12.md, report9.md |
-|  | C3 (Western Residual) · beta_3_drainage | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report8.md, report9.md |
+|  | C3 (Western Dune) · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
+|  | C3 (Western Dune) · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report10.md, report9.md, site_geography.md |
+|  | C3 (Western Dune) · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report10.md, report12.md, report9.md |
+|  | C3 (Western Dune) · beta_3_drainage | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report8.md, report9.md |
 |  | C4 (Main Forest) · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
 |  | C4 (Main Forest) · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C4 (Main Forest) · beta_1_recharge | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report10.md, report9.md, site_geography.md |
@@ -208,10 +208,10 @@
 |  | C2 (Dune) / 1 · R2 | Newborough_Methods_Supplement.md |
 |  | C2 (Dune) / 2 · R2 | Newborough_Methods_Supplement.md, report9.md |
 |  | C2 (Dune) / 3 · R2 | Supplementary_Material.md |
-|  | C3 (Western Residual) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3 (Western Residual) / 1 · R2 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / 2 · R2 | report9.md |
-|  | C3 (Western Residual) / 3 · R2 | academic_Summary.md, crynodeb_academaidd.md |
+|  | C3 (Western Dune) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) / 1 · R2 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / 2 · R2 | report9.md |
+|  | C3 (Western Dune) / 3 · R2 | academic_Summary.md, crynodeb_academaidd.md |
 |  | C4 (Main Forest) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C4 (Main Forest) / 1 · R2 | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2 · R2 | Newborough_Methods_Supplement.md, report10.md |
@@ -334,16 +334,16 @@
 |  | C2 (Dune) / full_record · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report12.md, report9.md |
 |  | C2 (Dune) / full_record · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report10.md, report12.md, report9.md |
 |  | C2 (Dune) / full_record · beta_3_drainage | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report12.md, report9.md |
-|  | C3 (Western Residual) / comparison_window · LCSC_percent | report9.md |
-|  | C3 (Western Residual) / comparison_window · R2 | report9.md |
-|  | C3 (Western Residual) / comparison_window · beta_1_recharge | Newborough_Methods_Supplement.md, report9.md |
-|  | C3 (Western Residual) / comparison_window · beta_2_atmospheric_draw | report9.md |
-|  | C3 (Western Residual) / comparison_window · beta_3_drainage | Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / full_record · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
-|  | C3 (Western Residual) / full_record · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3 (Western Residual) / full_record · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report9.md |
-|  | C3 (Western Residual) / full_record · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report10.md, report12.md, report9.md |
-|  | C3 (Western Residual) / full_record · beta_3_drainage | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report8.md, report9.md |
+|  | C3 (Western Dune) / comparison_window · LCSC_percent | report9.md |
+|  | C3 (Western Dune) / comparison_window · R2 | report9.md |
+|  | C3 (Western Dune) / comparison_window · beta_1_recharge | Newborough_Methods_Supplement.md, report9.md |
+|  | C3 (Western Dune) / comparison_window · beta_2_atmospheric_draw | report9.md |
+|  | C3 (Western Dune) / comparison_window · beta_3_drainage | Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / full_record · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
+|  | C3 (Western Dune) / full_record · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) / full_record · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report9.md |
+|  | C3 (Western Dune) / full_record · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report10.md, report12.md, report9.md |
+|  | C3 (Western Dune) / full_record · beta_3_drainage | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report8.md, report9.md |
 |  | C4 (Main Forest) / comparison_window · LCSC_percent | report9.md |
 |  | C4 (Main Forest) / comparison_window · R2 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
 |  | C4 (Main Forest) / comparison_window · beta_1_recharge | INTERCEPTION_TREATMENT.md, report9.md, site_geography.md |
@@ -364,7 +364,7 @@
 |  | C5 (Coastal Forest) / full_record · beta_2_atmospheric_draw | Newborough_Methods_Supplement.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, report.md, report10.md, report12.md, report9.md |
 | `03_16_model_b_persistence.csv` | centroid / C1 (Lake Edge) / nan · alpha_B | report10.md, report9.md |
 |  | centroid / C1 (Lake Edge) / nan · t_efold_B_months | report9.md |
-|  | centroid / C3 (Western Residual) / nan · t_half_B_months | GEOMETRY_ARCHITECTURE_SPEC.md, report10.md |
+|  | centroid / C3 (Western Dune) / nan · t_half_B_months | GEOMETRY_ARCHITECTURE_SPEC.md, report10.md |
 |  | centroid / C4 (Main Forest) / nan · t_half_B_months | report10.md |
 |  | well / C1 (Lake Edge) / ceh11 · t_half_B_months | Newborough_Methods_Supplement.md, report12.md, report9.md |
 |  | well / C1 (Lake Edge) / ceh25 · t_efold_B_months | Newborough_Methods_Supplement.md, report9.md |
@@ -391,29 +391,29 @@
 |  | well / C2 (Dune) / nw3 · t_half_B_months | Supplementary_Material.md |
 |  | well / C2 (Dune) / nw4 · alpha_B | Supplementary_Material.md |
 |  | well / C2 (Dune) / nw4 · t_half_B_months | report9.md |
-|  | well / C3 (Western Residual) / D15 · alpha_B | Supplementary_Material.md |
-|  | well / C3 (Western Residual) / D25 · alpha_B | Supplementary_Material.md |
-|  | well / C3 (Western Residual) / D38 · t_half_B_months | Newborough_Methods_Supplement.md |
-|  | well / C3 (Western Residual) / D9 · alpha_B | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | well / C3 (Western Residual) / T41a · alpha_B | Supplementary_Material.md |
-|  | well / C3 (Western Residual) / WMC2 · alpha_B | Supplementary_Material.md, report9.md |
-|  | well / C3 (Western Residual) / ceh10 · alpha_B | Hollingham_2026_Paper2_amended.md |
-|  | well / C3 (Western Residual) / ceh18 · alpha_B | Supplementary_Material.md, report9.md |
-|  | well / C3 (Western Residual) / ceh21 · alpha_B | Hollingham_2026_Paper2_amended.md |
-|  | well / C3 (Western Residual) / ceh39 · alpha_B | Paper1.md, PaperM.md, Supplementary_Material.md, report9.md |
-|  | well / C3 (Western Residual) / ceh4 · alpha_B | Supplementary_Material.md, report9.md, wtf_interception_methodology.md |
-|  | well / C3 (Western Residual) / ceh40 · t_efold_B_months | GEOMETRY_ARCHITECTURE_SPEC.md |
-|  | well / C3 (Western Residual) / ceh41 · alpha_B | Supplementary_Material.md |
-|  | well / C3 (Western Residual) / ceh42 · alpha_B | Newborough_Methods_Supplement.md |
-|  | well / C3 (Western Residual) / ceh9 · alpha_B | Hollingham_2026_Paper2_amended.md |
-|  | well / C3 (Western Residual) / nw11 · alpha_B | report9.md |
-|  | well / C3 (Western Residual) / nw11 · t_efold_B_months | report9.md |
-|  | well / C3 (Western Residual) / nw13 · alpha_B | Supplementary_Material.md |
-|  | well / C3 (Western Residual) / nw2 · alpha_B | report9.md |
-|  | well / C3 (Western Residual) / nw2 · t_half_A_months | report9.md |
-|  | well / C3 (Western Residual) / wmc3 · alpha_B | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
-|  | well / C3 (Western Residual) / wmc4 · alpha_B | Hollingham_2026_Paper2_amended.md, Paper1.md, Supplementary_Material.md, report9.md |
-|  | well / C3 (Western Residual) / wmc4 · t_half_A_months | report8.md |
+|  | well / C3 (Western Dune) / D15 · alpha_B | Supplementary_Material.md |
+|  | well / C3 (Western Dune) / D25 · alpha_B | Supplementary_Material.md |
+|  | well / C3 (Western Dune) / D38 · t_half_B_months | Newborough_Methods_Supplement.md |
+|  | well / C3 (Western Dune) / D9 · alpha_B | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | well / C3 (Western Dune) / T41a · alpha_B | Supplementary_Material.md |
+|  | well / C3 (Western Dune) / WMC2 · alpha_B | Supplementary_Material.md, report9.md |
+|  | well / C3 (Western Dune) / ceh10 · alpha_B | Hollingham_2026_Paper2_amended.md |
+|  | well / C3 (Western Dune) / ceh18 · alpha_B | Supplementary_Material.md, report9.md |
+|  | well / C3 (Western Dune) / ceh21 · alpha_B | Hollingham_2026_Paper2_amended.md |
+|  | well / C3 (Western Dune) / ceh39 · alpha_B | Paper1.md, PaperM.md, Supplementary_Material.md, report9.md |
+|  | well / C3 (Western Dune) / ceh4 · alpha_B | Supplementary_Material.md, report9.md, wtf_interception_methodology.md |
+|  | well / C3 (Western Dune) / ceh40 · t_efold_B_months | GEOMETRY_ARCHITECTURE_SPEC.md |
+|  | well / C3 (Western Dune) / ceh41 · alpha_B | Supplementary_Material.md |
+|  | well / C3 (Western Dune) / ceh42 · alpha_B | Newborough_Methods_Supplement.md |
+|  | well / C3 (Western Dune) / ceh9 · alpha_B | Hollingham_2026_Paper2_amended.md |
+|  | well / C3 (Western Dune) / nw11 · alpha_B | report9.md |
+|  | well / C3 (Western Dune) / nw11 · t_efold_B_months | report9.md |
+|  | well / C3 (Western Dune) / nw13 · alpha_B | Supplementary_Material.md |
+|  | well / C3 (Western Dune) / nw2 · alpha_B | report9.md |
+|  | well / C3 (Western Dune) / nw2 · t_half_A_months | report9.md |
+|  | well / C3 (Western Dune) / wmc3 · alpha_B | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
+|  | well / C3 (Western Dune) / wmc4 · alpha_B | Hollingham_2026_Paper2_amended.md, Paper1.md, Supplementary_Material.md, report9.md |
+|  | well / C3 (Western Dune) / wmc4 · t_half_A_months | report8.md |
 |  | well / C4 (Main Forest) / ceh14 · alpha_B | Paper1.md, report9.md |
 |  | well / C5 (Coastal Forest) / ceh17 · alpha_B | Newborough_Methods_Supplement.md |
 |  | well / C5 (Coastal Forest) / ceh19 · alpha_B | report9.md |
@@ -507,15 +507,15 @@
 |  | C2 (Dune) · well_max_max_R2_datum_m | Newborough_Methods_Supplement.md, report9.md |
 |  | C2 (Dune) · well_median_max_R2_datum_m | report9.md |
 |  | C2 (Dune) · well_min_max_R2_datum_m | Supplementary_Material.md |
-|  | C3 (Western Residual) · R2_at_datum | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
-|  | C3 (Western Residual) · R2_at_optimum | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3 (Western Residual) · aic_optimal_datum_m | report8.md |
-|  | C3 (Western Residual) · delta_AIC_datum_vs_optimum | report8.md |
-|  | C3 (Western Residual) · flux_frac_ge_80pct_from_m | report10.md, report12.md, report8.md, report9.md |
-|  | C3 (Western Residual) · flux_frac_ge_90pct_from_m | report8.md |
-|  | C3 (Western Residual) · flux_fraction_of_deepest | report8.md |
-|  | C3 (Western Residual) · model_b_zero_drainage_level_m | report8.md |
-|  | C3 (Western Residual) · well_median_max_R2_datum_m | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) · R2_at_datum | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
+|  | C3 (Western Dune) · R2_at_optimum | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) · aic_optimal_datum_m | report8.md |
+|  | C3 (Western Dune) · delta_AIC_datum_vs_optimum | report8.md |
+|  | C3 (Western Dune) · flux_frac_ge_80pct_from_m | report10.md, report12.md, report8.md, report9.md |
+|  | C3 (Western Dune) · flux_frac_ge_90pct_from_m | report8.md |
+|  | C3 (Western Dune) · flux_fraction_of_deepest | report8.md |
+|  | C3 (Western Dune) · model_b_zero_drainage_level_m | report8.md |
+|  | C3 (Western Dune) · well_median_max_R2_datum_m | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C4 (Main Forest) · R2_at_datum | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C4 (Main Forest) · R2_at_optimum | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C4 (Main Forest) · aic_optimal_datum_m | report8.md |
@@ -557,10 +557,10 @@
 |  | cluster_well_median_beta_2_atmospheric_draw · C5 (Coastal Forest) | report9.md |
 |  | cluster_well_median_beta_3_drainage · C1 (Lake Edge) | Supplementary_Material.md |
 |  | cluster_well_median_beta_3_drainage · C2 (Dune) | Supplementary_Material.md |
-|  | cluster_well_median_beta_3_drainage · C3 (Western Residual) | report9.md |
+|  | cluster_well_median_beta_3_drainage · C3 (Western Dune) | report9.md |
 |  | cluster_well_median_beta_3_drainage · C4 (Main Forest) | Supplementary_Material.md |
 |  | cluster_well_median_beta_3_drainage · C5 (Coastal Forest) | Supplementary_Material.md |
-|  | cluster_well_recession_time_median_months · C3 (Western Residual) | report8.md |
+|  | cluster_well_recession_time_median_months · C3 (Western Dune) | report8.md |
 |  | cluster_well_recession_time_min_months · C1 (Lake Edge) | site_geography.md |
 |  | datum_aod_r2_median_at_optimum | Newborough_Methods_Supplement.md, PaperM.md |
 |  | datum_aod_r2_median_depth_datum | PaperM.md |
@@ -570,7 +570,7 @@
 |  | open_dune_r2_p90 | report10.md, report9.md |
 |  | partition_drainage_flux_m_month_at_datum · C1 (Lake Edge) · datum 3.7  | Paper1.md, report9.md |
 |  | partition_drainage_flux_m_month_at_datum · C2 (Dune) · datum 3.7 m | Paper1.md, report9.md |
-|  | partition_drainage_flux_m_month_at_datum · C3 (Western Residual) · dat | Paper1.md, Supplementary_Material.md, report9.md |
+|  | partition_drainage_flux_m_month_at_datum · C3 (Western Dune) · datum 3 | Paper1.md, Supplementary_Material.md, report9.md |
 |  | partition_drainage_flux_m_month_at_datum · C5 (Coastal Forest) · datum | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
 |  | partition_drainage_flux_m_month_at_max_datum · C2 (Dune) · datum 8 m | Supplementary_Material.md |
 |  | partition_drainage_flux_m_month_at_max_datum · C5 (Coastal Forest) · d | Hollingham_2026_Paper2_amended.md |
@@ -578,7 +578,7 @@
 |  | partition_drainage_flux_m_month_at_min_datum · C2 (Dune) · datum 1.6 m | Newborough_Methods_Supplement.md |
 |  | warren_open_r2 | Newborough_Methods_Supplement.md |
 |  | well_median_max_R2_datum_network | report9.md |
-|  | window_beta3_ratio_to_min · C3 (Western Residual) | report9.md |
+|  | window_beta3_ratio_to_min · C3 (Western Dune) | report9.md |
 | `05_report_numbers.csv` | mca_label_n · C2/C3/C4 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, Supplementary_Material.md, report9.md |
 | `06_pear_membership_audit_sitewide.csv` | ceh1 · r_C2 | Supplementary_Material.md |
 |  | ceh10 · r_C5 | Newborough_Methods_Supplement.md |
@@ -1747,7 +1747,7 @@
 |  | nw2 · lambda | Supplementary_Material.md |
 | `11b_06_pflood_cluster_summary.csv` | C1 (Lake Edge) · m_P | Paper1.md, report9.md |
 |  | C2 (Dune) · m_P | report9.md |
-|  | C3 (Western Residual) · m_P | Paper1.md, Supplementary_Material.md, report10.md, report12.md, report9.md |
+|  | C3 (Western Dune) · m_P | Paper1.md, Supplementary_Material.md, report10.md, report12.md, report9.md |
 |  | C4 (Main Forest) · m_P | crynodeb_academaidd.md, report9.md |
 |  | C5 (Coastal Forest) · m_P | Newborough_Methods_Supplement.md, report9.md |
 |  | C5 (Coastal Forest) · n | Newborough_Methods_Supplement.md |
@@ -1909,14 +1909,14 @@
 |  | depth_dependent_pet_drainage_share_shift_pts · C4 | Paper1.md, report9.md |
 | `16_report_numbers.csv` | C4 (Main Forest) · water_balance_residual_pct | report9.md |
 |  | water_balance_PET_mean_mm · C2 (Dune) | report9.md |
-|  | water_balance_PET_mean_mm · C3 (Western Residual) | report9.md |
+|  | water_balance_PET_mean_mm · C3 (Western Dune) | report9.md |
 |  | water_balance_PET_mean_mm_max | report9.md |
 |  | water_balance_PET_mean_mm_min | report9.md |
 |  | water_balance_P_mean_mm_max | report9.md |
 |  | water_balance_P_mean_mm_min | report9.md |
 |  | water_balance_closure_max_pct | Newborough_Methods_Supplement.md |
 |  | water_balance_closure_max_pct_model_a | Newborough_Methods_Supplement.md |
-|  | water_balance_et_total_over_pet · C3 (Western Residual) | Supplementary_Material.md |
+|  | water_balance_et_total_over_pet · C3 (Western Dune) | Supplementary_Material.md |
 |  | water_balance_et_total_over_pet · C4 (Main Forest) | report9.md |
 |  | water_balance_et_total_over_pet · C5 (Coastal Forest) | report10.md |
 |  | water_balance_residual_pct · C2 (Dune) | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
@@ -1930,10 +1930,10 @@
 |  | C2 (Dune) · SSM_ET_frac | PaperM.md, Supplementary_Material.md |
 |  | C2 (Dune) · SSM_drain_frac | Newborough_Methods_Supplement.md |
 |  | C2 (Dune) · SSM_drain_frac_max_datum | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) · Rec_ET_frac | PaperM.md, Supplementary_Material.md |
-|  | C3 (Western Residual) · Rec_drain_frac | report9.md |
-|  | C3 (Western Residual) · SSM_ET_frac | report9.md |
-|  | C3 (Western Residual) · SSM_drain_frac | Supplementary_Material.md |
+|  | C3 (Western Dune) · Rec_ET_frac | PaperM.md, Supplementary_Material.md |
+|  | C3 (Western Dune) · Rec_drain_frac | report9.md |
+|  | C3 (Western Dune) · SSM_ET_frac | report9.md |
+|  | C3 (Western Dune) · SSM_drain_frac | Supplementary_Material.md |
 |  | C4 (Main Forest) · Lo_drain_frac | Newborough_Methods_Supplement.md, report9.md |
 |  | C4 (Main Forest) · SSM_drain_frac | Supplementary_Material.md |
 |  | C5 (Coastal Forest) · B_ET_frac | Newborough_Methods_Supplement.md, report9.md |
@@ -1959,15 +1959,15 @@
 |  | C2 (Dune) · Recharge_m_month | Paper1.md, report9.md |
 |  | C2 (Dune) · Total_loss_B_m_month | Paper1.md, report9.md, wtf_interception_methodology.md |
 |  | C2 (Dune) · Total_loss_m_month | Paper1.md, Supplementary_Material.md, report8.md |
-|  | C3 (Western Residual) · Drainage_B_m_month | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
-|  | C3 (Western Residual) · Drainage_m_month | Paper1.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) · ET_draw_B_m_month | Paper1.md, report9.md |
-|  | C3 (Western Residual) · ET_draw_m_month | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
-|  | C3 (Western Residual) · LCSC_B_pct | Newborough_Methods_Supplement.md, Paper1.md |
-|  | C3 (Western Residual) · Recharge_B_m_month | Paper1.md, report9.md |
-|  | C3 (Western Residual) · Recharge_m_month | Paper1.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3 (Western Residual) · Total_loss_B_m_month | Paper1.md |
-|  | C3 (Western Residual) · Total_loss_m_month | Paper1.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) · Drainage_B_m_month | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
+|  | C3 (Western Dune) · Drainage_m_month | Paper1.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) · ET_draw_B_m_month | Paper1.md, report9.md |
+|  | C3 (Western Dune) · ET_draw_m_month | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
+|  | C3 (Western Dune) · LCSC_B_pct | Newborough_Methods_Supplement.md, Paper1.md |
+|  | C3 (Western Dune) · Recharge_B_m_month | Paper1.md, report9.md |
+|  | C3 (Western Dune) · Recharge_m_month | Paper1.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) · Total_loss_B_m_month | Paper1.md |
+|  | C3 (Western Dune) · Total_loss_m_month | Paper1.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C4 (Main Forest) · ET_draw_B_m_month | Paper1.md, report9.md |
 |  | C4 (Main Forest) · ET_draw_m_month | Paper1.md, report9.md |
 |  | C4 (Main Forest) · LCSC_B_pct | Newborough_Methods_Supplement.md, Paper1.md |
@@ -1982,9 +1982,9 @@
 |  | C5 (Coastal Forest) · Recharge_m_month | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
 |  | C5 (Coastal Forest) · Total_loss_B_m_month | Newborough_Methods_Supplement.md, Paper1.md |
 |  | C5 (Coastal Forest) · Total_loss_m_month | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
-| `17_report_numbers.csv` | sy_event_clip_shift · C3 (Western Residual) | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
+| `17_report_numbers.csv` | sy_event_clip_shift · C3 (Western Dune) | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
 |  | sy_event_clip_shift · C4 (Main Forest) | Newborough_Methods_Supplement.md |
-|  | sy_ols_to_event_ratio · C3 (Western Residual) | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | sy_ols_to_event_ratio · C3 (Western Dune) | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | sy_ols_to_event_ratio · C4 (Main Forest) | report8.md |
 |  | sy_ols_to_event_ratio_mean | report9.md |
 |  | sy_ols_to_event_ratio_n_above_1 | PAPER1_SI_methods.md, PaperM_plain.md |
@@ -2007,16 +2007,16 @@
 |  | C2 (Dune) / False · Sy_rapid_CI_hi | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
 |  | C2 (Dune) / False · Sy_rapid_CI_lo | Newborough_Methods_Supplement.md, crynodeb_academaidd.md, report10.md, report9.md |
 |  | C2 (Dune) / False · Sy_rapid_median | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_OLS_R2 | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) / False · Sy_OLS_winter | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_assumed | Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_event_Q25 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_event_Q75 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_event_median | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_event_median_unclipped | Supplementary_Material.md |
-|  | C3 (Western Residual) / False · Sy_rapid_CI_hi | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_rapid_CI_lo | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / False · Sy_rapid_median | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_OLS_R2 | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) / False · Sy_OLS_winter | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_assumed | Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_event_Q25 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_event_Q75 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_event_median | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_event_median_unclipped | Supplementary_Material.md |
+|  | C3 (Western Dune) / False · Sy_rapid_CI_hi | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_rapid_CI_lo | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / False · Sy_rapid_median | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
 |  | C4 (Main Forest) (corrected) / True · Sy_event_Q25 | Newborough_Methods_Supplement.md, Paper1.md, Supplementary_Material.md, report9.md |
 |  | C4 (Main Forest) (corrected) / True · Sy_event_Q75 | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
 |  | C4 (Main Forest) (corrected) / True · Sy_event_median | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, report12.md, report9.md, wtf_interception_methodology.md |
@@ -2352,8 +2352,8 @@
 |  | check1_gap_on_site_level_contemporaneous_p | report10.md |
 |  | check1_gap_on_site_level_n | report10.md |
 |  | check1_gap_on_site_level_r2 | report10.md |
-|  | check1_model_b_halflife_centroid · C3 (Western Residual) · full_record | GEOMETRY_ARCHITECTURE_SPEC.md |
-|  | check1_model_b_halflife_median_well · C3 (Western Residual) · comparis | report10.md |
+|  | check1_model_b_halflife_centroid · C3 (Western Dune) · full_record | GEOMETRY_ARCHITECTURE_SPEC.md |
+|  | check1_model_b_halflife_median_well · C3 (Western Dune) · comparison_w | report10.md |
 |  | check1_model_b_halflife_median_well · C4 (Main Forest) · comparison_wi | report10.md |
 |  | check1_msl5_window_excess · window-end 2023 | report10.md |
 |  | check1_msl5_window_excess · window-end 2025 | report10.md |
@@ -2530,9 +2530,9 @@
 |  | wmc4 · durbin_watson | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 | `22_06_ssm_cluster_mean_inference.csv` | C1 (Lake Edge) · R2 | report10.md |
 |  | C2 (Dune) · R2 | Newborough_Methods_Supplement.md, PaperM.md |
-|  | C3 (Western Residual) · R2 | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) · ar1_phi | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) · durbin_watson | PAPER1_SI_methods.md |
+|  | C3 (Western Dune) · R2 | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) · ar1_phi | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) · durbin_watson | PAPER1_SI_methods.md |
 |  | C4 (Main Forest) · durbin_watson | PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | C5 (Coastal Forest) · R2 | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | C5 (Coastal Forest) · durbin_watson | PAPER1_SI_methods.md |
@@ -2575,7 +2575,7 @@
 | `24b_02_peak_winter_minus_summer.csv` | C1 (Lake Edge) · n_wells | report9.md |
 |  | C1 (Lake Edge) · p_value | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | C2 (Dune) · p_value | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) · summer_mean_m | report9.md |
+|  | C3 (Western Dune) · summer_mean_m | report9.md |
 |  | C5 (Coastal Forest) · n_wells | report9.md |
 |  | C5 (Coastal Forest) · p_value | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) · summer_mean_m | report9.md |
@@ -2627,9 +2627,9 @@
 |  | C2 (Dune) · climate_plus_far_field_mm_yr | report9.md |
 |  | C2 (Dune) · far_field_offset_mm_yr | Supplementary_Material.md |
 |  | C2 (Dune) · unexplained_mm_yr | report9.md |
-|  | C3 (Western Residual) · climate_plus_far_field_mm_yr | report9.md |
-|  | C3 (Western Residual) · coastal_gradient_mm_yr | Newborough_Methods_Supplement.md, report9.md |
-|  | C3 (Western Residual) · unexplained_mm_yr | Newborough_Methods_Supplement.md, report9.md |
+|  | C3 (Western Dune) · climate_plus_far_field_mm_yr | report9.md |
+|  | C3 (Western Dune) · coastal_gradient_mm_yr | Newborough_Methods_Supplement.md, report9.md |
+|  | C3 (Western Dune) · unexplained_mm_yr | Newborough_Methods_Supplement.md, report9.md |
 |  | C4 (Main Forest) · climate_cwb_mm_yr | report9.md |
 |  | C4 (Main Forest) · climate_plus_far_field_mm_yr | report9.md |
 |  | C4 (Main Forest) · coastal_gradient_mm_yr | Newborough_Methods_Supplement.md, report9.md |
@@ -2641,8 +2641,8 @@
 | `25_04_baci_corroboration.csv` | Forest / Edge · baci_absorbs_se_mm_yr | Paper1.md, report12.md |
 | `25_08_spring_vs_summer_comparison.csv` | C1 (Lake Edge) · observed_balanced_annual_mean_mm_yr_summer | report9.md |
 |  | C2 (Dune) · observed_balanced_annual_mean_mm_yr_summer | report9.md |
-|  | C3 (Western Residual) · coastal_gradient_mm_yr_spring | Newborough_Methods_Supplement.md, report9.md |
-|  | C3 (Western Residual) · observed_balanced_annual_mean_mm_yr_summer | Newborough_Methods_Supplement.md, report9.md |
+|  | C3 (Western Dune) · coastal_gradient_mm_yr_spring | Newborough_Methods_Supplement.md, report9.md |
+|  | C3 (Western Dune) · observed_balanced_annual_mean_mm_yr_summer | Newborough_Methods_Supplement.md, report9.md |
 |  | C4 (Main Forest) · coastal_gradient_mm_yr_spring | Newborough_Methods_Supplement.md, report9.md |
 |  | C4 (Main Forest) · observed_balanced_annual_mean_mm_yr_summer | Newborough_Methods_Supplement.md, report9.md |
 |  | C5 (Coastal Forest) · coastal_gradient_mm_yr_spring | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
@@ -2725,8 +2725,8 @@
 |  | 4 / C1 (Lake Edge) · MSL5_current_m_bg | Supplementary_Material.md, report9.md |
 |  | 4 / C2 (Dune) · MINw_current_m_bg | report9.md |
 |  | 4 / C2 (Dune) · MSL5_current_m_bg | report9.md |
-|  | 4 / C3 (Western Residual) · MINw_current_m_bg | Supplementary_Material.md, report9.md |
-|  | 4 / C3 (Western Residual) · MSL5_current_m_bg | report9.md |
+|  | 4 / C3 (Western Dune) · MINw_current_m_bg | Supplementary_Material.md, report9.md |
+|  | 4 / C3 (Western Dune) · MSL5_current_m_bg | report9.md |
 |  | 4 / C4 (Main Forest) · MINw_current_m_bg | Newborough_Methods_Supplement.md, report9.md |
 |  | 4 / C4 (Main Forest) · MSL5_current_m_bg | report9.md |
 |  | 4 / C5 (Coastal Forest) · MINw_current_m_bg | report9.md |
@@ -2734,8 +2734,8 @@
 |  | 5 / C1 (Lake Edge) · MSL5_current_m_bg | Supplementary_Material.md, report9.md |
 |  | 5 / C2 (Dune) · MSL5_current_m_bg | report9.md |
 |  | 5 / C2 (Dune) · n_windows_below_SD16 | Newborough_Methods_Supplement.md |
-|  | 5 / C3 (Western Residual) · MINw_current_m_bg | Newborough_Methods_Supplement.md |
-|  | 5 / C3 (Western Residual) · MSL5_current_m_bg | report9.md |
+|  | 5 / C3 (Western Dune) · MINw_current_m_bg | Newborough_Methods_Supplement.md |
+|  | 5 / C3 (Western Dune) · MSL5_current_m_bg | report9.md |
 |  | 5 / C4 (Main Forest) · MSL5_current_m_bg | report9.md |
 |  | 5 / C5 (Coastal Forest) · MINw_current_m_bg | Newborough_Methods_Supplement.md |
 |  | 5 / C5 (Coastal Forest) · MSL5_current_m_bg | report9.md |
@@ -2955,16 +2955,16 @@
 | `26_index_precision_by_cluster.csv` | all / C1 (Lake Edge) · n_wells_with_springs | report9.md |
 |  | all / C1 (Lake Edge) · rho_ar1_expected_model_a_mean | Paper1.md, Supplementary_Material.md |
 |  | all / C2 (Dune) · rho_lag1_mean | Supplementary_Material.md |
-|  | all / C3 (Western Residual) · rho_ar1_expected_mean | Newborough_Methods_Supplement.md |
+|  | all / C3 (Western Dune) · rho_ar1_expected_mean | Newborough_Methods_Supplement.md |
 |  | all / C4 (Main Forest) · n_wells_with_springs | Supplementary_Material.md |
 |  | all / C5 (Coastal Forest) · rho_ar1_expected_mean | report9.md |
 |  | reference / C1 (Lake Edge) · n_wells_with_springs | report9.md |
 |  | reference / C1 (Lake Edge) · rho_ar1_expected_model_a_mean | Supplementary_Material.md, academic_Summary.md, report9.md |
 |  | reference / C2 (Dune) · ewi_se_mm_beta3_median | report9.md |
 |  | reference / C2 (Dune) · rho_ar1_expected_model_a_mean | Supplementary_Material.md |
-|  | reference / C3 (Western Residual) · ewi_se_mm_beta3_median | report9.md |
-|  | reference / C3 (Western Residual) · rho_ar1_expected_mean | Newborough_Methods_Supplement.md, Supplementary_Material.md, crynodeb_academaidd.md, wtf_interception_methodology.md |
-|  | reference / C3 (Western Residual) · t_R_months_median | report8.md |
+|  | reference / C3 (Western Dune) · ewi_se_mm_beta3_median | report9.md |
+|  | reference / C3 (Western Dune) · rho_ar1_expected_mean | Newborough_Methods_Supplement.md, Supplementary_Material.md, crynodeb_academaidd.md, wtf_interception_methodology.md |
+|  | reference / C3 (Western Dune) · t_R_months_median | report8.md |
 |  | reference / C4 (Main Forest) · ewi_se_mm_beta3_median | report9.md |
 |  | reference / C4 (Main Forest) · n_wells_with_springs | Supplementary_Material.md |
 |  | reference / C4 (Main Forest) · rho_ar1_expected_mean | Supplementary_Material.md |
@@ -2972,9 +2972,9 @@
 |  | reference / C5 (Coastal Forest) · rho_ar1_expected_mean | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, report12.md, report9.md |
 | `26_msl5_vs_min5_per_cluster.csv` | C1 (Lake Edge) · MSL5_m_bg_mean | Supplementary_Material.md, report9.md |
 |  | C2 (Dune) · MSL5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | C3 (Western Residual) · MIN5_minus_MSL5_m | Supplementary_Material.md |
-|  | C3 (Western Residual) · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | C3 (Western Dune) · MIN5_minus_MSL5_m | Supplementary_Material.md |
+|  | C3 (Western Dune) · MSL5_m_bg_mean | Supplementary_Material.md |
 |  | C4 (Main Forest) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) · MIN5_minus_MSL5_m | Supplementary_Material.md |
 |  | C5 (Coastal Forest) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md |
@@ -3015,44 +3015,44 @@
 |  | C2 (Dune) / 2024 · MSL5_m_bg_mean | Supplementary_Material.md |
 |  | C2 (Dune) / 2024 · MSL5_m_bg_std | academic_Summary.md, report9.md |
 |  | C2 (Dune) / 2025 · MSL5_m_bg_mean | report9.md |
-|  | C3 (Western Residual) / 2010 · MSL5_m_bg_std | report9.md |
-|  | C3 (Western Residual) / 2011 · MAX5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2011 · MSL5_m_bg_median | report9.md |
-|  | C3 (Western Residual) / 2011 · MSL5_m_bg_std | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2012 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2012 · MAX5_m_bg_median | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) / 2012 · MSL5_m_bg_std | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) / 2013 · MSL5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2013 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2013 · MSL5_m_bg_std | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / 2014 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2014 · MSL5_m_bg_std | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2015 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2015 · MAX5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2015 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2015 · MSL5_m_bg_std | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2016 · MAX5_m_bg_mean | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) / 2016 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2016 · MSL5_m_bg_std | Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / 2017 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2017 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2017 · MSL5_m_bg_std | PAPER1_SI_methods.md, Supplementary_Material.md |
-|  | C3 (Western Residual) / 2018 · MSL5_m_bg_std | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2019 · MAX5_m_bg_mean | Paper1.md, report9.md |
-|  | C3 (Western Residual) / 2019 · MSL5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2020 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2020 · MAX5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2020 · MSL5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2021 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2021 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2021 · MSL5_m_bg_std | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) / 2023 · MAX5_m_bg_mean | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2024 · MAX5_m_bg_median | Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) / 2024 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2024 · MSL5_m_bg_std | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2025 · MSL5_m_bg_mean | report9.md |
-|  | C3 (Western Residual) / 2025 · MSL5_m_bg_median | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2025 · MSL5_m_bg_std | Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / 2010 · MSL5_m_bg_std | report9.md |
+|  | C3 (Western Dune) / 2011 · MAX5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2011 · MSL5_m_bg_median | report9.md |
+|  | C3 (Western Dune) / 2011 · MSL5_m_bg_std | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2012 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2012 · MAX5_m_bg_median | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) / 2012 · MSL5_m_bg_std | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) / 2013 · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2013 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2013 · MSL5_m_bg_std | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / 2014 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2014 · MSL5_m_bg_std | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2015 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2015 · MAX5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2015 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2015 · MSL5_m_bg_std | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2016 · MAX5_m_bg_mean | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) / 2016 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2016 · MSL5_m_bg_std | Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / 2017 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2017 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2017 · MSL5_m_bg_std | PAPER1_SI_methods.md, Supplementary_Material.md |
+|  | C3 (Western Dune) / 2018 · MSL5_m_bg_std | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2019 · MAX5_m_bg_mean | Paper1.md, report9.md |
+|  | C3 (Western Dune) / 2019 · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2020 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2020 · MAX5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2020 · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2021 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2021 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2021 · MSL5_m_bg_std | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) / 2023 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2024 · MAX5_m_bg_median | Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) / 2024 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2024 · MSL5_m_bg_std | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2025 · MSL5_m_bg_mean | report9.md |
+|  | C3 (Western Dune) / 2025 · MSL5_m_bg_median | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2025 · MSL5_m_bg_std | Supplementary_Material.md, report9.md |
 |  | C4 (Main Forest) / 2011 · n_wells | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report9.md |
 |  | C4 (Main Forest) / 2012 · MSL5_m_bg_mean | report9.md |
 |  | C4 (Main Forest) / 2012 · MSL5_m_bg_median | report9.md |
@@ -3252,9 +3252,9 @@
 |  | vw_repro_rmse_mm | report10.md |
 | `26b_msl5_ukcp18_projection_summary.csv` | C2 (Dune) / 2050s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C2 (Dune) / 2080s · msl5_observed_window_mean_m | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2050s · msl5_shift_mean_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | C3 (Western Residual) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
-|  | C3 (Western Residual) / 2080s · msl5_shift_mean_m | Newborough_Methods_Supplement.md |
+|  | C3 (Western Dune) / 2050s · msl5_shift_mean_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | C3 (Western Dune) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | C3 (Western Dune) / 2080s · msl5_shift_mean_m | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2050s · msl5_observed_window_mean_m | report9.md |
 |  | C4 (Main Forest) / 2080s · msl5_observed_window_mean_m | report9.md |
 |  | C4 (Main Forest) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
@@ -3265,8 +3265,8 @@
 |  | C5 (Coastal Forest) / 2080s · msl5_shift_mean_m | Newborough_Methods_Supplement.md |
 | `26b_msl5_ukcp18_projection_summary_perwell.csv` | C1 (Lake Edge) / 2050s / perwell · n_wells | report9.md |
 |  | C1 (Lake Edge) / 2080s / perwell · n_wells | report9.md |
-|  | C3 (Western Residual) / 2080s / perwell · msl5_shift_sustained_mean_m | Supplementary_Material.md |
-|  | C3 (Western Residual) / 2080s / perwell · msl5_shift_sustained_median_ | Newborough_Methods_Supplement.md, Supplementary_Material.md |
+|  | C3 (Western Dune) / 2080s / perwell · msl5_shift_sustained_mean_m | Supplementary_Material.md |
+|  | C3 (Western Dune) / 2080s / perwell · msl5_shift_sustained_median_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | C5 (Coastal Forest) / 2080s / perwell · msl5_shift_sustained_median_m | Newborough_Methods_Supplement.md |
 | `26b_report_numbers.csv` | msl5_projection_n_clusters_withheld | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | msl5_projection_n_clusters_withheld_model_a | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
@@ -3364,12 +3364,12 @@
 |  | C2 (Dune) · corr_PET_hd | Supplementary_Material.md, report9.md |
 |  | C2 (Dune) · hd_sd | Supplementary_Material.md |
 |  | C2 (Dune) · rec_headdep | Supplementary_Material.md |
-|  | C3 (Western Residual) · VIF | Paper1.md, Supplementary_Material.md, report10.md, report12.md, report9.md |
-|  | C3 (Western Residual) · beta3 | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report8.md, report9.md |
-|  | C3 (Western Residual) · corr_PET_hd | report9.md |
-|  | C3 (Western Residual) · hd_range | Supplementary_Material.md, report9.md |
-|  | C3 (Western Residual) · hd_sd | Supplementary_Material.md |
-|  | C3 (Western Residual) · rec_headdep | Hollingham_2026_Paper2_amended.md |
+|  | C3 (Western Dune) · VIF | Paper1.md, Supplementary_Material.md, report10.md, report12.md, report9.md |
+|  | C3 (Western Dune) · beta3 | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, PaperM.md, Supplementary_Material.md, academic_Summary.md, crynodeb_academaidd.md, report8.md, report9.md |
+|  | C3 (Western Dune) · corr_PET_hd | report9.md |
+|  | C3 (Western Dune) · hd_range | Supplementary_Material.md, report9.md |
+|  | C3 (Western Dune) · hd_sd | Supplementary_Material.md |
+|  | C3 (Western Dune) · rec_headdep | Hollingham_2026_Paper2_amended.md |
 |  | C4 (Main Forest) · VIF | Paper1.md, report9.md |
 |  | C4 (Main Forest) · corr_PET_hd | report9.md |
 |  | C4 (Main Forest) · p3 | Paper1.md, Supplementary_Material.md, report9.md |
@@ -3482,7 +3482,7 @@
 |  | c4_perwell_sig_window100_beta3_min | Supplementary_Material.md |
 |  | c4_vif | Paper1.md, Supplementary_Material.md, report9.md |
 |  | centroid_recession_time_months · C2 (Dune) | report10.md |
-|  | perwell_vif_median_window · C3 (Western Residual) · 100-month window | Supplementary_Material.md |
+|  | perwell_vif_median_window · C3 (Western Dune) · 100-month window | Supplementary_Material.md |
 |  | perwell_vif_median_window · C4 (Main Forest) · 100-month window | Newborough_Methods_Supplement.md, report9.md |
 |  | perwell_vif_median_window · C4 (Main Forest) · 98-month window | report9.md |
 |  | perwell_vif_median_window · C5 (Coastal Forest) · 100-month window | report9.md |
@@ -3552,14 +3552,14 @@
 |  | annual_all_month / 2011_2025 · p_ar | report9.md |
 |  | spring_mam / 2011_2025 · p_ar | report9.md |
 | `33_cluster_summary.csv` | canonical / C1 (Lake Edge) · n_wells | report9.md |
-|  | canonical / C3 (Western Residual) · amplification_mean | Newborough_Methods_Supplement.md |
-|  | canonical / C3 (Western Residual) · dry_m_mean | report9.md |
+|  | canonical / C3 (Western Dune) · amplification_mean | Newborough_Methods_Supplement.md |
+|  | canonical / C3 (Western Dune) · dry_m_mean | report9.md |
 |  | canonical / C4 (Main Forest) · amplification_mean | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, academic_Summary.md, crynodeb_academaidd.md, report.md, report10.md, report12.md, report9.md |
 |  | canonical / C4 (Main Forest) · dry_m_mean | report9.md |
 |  | canonical / C4 (Main Forest) · wet_m_mean | Supplementary_Material.md |
 |  | recent / C1 (Lake Edge) · n_wells | report9.md |
 |  | recent / C2 (Dune) · dry_m_mean | Paper1.md, report9.md |
-|  | recent / C3 (Western Residual) · amplification_mean | Supplementary_Material.md, report9.md |
+|  | recent / C3 (Western Dune) · amplification_mean | Supplementary_Material.md, report9.md |
 |  | recent / C4 (Main Forest) · amplification_mean | PAPER1_SI_methods.md, report12.md, report9.md |
 |  | recent / C4 (Main Forest) · dry_m_mean | report9.md |
 |  | recent / C4 (Main Forest) · n_wells | Newborough_Methods_Supplement.md |
@@ -3646,7 +3646,7 @@
 |  | validation_cotemporal_vs_matched_r | Newborough_Methods_Supplement.md |
 | `36_report_numbers.csv` | abs_climate_trend_cluster_mean · C1 (Lake Edge) · 2005-2025 | report10.md, report9.md |
 |  | abs_climate_trend_cluster_mean · C2 (Dune) · 2005-2025 | Supplementary_Material.md, report10.md, report9.md |
-|  | abs_climate_trend_cluster_mean · C3 (Western Residual) · 2005-2025 | report10.md, report9.md |
+|  | abs_climate_trend_cluster_mean · C3 (Western Dune) · 2005-2025 | report10.md, report9.md |
 |  | abs_climate_trend_cluster_mean · C4 (Main Forest) · 2005-2025 | report10.md, report9.md |
 |  | abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025 | report10.md, report9.md |
 |  | abs_climate_trend_cluster_n · C4 (Main Forest) · 2005-2025 | report9.md |

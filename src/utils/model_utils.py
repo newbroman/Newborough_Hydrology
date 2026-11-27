@@ -44,7 +44,24 @@ from utils.config import (
     DRAINAGE_DATUM, HEADLINE_LAG, SSM_MIN_OBS,
     LCSC_DATA_LIMIT as _LCSC_DATA_LIMIT,
     MODEL_B_BETA3_MIN,
+    RECORD_FIT_START,
 )
+
+_FIT_START_DEFAULT = object()      # 1.15.0 (D-347): "use config.RECORD_FIT_START"
+
+
+def _fit_start(start):
+    """1.15.0: the first month a fit may use. The default is config.RECORD_FIT_START; None means no limit."""
+    if start is _FIT_START_DEFAULT:
+        start = RECORD_FIT_START
+    return pd.Timestamp(start) if start else None
+
+
+def _from(obj, t0):
+    """Cut a Series/DataFrame with a DatetimeIndex at t0 (anything else is returned unchanged)."""
+    if obj is None or t0 is None or not isinstance(getattr(obj, "index", None), pd.DatetimeIndex):
+        return obj
+    return obj[obj.index >= t0]
 
 # Script 01's month bucketing. THE implementation is utils.buckets, which imports
 # nothing heavy so that the pipeline's first script and the lint can both have it;
@@ -53,7 +70,11 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-11-12 (D-332, J-9 phase 2; Martin: "the bound as you
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347: one record window). fit_ssm and fit_ssm_censored
+#   start at config.RECORD_FIT_START (January 2010) unless told otherwise: `start=None` fits the whole series, for the
+#   analyses whose subject is 2005-09 (D-347 (5): the coastal step tests), and any ISO date fits from there. A window
+#   (`window=`, months ending at the last reading) inside the record is unchanged; a pre-built frame is cut the same way.
+# 1.14.0  # Hollingham (2026) — 2026-11-12 (D-332, J-9 phase 2; Martin: "the bound as you
 #   propose"). Model B's β₃ is bounded below at config.MODEL_B_BETA3_MIN (1e-4/month) in fit_ssm(intercept=True)
 #   and in fit_ssm_censored(intercept=True): a free estimate below it is replaced by the fit with β₃ held AT
 #   the bound (the constrained optimum of a convex objective), flagged beta_3_bound_binds=True with
@@ -285,9 +306,12 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
             intercept=False, extra_regressors=None, pre_built_frame=None,
             provenance=None, exclude_interpolated=False, fixed_beta_3=None,
-            with_corr=False, dry_bound=None):
+            with_corr=False, dry_bound=None, start=_FIT_START_DEFAULT):
     """
     Fit the SSM to a single water-level series via OLS.
+
+    start : 1.15.0 (D-347). The first month the fit may use: config.RECORD_FIT_START by default (January 2010);
+        None for the whole series; or an ISO date.
 
     Model (displacement formulation, no intercept by default):
         Δh(t) = β₁·P(t−lag) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
@@ -392,6 +416,10 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
     fit_ssm(intercept=True, ...) for backward compatibility with Scripts
     07, 08, 22, 24.
     """
+    _t0 = _fit_start(start)
+    h_series, dry_bound, provenance = _from(h_series, _t0), _from(dry_bound, _t0), _from(provenance, _t0)
+    if pre_built_frame is not None:
+        pre_built_frame = _from(pre_built_frame, _t0)
     if dry_bound is not None:
         if pre_built_frame is not None or extra_regressors or fixed_beta_3 is not None \
                 or exclude_interpolated:
@@ -399,7 +427,7 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
                              "pre_built_frame, extra_regressors, fixed_beta_3 or exclude_interpolated")
         return fit_ssm_censored(h_series, climate, dry_bound, lag=lag, window=window,
                                 drainage_datum=drainage_datum, min_obs=min_obs,
-                                intercept=intercept, with_corr=with_corr)
+                                intercept=intercept, with_corr=with_corr, start=None)   # already cut above
     if pre_built_frame is not None:
         df = pre_built_frame
         # Validate the pre-built frame has the required columns
@@ -800,7 +828,7 @@ CENSORED_FALLBACK_GRAD_TOL = 1e-4
 
 def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
                      drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
-                     intercept=False, with_corr=False, force_ml=False):
+                     intercept=False, with_corr=False, force_ml=False, start=_FIT_START_DEFAULT):
     """
     Fit the SSM with dry months treated as censored observations (D-281).
 
@@ -817,6 +845,8 @@ def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
     """
     if lag is None:
         lag = HEADLINE_LAG
+    _t0 = _fit_start(start)                                  # 1.15.0 (D-347)
+    h_series, dry_bound = _from(h_series, _t0), _from(dry_bound, _t0)
     lay = _censored_layout(h_series, climate, dry_bound, lag, window)
     if lay is None:
         return None

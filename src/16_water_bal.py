@@ -79,7 +79,9 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.19.1"  # Hollingham (2026) — 2026-11-24. The site-wide P and PET are the mean over COMPLETE calendar
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the water balance is computed from
+#   config.RECORD_FIT_START (January 2010), the window of the coefficients it uses.
+# 1.19.1  # Hollingham (2026) — 2026-11-24. The site-wide P and PET are the mean over COMPLETE calendar
 #   years (site_annual_means, Script 00's definition: 891 mm), not mean monthly x 12 over every reporting month, which the
 #   2005 and 2026 part-years pulled to 889 mm. The registry's site P - PET keeps its every-month basis.
 # 1.19.0  # Hollingham (2026) — 2026-11-24 (Paper 1 review, Martin: "I'm tempted just to cite 891mm as
@@ -280,6 +282,9 @@ def load_data():
     beta_1, beta_2, beta_3, drainage_datum_m.
     """
     df = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"])
+    # D-347 (2026-11-26): the water balance is computed on the same record window as the fits it uses
+    from utils.config import RECORD_FIT_START
+    df = df[df["Date"] >= pd.Timestamp(RECORD_FIT_START)].reset_index(drop=True)
 
     # Convert P and PET from mm to metres (β coefficients are in m/m)
     df["P_m"]  = df["P_mm"]  / 1000.0

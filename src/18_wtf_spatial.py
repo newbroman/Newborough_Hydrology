@@ -54,7 +54,8 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-11-26 (D-347): WTF S_a events are read from config.RECORD_FIT_START (January 2010).
+# 1.22.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.21.0"  # Hollingham (2026) - 2026-11-22. 18_wtf_06_mean_reversion_atlas.png: Paper 1 Figure 14 as the mean-
@@ -225,6 +226,9 @@ def load_well_data(out_root):
     """Load individual well time series, climate, locations and cluster assignments."""
     wells_df   = pd.read_csv(INT_WELLS_CLEAN,
                               index_col=0, parse_dates=True)
+    # D-347 (2026-11-26): WTF events are read from config.RECORD_FIT_START (January 2010) onward
+    from utils.config import RECORD_FIT_START
+    wells_df = wells_df[wells_df.index >= pd.Timestamp(RECORD_FIT_START)]
     climate    = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
     cluster_df = pd.read_csv(INT_CLUSTER_STATS)
     locations  = pd.read_csv(INT_LOCATIONS)

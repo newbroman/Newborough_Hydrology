@@ -19,19 +19,19 @@ e14_ci_lo_model_a,,,-0.006085532214233386,m/yr,"bootstrap 95% lower; comparison_
 e14_ci_hi_model_a,,,0.08127569441059233,m/yr,"bootstrap 95% upper; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
 e14_full_rho,,,-0.6611119160302902,rho,"Spearman, distance to the forest edge against residual slope; full_record; Model B at the implied datum (D-332)"
 e14_full_p,,,0.03159722222222222,p,one-sided exact permutation; full_record; Model B at the implied datum (D-332)
-e14_full_near_median_slope,,,0.04664572422940742,m/yr,model - observed; full_record; Model B at the implied datum (D-332)
-e14_full_far_median_slope,,,0.0024447017868115973,m/yr,model - observed; full_record; Model B at the implied datum (D-332)
-e14_full_diff,,,0.04420102244259583,m/yr,near minus far median slope; full_record; Model B at the implied datum (D-332)
-e14_full_ci_lo,,,0.014685672434826318,m/yr,bootstrap 95% lower; full_record; Model B at the implied datum (D-332)
-e14_full_ci_hi,,,0.07176023180130509,m/yr,bootstrap 95% upper; full_record; Model B at the implied datum (D-332)
+e14_full_near_median_slope,,,0.04650989679856429,m/yr,model - observed; full_record; Model B at the implied datum (D-332)
+e14_full_far_median_slope,,,0.002232268387393715,m/yr,model - observed; full_record; Model B at the implied datum (D-332)
+e14_full_diff,,,0.044277628411170576,m/yr,near minus far median slope; full_record; Model B at the implied datum (D-332)
+e14_full_ci_lo,,,0.015721415933377496,m/yr,bootstrap 95% lower; full_record; Model B at the implied datum (D-332)
+e14_full_ci_hi,,,0.0714996656389968,m/yr,bootstrap 95% upper; full_record; Model B at the implied datum (D-332)
 e14_full_n_wells_model_a,,,9.0,wells,"full_record; Model A at 3.7 m, sensitivity (D-332)"
 e14_full_rho_model_a,,,-0.6611119160302902,rho,"Spearman, distance to the forest edge against residual slope; full_record; Model A at 3.7 m, sensitivity (D-332)"
 e14_full_p_model_a,,,0.03159722222222222,p,"one-sided exact permutation; full_record; Model A at 3.7 m, sensitivity (D-332)"
-e14_full_near_median_slope_model_a,,,0.04523622332638588,m/yr,"model - observed; full_record; Model A at 3.7 m, sensitivity (D-332)"
-e14_full_far_median_slope_model_a,,,-0.004213579027233341,m/yr,"model - observed; full_record; Model A at 3.7 m, sensitivity (D-332)"
-e14_full_diff_model_a,,,0.049449802353619225,m/yr,"near minus far median slope; full_record; Model A at 3.7 m, sensitivity (D-332)"
-e14_full_ci_lo_model_a,,,-0.0019110311931158294,m/yr,"bootstrap 95% lower; full_record; Model A at 3.7 m, sensitivity (D-332)"
-e14_full_ci_hi_model_a,,,0.08223166377491344,m/yr,"bootstrap 95% upper; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_near_median_slope_model_a,,,0.045801090396845524,m/yr,"model - observed; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_far_median_slope_model_a,,,-0.000644906132944233,m/yr,"model - observed; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_diff_model_a,,,0.04644599652978976,m/yr,"near minus far median slope; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_ci_lo_model_a,,,-0.0009238355187290576,m/yr,"bootstrap 95% lower; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_ci_hi_model_a,,,0.07818252641179374,m/yr,"bootstrap 95% upper; full_record; Model A at 3.7 m, sensitivity (D-332)"
 e14_n_wells_model_b_excluded_datum,,,0.0,wells,comparison_window: CCW wells left out because Model B's implied datum is not below ground (D-332)
 e14_full_n_wells_model_b_excluded_datum,,,0.0,wells,full_record: CCW wells left out because Model B's implied datum is not below ground (D-332)
 e14_loo_ci_clear_n,,,9.0,count,of 9 single-well drops

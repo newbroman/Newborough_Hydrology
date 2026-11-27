@@ -1,11 +1,11 @@
 | Quadrat | Piezometer | Cluster | 2007–10 (m) | 2022–25 (m) | Band (2007–10 → 2022–25) |
 |---|---|---|---|---|---|
-| CEH1-1 | CEH1 | C3 | −0.73 | −0.90 | SD15b–SD16 → SD15b–SD16 |
-| CEH1-2 | CEH1 | C3 | −1.08 | −1.24 | below SD16 → below SD16 |
-| CEH1-3 | CEH1 | C3 | −0.91 | −1.08 | SD15b–SD16 → below SD16 |
-| CEH1-4 | CEH1 | C3 | −0.93 | −1.10 | SD15b–SD16 → below SD16 |
-| CEH1-5 | CEH1 | C3 | −0.70 | −0.87 | SD15b–SD16 → SD15b–SD16 |
-| CEH1-6 | CEH1 | C3 | −0.65 | −0.81 | SD15b–SD16 → SD15b–SD16 |
+| CEH1-1 | CEH1 | C5 | −0.73 | −0.90 | SD15b–SD16 → SD15b–SD16 |
+| CEH1-2 | CEH1 | C5 | −1.08 | −1.24 | below SD16 → below SD16 |
+| CEH1-3 | CEH1 | C5 | −0.91 | −1.08 | SD15b–SD16 → below SD16 |
+| CEH1-4 | CEH1 | C5 | −0.93 | −1.10 | SD15b–SD16 → below SD16 |
+| CEH1-5 | CEH1 | C5 | −0.70 | −0.87 | SD15b–SD16 → SD15b–SD16 |
+| CEH1-6 | CEH1 | C5 | −0.65 | −0.81 | SD15b–SD16 → SD15b–SD16 |
 | CEH23-1 | CEH23 | C1 | — | −0.81 | — → SD15b–SD16 |
 | CEH23-2 | CEH23 | C1 | — | −0.87 | — → SD15b–SD16 |
 | CEH23-3 | CEH23 | C1 | — | −0.93 | — → SD15b–SD16 |
@@ -34,21 +34,21 @@
 | CEH8-1 | CEH8 | C2 | −0.91 | — | SD15b–SD16 → — |
 | CEH8-2 | CEH8 | C2 | −0.73 | — | SD15b–SD16 → — |
 | CEH8-3 | CEH8 | C2 | −1.13 | — | below SD16 → — |
-| CEH9-1 | CEH9 | C3 | −0.76 | −1.00 | SD15b–SD16 → below SD16 |
-| CEH9-2 | CEH9 | C3 | −0.63 | −0.86 | SD15b–SD16 → SD15b–SD16 |
-| CEH9-3 | CEH9 | C3 | −0.46 | −0.70 | above SD15b → SD15b–SD16 |
-| CEH9-4 | CEH9 | C3 | −0.44 | −0.68 | above SD15b → SD15b–SD16 |
-| CEH9-5 | CEH9 | C3 | −0.44 | −0.68 | above SD15b → SD15b–SD16 |
-| CEH9-6 | CEH9 | C3 | −0.85 | −1.09 | SD15b–SD16 → below SD16 |
-| CEH9-7 | CEH9 | C3 | −0.94 | −1.17 | SD15b–SD16 → below SD16 |
-| CEH9-8 | CEH9 | C3 | −0.71 | −0.95 | SD15b–SD16 → SD15b–SD16 |
-| CEH9-9 | CEH9 | C3 | −0.74 | −0.97 | SD15b–SD16 → SD15b–SD16 |
-| CEH9-10 | CEH9 | C3 | −0.75 | −0.99 | SD15b–SD16 → below SD16 |
-| NW2-1 | NW2 | C3 | −1.13 | −1.31 | below SD16 → below SD16 |
-| NW2-2 | NW2 | C3 | −1.35 | −1.52 | below SD16 → below SD16 |
-| NW2-3 | NW2 | C3 | −1.25 | −1.43 | below SD16 → below SD16 |
-| NW2-4 | NW2 | C3 | −1.01 | −1.18 | below SD16 → below SD16 |
-| NW2-5 | NW2 | C3 | −0.88 | −1.06 | SD15b–SD16 → below SD16 |
+| CEH9-1 | CEH9 | C5 | −0.76 | −1.00 | SD15b–SD16 → below SD16 |
+| CEH9-2 | CEH9 | C5 | −0.63 | −0.86 | SD15b–SD16 → SD15b–SD16 |
+| CEH9-3 | CEH9 | C5 | −0.46 | −0.70 | above SD15b → SD15b–SD16 |
+| CEH9-4 | CEH9 | C5 | −0.44 | −0.68 | above SD15b → SD15b–SD16 |
+| CEH9-5 | CEH9 | C5 | −0.44 | −0.68 | above SD15b → SD15b–SD16 |
+| CEH9-6 | CEH9 | C5 | −0.85 | −1.09 | SD15b–SD16 → below SD16 |
+| CEH9-7 | CEH9 | C5 | −0.94 | −1.17 | SD15b–SD16 → below SD16 |
+| CEH9-8 | CEH9 | C5 | −0.71 | −0.95 | SD15b–SD16 → SD15b–SD16 |
+| CEH9-9 | CEH9 | C5 | −0.74 | −0.97 | SD15b–SD16 → SD15b–SD16 |
+| CEH9-10 | CEH9 | C5 | −0.75 | −0.99 | SD15b–SD16 → below SD16 |
+| NW2-1 | NW2 | C2 | −1.13 | −1.31 | below SD16 → below SD16 |
+| NW2-2 | NW2 | C2 | −1.35 | −1.52 | below SD16 → below SD16 |
+| NW2-3 | NW2 | C2 | −1.25 | −1.43 | below SD16 → below SD16 |
+| NW2-4 | NW2 | C2 | −1.01 | −1.18 | below SD16 → below SD16 |
+| NW2-5 | NW2 | C2 | −0.88 | −1.06 | SD15b–SD16 → below SD16 |
 | NW3-1 | NW3 | C2 | −0.86 | — | SD15b–SD16 → — |
 | NW3-2 | NW3 | C2 | −0.77 | — | SD15b–SD16 → — |
 | NW3-3 | NW3 | C2 | −0.82 | — | SD15b–SD16 → — |
@@ -73,11 +73,11 @@
 | NW6-3 | NW6 | C3 | −0.64 | — | SD15b–SD16 → — |
 | NW6-4 | NW6 | C3 | −0.70 | — | SD15b–SD16 → — |
 | NW6-5 | NW6 | C3 | −0.59 | — | above SD15b → — |
-| NW7-1 | NW7 | C3 | −1.52 | — | below SD16 → — |
-| NW7-2 | NW7 | C3 | −1.37 | — | below SD16 → — |
-| NW7-3 | NW7 | C3 | −1.36 | — | below SD16 → — |
-| NW7-4 | NW7 | C3 | −1.36 | — | below SD16 → — |
-| NW7-5 | NW7 | C3 | −1.36 | — | below SD16 → — |
+| NW7-1 | NW7 | C5 | −1.52 | — | below SD16 → — |
+| NW7-2 | NW7 | C5 | −1.37 | — | below SD16 → — |
+| NW7-3 | NW7 | C5 | −1.36 | — | below SD16 → — |
+| NW7-4 | NW7 | C5 | −1.36 | — | below SD16 → — |
+| NW7-5 | NW7 | C5 | −1.36 | — | below SD16 → — |
 | T41A-4 | T41A | C3 | — | −1.01 | — → below SD16 |
 | T41B-2 | T41B | C2 | — | −0.86 | — → SD15b–SD16 |
 | T41B-5 | T41B | C2 | — | −0.79 | — → SD15b–SD16 |

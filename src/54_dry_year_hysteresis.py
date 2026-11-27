@@ -44,7 +44,7 @@ Run directly:  python3 src/54_dry_year_hysteresis.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The response model is Model B (fit_ssm
+__version__ = "1.1.1"  # 2026-11-26 (D-347 (5)): the residual fit keeps the full record, as E13 (Script 50e) does. Was "1.1.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The response model is Model B (fit_ssm
 #   intercept=True, beta_3 bounded below, free run with its alpha): every e15_* key and 54_03/54_04/54_05 column keeps its
 #   name and now carries Model B. Model A (no intercept) runs beside it through the same rule: e15_*_model_a keys, rows
 #   with form="model_a" in 54_03/54_04, columns C*_model_a in 54_05. The E13 check reads Script 50's own per-form
@@ -130,7 +130,7 @@ def residuals(cl: pd.DataFrame, intercept: bool = True) -> tuple[pd.DataFrame, d
     out, fits = {}, {}
     for k in sorted(md["Cluster"].unique()):
         h = W[[w for w in md.index[md["Cluster"] == k] if w in W]].mean(axis=1).loc[:clim.index[-1]]
-        f = fit_ssm(h, clim, intercept=intercept)
+        f = fit_ssm(h, clim, intercept=intercept, start=None)   # 1.1.1 (D-347 (5)): E13's full record
         s = pd.Series(simulate_ssm(h.dropna().mean(), clim["P_m"].values, clim["PET"].values,
                                    f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"],
                                    alpha=(f.get("alpha", 0.0) if intercept else 0.0)), index=clim.index)

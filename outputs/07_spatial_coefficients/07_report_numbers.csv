@@ -1,24 +1,39 @@
 Parameter,Well,Era,Value,Unit,Note
+coeff_cluster_ari,,,0.39890021766525374,,"D-347 coefficient test, ari (07_06_coeff_cluster_test.csv value), n=66"
+coeff_cluster_ari_perm_p,,,0.0001999600079984003,,permutation p of that value (07_06 perm_p)
+coeff_cluster_ari_chance,,,0.0004136556306564323,,its mean under shuffled labels (07_06 chance_mean)
+coeff_cluster_loo,,,0.6212121212121212,,"D-347 coefficient test, loo (07_06_coeff_cluster_test.csv value), n=66"
+coeff_cluster_loo_perm_p,,,0.000999000999000999,,permutation p of that value (07_06 perm_p)
+coeff_cluster_loo_chance,,,0.19669696969696965,,its mean under shuffled labels (07_06 chance_mean)
+coeff_cluster_eta2_beta_1_recharge,,,0.3904067172456168,,"D-347 coefficient test, eta2_beta_1_recharge (07_06_coeff_cluster_test.csv value), n=66"
+coeff_cluster_eta2_beta_1_recharge_perm_p,,,0.0001999600079984003,,permutation p of that value (07_06 perm_p)
+coeff_cluster_eta2_beta_1_recharge_chance,,,0.061724967190105985,,its mean under shuffled labels (07_06 chance_mean)
+coeff_cluster_eta2_beta_2_atmospheric_draw,,,0.39760124976566186,,"D-347 coefficient test, eta2_beta_2_atmospheric_draw (07_06_coeff_cluster_test.csv value), n=66"
+coeff_cluster_eta2_beta_2_atmospheric_draw_perm_p,,,0.0001999600079984003,,permutation p of that value (07_06 perm_p)
+coeff_cluster_eta2_beta_2_atmospheric_draw_chance,,,0.061943058158588214,,its mean under shuffled labels (07_06 chance_mean)
+coeff_cluster_eta2_beta_3_drainage,,,0.8345078169199912,,"D-347 coefficient test, eta2_beta_3_drainage (07_06_coeff_cluster_test.csv value), n=66"
+coeff_cluster_eta2_beta_3_drainage_perm_p,,,0.0001999600079984003,,permutation p of that value (07_06 perm_p)
+coeff_cluster_eta2_beta_3_drainage_chance,,,0.06207417763678267,,its mean under shuffled labels (07_06 chance_mean)
 C1_beta1_mean,,,3.9951951722603902,mm/mm,"mean β₁ recharge, C1, Model B (free intercept), n=7"
 C1_beta2_mean,,,2.7251801334743027,mm/mm,"mean β₂ atmospheric draw, C1, Model B (free intercept), n=7"
 C1_beta3_mean,,,0.32771862807350866,/month,"mean β₃ drainage, C1, Model B (free intercept), n=7"
 C1_beta3_pct_mean,,,32.771862807350864,%/month,"mean β₃ as % head drained/month, C1"
-C2_beta1_mean,,,3.549292545762524,mm/mm,"mean β₁ recharge, C2, Model B (free intercept), n=19"
-C2_beta2_mean,,,2.5858005028874547,mm/mm,"mean β₂ atmospheric draw, C2, Model B (free intercept), n=19"
-C2_beta3_mean,,,0.18759336263221557,/month,"mean β₃ drainage, C2, Model B (free intercept), n=19"
-C2_beta3_pct_mean,,,18.759336263221556,%/month,"mean β₃ as % head drained/month, C2"
-C3_beta1_mean,,,3.5549926052922087,mm/mm,"mean β₁ recharge, C3, Model B (free intercept), n=26"
-C3_beta2_mean,,,2.075031798836307,mm/mm,"mean β₂ atmospheric draw, C3, Model B (free intercept), n=26"
-C3_beta3_mean,,,0.11391697385688163,/month,"mean β₃ drainage, C3, Model B (free intercept), n=26"
-C3_beta3_pct_mean,,,11.391697385688163,%/month,"mean β₃ as % head drained/month, C3"
+C2_beta1_mean,,,3.630850326682637,mm/mm,"mean β₁ recharge, C2, Model B (free intercept), n=27"
+C2_beta2_mean,,,2.4828251282098286,mm/mm,"mean β₂ atmospheric draw, C2, Model B (free intercept), n=27"
+C2_beta3_mean,,,0.16910284114907462,/month,"mean β₃ drainage, C2, Model B (free intercept), n=27"
+C2_beta3_pct_mean,,,16.910284114907462,%/month,"mean β₃ as % head drained/month, C2"
+C3_beta1_mean,,,3.5264549599171726,mm/mm,"mean β₁ recharge, C3, Model B (free intercept), n=13"
+C3_beta2_mean,,,1.9464594205323,mm/mm,"mean β₂ atmospheric draw, C3, Model B (free intercept), n=13"
+C3_beta3_mean,,,0.1259998793291141,/month,"mean β₃ drainage, C3, Model B (free intercept), n=13"
+C3_beta3_pct_mean,,,12.59998793291141,%/month,"mean β₃ as % head drained/month, C3"
 C4_beta1_mean,,,2.3693836807956874,mm/mm,"mean β₁ recharge, C4, Model B (free intercept), n=9"
 C4_beta2_mean,,,2.654456980740381,mm/mm,"mean β₂ atmospheric draw, C4, Model B (free intercept), n=9"
 C4_beta3_mean,,,0.021183774377097113,/month,"mean β₃ drainage, C4, Model B (free intercept), n=9"
 C4_beta3_pct_mean,,,2.1183774377097113,%/month,"mean β₃ as % head drained/month, C4"
-C5_beta1_mean,,,2.1396868264825786,mm/mm,"mean β₁ recharge, C5, Model B (free intercept), n=5"
-C5_beta2_mean,,,1.3728854416073972,mm/mm,"mean β₂ atmospheric draw, C5, Model B (free intercept), n=5"
-C5_beta3_mean,,,0.09501052944340713,/month,"mean β₃ drainage, C5, Model B (free intercept), n=5"
-C5_beta3_pct_mean,,,9.501052944340712,%/month,"mean β₃ as % head drained/month, C5"
+C5_beta1_mean,,,2.6687926940143845,mm/mm,"mean β₁ recharge, C5, Model B (free intercept), n=10"
+C5_beta2_mean,,,1.7605212604057345,mm/mm,"mean β₂ atmospheric draw, C5, Model B (free intercept), n=10"
+C5_beta3_mean,,,0.07973927152045557,/month,"mean β₃ drainage, C5, Model B (free intercept), n=10"
+C5_beta3_pct_mean,,,7.973927152045556,%/month,"mean β₃ as % head drained/month, C5"
 CEH14_beta3,CEH14,,0.0123966309414406,/month,"β₃, Model B (C4; implied drainage base above ground)"
 CEH14_beta3_pct,CEH14,,1.23966309414406,%/month,"β₃ as %, Model B"
 CEH14_beta3_model_a,CEH14,,-0.0241218287628504,/month,"β₃, Model A (3.7 m datum): negative — lateral recharge from rock ridge (C4)"
@@ -27,9 +42,9 @@ C4_beta2_beta3_corr_all,,,-0.38304154584209144,,"Pearson r, β₂ vs β₃ acros
 C4_beta2_beta3_corr_excl_ceh14,,,-0.23499238797804828,,"Pearson r, β₂ vs β₃ across C4 wells with CEH14 removed, n=8"
 C4_beta2_beta3_corr_excl_ceh13_ceh14,,,-0.04462682139368574,,"Pearson r, β₂ vs β₃ across C4 wells with CEH13 and CEH14 removed, n=7"
 C4_beta3_pct_max_excl_ceh14,ceh30,,3.63400709258452,%/month,"highest positive β₃ among C4 wells (Model B), CEH14 excluded (its Model A β₃ is negative)"
-clusters_vs_covariates_F_p_beta_1,,,0.010918178264889698,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_1_recharge, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
-clusters_vs_covariates_dAIC_beta_1,,,-7.416863989443655,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_1_recharge, n=66; negative favours clusters"
-clusters_vs_covariates_F_p_beta_2,,,0.011407754613188508,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_2_atmospheric_draw, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
-clusters_vs_covariates_dAIC_beta_2,,,-7.29749030030527,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_2_atmospheric_draw, n=66; negative favours clusters"
-clusters_vs_covariates_F_p_beta_3,,,1.4161654586485623e-08,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_3_drainage, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
-clusters_vs_covariates_dAIC_beta_3,,,-41.96826757894621,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_3_drainage, n=66; negative favours clusters"
+clusters_vs_covariates_F_p_beta_1,,,0.016420499447530483,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_1_recharge, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
+clusters_vs_covariates_dAIC_beta_1,,,-6.301251036074461,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_1_recharge, n=66; negative favours clusters"
+clusters_vs_covariates_F_p_beta_2,,,0.0058161090441664134,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_2_atmospheric_draw, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
+clusters_vs_covariates_dAIC_beta_2,,,-9.118293919678422,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_2_atmospheric_draw, n=66; negative favours clusters"
+clusters_vs_covariates_F_p_beta_3,,,1.3040374210456773e-09,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_3_drainage, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
+clusters_vs_covariates_dAIC_beta_3,,,-47.856071560266514,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_3_drainage, n=66; negative favours clusters"

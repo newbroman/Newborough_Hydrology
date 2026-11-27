@@ -9,7 +9,8 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-11-26 (D-347): affinity is read from config.RECORD_FIT_START (January 2010), the partition's own window.
+# 1.6.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.5.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
@@ -233,6 +234,10 @@ def main():
     try:
         ref_wells = pd.read_csv(REF_WELLS_PATH, index_col=0, parse_dates=True)
         ext_wells = pd.read_csv(EXT_WELLS_PATH, index_col=0, parse_dates=True)
+        # D-347 (2026-11-26): affinity is read on the partition's own record window (January 2010 onward)
+        from utils.config import RECORD_FIT_START
+        _t0 = pd.Timestamp(RECORD_FIT_START)
+        ref_wells, ext_wells = ref_wells[ref_wells.index >= _t0], ext_wells[ext_wells.index >= _t0]
         ref_clusters = pd.read_csv(CLUSTER_PATH)
         loc_df = pd.read_csv(LOCATION_PATH)
     except FileNotFoundError as e:

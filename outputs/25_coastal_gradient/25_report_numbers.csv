@@ -11,15 +11,15 @@ Headline_fit_c,,2005-2026,-0.3,mm/yr,"Forest-free linear-capped far-field asympt
 Headline_DeltaAIC_lincap_vs_exp,,2005-2026,-6.0,,"exp − lin-cap; positive favours lin-cap, negative favours the exponential. Currently -6.0, i.e. AIC favours the exponential form. The linear-capped form is retained as the headline form on the Dupuit-Forchheimer strip-aquifer interpretation and because the exponential's far-field asymptote takes the opposite sign to the observed far-field trend in 25_12_window_sweep.csv — NOT on the AIC margin, which points the other way. Documents asserting the forms are near-indistinguishable at delta-AIC 0.1 are stale (D-047)"
 Canopy_controlled_delta_0,,2005-2026,-32.25939491523977,mm/yr,"Full network, linear-capped, canopy x time controlled on the in_forest LAND-COVER flag (Script 01), n_wells=67, SE=1.95. Compare the forest-free headline, which drops the forested wells instead of measuring them"
 Canopy_extra_drift,,2005-2026,-9.000917709363572,mm/yr,"Absorbed canopy x time coefficient: extra fall under pine net of distance to the coast. Negative = the table falls faster under canopy. Well-clustered SE=2.45, t=-3.68, conditional on the fitted decay parameters. Land cover, not cluster membership — the two disagree at six wells"
-C5_gradient_pct_of_basis,,2005-2026,53.37037338708999,%,"basis = observed_balanced_annual_mean_mm_yr -32.0 mm/yr; coastal gradient -17.1, climate (CWB) +2.9, far-field offset -0.3 (offset and CWB trend not separately identified), unexplained -17.6"
-C5_observed_balanced_annual_mean,C5,2005-2026,-31.978007518796773,mm/yr,C5 (Coastal Forest) observed_balanced_annual_mean_mm_yr — the current decomposition basis (25_03_cluster_partition.csv). Superseded a pre-D-196 basis of about -16.15 mm/yr under the earlier k=5 partition; do not cite the old figure.
-C5_observed_per_well_mean,C5,2005-2026,-28.864092048301323,mm/yr,"C5 (Coastal Forest) observed_per_well_mean_mm_yr, retained as a context column beside the balanced-annual basis and the Script-14 centroid rate (not the decomposition basis itself)."
+C5_gradient_pct_of_basis,,2005-2026,63.58159364176173,%,"basis = observed_balanced_annual_mean_mm_yr -13.2 mm/yr; coastal gradient -8.4, climate (CWB) +2.9, far-field offset -0.3 (offset and CWB trend not separately identified), unexplained -7.5"
+C5_observed_balanced_annual_mean,C5,2005-2026,-13.239155844154551,mm/yr,C5 (Coastal Forest) observed_balanced_annual_mean_mm_yr — the current decomposition basis (25_03_cluster_partition.csv). Superseded a pre-D-196 basis of about -16.15 mm/yr under the earlier k=5 partition; do not cite the old figure.
+C5_observed_per_well_mean,C5,2005-2026,-17.428629525978547,mm/yr,"C5 (Coastal Forest) observed_per_well_mean_mm_yr, retained as a context column beside the balanced-annual basis and the Script-14 centroid rate (not the decomposition basis itself)."
 ForestFree_exponential_c,,2005-2026,2.014400678431734,mm/yr,"Forest-free EXPONENTIAL far-field asymptote (compare Headline_fit_c, the linear-capped form's c), SE=1.11. Same non-quotable-as-a-rate caveat as Headline_fit_c."
 ForestFree_d0_disagreement_lincap_vs_exp,,2005-2026,9.309062892312529,mm/yr,Absolute difference between the two decay forms' delta_0 (d=0 amplitude) on the forest-free panel — the distance at which linear-capped and exponential disagree materially (25_01_panel_fit_parameters.csv).
 ForestFree_ref_disagreement_lincap_vs_exp,,2005-2026,1.633802923574649,mm/yr,Absolute difference between the two decay forms' rate at the 150 m reference distance on the forest-free panel (delta_ref_mm_yr in 25_01_panel_fit_parameters.csv); the counterpart of ForestFree_d0_disagreement_lincap_vs_exp.
 ForestFree_exponential_zero_crossing,,2005-2026,1494.6946749219587,m,"Distance at which the forest-free exponential fit (delta_0*exp(-x/L)+c) crosses zero, predicting the inland water table to shallow beyond this point. Solved from the committed delta_0, L, c in 25_01_panel_fit_parameters.csv."
 DeltaAIC_lincap_vs_exp_full,,2005-2026,-5.072259014312294,,"exp − lin-cap AIC on the full network spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
-DeltaAIC_lincap_vs_exp_c3_only,,2005-2026,-9.857885755052848,,"exp − lin-cap AIC on the C3-only spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
+DeltaAIC_lincap_vs_exp_c3_only,,2005-2026,1.2125519128376254,,"exp − lin-cap AIC on the C3-only spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
 WindowSweep_c_vs_farfield_observed_r,,,0.5366558986531972,,"Pearson r between the fitted far-field constant c and the observed far-field trend, across 108 usable forest-free windows in 25_12_window_sweep.csv."
 WindowSweep_c_vs_farfield_observed_bias,,,7.031526512871329,mm/yr,Mean of (c - observed far-field trend) across the same 108 windows: c is biased high relative to the observation it is meant to track.
 window_sweep_n_wells_first,,2005-03,61,wells,Wells in the forest-free window-sweep panel at the first (earliest-start) window of 25_12_window_sweep.csv.
@@ -94,12 +94,12 @@ RollingWindow_n_windows,forest_free,18-year windows,13.0,windows,"25_13 rolling-
 RollingWindow_corr_c_climate,forest_free,18-year windows,-0.5928213779136045,r,"25_13 rolling-window sweep, spec forest_free, window length 18 yr, usable windows only (n=13); Pearson r between c and the CWB climate term over the same windows."
 OpenDune_balanced_less_coastal,C1 (Lake Edge),,-10.382096869848361,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
 OpenDune_n_wells,C1 (Lake Edge),,7.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal,C2 (Dune),,-14.561039552837272,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
-OpenDune_n_wells,C2 (Dune),,22.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal,C3 (Western Residual),,-0.5021990853569891,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
-OpenDune_n_wells,C3 (Western Residual),,22.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal_mean,,,-8.481778502680873,mm/yr,"unweighted mean across the clusters outside FOREST_CIDS (C1 (Lake Edge), C2 (Dune), C3 (Western Residual)) of the balanced observed decline less the modelled coastal gradient."
-OpenDune_balanced_less_coastal_spread,,,14.058840467480284,mm/yr,"max minus min of the same quantity (C1 (Lake Edge), C2 (Dune), C3 (Western Residual))."
+OpenDune_balanced_less_coastal,C2 (Dune),,-6.3579299007865435,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
+OpenDune_n_wells,C2 (Dune),,28.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
+OpenDune_balanced_less_coastal,C3 (Western Dune),,-2.403037035843475,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
+OpenDune_n_wells,C3 (Western Dune),,13.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
+OpenDune_balanced_less_coastal_mean,,,-6.381021268826127,mm/yr,"unweighted mean across the clusters outside FOREST_CIDS (C1 (Lake Edge), C2 (Dune), C3 (Western Dune)) of the balanced observed decline less the modelled coastal gradient."
+OpenDune_balanced_less_coastal_spread,,,7.979059834004886,mm/yr,"max minus min of the same quantity (C1 (Lake Edge), C2 (Dune), C3 (Western Dune))."
 CorrectionDiag_r2_distance_pct,ff_lincap,2005-2026,18.058212112572125,%,"25_14 correction diagnostic, metric summer_min, donor fit ff_lincap, 54 per-well slopes; share of the variance in per-well trend accounted for by the distance profile (r2_distance x 100)."
 CorrectionDiag_resid_sd,ff_lincap,2005-2026,14.890901113302561,mm/yr,"25_14 correction diagnostic, metric summer_min, donor fit ff_lincap, 54 per-well slopes; SD (ddof=1) of per-well trend about the fitted profile (resid_sd_mm_yr)."
 CorrectionDiag_r2_distance_pct,full_lincap_canopy,2005-2026,20.477442247209865,%,"25_14 correction diagnostic, metric summer_min, donor fit full_lincap_canopy, 59 per-well slopes; share of the variance in per-well trend accounted for by the distance profile (r2_distance x 100)."
@@ -536,10 +536,10 @@ breach_coastal_d_beta_3_median,,,-0.07596050577501605,1/month,"25_22: median aft
 breach_coastal_d_floor_median_m,,,1.174546279155535,m,25_22: median after - before implied floor (m below ground; + = deeper)
 breach_coastal_n_beta_3_up,,,2.0,wells,25_22: wells whose beta_3 rose after the split
 breach_coastal_n_drain_fitted,,,10.0,wells,25_22: wells fitted in both periods
-breach_inland_d_beta_3_median,,,-0.15339543556787494,1/month,"25_22: median after - before Model B beta_3, split at 2009-08"
-breach_inland_d_floor_median_m,,,0.7796987720701996,m,25_22: median after - before implied floor (m below ground; + = deeper)
-breach_inland_n_beta_3_up,,,1.0,wells,25_22: wells whose beta_3 rose after the split
-breach_inland_n_drain_fitted,,,9.0,wells,25_22: wells fitted in both periods
+breach_inland_d_beta_3_median,,,-0.17261178104513386,1/month,"25_22: median after - before Model B beta_3, split at 2009-08"
+breach_inland_d_floor_median_m,,,0.6183671160565338,m,25_22: median after - before implied floor (m below ground; + = deeper)
+breach_inland_n_beta_3_up,,,0.0,wells,25_22: wells whose beta_3 rose after the split
+breach_inland_n_drain_fitted,,,6.0,wells,25_22: wells fitted in both periods
 twostep_2009_coastal_n_wells,,,12.0,wells,25_21 two-step test (1.41.0): wells whose 25_21 best single step falls in 2009.
 twostep_2009_coastal_n_tested,,,11.0,wells,"25_21 two-step test (1.41.0): of those, with a candidate second step in 2014-10..2015-04."
 twostep_2009_coastal_n_prefer_drop,,,6.0,wells,25_21 two-step test (1.41.0): second step in the window a drop favoured by AIC and BIC (> 2) with |t_HAC| >= 2.

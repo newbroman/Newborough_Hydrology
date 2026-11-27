@@ -44,7 +44,10 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-11-26 (D-347 (3)). coeff_cluster_test(): the wells grouped
+#   on their per-well coefficients alone, against the partition (ARI, leave-one-out nearest centroid, per-coefficient
+#   eta^2, each with a permutation p) -> 07_06_coeff_cluster_test.csv and coeff_cluster_* report numbers.
+# 1.9.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.8.0"  # Hollingham (2026) - 2026-11-22. make_coefficient_map takes extra=callable(ax) -> legend handles,
@@ -114,6 +117,7 @@ from utils.paths import (
     OUT_07_CLUSTER_COEFF_MEANS,
     OUT_07_REPORT_NUMBERS,
     OUT_07_CLUSTERS_VS_COVARIATES,
+    OUT_07_COEFF_CLUSTER_TEST,
 )
 from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.report_numbers_utils import ReportNumbers
@@ -592,6 +596,49 @@ def clusters_vs_covariates(df):
 # MAIN
 # ------------------------------------------------------------------
 
+
+def coeff_cluster_test(df: pd.DataFrame, seed: int = 11, n_perm: int = 5000, n_perm_loo: int = 1000) -> pd.DataFrame:
+    """1.10.0 (D-347 (3); Martin 2026-11-26: "Do we use the SSM coefficients to verify the clusters? - we dont but could
+    we", then "3 yes"). The partition comes from hydrograph SHAPE (Ward on 1 - r); the per-well fitted-floor
+    coefficients (beta_1, beta_2, beta_3 on the comparison window) never see the cluster labels. Three tests, each
+    against permutations of the labels:
+      ari    the wells grouped on their standardized coefficients alone (Ward, k = the partition's k) against the
+             partition: adjusted Rand index;
+      loo    leave one well out, assign it to the nearest cluster centroid in coefficient space: share returned;
+      eta2_* per coefficient, the between-cluster share of the variance.
+    The coefficients are independent of the labels, not of the data: both come from the same hydrographs."""
+    from scipy.cluster.hierarchy import linkage, fcluster
+    from sklearn.metrics import adjusted_rand_score
+    cols = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
+    d = df.dropna(subset=cols + ["Cluster_ID"])
+    X = d[cols].to_numpy(float); X = (X - X.mean(0)) / X.std(0)
+    y = d["Cluster_ID"].to_numpy(int); k = len(np.unique(y))
+    rng = np.random.default_rng(seed)
+    g = fcluster(linkage(X, "ward"), k, "maxclust")
+    ari = adjusted_rand_score(y, g)
+    null = np.array([adjusted_rand_score(rng.permutation(y), g) for _ in range(n_perm)])
+    rows = [{"test": "ari", "value": ari, "chance_mean": float(null.mean()),
+             "perm_p": float((np.sum(null >= ari) + 1) / (n_perm + 1)), "n_wells": len(y), "k": k}]
+    def loo_share(lab):
+        hit = 0
+        for i in range(len(lab)):
+            m = np.ones(len(lab), bool); m[i] = False
+            cents = {c: X[m & (lab == c)].mean(0) for c in np.unique(lab) if (m & (lab == c)).any()}
+            hit += min(cents, key=lambda c: np.linalg.norm(X[i] - cents[c])) == lab[i]
+        return hit / len(lab)
+    loo = loo_share(y); nl = np.array([loo_share(rng.permutation(y)) for _ in range(n_perm_loo)])
+    rows.append({"test": "loo", "value": loo, "chance_mean": float(nl.mean()),
+                 "perm_p": float((np.sum(nl >= loo) + 1) / (n_perm_loo + 1)), "n_wells": len(y), "k": k})
+    def eta2(v, lab):
+        mu = v.mean()
+        return sum((lab == c).sum() * (v[lab == c].mean() - mu) ** 2 for c in np.unique(lab)) / ((v - mu) ** 2).sum()
+    for c in cols:
+        v = d[c].to_numpy(float); e = eta2(v, y); en = np.array([eta2(v, rng.permutation(y)) for _ in range(n_perm)])
+        rows.append({"test": f"eta2_{c}", "value": e, "chance_mean": float(en.mean()),
+                     "perm_p": float((np.sum(en >= e) + 1) / (n_perm + 1)), "n_wells": len(y), "k": k})
+    return pd.DataFrame(rows)
+
+
 if __name__ == "__main__":
     make_all_dirs()
     DIR_07.mkdir(parents=True, exist_ok=True)
@@ -757,7 +804,21 @@ if __name__ == "__main__":
     saved(OUT_07_CLUSTERS_VS_COVARIATES)
     hr()
 
+    # 1.10.0 (D-347 (3)): do the coefficients alone recover the partition?
+    info("Coefficient test (D-347): the wells grouped on their coefficients alone, against the partition")
+    cct = coeff_cluster_test(df)
+    cct.to_csv(OUT_07_COEFF_CLUSTER_TEST, index=False)
+    saved(OUT_07_COEFF_CLUSTER_TEST)
+    hr()
+
     rpt = ReportNumbers()
+    for _, _r in cct.iterrows():
+        rpt.add(f"coeff_cluster_{_r['test']}", float(_r["value"]), unit="",
+                note=f"D-347 coefficient test, {_r['test']} (07_06_coeff_cluster_test.csv value), n={int(_r['n_wells'])}")
+        rpt.add(f"coeff_cluster_{_r['test']}_perm_p", float(_r["perm_p"]), unit="",
+                note="permutation p of that value (07_06 perm_p)")
+        rpt.add(f"coeff_cluster_{_r['test']}_chance", float(_r["chance_mean"]), unit="",
+                note="its mean under shuffled labels (07_06 chance_mean)")
     for _, _r in _means_df.iterrows():
         _cl = f"C{int(_r['Cluster_ID'])}"
         rpt.add(f"{_cl}_beta1_mean", _r["beta_1_recharge_mean"], unit="mm/mm",

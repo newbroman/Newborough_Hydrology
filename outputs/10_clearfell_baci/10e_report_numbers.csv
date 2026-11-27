@@ -274,28 +274,28 @@ B2_multiplier_clearfell,,,1.0771397421903708,,Edge ratio − Climate Ctrl ratio 
 B2_multiplier_thinning,,,1.0385698710951854,,1 + (clearfell multiplier − 1)/2
 B2_multiplier_clearfell_impact,,,1.0651705034902994,,"Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 and 21 and the shared forestry bars, with no interception recharge term (D-239)"
 B2_multiplier_thinning_impact,,,1.0325852517451497,,1 + (B2_multiplier_clearfell_impact − 1)/2
-shield_ratio_canopy_on,Climate Ctrl,,0.9096527001549675,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off,Climate Ctrl,,1.021980983009756,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on,Edge,,0.8626104427607216,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off,Edge,,0.7439936623519551,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on,Impact,,0.9093581533355521,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off,Impact,,1.0698774136470994,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on_net,Impact,,0.9997054531805847,,ratio − Climate Ctrl ratio + 1 (10e_04)
-wmc3_b2_fall_canopy_on_pct,WMC3,,0.029454681941532,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
-shield_ratio_canopy_off_net,Impact,,1.0478964306373435,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_on_net,Edge,,0.9529577426057542,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_off_net,Edge,,0.7220126793421991,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_on_model_a,Climate Ctrl,,0.9080334808924225,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off_model_a,Climate Ctrl,,1.0936592264763443,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on_model_a,Edge,,0.8577231815720885,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off_model_a,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on_model_a,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off_model_a,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on_net_model_a,Impact,,0.9829249583108585,,ratio − Climate Ctrl ratio + 1 (10e_04)
-wmc3_b2_fall_canopy_on_pct_model_a,WMC3,,1.7075041689141535,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
-shield_ratio_canopy_off_net_model_a,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_on_net_model_a,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_off_net_model_a,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on,Climate Ctrl,,0.9063225188430669,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Climate Ctrl,,1.0144331059076943,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on,Edge,,0.8632290379375327,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Edge,,0.7454426979071045,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on,Impact,,0.9082861946429446,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Impact,,1.0759265972088097,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_net,Impact,,1.0019636757998778,,ratio − Climate Ctrl ratio + 1 (10e_04)
+wmc3_b2_fall_canopy_on_pct,WMC3,,-0.19636757998777732,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
+shield_ratio_canopy_off_net,Impact,,1.0614934913011154,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_net,Edge,,0.9569065190944658,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_off_net,Edge,,0.7310095919994102,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_model_a,Climate Ctrl,,0.905111814036034,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off_model_a,Climate Ctrl,,1.1015603166252204,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_model_a,Edge,,0.8581458339033478,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off_model_a,Edge,,0.7503393939356046,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_model_a,Impact,,0.8902818530430537,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off_model_a,Impact,,1.2075470787780738,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_net_model_a,Impact,,0.9851700390070197,,ratio − Climate Ctrl ratio + 1 (10e_04)
+wmc3_b2_fall_canopy_on_pct_model_a,WMC3,,1.4829960992980284,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
+shield_ratio_canopy_off_net_model_a,Impact,,1.1059867621528534,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_net_model_a,Edge,,0.9530340198673137,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_off_net_model_a,Edge,,0.6487790773103842,,ratio − Climate Ctrl ratio + 1 (10e_04)
 CoeffShift_Impact_mean_db1_model_a,Impact,,-0.0467,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
 CoeffShift_Impact_mean_db2_model_a,Impact,,-0.2696,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
 CoeffShift_Impact_mean_db3_model_a,Impact,,0.002,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)"

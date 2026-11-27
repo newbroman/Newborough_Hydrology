@@ -14,7 +14,10 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-11-25 (D-343; Martin: "I want to see the pre 2018 cluster results and
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
+#   formed on config.RECORD_FIT_START onward (January 2010); the C3 anchor is ceh10 (nw1 joins C2 on that record);
+#   C3 is named Western Dune (config). The period split now reads 2010-17 against 2018-26.
+# 1.19.0  # Hollingham (2026) — 2026-11-25 (D-343; Martin: "I want to see the pre 2018 cluster results and
 #   map"; "I think we need to include the new clustering results in paper 1"). The period split gains a per-cluster
 #   table (02_15_period_split_by_cluster.csv: how many of each full-record cluster stay together before and from
 #   2018, and where the rest go) and a three-panel map (02_16_period_split_map.png). A split group whose matched
@@ -272,7 +275,7 @@ AMP_SUMMER_MONTHS     = (6, 7, 8, 9)
 #
 #   Cluster 1 = Lake               (anchors: ceh5, ceh11)
 #   Cluster 2 = Dune               (anchors: d10)
-#   Cluster 3 = Western Residual   (anchors: nw1)
+#   Cluster 3 = Western Dune       (anchors: ceh10; D-347, was Western Residual / nw1)
 #   Cluster 4 = Main Forest        (anchors: ceh2)
 #   Cluster 5 = Coastal Forest     (anchors: ceh16, nw9)
 #
@@ -281,7 +284,8 @@ AMP_SUMMER_MONTHS     = (6, 7, 8, 9)
 CLUSTER_ID_ANCHORS: dict[int, tuple[str, ...]] = {
     1: ("ceh5", "ceh11"),      # Lake (ceh11 weakest member, flag in methods)
     2: ("d10",),               # Dune
-    3: ("nw1",),               # Western Residual
+    3: ("ceh10",),             # Western Dune (D-347: was nw1, which joins C2 on the 2010 record; ceh10 is C3 in
+                               #   the published partition, the 2010 one and both of its halves)
     4: ("ceh2",),              # Main Forest
     5: ("ceh16", "nw9"),       # Coastal Forest
 }
@@ -1961,7 +1965,13 @@ if __name__ == "__main__":
 
     wells_ref = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True)
     wells_ref = wells_ref.apply(pd.to_numeric, errors="coerce").dropna(axis=1, how="all")
-    step(f"Clustering {len(wells_ref.columns)} reference wells...")
+    # D-347 (2026-11-26): the partition is formed on config.RECORD_FIT_START onward (January 2010). 2005-09 is the
+    # high stand that ended in the 2009 drop, and a shared step makes the wells carrying it correlate. Every
+    # diagnostic below (k sweep, bootstrap, month blocks, the period split at MODEL_AB_SPLIT_DATE, which now gives
+    # 2010-17 against 2018-26) reads this same frame.
+    from utils.config import RECORD_FIT_START
+    wells_ref = wells_ref[wells_ref.index >= pd.Timestamp(RECORD_FIT_START)].dropna(axis=1, how="all")
+    step(f"Clustering {len(wells_ref.columns)} reference wells from {RECORD_FIT_START[:7]}...")
 
     # Build the correlation-distance matrix via the shared helper. The previous
     # version of this block used pdist(1 - corr_matrix), which misinterprets

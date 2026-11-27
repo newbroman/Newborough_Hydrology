@@ -105,7 +105,8 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.36.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
+__version__ = "1.36.1"  # Hollingham (2026) — 2026-11-26 (D-347): C3's label is "C3 (Western Dune)".
+# 1.36.0  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
 #   questions"). The full EWI standard error (EWI_se_m_full, ewi_se_mm_full) carries the alpha-beta_3 covariance,
 #   cov = corr_alpha_beta_3 * se_alpha * se_beta_3 (reference wells: Script 03 1.32.0's corr_alpha_beta_3; extended wells:
 #   fit_ssm(with_corr=True) here); new column corr_alpha_beta_3, new key ewi_n_wells_se_alpha_beta3_cov. The beta_3-only
@@ -883,7 +884,7 @@ def cluster_centroid_trajectory(
     block_map = {
         1: ("Lake_Edge",      "C1 (Lake Edge)"),
         2: ("Eastern_Block",  "C2 (Dune)"),
-        3: ("Western_Block",  "C3 (Western Residual)"),
+        3: ("Western_Block",  "C3 (Western Dune)"),        # D-347: was Western Residual
         4: ("Forest",         "C4 (Main Forest)"),
         5: ("Coastal_Forest", "C5 (Coastal Forest)"),
     }

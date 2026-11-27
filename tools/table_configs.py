@@ -115,7 +115,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-11-25 (D-343). paper1/Table7 added: the trend in the annual summer
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-11-26 (D-347): C3 is "Western Dune" in every filter and
+#   display label (the scripts' CLUSTER_LABELS, config 1.134.0). Tables regenerate with the new name.
+# 1.27.0  # Hollingham (2026) — 2026-11-25 (D-343). paper1/Table7 added: the trend in the annual summer
 #   minimum by cluster (Script 14's 14_summer_trend_stats.csv), Paper 1's new §4.11. paperM/Table1 and Table2 headers
 #   say "fitted floor" for "Model B" (D-342 names; Paper M v1_57).
 # 1.26.0  # Hollingham (2026) — 2026-11-24 (Paper 1 review). paper1/Table2: C4's residual prints —†
@@ -454,7 +456,7 @@ TABLES = [
         "columns": [
             {"col": "Block", "fmt": "map",
              "map": {"Lake_Edge": "Lake Edge (C1)", "Eastern_Block": "Dune (C2)",
-                     "Western_Block": "Western Residual (C3)", "Forest": "Main Forest (C4)",
+                     "Western_Block": "Western Dune (C3)", "Forest": "Main Forest (C4)",
                      "Coastal_Forest": "Coastal Forest (C5)"}},
             {"fmt": "template",
              "template": "h_peak = {a_P_winter:.5f}·P_winter {a_h_min:+.3f}·h_min {intercept:+.3f}",
@@ -476,7 +478,7 @@ TABLES = [
         "columns": [
             {"col": "Block", "fmt": "map",
              "map": {"Lake_Edge": "Lake Edge (C1)", "Eastern_Block": "Dune (C2)",
-                     "Western_Block": "Western Residual (C3)", "Forest": "Forest (C4)",
+                     "Western_Block": "Western Dune (C3)", "Forest": "Forest (C4)",
                      "Coastal_Forest": "Coastal Forest (C5)"}},
             {"fmt": "template",
              "template": "h_min = {a_P_summer:.5f}·P_summer {a_h_max_winter:+.3f}·h_max_winter {intercept:+.3f}",
@@ -536,7 +538,7 @@ TABLES = [
         "columns": [
             {"col": "Block", "fmt": "map",
              "map": {"Lake_Edge": "C1 Lake Edge", "Eastern_Block": "C2 Dune",
-                     "Western_Block": "C3 Western Residual", "Forest": "C4 Main Forest",
+                     "Western_Block": "C3 Western Dune", "Forest": "C4 Main Forest",
                      "Coastal_Forest": "C5 Coastal Forest"}},
             {"col": "alpha_W_h_max_winter", "fmt": "fixed", "dp": 3, "sign": True},
             {"col": "a_P_win_to_spr",       "fmt": "fixed", "dp": 5, "sign": True},
@@ -831,7 +833,7 @@ TABLES = [
         "sources": {"t": "outputs/26_van_willegen_msl/26_table_s7_2_vw_datum_offsets.csv"},
         # the file ends with its caption as a comment row, which csv reads as a record
         "rows": {"source": "t", "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)",
-                 "C3 (Western Residual)", "C4 (Main Forest)", "C5 (Coastal Forest)", "Extended"]}},
+                 "C3 (Western Dune)", "C4 (Main Forest)", "C5 (Coastal Forest)", "Extended"]}},
         "header": ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"],
         "columns": [{"col": c, "fmt": "text"} for c in
                     ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"]],
@@ -1014,7 +1016,7 @@ TABLES = [
         "header": ["Cluster", "n", "TLM NSE", "SSM NSE", "ΔNSE", "NSE > 0, TLM"],
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {"C1": "C1 Lake Edge", "C2": "C2 Dune",
-                                                     "C3": "C3 Western Residual", "C4": "C4 Main Forest",
+                                                     "C3": "C3 Western Dune", "C4": "C4 Main Forest",
                                                      "C5": "C5 Coastal Forest"}},
             {"col": "n", "fmt": "int"},
             {"col": "median_TLM_NSE", "fmt": "fixed", "dp": 2},
@@ -1034,7 +1036,7 @@ TABLES = [
         "header": ["Cluster", "SSM NSE", "Depth-dependent PET", "ΔNSE", "L_E (m)"],
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {"C1": "C1 Lake Edge", "C2": "C2 Dune",
-                                                     "C3": "C3 Western Residual", "C4": "C4 Main Forest",
+                                                     "C3": "C3 Western Dune", "C4": "C4 Main Forest",
                                                      "C5": "C5 Coastal Forest"}},
             {"col": "SSM_Iterative_NSE", "fmt": "fixed", "dp": 3},
             {"col": "DDP_Iterative_NSE", "fmt": "fixed", "dp": 3},
@@ -1309,7 +1311,7 @@ TABLES = [
         # empty in the CSV and are taken from the uncorrected row by a lookup
         # keyed on the cluster id (key_re) — no value is computed here
         "rows": {"source": "sy",
-                 "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)", "C3 (Western Residual)",
+                 "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)", "C3 (Western Dune)",
                                         "C4 (Main Forest) (corrected)",
                                         "C5 (Coastal Forest) (corrected)"]}},
         "header": ["Cluster", "Sy assumed", "Approach A (OLS)", "Approach B (event median)"],
@@ -1335,7 +1337,7 @@ TABLES = [
         # as ms/Table5: forest clusters on their corrected rows; the four
         # Approach A cells come from the uncorrected row via key_re
         "rows": {"source": "sy",
-                 "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)", "C3 (Western Residual)",
+                 "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)", "C3 (Western Dune)",
                                         "C4 (Main Forest) (corrected)",
                                         "C5 (Coastal Forest) (corrected)"]}},
         "header": ["Cluster", "Sy (A, OLS)", "SE", "R²", "n", "Sy (B, event)", "IQR", "n events"],
@@ -1380,7 +1382,7 @@ TABLES = [
             {"col": "Cluster", "fmt": "map",
              "map": {"C1 (Lake Edge)":        "{Sy_rapid_median:.3f}",
                      "C2 (Dune)":             "{Sy_rapid_median:.3f}",
-                     "C3 (Western Residual)": "{Sy_rapid_median:.3f}",
+                     "C3 (Western Dune)": "{Sy_rapid_median:.3f}",
                      "C4 (Main Forest)":      "{Sy_rapid_median:.3f} (corr)",
                      "C5 (Coastal Forest)":   "{Sy_rapid_median:.3f} (corr)"}},
             {"fmt": "ci", "cols": ["Sy_rapid_CI_lo", "Sy_rapid_CI_hi"], "dp": 3},
@@ -1533,7 +1535,7 @@ TABLES = [
             {"col": "Cluster", "fmt": "map", "map": {
                 "C1": "C1 Lake Edge",
                 "C2": "C2 Dune",
-                "C3": "C3 Western Residual",
+                "C3": "C3 Western Dune",
                 "C4": "C4 Main Forest",
                 "C5": "C5 Coastal Forest"}},
             {"col": "n",                   "fmt": "int"},
@@ -1563,7 +1565,7 @@ TABLES = [
             {"col": "Cluster", "fmt": "map", "map": {
                 "1": "C1 Lake Edge",
                 "2": "C2 Dune",
-                "3": "C3 Western Residual",
+                "3": "C3 Western Dune",
                 "4": "C4 Main Forest",
                 "5": "C5 Coastal Forest"}},
             {"col": "beta_1_B",           "fmt": "fixed", "dp": 3},
@@ -1596,7 +1598,7 @@ TABLES = [
             {"col": "Cluster", "fmt": "map", "map": {
                 "1": "C1 Lake Edge",
                 "2": "C2 Dune",
-                "3": "C3 Western Residual",
+                "3": "C3 Western Dune",
                 "4": "C4 Main Forest",
                 "5": "C5 Coastal Forest"}},
             {"col": "B_drain_frac",   "fmt": "fixed", "dp": 0, "scale": 100, "unless": {"Cluster": "4"}, "else": "—"},
@@ -1671,7 +1673,7 @@ TABLES = [
         "columns": [
             {"col": "Cluster_Label", "fmt": "map", "map": {
                 "C1 (Lake Edge)": "C1 Lake Edge", "C2 (Dune)": "C2 Dune",
-                "C3 (Western Residual)": "C3 W. Residual",
+                "C3 (Western Dune)": "C3 W. Dune",
                 "C4 (Main Forest)": "C4 Main Forest",
                 "C5 (Coastal Forest)": "C5 Coastal Forest"}},
             {"lookup": {"source": "nw", "key": "Cluster", "skey": "Cluster_ID", "col": "n"}, "fmt": "int"},

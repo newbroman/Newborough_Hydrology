@@ -38,7 +38,8 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-06. T-96: emits the summer-minimum depth range
+__version__ = "1.8.1"  # Hollingham (2026) — 2026-11-26 (D-347): the figure text names C3 Western Dune.
+# 1.8.0  # Hollingham (2026) - 2026-10-06. T-96: emits the summer-minimum depth range
 #   (depth_bg min / max) of the wells in each category, which report10 quotes for the Unreachable wells. Emit-only.
 # 1.7.0  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The class edges are now
 #   config.MP_ACHIEVABLE_MAX / MP_MARGINAL_MAX, shared with the Forecaster (11b 1.19.0). No value moves.
@@ -322,7 +323,7 @@ def main():
         f"{counts.loc[4, 'Unreachable']} in C4 Main Forest.",
         "",
         "The cluster pattern reflects the underlying mechanism. The open dune clusters",
-        "(C1 Lake Edge, C2 Dune, C3 Western Residual) sit on the shallow-substrate or",
+        "(C1 Lake Edge, C2 Dune, C3 Western Dune) sit on the shallow-substrate or",
         "deep-sponge aquifer parcels where summer minima respond to winter recharge",
         "with high efficiency (β₁ in the 2.5–4.6 range). The forest clusters (C4 Main",
         "Forest, C5 Coastal Forest) carry canopy interception losses and lower β₁",

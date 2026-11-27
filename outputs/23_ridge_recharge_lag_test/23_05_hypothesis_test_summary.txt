@@ -33,10 +33,10 @@
 
   By cluster (significant wells only):
      C1 (Lake Edge)  n= 7  mean lag = 2.00  mean |r| = 0.266
-     C2 (Dune)       n=17  mean lag = 2.00  mean |r| = 0.225
-     C3 (Western Residual) n=14  mean lag = 2.00  mean |r| = 0.196
+     C2 (Dune)       n=23  mean lag = 2.00  mean |r| = 0.211
+     C3 (Western Dune) n= 7  mean lag = 2.00  mean |r| = 0.215
      C4 (Main Forest) n= 9  mean lag = 3.67  mean |r| = 0.185
-     C5 (Coastal Forest) n= 1  mean lag = 11.00  mean |r| = 0.151
+     C5 (Coastal Forest) n= 2  mean lag = 6.50  mean |r| = 0.178
 
 ------------------------------------------------------------------------------
   INTERPRETATION

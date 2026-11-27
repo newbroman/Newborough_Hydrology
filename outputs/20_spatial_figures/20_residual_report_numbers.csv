@@ -21,20 +21,20 @@ residual_rank_pos_3,NW6,,0.010301976651020173,m/month,3. largest positive α
 residual_rank_neg_3,T41B,,-0.009406382164037885,m/month,3. most negative α
 residual_cluster_median,C1 (Lake Edge),,-0.0030284487070626476,m/month,median α over the cluster's 7 wells
 residual_cluster_mean,C1 (Lake Edge),,-0.004062020218540927,m/month,mean α over the cluster's 7 wells
-residual_cluster_median,C2 (Dune),,-0.006234076412674233,m/month,median α over the cluster's 19 wells
-residual_cluster_mean,C2 (Dune),,-0.0038603912284785455,m/month,mean α over the cluster's 19 wells
-residual_cluster_median,C3 (Western Residual),,-0.004070888901219566,m/month,median α over the cluster's 26 wells
-residual_cluster_mean,C3 (Western Residual),,-0.002160099036487564,m/month,mean α over the cluster's 26 wells
+residual_cluster_median,C2 (Dune),,-0.005651932412140126,m/month,median α over the cluster's 27 wells
+residual_cluster_mean,C2 (Dune),,-0.003864965201081051,m/month,mean α over the cluster's 27 wells
+residual_cluster_median,C3 (Western Dune),,-0.0035369636219797496,m/month,median α over the cluster's 13 wells
+residual_cluster_mean,C3 (Western Dune),,-0.0009902281320055594,m/month,mean α over the cluster's 13 wells
 residual_cluster_median,C4 (Main Forest),,-0.005476996052137154,m/month,median α over the cluster's 8 wells
 residual_cluster_mean,C4 (Main Forest),,-0.005352965003710231,m/month,mean α over the cluster's 8 wells
-residual_cluster_median,C5 (Coastal Forest),,0.002767511363152342,m/month,median α over the cluster's 5 wells
-residual_cluster_mean,C5 (Coastal Forest),,0.002578677913694086,m/month,mean α over the cluster's 5 wells
-residual_vs_wb16_gap,C1 (Lake Edge),,0.003875020218540927,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,C2 (Dune),,0.0038623912284785453,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,C3 (Western Residual),,0.0037170990364875636,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,C4 (Main Forest),,0.0048779650037102315,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,C5 (Coastal Forest),,0.005743677913694086,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap_max,C5 (Coastal Forest),,0.005743677913694086,m/month,largest cluster disagreement between the residual field and Script 16
+residual_cluster_median,C5 (Coastal Forest),,-0.001243767166900181,m/month,median α over the cluster's 10 wells
+residual_cluster_mean,C5 (Coastal Forest),,6.104074239620533e-05,m/month,mean α over the cluster's 10 wells
+residual_vs_wb16_gap,C1 (Lake Edge),,0.0038640202185409272,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,C2 (Dune),,0.005493965201081051,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,C3 (Western Dune),,0.0026882281320055592,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,C4 (Main Forest),,0.006456965003710231,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,C5 (Coastal Forest),,0.0006959592576037946,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap_max,C4 (Main Forest),,0.006456965003710231,m/month,largest cluster disagreement between the residual field and Script 16
 residual_spearman_abs_easting_rho,,,0.08640734265734265,,"Spearman ρ, |α| against E, n=65"
 residual_spearman_abs_easting_p,,,0.49372076758614436,,p for the row above
 residual_spearman_abs_northing_rho,,,-0.09973776223776223,,"Spearman ρ, |α| against N, n=65"

@@ -8,7 +8,9 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the E13 fits (_e13_run, e13_break) keep
+#   the whole record (start=None); their subject is the 2006-08 excess. Nothing else changes.
+# 1.0.0  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 import argparse
 import importlib.util
@@ -651,7 +653,7 @@ def _e13_run(h: pd.Series, clim: pd.DataFrame, pet: pd.Series, intercept: bool, 
     span from the record's mean level. Returns (fit, run) or (None, None)."""
     c = pd.DataFrame({"P_m": clim["P_m"], "PET": pet})
     hf = h if fit_before is None else h[h.index < pd.Timestamp(fit_before)]
-    f = fit_ssm(hf, c, intercept=intercept)
+    f = fit_ssm(hf, c, intercept=intercept, start=None)   # D-347 (5): E13's subject is the 2006-08 excess
     if f is None:
         return None, None
     s = pd.Series(simulate_ssm(h.dropna().mean(), c["P_m"].values, c["PET"].values, f["beta_1_recharge"],
@@ -784,7 +786,7 @@ def e13_break(clim: pd.DataFrame, W: pd.DataFrame, master: pd.DataFrame) -> pd.D
         best = None
         for b in grid:
             x = (clim["P_m"].reindex(idx) * (idx < b)).values
-            f = fit_ssm(h, clim, extra_regressors={"d_beta1_pre": x})
+            f = fit_ssm(h, clim, extra_regressors={"d_beta1_pre": x}, start=None)   # D-347 (5): a break in 2006-08
             if f is None:
                 continue
             sse = float((np.asarray(f["resid"]) ** 2).sum())

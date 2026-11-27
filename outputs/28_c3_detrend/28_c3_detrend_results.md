@@ -14,8 +14,8 @@
 
 ## Headline result — C3 hydrographs after forest-free monthly-uniform de-trending
 
-**21 of 26 C3 wells** carry a Script 25 dist_coast and
-hydrograph (excluded: 5 wells without coastal-distance metadata —
+**11 of 13 C3 wells** carry a Script 25 dist_coast and
+hydrograph (excluded: 2 wells without coastal-distance metadata —
 typically the forest-zone or heavily perturbed wells dropped from Script 25's
 forest-free fit, e.g. CEH36 and WMC3).
 
@@ -24,10 +24,10 @@ After de-trending against the un-de-trended cluster centroids:
 | Destination | n | % of n_with_drift |
 |---|---|---|
 | **→ C1** | 0 | 0% |
-| **→ C2** | 2 | 10% |
-| **→ C3** | 18 | 86% |
-| **→ C4** | 1 | 5% |
-| **→ C5** | 0 | 0% |
+| **→ C2** | 0 | 0% |
+| **→ C3** | 10 | 91% |
+| **→ C4** | 0 | 0% |
+| **→ C5** | 1 | 9% |
 
 **Verdict.** **H0 confirmed.** C3 is a genuinely distinct cluster; gradient adds drift but is not the constitutive mechanism.
 
@@ -35,9 +35,9 @@ After de-trending against the un-de-trended cluster centroids:
 
 | Source cluster | n (with drift) | Stays in cluster | % retained |
 |---|---|---|---|
-| C2 | 19 | 19 | 100% |
+| C2 | 25 | 22 | 88% |
 | C4 | 2 | 2 | 100% |
-| C5 | 1 | 0 | 0% |
+| C5 | 5 | 3 | 60% |
 
 A high C2 retention is required for the procedure to be valid (C2 wells should
 not be perturbed by a small δ(d) correction). Low C2 retention would indicate
@@ -47,11 +47,11 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 
 | Variant | → C2 | → C3 | Other |
 |---|---|---|---|
-| forest-free, monthly-uniform (HEADLINE) | 2 | 18 | 1 |
-| forest-free, summer-only Jun–Sep | 2 | 15 | 4 |
-| full δ₀ (includes forest) | 2 | 19 | 0 |
-| L = 500 m | 2 | 18 | 1 |
-| L = 1500 m | 2 | 19 | 0 |
+| forest-free, monthly-uniform (HEADLINE) | 0 | 10 | 1 |
+| forest-free, summer-only Jun–Sep | 0 | 8 | 3 |
+| full δ₀ (includes forest) | 1 | 9 | 1 |
+| L = 500 m | 0 | 11 | 0 |
+| L = 1500 m | 1 | 9 | 1 |
 
 ## Excluded wells (no dist_coast_m available)
 
@@ -66,11 +66,11 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 - `ceh32` (C4 (Main Forest))
 - `ceh33` (C4 (Main Forest))
 - `ceh34` (C4 (Main Forest))
-- `ceh36` (C3 (Western Residual))
-- `ceh40` (C3 (Western Residual))
-- `ceh41` (C3 (Western Residual))
-- `ceh42` (C3 (Western Residual))
-- `wmc3` (C3 (Western Residual))
+- `ceh36` (C3 (Western Dune))
+- `ceh40` (C2 (Dune))
+- `ceh41` (C2 (Dune))
+- `ceh42` (C3 (Western Dune))
+- `wmc3` (C5 (Coastal Forest))
 
 ## Next step
 

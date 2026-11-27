@@ -34,7 +34,11 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347; Martin: "switch from summer minima to MSL").
+#   14_spring_trend_stats.csv gains the trend on the one record window, from config.RECORD_FIT_START's year (2010):
+#   fit_start, n_years_fit, Slope_m_per_yr_fit, R2_fit, p_value_fit, and spring_trend_fit_* report numbers. The
+#   full-record and from-2011 columns, and every summer/winter output, are unchanged.
+# 1.14.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.14.0  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). Retired, as
 #   nothing cites them since the D-296/D-297 documents: the D-294 per-well banding (14_per_well_extremes.csv,
 #   14_per_well_band_counts.csv, 14_per_well_summer_bands.png, wellband_* report numbers), the cluster winter
@@ -170,6 +174,8 @@ from utils.config import (
 )
 from utils.render_utils import render_figure
 from utils.cluster_series import fixed_effect_centroids
+from utils.config import RECORD_FIT_START as _RECORD_FIT_START       # D-347
+_FIT_START_YEAR = pd.Timestamp(_RECORD_FIT_START).year
 
 OBS_START = 2004
 # OBS_END is the last complete observational *year* for the climate
@@ -241,9 +247,9 @@ def build_fixed_effect_centroids() -> pd.DataFrame:
     return fixed_effect_centroids(wells, pd.read_csv(INT_CLUSTER_STATS))
 
 
-def _robust_fit(series: pd.Series) -> dict:
-    """OLS on the years from EXTREMES_ROBUSTNESS_START (D-202 robustness basis)."""
-    s = series[series.index >= EXTREMES_ROBUSTNESS_START]
+def _robust_fit(series: pd.Series, start: int | None = None) -> dict:
+    """OLS on the years from EXTREMES_ROBUSTNESS_START (D-202 robustness basis), or from `start` (D-347)."""
+    s = series[series.index >= (EXTREMES_ROBUSTNESS_START if start is None else start)]
     if len(s) < 5:
         return {"n": len(s), "slope": np.nan, "r2": np.nan, "p": np.nan}
     r = stats.linregress(s.index.to_numpy(dtype=float), s.values)
@@ -825,6 +831,7 @@ def main() -> None:
                 f"(R²={sp_r**2:.3f}, p={sp_pval:.4f}, n={len(sp_years)})"
             )
             rb = _robust_fit(spring_mean[c])
+            rf = _robust_fit(spring_mean[c], start=_FIT_START_YEAR)      # D-347
             spring_trend_rows.append({
                 "Cluster": c,
                 "Label": CLUSTER_LABELS[c],
@@ -837,7 +844,23 @@ def main() -> None:
                 "Slope_m_per_yr_robust": rb["slope"],
                 "R2_robust": rb["r2"],
                 "p_value_robust": rb["p"],
+                # D-347 (2026-11-26): the trend on the one record window, from config.RECORD_FIT_START's year (2010):
+                # Paper 1's long-term change in mean spring level (Martin: "switch from summer minima to MSL").
+                "fit_start": _FIT_START_YEAR,
+                "n_years_fit": rf["n"],
+                "Slope_m_per_yr_fit": rf["slope"],
+                "R2_fit": rf["r2"],
+                "p_value_fit": rf["p"],
             })
+            rn.add("spring_trend_fit_slope_mm_yr", rf["slope"] * 1000.0, unit="mm/yr", well=c,
+                   note=f"OLS slope of the annual mean spring level (Mar-May, fixed-effects cluster series) from "
+                        f"{_FIT_START_YEAR} (D-347; 14_spring_trend_stats.csv Slope_m_per_yr_fit x 1000)")
+            rn.add("spring_trend_fit_p", rf["p"], unit="", well=c,
+                   note=f"p of that slope (14_spring_trend_stats.csv p_value_fit)")
+            rn.add("spring_trend_fit_r2", rf["r2"], unit="", well=c,
+                   note=f"R2 of that fit (14_spring_trend_stats.csv R2_fit)")
+            rn.add("spring_trend_fit_n_years", rf["n"], unit="years", well=c,
+                   note=f"calendar years in that fit (14_spring_trend_stats.csv n_years_fit)")
     pd.DataFrame(spring_trend_rows).to_csv(OUT_14_SPRING_TREND_CSV, index=False)
     saved("14_spring_trend_stats.csv")
 

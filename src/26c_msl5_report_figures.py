@@ -51,7 +51,8 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.8.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.8.2"  # Hollingham (2026) — 2026-11-26 (D-347): the C3 marker is keyed by its new label, "C3 (Western Dune)".
+# 1.8.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.8.0  # Hollingham (2026) — 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). Without
 #   surveyed slack floors the community levels are not set against the record. Panel (b) returns to the cluster
 #   trajectories of the four-year mean annual minimum (26_curreli_min_per_cluster.csv, fixed effects), drawn as
@@ -124,7 +125,7 @@ CC = {config.CLUSTER_LABELS[k]: config.CLUSTER_COLOURS[k] for k in config.CLUSTE
 MK = {
     "C1 (Lake Edge)":         "o",
     "C2 (Dune)":              "^",
-    "C3 (Western Residual)":  "s",
+    "C3 (Western Dune)":      "s",      # D-347: was Western Residual
     "C4 (Main Forest)":       "D",
     "C5 (Coastal Forest)":    "P",
 }

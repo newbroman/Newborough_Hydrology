@@ -149,7 +149,9 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.41.0"  # Hollingham (2026) - 2026-11-25 (later; Martin, Paper C). (1) THE RIDGE BUFFER ("We do have a
+__version__ = "1.41.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the before/after-step fits keep the
+#   whole record (start=None); their subject is the 2009 step. Nothing else changes.
+# 1.41.0  # Hollingham (2026) - 2026-11-25 (later; Martin, Paper C). (1) THE RIDGE BUFFER ("We do have a
 #   ridge outline - it's the 20 m contour. Use 200 m from the 20 m contour"): ridge_distances() takes the bedrock ridge as
 #   the largest connected region of the LiDAR DTM (paths.DATA_DEM) at or above RIDGE_CONTOUR_M (holes filled; the ~150
 #   other >= 20 m patches, each < 0.3 ha, are dune crests and are reported, not used), and the open-dune set now also
@@ -5007,7 +5009,8 @@ def drainage_change(long_band: pd.DataFrame, steps: pd.DataFrame
             bd = (bound if not len(bound) else
                   bound[bound.index < t0] if per == "before" else bound[bound.index >= t0])
             fit = fit_ssm(hs, cl, intercept=True,
-                          dry_bound=(bd if len(bd) else None))
+                          dry_bound=(bd if len(bd) else None),
+                          start=None)   # D-347 (5): the 2009 step is this test's subject; its "before" lies in 2005-09
             if fit is None:
                 out.update({f"{per}_n": 0, f"{per}_beta_3": np.nan,
                             f"{per}_beta_3_se": np.nan, f"{per}_alpha": np.nan,

@@ -52,18 +52,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->53<!--/PL:default--> of <!--PL:total-->68<!--/PL:total--> registered steps) in order from the beginning |
+| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->54<!--/PL:default--> of <!--PL:total-->69<!--/PL:total--> registered steps) in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all <!--PL:total-->68<!--/PL:total--> registered steps with script names and availability status |
+| **7 — Show step list** | Lists all <!--PL:total-->69<!--/PL:total--> registered steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run the default pass (<!--PL:default-->53<!--/PL:default--> steps)
+python run_analysis.py --full          # run the default pass (<!--PL:default-->54<!--/PL:default--> steps)
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -103,7 +103,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (Script 27, on demand; local only, not committed)
 │   └── [other output directories]
-├── src/                         Analysis scripts (<!--PL:total-->68<!--/PL:total--> steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (<!--PL:total-->69<!--/PL:total--> steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -144,14 +144,14 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **<!--PL:total-->68<!--/PL:total--> registered steps across <!--PL:phases-->22<!--/PL:phases--> phases** (the committed
+The pipeline comprises **<!--PL:total-->69<!--/PL:total--> registered steps across <!--PL:phases-->22<!--/PL:phases--> phases** (the committed
 `outputs/pipeline_manifest.json` is the count; these numbers are stamped from it by
 `tools/sync_index_counts.py`). Those steps are classified two independent ways: by
-tier — <!--PL:analytical-->44<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
-(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->16<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->53<!--/PL:default--> run in a
+tier — <!--PL:analytical-->45<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
+(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->16<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->54<!--/PL:default--> run in a
 default pass, <!--PL:optin-->12<!--/PL:optin--> (Scripts 24b, 31, 31b and 50) only under `--with-supplementary`, and 2
 (Scripts 27 greyscale conversion and 47 the century hindcast film) only on demand.
-The two breakdowns each account for the same <!--PL:total-->68<!--/PL:total--> steps and are not additive with
+The two breakdowns each account for the same <!--PL:total-->69<!--/PL:total--> steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
@@ -211,43 +211,43 @@ Willegen et al. (2025) MSL analyses — an observational 5-year aggregation with
 step 31), the UKCP18 climate-projection companion (Script 26b, step 32), and the
 report-format MSL5 figures cited in §4.8.3 and §4.13.1 (Script 26c, step 33; a
 display-only companion that reads canonical outputs from Scripts 26, 26b and 19).
-Phase 14 runs the cluster framework diagnostics: the C3 detrend check (Script 28, step 34) validating the
+Phase 14 runs the cluster framework diagnostics: the C3 detrend check (Script 28, step 35) validating the
 aquifer-architecture framing of §5.1 against the project's own data, and the
-within-C3 variance attribution (Script 29, step 35) characterising the
+within-C3 variance attribution (Script 29, step 36) characterising the
 hydrogeological structure within C3 against five spatial predictors, and the C4
-drainage identifiability diagnostic (Script 30, step 36) testing whether C4's low
+drainage identifiability diagnostic (Script 30, step 37) testing whether C4's low
 β₃ is a β₂/β₃ degeneracy artefact — it is not; the constrained-β₃ triangulation
 this script replaced is retired (D-001) — where the unconstrained monthly
 fit is degenerate. Phase 15 runs the observed-change figure suite: secular
-differential water-table drift (Script 32, step 37, report Fig 73), climate-swing
-amplification and drought-floor surface (Script 33, step 38, report Figs 75 and 59), the
-per-well climate-sensitivity coefficient (Script 35, step 39), the absolute
-climate-removed secular trend map (Script 36, step 40, Figure 74), the
-predicted-vs-observed driver-change validation (Script 37, step 41), and the
+differential water-table drift (Script 32, step 38, report Fig 73), climate-swing
+amplification and drought-floor surface (Script 33, step 39, report Figs 75 and 59), the
+per-well climate-sensitivity coefficient (Script 35, step 40), the absolute
+climate-removed secular trend map (Script 36, step 41, Figure 74), the
+predicted-vs-observed driver-change validation (Script 37, step 42), and the
 comparative driver footing across forest/scrape/coast on common currencies
-(Script 37b, step 42). All six run at analytical-default tier.
-Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 46,
+(Script 37b, step 43). All six run at analytical-default tier.
+Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 47,
 §5.7.5), the coast-to-inland MAM transect observational δ₀ diagnostic (Script
 38, step 47, §4.10.4), the SSM hindcast against the 1989–96 CCW record (Script
 39, step 48, §5.7.8), shoreline retreat from the digitised coastline epochs
-(Script 40, step 49) and canopy-cover change from the dated aerial series
-(Script 41, step 50, §4.6.8) — all analytical-default —
+(Script 40, step 50) and canopy-cover change from the dated aerial series
+(Script 41, step 51, §4.6.8) — all analytical-default —
 alongside its remaining opt-in supplementary diagnostics: cluster-stratified
-residual climatology (Script 24b, step 43), independent k=5 partition validation
-(Script 31, step 44), and its separation-vs-recoverability companion (Script 31b,
+residual climatology (Script 24b, step 44), independent k=5 partition validation
+(Script 31, step 45), and its separation-vs-recoverability companion (Script 31b,
 step 45), which run only with `--with-supplementary`. Phase 17 runs the
 management-interventions-vs-coastal-retreat spatial-reach synthesis figure
-(Script 09f, step 51, §5.8; two-pass, reading Scripts 20/25/09d/10a with
+(Script 09f, step 52, §5.8; two-pass, reading Scripts 20/25/09d/10a with
 documented first-pass fallbacks), the mechanism grid and
-coastal-vs-climate reach schematic (Script 09g, step 52, §5.8 conceptual;
+coastal-vs-climate reach schematic (Script 09g, step 53, §5.8 conceptual;
 reads the 09f reach profile, 10m WMC3 BACI and 10a clearfell steps produced
 earlier in the same pass) and then
-the greyscale figure-conversion utility (Script 27, step 53, on demand) as a callable
+the greyscale figure-conversion utility (Script 27, step 54, on demand) as a callable
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
-phase, then Ranwell's 1959 sites placed and basin-tested (Script 43, step 54,
+phase, then Ranwell's 1959 sites placed and basin-tested (Script 43, step 55,
 display) and his 1951–53 record set against the modern network and the SSM
-hindcast (Script 44, step 55, §5.7.9). Phase 18 (Scripts 45–47, steps 56–58) is
-the Sentinel-2 wet-area line and Phase 19 (Script 48, step 59) the Pastas
+hindcast (Script 44, step 56, §5.7.9). Phase 18 (Scripts 45–47, steps 56–58) is
+the Sentinel-2 wet-area line and Phase 19 (Script 48, step 60) the Pastas
 cross-check of the per-well SSM (§3.4), with the opt-in record-length experiment (Script 50, step 60). Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
 (Phase 3, step 14, the per-well categorical priority map for §5.9 / Conclusion 4

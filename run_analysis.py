@@ -202,7 +202,7 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.33.2"  # 2026-11-27 (D-348): step text and the default-k prompt say k = 4 (pipeline_params). Was "2.33.1"  # 2026-11-27 (D-347 run): a provenance record whose script no longer exists in src/ is dropped when the file is rewritten (50_record_length.py, split into 50a-e by J-15, was carried forward and went stale when its inputs moved). Was "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
+__version__ = "2.34.0"  # 2026-11-27 (D-347 (4) Note; Martin "include the numbers, add a pipeline step"): Script 26d registered in Phase 13 after 26c (tier A, default): spring level against the summer minimum that follows it. _DOCUMENTED_COUNTS: total_registered 68 -> 69, by_tier.analytical_toplevel 44 -> 45, by_exec.default 53 -> 54; phases unchanged (22). Was "2.33.2"  # 2026-11-27 (D-348): step text and the default-k prompt say k = 4 (pipeline_params). Was "2.33.1"  # 2026-11-27 (D-347 run): a provenance record whose script no longer exists in src/ is dropped when the file is rewritten (50_record_length.py, split into 50a-e by J-15, was carried forward and went stale when its inputs moved). Was "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
 #   pass token from NRG_RUN_SCOPE_ID when tools/run_scope.py sets it, so a scoped run of several steps is one pass.
 # 2.32.0  # Hollingham (2026) - 2026-11-24 (Fable review). After each successful step, record the code
 #   that ran (tools/code_signature.py -> outputs/pipeline_code_signatures.json); output_lag 1.2.0 judges by it.
@@ -560,6 +560,7 @@ PHASE_13 = [
     Step("26_van_willegen_msl.py",              "Van Willegen (2025) 5-year MSL aggregation",                        "A"),
     Step("26b_van_willegen_msl_projections.py", "UKCP18 MSL5 climate projections (Tool B)",                          "A"),
     Step("26c_msl5_report_figures.py",          "MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)", "D"),
+    Step("26d_spring_summer_gap.py",            "Spring level against the summer minimum that follows it, from 2010 (D-347 (4))", "A"),
 ]
 PHASE_14 = [
     Step("28_c3_detrend_check.py",         "Cluster framework diagnostic: C3 detrend check (H0)",                                     "X"),
@@ -673,12 +674,12 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            68,
+    "total_registered":            69,
     "total_phases":                22,
-    "by_tier.analytical_toplevel": 44,
+    "by_tier.analytical_toplevel": 45,
     "by_tier.display_utility":      8,
     "by_tier.optin_diagnostic":    16,
-    "by_exec.default":             53,
+    "by_exec.default":             54,
     "by_exec.optin":                12,
     "by_exec.ondemand":             3,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted

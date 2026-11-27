@@ -1,0 +1,2 @@
+n_wells,spring_median_mm_yr,summer_min_median_mm_yr,gap_median_mm_yr,n_gap_widening,sign_test_p,spring_step_median_m,summer_min_step_median_m,gap_step_median_m,n_step_wells
+17,0.19461152882205957,-14.35462442514052,12.310192147034256,17,1.52587890625e-05,-0.24299145299145308,-0.3214285714285714,0.08155555555555549,17

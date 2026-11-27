@@ -1,112 +1,112 @@
 {
  "scripts": {
   "00_climate_summary.py": {
-   "last_run": "2026-11-27T18:09:29",
-   "seconds": 7.3,
+   "last_run": "2026-11-27T21:53:42",
+   "seconds": 6.6,
    "status": "ok",
-   "step": "15/68  Climate summary outputs"
+   "step": "15/69  Climate summary outputs"
   },
   "01_data_prep.py": {
-   "last_run": "2026-11-27T17:51:49",
+   "last_run": "2026-11-27T21:35:31",
    "seconds": 11.9,
    "status": "ok",
-   "step": "1/68  Data preparation"
+   "step": "1/69  Data preparation"
   },
   "01b_water_table.py": {
-   "last_run": "2026-11-27T17:52:44",
-   "seconds": 54.2,
+   "last_run": "2026-11-27T21:36:31",
+   "seconds": 58.7,
    "status": "ok",
-   "step": "2/68  The water table (D-205): ordinary kriging from the dipwells, drift chosen by test, with the sea, the river, Llyn Rhos-Ddu and the ridge well CEH12 as tested boundaries; wet/mean/dry surfaces and kriging SE read by Scripts 19, 20 and 44; flow arrows, radial and coast-normal transects, head against the ground (T-66), the Sentinel check (unconstrained, terrain shadow, floor edge) and the coastal damping check"
+   "step": "2/69  The water table (D-205): ordinary kriging from the dipwells, drift chosen by test, with the sea, the river, Llyn Rhos-Ddu and the ridge well CEH12 as tested boundaries; wet/mean/dry surfaces and kriging SE read by Scripts 19, 20 and 44; flow arrows, radial and coast-normal transects, head against the ground (T-66), the Sentinel check (unconstrained, terrain shadow, floor edge) and the coastal damping check"
   },
   "02_clustering.py": {
-   "last_run": "2026-11-27T17:53:25",
-   "seconds": 40.9,
+   "last_run": "2026-11-27T21:37:17",
+   "seconds": 45.3,
    "status": "ok",
-   "step": "3/68  Behavioural clustering"
+   "step": "3/69  Behavioural clustering"
   },
   "03_state_space_model.py": {
-   "last_run": "2026-11-27T18:03:36",
-   "seconds": 610.9,
+   "last_run": "2026-11-27T21:47:32",
+   "seconds": 614.9,
    "status": "ok",
-   "step": "4/68  State-space regression + LCSC"
+   "step": "4/69  State-space regression + LCSC"
   },
   "04_cluster_visualisations.py": {
-   "last_run": "2026-11-27T18:03:52",
-   "seconds": 15.7,
+   "last_run": "2026-11-27T21:47:50",
+   "seconds": 17.2,
    "status": "ok",
-   "step": "5/68  Core cluster visualisation"
+   "step": "5/69  Core cluster visualisation"
   },
   "05_pearson_affinity.py": {
-   "last_run": "2026-11-27T18:04:09",
-   "seconds": 17.0,
+   "last_run": "2026-11-27T21:48:09",
+   "seconds": 18.3,
    "status": "ok",
-   "step": "6/68  Pearson membership audit"
+   "step": "6/69  Pearson membership audit"
   },
   "06_pearson_extended.py": {
-   "last_run": "2026-11-27T18:04:40",
-   "seconds": 30.2,
+   "last_run": "2026-11-27T21:48:38",
+   "seconds": 28.9,
    "status": "ok",
-   "step": "7/68  Pearson extended network integration"
+   "step": "7/69  Pearson extended network integration"
   },
   "07_spatial_coefficients.py": {
-   "last_run": "2026-11-27T18:05:34",
-   "seconds": 54.0,
+   "last_run": "2026-11-27T21:49:34",
+   "seconds": 56.3,
    "status": "ok",
-   "step": "8/68  Spatial coefficient mapping"
+   "step": "8/69  Spatial coefficient mapping"
   },
   "08_model_benchmarking.py": {
-   "last_run": "2026-11-27T18:06:12",
-   "seconds": 37.2,
+   "last_run": "2026-11-27T21:50:15",
+   "seconds": 40.1,
    "status": "ok",
-   "step": "9/68  Model benchmarking (LCSC vs Traditional)"
+   "step": "9/69  Model benchmarking (LCSC vs Traditional)"
   },
   "09f_management_effects.py": {
-   "last_run": "2026-11-27T18:20:19",
-   "seconds": 3.0,
+   "last_run": "2026-11-27T22:04:03",
+   "seconds": 1.8,
    "status": "ok",
-   "step": "51/68  Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)"
+   "step": "52/69  Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)"
   },
   "09g_mechanism_diagrams.py": {
-   "last_run": "2026-11-27T18:20:21",
-   "seconds": 1.0,
+   "last_run": "2026-11-27T22:04:04",
+   "seconds": 1.1,
    "status": "ok",
-   "step": "52/68  Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)"
+   "step": "53/69  Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)"
   },
   "11_forecasting_thresholds.py": {
-   "last_run": "2026-11-27T18:08:12",
-   "seconds": 2.6,
+   "last_run": "2026-11-27T21:52:22",
+   "seconds": 2.7,
    "status": "ok",
-   "step": "12/68  Forecasting and critical thresholds"
+   "step": "12/69  Forecasting and critical thresholds"
   },
   "11b_spatial_thresholds.py": {
-   "last_run": "2026-11-27T18:09:06",
-   "seconds": 53.1,
+   "last_run": "2026-11-27T21:53:19",
+   "seconds": 56.3,
    "status": "ok",
-   "step": "13/68  Spatial eco-hydrological threshold maps"
+   "step": "13/69  Spatial eco-hydrological threshold maps"
   },
   "11c_pflood_achievability.py": {
-   "last_run": "2026-11-27T18:09:22",
-   "seconds": 15.9,
+   "last_run": "2026-11-27T21:53:35",
+   "seconds": 15.8,
    "status": "ok",
-   "step": "14/68  P_flood achievability categorical map (\u00a75.9 / Conclusion 6)"
+   "step": "14/69  P_flood achievability categorical map (\u00a75.9 / Conclusion 6)"
   },
   "12_figure_site_overview.py": {
-   "last_run": "2026-11-27T18:10:00",
-   "seconds": 27.0,
+   "last_run": "2026-11-27T21:54:12",
+   "seconds": 26.9,
    "status": "ok",
-   "step": "18/68  Figure: DEM site overview"
+   "step": "18/69  Figure: DEM site overview"
   },
   "13_figure_experimental_design.py": {
-   "last_run": "2026-11-27T18:10:27",
-   "seconds": 27.0,
+   "last_run": "2026-11-27T21:54:38",
+   "seconds": 26.0,
    "status": "ok",
-   "step": "19/68  Figure: Experimental design GIS map"
+   "step": "19/69  Figure: Experimental design GIS map"
   },
   "14_climate_projections.py": {
-   "last_run": "2026-11-27T18:09:33",
-   "seconds": 3.0,
+   "last_run": "2026-11-27T21:53:45",
+   "seconds": 2.8,
    "status": "ok",
-   "step": "16/68  Figure: Climate trajectory projections"
+   "step": "16/69  Figure: Climate trajectory projections"
   },
   "14b_year_of_crossing.py": {
    "last_run": "2026-11-27T19:17:13",
@@ -115,214 +115,220 @@
    "step": "17/68  Year-of-crossing bootstrap, withdrawn from the report (D-296) \u2014 on demand only, via --step 14b"
   },
   "15_depth_dependent_pet.py": {
-   "last_run": "2026-11-27T18:10:36",
-   "seconds": 8.6,
+   "last_run": "2026-11-27T21:54:46",
+   "seconds": 7.0,
    "status": "ok",
-   "step": "20/68  Depth-dependent PET analysis"
+   "step": "20/69  Depth-dependent PET analysis"
   },
   "16_water_bal.py": {
-   "last_run": "2026-11-27T18:10:41",
-   "seconds": 1.8,
-   "status": "ok",
-   "step": "22/68  Water balance decomposition"
-  },
-  "17_wtf_specific_yield.py": {
-   "last_run": "2026-11-27T18:10:39",
-   "seconds": 2.7,
-   "status": "ok",
-   "step": "21/68  WTF cluster Sy estimation"
-  },
-  "18_wtf_spatial.py": {
-   "last_run": "2026-11-27T18:11:59",
-   "seconds": 77.3,
-   "status": "ok",
-   "step": "23/68  WTF spatial analysis and Sy mapping"
-  },
-  "19_spatial_groundwater.py": {
-   "last_run": "2026-11-27T18:12:04",
-   "seconds": 5.1,
-   "status": "ok",
-   "step": "24/68  Spatial groundwater analysis"
-  },
-  "20_spatial_figures.py": {
-   "last_run": "2026-11-27T18:13:33",
-   "seconds": 88.2,
-   "status": "ok",
-   "step": "25/68  Spatial paper figures"
-  },
-  "21_forestry_scenarios.py": {
-   "last_run": "2026-11-27T18:13:41",
-   "seconds": 7.1,
-   "status": "ok",
-   "step": "26/68  Forestry scenarios and management figures"
-  },
-  "22_residual_lag_analysis.py": {
-   "last_run": "2026-11-27T18:14:56",
-   "seconds": 6.6,
-   "status": "ok",
-   "step": "28/68  Residual lag structure analysis"
-  },
-  "23_ridge_recharge_lag_test.py": {
-   "last_run": "2026-11-27T18:15:02",
-   "seconds": 5.6,
-   "status": "ok",
-   "step": "29/68  Ridge recharge lag hypothesis test"
-  },
-  "24_residual_seasonality.py": {
-   "last_run": "2026-11-27T18:15:15",
-   "seconds": 12.6,
-   "status": "ok",
-   "step": "30/68  Residual seasonality diagnostics"
-  },
-  "24b_residual_climatology.py": {
-   "last_run": "2026-11-27T18:19:29",
-   "seconds": 2.3,
-   "status": "ok",
-   "step": "43/68  Cluster-stratified residual climatology (supplementary diagnostic)"
-  },
-  "25_coastal_gradient.py": {
-   "last_run": "2026-11-27T18:14:48",
-   "seconds": 67.3,
-   "status": "ok",
-   "step": "27/68  Coastal-retreat gradient analysis"
-  },
-  "26_van_willegen_msl.py": {
-   "last_run": "2026-11-27T18:15:33",
-   "seconds": 18.0,
-   "status": "ok",
-   "step": "31/68  Van Willegen (2025) 5-year MSL aggregation"
-  },
-  "26b_van_willegen_msl_projections.py": {
-   "last_run": "2026-11-27T18:15:37",
-   "seconds": 2.7,
-   "status": "ok",
-   "step": "32/68  UKCP18 MSL5 climate projections (Tool B)"
-  },
-  "26c_msl5_report_figures.py": {
-   "last_run": "2026-11-27T18:15:39",
+   "last_run": "2026-11-27T21:54:50",
    "seconds": 1.6,
    "status": "ok",
-   "step": "33/68  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
+   "step": "22/69  Water balance decomposition"
   },
-  "28_c3_detrend_check.py": {
-   "last_run": "2026-11-27T18:15:43",
-   "seconds": 4.2,
+  "17_wtf_specific_yield.py": {
+   "last_run": "2026-11-27T21:54:48",
+   "seconds": 2.2,
    "status": "ok",
-   "step": "34/68  Cluster framework diagnostic: C3 detrend check (H0)"
+   "step": "21/69  WTF cluster Sy estimation"
   },
-  "29_c3_within_variance_check.py": {
-   "last_run": "2026-11-27T18:15:46",
+  "18_wtf_spatial.py": {
+   "last_run": "2026-11-27T21:56:13",
+   "seconds": 82.9,
+   "status": "ok",
+   "step": "23/69  WTF spatial analysis and Sy mapping"
+  },
+  "19_spatial_groundwater.py": {
+   "last_run": "2026-11-27T21:56:18",
+   "seconds": 5.1,
+   "status": "ok",
+   "step": "24/69  Spatial groundwater analysis"
+  },
+  "20_spatial_figures.py": {
+   "last_run": "2026-11-27T21:57:48",
+   "seconds": 88.6,
+   "status": "ok",
+   "step": "25/69  Spatial paper figures"
+  },
+  "21_forestry_scenarios.py": {
+   "last_run": "2026-11-27T21:57:54",
+   "seconds": 5.4,
+   "status": "ok",
+   "step": "26/69  Forestry scenarios and management figures"
+  },
+  "22_residual_lag_analysis.py": {
+   "last_run": "2026-11-27T21:59:02",
+   "seconds": 5.4,
+   "status": "ok",
+   "step": "28/69  Residual lag structure analysis"
+  },
+  "23_ridge_recharge_lag_test.py": {
+   "last_run": "2026-11-27T21:59:08",
+   "seconds": 5.2,
+   "status": "ok",
+   "step": "29/69  Ridge recharge lag hypothesis test"
+  },
+  "24_residual_seasonality.py": {
+   "last_run": "2026-11-27T21:59:20",
+   "seconds": 11.9,
+   "status": "ok",
+   "step": "30/69  Residual seasonality diagnostics"
+  },
+  "24b_residual_climatology.py": {
+   "last_run": "2026-11-27T22:03:14",
+   "seconds": 3.0,
+   "status": "ok",
+   "step": "44/69  Cluster-stratified residual climatology (supplementary diagnostic)"
+  },
+  "25_coastal_gradient.py": {
+   "last_run": "2026-11-27T21:58:56",
+   "seconds": 62.3,
+   "status": "ok",
+   "step": "27/69  Coastal-retreat gradient analysis"
+  },
+  "26_van_willegen_msl.py": {
+   "last_run": "2026-11-27T21:59:37",
+   "seconds": 17.0,
+   "status": "ok",
+   "step": "31/69  Van Willegen (2025) 5-year MSL aggregation"
+  },
+  "26b_van_willegen_msl_projections.py": {
+   "last_run": "2026-11-27T21:59:40",
    "seconds": 2.4,
    "status": "ok",
-   "step": "35/68  Cluster framework diagnostic: within-C3 spatial structure"
+   "step": "32/69  UKCP18 MSL5 climate projections (Tool B)"
+  },
+  "26c_msl5_report_figures.py": {
+   "last_run": "2026-11-27T21:59:42",
+   "seconds": 1.7,
+   "status": "ok",
+   "step": "33/69  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
+  },
+  "26d_spring_summer_gap.py": {
+   "last_run": "2026-11-27T21:59:44",
+   "seconds": 2.0,
+   "status": "ok",
+   "step": "34/69  Spring level against the summer minimum that follows it, from 2010 (D-347 (4))"
+  },
+  "28_c3_detrend_check.py": {
+   "last_run": "2026-11-27T21:59:48",
+   "seconds": 3.9,
+   "status": "ok",
+   "step": "35/69  Cluster framework diagnostic: C3 detrend check (H0)"
+  },
+  "29_c3_within_variance_check.py": {
+   "last_run": "2026-11-27T21:59:50",
+   "seconds": 1.9,
+   "status": "ok",
+   "step": "36/69  Cluster framework diagnostic: within-C3 spatial structure"
   },
   "30_c4_drainage_identifiability.py": {
-   "last_run": "2026-11-27T18:16:30",
-   "seconds": 43.7,
+   "last_run": "2026-11-27T22:00:31",
+   "seconds": 40.1,
    "status": "ok",
-   "step": "36/68  Cluster framework diagnostic: C4 drainage identifiability (tests \u03b22/\u03b23 separability; reports two sensitivities)"
+   "step": "37/69  Cluster framework diagnostic: C4 drainage identifiability (tests \u03b22/\u03b23 separability; reports two sensitivities)"
   },
   "31_cluster_validation.py": {
-   "last_run": "2026-11-27T18:19:39",
-   "seconds": 9.5,
+   "last_run": "2026-11-27T22:03:24",
+   "seconds": 10.2,
    "status": "ok",
-   "step": "44/68  Independent k=4 partition validation (supplementary diagnostic; D-348)"
+   "step": "45/69  Independent k=4 partition validation (supplementary diagnostic; D-348)"
   },
   "31b_separation_vs_recoverability.py": {
-   "last_run": "2026-11-27T18:19:42",
-   "seconds": 3.2,
-   "status": "ok",
-   "step": "45/68  Cluster separation vs recoverability (supplementary diagnostic)"
-  },
-  "32_differential_movement.py": {
-   "last_run": "2026-11-27T18:17:09",
-   "seconds": 39.6,
-   "status": "ok",
-   "step": "37/68  Figure: secular differential water-table drift (report Fig 59)"
-  },
-  "33_envelope_amplification.py": {
-   "last_run": "2026-11-27T18:17:54",
-   "seconds": 44.4,
-   "status": "ok",
-   "step": "38/68  Figure: climate-swing amplification + drought-floor (report Fig 60)"
-  },
-  "34_window_sensitivity.py": {
-   "last_run": "2026-11-27T18:19:45",
+   "last_run": "2026-11-27T22:03:27",
    "seconds": 2.7,
    "status": "ok",
-   "step": "46/68  MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)"
+   "step": "46/69  Cluster separation vs recoverability (supplementary diagnostic)"
+  },
+  "32_differential_movement.py": {
+   "last_run": "2026-11-27T22:01:06",
+   "seconds": 34.9,
+   "status": "ok",
+   "step": "38/69  Figure: secular differential water-table drift (report Fig 59)"
+  },
+  "33_envelope_amplification.py": {
+   "last_run": "2026-11-27T22:01:44",
+   "seconds": 37.9,
+   "status": "ok",
+   "step": "39/69  Figure: climate-swing amplification + drought-floor (report Fig 60)"
+  },
+  "34_window_sensitivity.py": {
+   "last_run": "2026-11-27T22:03:30",
+   "seconds": 2.2,
+   "status": "ok",
+   "step": "47/69  MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)"
   },
   "35_per_well_amplification.py": {
-   "last_run": "2026-11-27T18:18:09",
-   "seconds": 14.5,
+   "last_run": "2026-11-27T22:01:58",
+   "seconds": 13.7,
    "status": "ok",
-   "step": "39/68  Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)"
+   "step": "40/69  Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)"
   },
   "36_absolute_climate_trend.py": {
-   "last_run": "2026-11-27T18:19:03",
-   "seconds": 54.1,
+   "last_run": "2026-11-27T22:02:47",
+   "seconds": 48.5,
    "status": "ok",
-   "step": "40/68  Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)"
+   "step": "41/69  Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)"
   },
   "37_driver_validation.py": {
-   "last_run": "2026-11-27T18:19:19",
-   "seconds": 15.0,
+   "last_run": "2026-11-27T22:03:01",
+   "seconds": 14.3,
    "status": "ok",
-   "step": "41/68  Validation: predicted-vs-observed driver-change map (scatter + residual map)"
+   "step": "42/69  Validation: predicted-vs-observed driver-change map (scatter + residual map)"
   },
   "37b_driver_footing.py": {
-   "last_run": "2026-11-27T18:19:26",
-   "seconds": 7.5,
+   "last_run": "2026-11-27T22:03:11",
+   "seconds": 8.8,
    "status": "ok",
-   "step": "42/68  Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)"
+   "step": "43/69  Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)"
   },
   "38_coastal_transect.py": {
-   "last_run": "2026-11-27T18:19:48",
-   "seconds": 2.3,
+   "last_run": "2026-11-27T22:03:32",
+   "seconds": 2.2,
    "status": "ok",
-   "step": "47/68  Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)"
+   "step": "48/69  Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)"
   },
   "39_ccw_hindcast.py": {
-   "last_run": "2026-11-27T18:20:06",
-   "seconds": 18.0,
+   "last_run": "2026-11-27T22:03:50",
+   "seconds": 17.5,
    "status": "ok",
-   "step": "48/68  SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)"
+   "step": "49/69  SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)"
   },
   "40_shoreline_retreat.py": {
-   "last_run": "2026-11-27T18:20:14",
-   "seconds": 7.9,
+   "last_run": "2026-11-27T22:03:59",
+   "seconds": 8.7,
    "status": "ok",
-   "step": "49/68  Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)"
+   "step": "50/69  Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)"
   },
   "41_canopy_cover.py": {
-   "last_run": "2026-11-27T18:20:16",
+   "last_run": "2026-11-27T22:04:01",
    "seconds": 1.4,
    "status": "ok",
-   "step": "50/68  Canopy and forest-cover texture index from the dated aerial series \u2014 registration fitted from the dipwell placemarks; WITHHOLDS a value whose frame is unregistered. Skips when the imagery is absent, which is its normal state in a clone (D-081)"
+   "step": "51/69  Canopy and forest-cover texture index from the dated aerial series \u2014 registration fitted from the dipwell placemarks; WITHHOLDS a value whose frame is unregistered. Skips when the imagery is absent, which is its normal state in a clone (D-081)"
   },
   "43_ranwell_sites.py": {
-   "last_run": "2026-11-27T18:20:30",
-   "seconds": 9.3,
+   "last_run": "2026-11-27T22:04:12",
+   "seconds": 7.6,
    "status": "ok",
-   "step": "54/68  Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent"
+   "step": "55/69  Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent"
   },
   "44_ranwell_hindcast.py": {
-   "last_run": "2026-11-27T18:20:47",
-   "seconds": 16.7,
+   "last_run": "2026-11-27T22:04:26",
+   "seconds": 13.6,
    "status": "ok",
-   "step": "55/68  Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent"
+   "step": "56/69  Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent"
   },
   "45_wet_area_model.py": {
-   "last_run": "2026-11-27T18:20:52",
-   "seconds": 4.5,
+   "last_run": "2026-11-27T22:04:30",
+   "seconds": 3.5,
    "status": "ok",
-   "step": "56/68  The Sentinel-2 wet-area model (D-178): the two curves fitted from the committed scene series, and phase 27's SSM level through them. Display tier \u2014 an illustration of the area model, not a flood map (D-177)"
+   "step": "57/69  The Sentinel-2 wet-area model (D-178): the two curves fitted from the committed scene series, and phase 27's SSM level through them. Display tier \u2014 an illustration of the area model, not a flood map (D-177)"
   },
   "46_wet_area_feed.py": {
-   "last_run": "2026-11-27T18:20:53",
-   "seconds": 0.4,
+   "last_run": "2026-11-27T22:04:31",
+   "seconds": 0.3,
    "status": "ok",
-   "step": "57/68  The public wet-area feed living/wet_area_model.json (D-178, T-36): the curves, the per-cell switching levels and the SSM history the scenario viewer and the film read. Assembles committed products; fits nothing"
+   "step": "58/69  The public wet-area feed living/wet_area_model.json (D-178, T-36): the curves, the per-cell switching levels and the SSM history the scenario viewer and the film read. Assembles committed products; fits nothing"
   },
   "47_hindcast_film.py": {
    "last_run": "2026-11-27T00:54:43",
@@ -331,10 +337,10 @@
    "step": "58/68  The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full"
   },
   "48_pastas_crosscheck.py": {
-   "last_run": "2026-11-27T18:21:35",
-   "seconds": 41.4,
+   "last_run": "2026-11-27T22:05:17",
+   "seconds": 46.6,
    "status": "ok",
-   "step": "59/68  Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)"
+   "step": "60/69  Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)"
   },
   "49_slack_flow.py": {
    "last_run": "2026-09-27T16:39:27",
@@ -349,71 +355,71 @@
    "step": "60/64  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
   },
   "50a_record_length.py": {
-   "last_run": "2026-11-27T18:22:45",
-   "seconds": 70.6,
+   "last_run": "2026-11-27T22:06:28",
+   "seconds": 70.4,
    "status": "ok",
-   "step": "60/68  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
+   "step": "61/69  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
   },
   "50b_datum_bases.py": {
-   "last_run": "2026-11-27T18:36:17",
-   "seconds": 811.5,
+   "last_run": "2026-11-27T22:19:26",
+   "seconds": 777.5,
    "status": "ok",
-   "step": "61/68  Which datum and drainage base the record supports (D-225, D-229, D-286, D-287): Model A refitted at every datum of Script 03's sweep against the CCW and Ranwell hindcasts, the split test and the UKCP18 projection; one base in elevation (E16) and a base per cluster (E17). Opt-in diagnostic"
+   "step": "62/69  Which datum and drainage base the record supports (D-225, D-229, D-286, D-287): Model A refitted at every datum of Script 03's sweep against the CCW and Ranwell hindcasts, the split test and the UKCP18 projection; one base in elevation (E16) and a base per cluster (E17). Opt-in diagnostic"
   },
   "50c_transfer.py": {
-   "last_run": "2026-11-27T18:36:46",
-   "seconds": 28.4,
+   "last_run": "2026-11-27T22:19:51",
+   "seconds": 24.8,
    "status": "ok",
-   "step": "62/68  Transfer between wells (T-173, D-268, D-282, D-290): a neighbour's coefficients at a well and the transfer rule, per well or per cluster on both hindcasts (E12), placing a new well from a short record (E12b), and a modern-record calibration at CCW 1989\u201396 (E18); Paper M's decision tree. Opt-in diagnostic"
+   "step": "63/69  Transfer between wells (T-173, D-268, D-282, D-290): a neighbour's coefficients at a well and the transfer rule, per well or per cluster on both hindcasts (E12), placing a new well from a short record (E12b), and a modern-record calibration at CCW 1989\u201396 (E18); Paper M's decision tree. Opt-in diagnostic"
   },
   "50d_two_stores.py": {
-   "last_run": "2026-11-27T19:15:39",
-   "seconds": 2332.0,
+   "last_run": "2026-11-27T22:59:41",
+   "seconds": 2389.3,
    "status": "ok",
-   "step": "63/68  Two stores and non-climatic change (D-231 to D-236, D-255): two drainage time scales per cluster (E8), a non-climatic change and surface flow (E8b/c), rain event structure (E8d), the felling north of NW9 (E8e), the 2014/15 shore clearance (E8f) and the pre-canopy store (E8g). Opt-in diagnostic"
+   "step": "64/69  Two stores and non-climatic change (D-231 to D-236, D-255): two drainage time scales per cluster (E8), a non-climatic change and surface flow (E8b/c), rain event structure (E8d), the felling north of NW9 (E8e), the 2014/15 shore clearance (E8f) and the pre-canopy store (E8g). Opt-in diagnostic"
   },
   "50e_drier_epochs.py": {
-   "last_run": "2026-11-27T19:16:19",
-   "seconds": 40.1,
+   "last_run": "2026-11-27T23:00:22",
+   "seconds": 41.2,
    "status": "ok",
-   "step": "64/68  Drier epochs and forcing (D-260, D-261, D-273, D-274, D-292): the forest's forcing (E10), what Ranwell's 1951\u201353 readings need (E11), other evaporation estimates and a recharge break (E13/E13b), and whether the film's correction transfers (E19). Opt-in diagnostic"
+   "step": "65/69  Drier epochs and forcing (D-260, D-261, D-273, D-274, D-292): the forest's forcing (E10), what Ranwell's 1951\u201353 readings need (E11), other evaporation estimates and a recharge break (E13/E13b), and whether the film's correction transfers (E19). Opt-in diagnostic"
   },
   "51_cluster_gap_fill.py": {
-   "last_run": "2026-11-27T19:16:56",
-   "seconds": 36.0,
+   "last_run": "2026-11-27T23:00:59",
+   "seconds": 36.4,
    "status": "ok",
-   "step": "65/68  Filling gaps in the record from cluster-mates (D-275): the CCW wells clustered on 1989\u201396 alone against the modern clusters; a hold-out test of five donor rules (nearest, best-correlated, nearest cluster-mate, cluster median, and Model A as reference) over an early and a late window, with the rule adopted by a rule fixed before the run; and every well's gaps filled by it, flagged reconstructed and kept out of every other step. Opt-in diagnostic"
+   "step": "66/69  Filling gaps in the record from cluster-mates (D-275): the CCW wells clustered on 1989\u201396 alone against the modern clusters; a hold-out test of five donor rules (nearest, best-correlated, nearest cluster-mate, cluster median, and Model A as reference) over an early and a late window, with the rule adopted by a rule fixed before the run; and every well's gaps filled by it, flagged reconstructed and kept out of every other step. Opt-in diagnostic"
   },
   "53_ccw_forest_drift.py": {
-   "last_run": "2026-11-27T19:16:59",
-   "seconds": 3.1,
+   "last_run": "2026-11-27T23:01:03",
+   "seconds": 3.5,
    "status": "ok",
-   "step": "66/68  Did the water table near the forest fall through the CCW epoch? (E14): the Script 39 hindcast rebuilt on both coefficient bases, each admitted well's 1989-96 residual slope against its distance to the forest edge, judged by a rule fixed before the run (rank correlation, near against far, leave one out, second basis). Opt-in diagnostic"
+   "step": "67/69  Did the water table near the forest fall through the CCW epoch? (E14): the Script 39 hindcast rebuilt on both coefficient bases, each admitted well's 1989-96 residual slope against its distance to the forest edge, judged by a rule fixed before the run (rank correlation, near against far, leave one out, second basis). Opt-in diagnostic"
   },
   "54_dry_year_hysteresis.py": {
-   "last_run": "2026-11-27T19:17:01",
-   "seconds": 1.9,
+   "last_run": "2026-11-27T23:01:06",
+   "seconds": 2.2,
    "status": "ok",
-   "step": "67/68  Does a dry year prime the warren? (E15): the record's dry-to-wet sequences and ordinary wet years, chosen from the climate alone, and the E13 single store's response after each, judged by a rule fixed before the run (replication of the 2006-08 excess after 2022, and sequences against controls). Opt-in diagnostic"
+   "step": "68/69  Does a dry year prime the warren? (E15): the record's dry-to-wet sequences and ordinary wet years, chosen from the climate alone, and the E13 single store's response after each, judged by a rule fixed before the run (replication of the 2006-08 excess after 2022, and sequences against controls). Opt-in diagnostic"
   },
   "55_water_balance_drainage.py": {
-   "last_run": "2026-11-27T19:17:08",
-   "seconds": 7.0,
+   "last_run": "2026-11-27T23:01:14",
+   "seconds": 8.3,
    "status": "ok",
-   "step": "68/68  The water-balance residual analysis: a fourth reading of the loss split (spec NRG_spec_water_balance_diagnostic_2026-11-04). Rainfall less PET with the storage change taken as the water table through Script 18's FIXED per-well Sy, so the remainder is drainage; that residual regressed on head as a line and as a threshold; the winter law used to back ET out of every month and read the drainage share of the annual loss - the Paper M \u00a77.1 basis - with a Sy bracket from a winter joint fit that borrows no Sy at all. Two-pass: reads Scripts 18, 48 and 39. Opt-in diagnostic"
+   "step": "69/69  The water-balance residual analysis: a fourth reading of the loss split (spec NRG_spec_water_balance_diagnostic_2026-11-04). Rainfall less PET with the storage change taken as the water table through Script 18's FIXED per-well Sy, so the remainder is drainage; that residual regressed on head as a line and as a threshold; the winter law used to back ET out of every month and read the drainage share of the annual loss - the Paper M \u00a77.1 basis - with a Sy bracket from a winter joint fit that borrows no Sy at all. Two-pass: reads Scripts 18, 48 and 39. Opt-in diagnostic"
   },
   "run_09_scraping.py": {
-   "last_run": "2026-11-27T18:06:26",
-   "seconds": 14.0,
+   "last_run": "2026-11-27T21:50:31",
+   "seconds": 16.3,
    "status": "ok",
-   "step": "10/68  Scraping analysis suite (09a\u201309e)"
+   "step": "10/69  Scraping analysis suite (09a\u201309e)"
   },
   "run_10_clearfell.py": {
-   "last_run": "2026-11-27T18:08:07",
-   "seconds": 100.5,
+   "last_run": "2026-11-27T21:52:17",
+   "seconds": 104.2,
    "status": "ok",
-   "step": "11/68  Clear-fell BACI analysis suite (10a\u201310m)"
+   "step": "11/69  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-11-27T19:17:13"
+ "updated": "2026-11-27T23:01:14"
 }

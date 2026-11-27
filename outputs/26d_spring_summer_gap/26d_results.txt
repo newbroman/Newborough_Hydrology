@@ -1,0 +1,42 @@
+Script 26d v1.0.0: spring level against summer minimum (D-347 (4) Note)
+
+Window 2010-2025; panel: both valid in >= 14 years.
+  group  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  gap_theil_sen_median_mm_yr  n_gap_widening  n_gap_widening_p05  sign_test_p  gap_mean_median_m
+network       49              15.2857                  -0.9853           15.2601                     12.1283              49                   2       0.0000             0.6983
+     C1        6              12.5760                  -8.2259           20.7365                     13.3333               6                   2       0.0312             0.7039
+     C2       17              16.0073                  -0.6324           15.0119                      7.6667              17                   0       0.0000             0.7226
+    C3o        7              13.8214                  -0.6080           14.2647                     11.4286               7                   0       0.0156             0.6153
+     C4        6              28.7857                  15.0220           12.6375                     11.4444               6                   0       0.0312             0.5874
+    C3f        4               6.6612                  -2.1948            8.8688                      9.5171               4                   0       0.1250             0.4513
+
+Year by year: lowest spring 2012, highest 2024; r(gap, spring) = 0.74
+ hydro_year  n_wells  spring_median_m  summer_min_median_m  gap_median_m
+       2010       24           -0.534               -1.040         0.503
+       2011       31           -0.780               -1.280         0.630
+       2012       48           -0.975               -1.085         0.113
+       2013       49           -0.148               -0.970         0.733
+       2014       49           -0.053               -1.030         0.950
+       2015       48           -0.628               -1.185         0.657
+       2016       49           -0.037               -0.830         0.720
+       2017       49           -0.607               -1.160         0.590
+       2018       48           -0.458               -1.205         0.857
+       2019       47           -0.680               -1.210         0.593
+       2020       49           -0.403               -0.990         0.627
+       2021       49           -0.057               -0.920         0.840
+       2022       48           -0.417               -1.289         0.903
+       2023       49           -0.550               -1.000         0.543
+       2024       48            0.008               -0.870         0.832
+       2025       47           -0.530               -1.210         0.750
+
+Robustness (network panel, per-well OLS):
+                 test          years  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  n_gap_widening  sign_test_p
+            all years 2010-2025 (16)       49              15.2857                  -0.9853           15.2601              49       0.0000
+         without 2012 2010-2025 (15)       49               1.3978                  -2.4438            4.0880              40       0.0000
+without 2012 and 2024 2010-2025 (14)       49              -8.1795                  -9.3857            1.1218              28       0.3916
+            from 2013 2013-2025 (13)       49              -4.3773                  -5.2747            0.1648              25       1.0000
+
+Dry summers as bounds: 108 dry months filled; 27 wells with a dry summer month from 2010; 53 wells, gap +14.9 mm/yr, widening 53/53
+
+Long record:
+ n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  n_gap_widening  sign_test_p  spring_step_median_m  summer_min_step_median_m  gap_step_median_m  n_step_wells
+      17               0.1946                 -14.3546           12.3102              17          0.0                -0.243                   -0.3214             0.0816            17

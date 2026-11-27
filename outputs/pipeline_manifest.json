@@ -1,27 +1,27 @@
 {
-  "pipeline_version": "2.33.2",
+  "pipeline_version": "2.34.0",
   "pipeline_release": "0.9.2.23",
   "pipeline_release_date": "2026-10-02",
-  "total_registered": 68,
+  "total_registered": 69,
   "total_phases": 22,
   "by_tier": {
-    "analytical_toplevel": 44,
+    "analytical_toplevel": 45,
     "display_utility": 8,
     "optin_diagnostic": 16
   },
   "by_exec": {
-    "default": 53,
+    "default": 54,
     "optin": 12,
     "ondemand": 3
   },
   "analytical_phases": 17,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-11-27T17:51:34",
+  "generated": "2026-11-27T21:35:17",
   "steps": [
     {
       "index": 1,
-      "total": 68,
+      "total": 69,
       "script": "01_data_prep.py",
       "desc": "Data preparation",
       "tier": "A",
@@ -30,7 +30,7 @@
     },
     {
       "index": 2,
-      "total": 68,
+      "total": 69,
       "script": "01b_water_table.py",
       "desc": "The water table (D-205): ordinary kriging from the dipwells, drift chosen by test, with the sea, the river, Llyn Rhos-Ddu and the ridge well CEH12 as tested boundaries; wet/mean/dry surfaces and kriging SE read by Scripts 19, 20 and 44; flow arrows, radial and coast-normal transects, head against the ground (T-66), the Sentinel check (unconstrained, terrain shadow, floor edge) and the coastal damping check",
       "tier": "A",
@@ -39,7 +39,7 @@
     },
     {
       "index": 3,
-      "total": 68,
+      "total": 69,
       "script": "02_clustering.py",
       "desc": "Behavioural clustering",
       "tier": "A",
@@ -48,7 +48,7 @@
     },
     {
       "index": 4,
-      "total": 68,
+      "total": 69,
       "script": "03_state_space_model.py",
       "desc": "State-space regression + LCSC",
       "tier": "A",
@@ -57,7 +57,7 @@
     },
     {
       "index": 5,
-      "total": 68,
+      "total": 69,
       "script": "04_cluster_visualisations.py",
       "desc": "Core cluster visualisation",
       "tier": "A",
@@ -66,7 +66,7 @@
     },
     {
       "index": 6,
-      "total": 68,
+      "total": 69,
       "script": "05_pearson_affinity.py",
       "desc": "Pearson membership audit",
       "tier": "A",
@@ -75,7 +75,7 @@
     },
     {
       "index": 7,
-      "total": 68,
+      "total": 69,
       "script": "06_pearson_extended.py",
       "desc": "Pearson extended network integration",
       "tier": "A",
@@ -84,7 +84,7 @@
     },
     {
       "index": 8,
-      "total": 68,
+      "total": 69,
       "script": "07_spatial_coefficients.py",
       "desc": "Spatial coefficient mapping",
       "tier": "A",
@@ -93,7 +93,7 @@
     },
     {
       "index": 9,
-      "total": 68,
+      "total": 69,
       "script": "08_model_benchmarking.py",
       "desc": "Model benchmarking (LCSC vs Traditional)",
       "tier": "A",
@@ -102,7 +102,7 @@
     },
     {
       "index": 10,
-      "total": 68,
+      "total": 69,
       "script": "run_09_scraping.py",
       "desc": "Scraping analysis suite (09a\u201309e)",
       "tier": "A",
@@ -111,7 +111,7 @@
     },
     {
       "index": 11,
-      "total": 68,
+      "total": 69,
       "script": "run_10_clearfell.py",
       "desc": "Clear-fell BACI analysis suite (10a\u201310m)",
       "tier": "A",
@@ -120,7 +120,7 @@
     },
     {
       "index": 12,
-      "total": 68,
+      "total": 69,
       "script": "11_forecasting_thresholds.py",
       "desc": "Forecasting and critical thresholds",
       "tier": "A",
@@ -129,7 +129,7 @@
     },
     {
       "index": 13,
-      "total": 68,
+      "total": 69,
       "script": "11b_spatial_thresholds.py",
       "desc": "Spatial eco-hydrological threshold maps",
       "tier": "A",
@@ -138,7 +138,7 @@
     },
     {
       "index": 14,
-      "total": 68,
+      "total": 69,
       "script": "11c_pflood_achievability.py",
       "desc": "P_flood achievability categorical map (\u00a75.9 / Conclusion 6)",
       "tier": "A",
@@ -147,7 +147,7 @@
     },
     {
       "index": 15,
-      "total": 68,
+      "total": 69,
       "script": "00_climate_summary.py",
       "desc": "Climate summary outputs",
       "tier": "A",
@@ -156,7 +156,7 @@
     },
     {
       "index": 16,
-      "total": 68,
+      "total": 69,
       "script": "14_climate_projections.py",
       "desc": "Figure: Climate trajectory projections",
       "tier": "A",
@@ -165,7 +165,7 @@
     },
     {
       "index": 17,
-      "total": 68,
+      "total": 69,
       "script": "14b_year_of_crossing.py",
       "desc": "Year-of-crossing bootstrap, withdrawn from the report (D-296) \u2014 on demand only, via --step 14b",
       "tier": "X",
@@ -174,7 +174,7 @@
     },
     {
       "index": 18,
-      "total": 68,
+      "total": 69,
       "script": "12_figure_site_overview.py",
       "desc": "Figure: DEM site overview",
       "tier": "A",
@@ -183,7 +183,7 @@
     },
     {
       "index": 19,
-      "total": 68,
+      "total": 69,
       "script": "13_figure_experimental_design.py",
       "desc": "Figure: Experimental design GIS map",
       "tier": "A",
@@ -192,7 +192,7 @@
     },
     {
       "index": 20,
-      "total": 68,
+      "total": 69,
       "script": "15_depth_dependent_pet.py",
       "desc": "Depth-dependent PET analysis",
       "tier": "A",
@@ -201,7 +201,7 @@
     },
     {
       "index": 21,
-      "total": 68,
+      "total": 69,
       "script": "17_wtf_specific_yield.py",
       "desc": "WTF cluster Sy estimation",
       "tier": "A",
@@ -210,7 +210,7 @@
     },
     {
       "index": 22,
-      "total": 68,
+      "total": 69,
       "script": "16_water_bal.py",
       "desc": "Water balance decomposition",
       "tier": "A",
@@ -219,7 +219,7 @@
     },
     {
       "index": 23,
-      "total": 68,
+      "total": 69,
       "script": "18_wtf_spatial.py",
       "desc": "WTF spatial analysis and Sy mapping",
       "tier": "A",
@@ -228,7 +228,7 @@
     },
     {
       "index": 24,
-      "total": 68,
+      "total": 69,
       "script": "19_spatial_groundwater.py",
       "desc": "Spatial groundwater analysis",
       "tier": "A",
@@ -237,7 +237,7 @@
     },
     {
       "index": 25,
-      "total": 68,
+      "total": 69,
       "script": "20_spatial_figures.py",
       "desc": "Spatial paper figures",
       "tier": "A",
@@ -246,7 +246,7 @@
     },
     {
       "index": 26,
-      "total": 68,
+      "total": 69,
       "script": "21_forestry_scenarios.py",
       "desc": "Forestry scenarios and management figures",
       "tier": "A",
@@ -255,7 +255,7 @@
     },
     {
       "index": 27,
-      "total": 68,
+      "total": 69,
       "script": "25_coastal_gradient.py",
       "desc": "Coastal-retreat gradient analysis",
       "tier": "A",
@@ -264,7 +264,7 @@
     },
     {
       "index": 28,
-      "total": 68,
+      "total": 69,
       "script": "22_residual_lag_analysis.py",
       "desc": "Residual lag structure analysis",
       "tier": "A",
@@ -273,7 +273,7 @@
     },
     {
       "index": 29,
-      "total": 68,
+      "total": 69,
       "script": "23_ridge_recharge_lag_test.py",
       "desc": "Ridge recharge lag hypothesis test",
       "tier": "A",
@@ -282,7 +282,7 @@
     },
     {
       "index": 30,
-      "total": 68,
+      "total": 69,
       "script": "24_residual_seasonality.py",
       "desc": "Residual seasonality diagnostics",
       "tier": "A",
@@ -291,7 +291,7 @@
     },
     {
       "index": 31,
-      "total": 68,
+      "total": 69,
       "script": "26_van_willegen_msl.py",
       "desc": "Van Willegen (2025) 5-year MSL aggregation",
       "tier": "A",
@@ -300,7 +300,7 @@
     },
     {
       "index": 32,
-      "total": 68,
+      "total": 69,
       "script": "26b_van_willegen_msl_projections.py",
       "desc": "UKCP18 MSL5 climate projections (Tool B)",
       "tier": "A",
@@ -309,7 +309,7 @@
     },
     {
       "index": 33,
-      "total": 68,
+      "total": 69,
       "script": "26c_msl5_report_figures.py",
       "desc": "MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)",
       "tier": "D",
@@ -318,7 +318,16 @@
     },
     {
       "index": 34,
-      "total": 68,
+      "total": 69,
+      "script": "26d_spring_summer_gap.py",
+      "desc": "Spring level against the summer minimum that follows it, from 2010 (D-347 (4))",
+      "tier": "A",
+      "exec": "default",
+      "phase": 13
+    },
+    {
+      "index": 35,
+      "total": 69,
       "script": "28_c3_detrend_check.py",
       "desc": "Cluster framework diagnostic: C3 detrend check (H0)",
       "tier": "X",
@@ -326,8 +335,8 @@
       "phase": 14
     },
     {
-      "index": 35,
-      "total": 68,
+      "index": 36,
+      "total": 69,
       "script": "29_c3_within_variance_check.py",
       "desc": "Cluster framework diagnostic: within-C3 spatial structure",
       "tier": "X",
@@ -335,8 +344,8 @@
       "phase": 14
     },
     {
-      "index": 36,
-      "total": 68,
+      "index": 37,
+      "total": 69,
       "script": "30_c4_drainage_identifiability.py",
       "desc": "Cluster framework diagnostic: C4 drainage identifiability (tests \u03b22/\u03b23 separability; reports two sensitivities)",
       "tier": "X",
@@ -344,8 +353,8 @@
       "phase": 14
     },
     {
-      "index": 37,
-      "total": 68,
+      "index": 38,
+      "total": 69,
       "script": "32_differential_movement.py",
       "desc": "Figure: secular differential water-table drift (report Fig 59)",
       "tier": "A",
@@ -353,8 +362,8 @@
       "phase": 15
     },
     {
-      "index": 38,
-      "total": 68,
+      "index": 39,
+      "total": 69,
       "script": "33_envelope_amplification.py",
       "desc": "Figure: climate-swing amplification + drought-floor (report Fig 60)",
       "tier": "A",
@@ -362,8 +371,8 @@
       "phase": 15
     },
     {
-      "index": 39,
-      "total": 68,
+      "index": 40,
+      "total": 69,
       "script": "35_per_well_amplification.py",
       "desc": "Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)",
       "tier": "A",
@@ -371,8 +380,8 @@
       "phase": 15
     },
     {
-      "index": 40,
-      "total": 68,
+      "index": 41,
+      "total": 69,
       "script": "36_absolute_climate_trend.py",
       "desc": "Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)",
       "tier": "A",
@@ -380,8 +389,8 @@
       "phase": 15
     },
     {
-      "index": 41,
-      "total": 68,
+      "index": 42,
+      "total": 69,
       "script": "37_driver_validation.py",
       "desc": "Validation: predicted-vs-observed driver-change map (scatter + residual map)",
       "tier": "A",
@@ -389,8 +398,8 @@
       "phase": 15
     },
     {
-      "index": 42,
-      "total": 68,
+      "index": 43,
+      "total": 69,
       "script": "37b_driver_footing.py",
       "desc": "Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)",
       "tier": "A",
@@ -398,8 +407,8 @@
       "phase": 15
     },
     {
-      "index": 43,
-      "total": 68,
+      "index": 44,
+      "total": 69,
       "script": "24b_residual_climatology.py",
       "desc": "Cluster-stratified residual climatology (supplementary diagnostic)",
       "tier": "X",
@@ -407,8 +416,8 @@
       "phase": 16
     },
     {
-      "index": 44,
-      "total": 68,
+      "index": 45,
+      "total": 69,
       "script": "31_cluster_validation.py",
       "desc": "Independent k=4 partition validation (supplementary diagnostic; D-348)",
       "tier": "X",
@@ -416,8 +425,8 @@
       "phase": 16
     },
     {
-      "index": 45,
-      "total": 68,
+      "index": 46,
+      "total": 69,
       "script": "31b_separation_vs_recoverability.py",
       "desc": "Cluster separation vs recoverability (supplementary diagnostic)",
       "tier": "X",
@@ -425,8 +434,8 @@
       "phase": 16
     },
     {
-      "index": 46,
-      "total": 68,
+      "index": 47,
+      "total": 69,
       "script": "34_window_sensitivity.py",
       "desc": "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",
       "tier": "A",
@@ -434,8 +443,8 @@
       "phase": 16
     },
     {
-      "index": 47,
-      "total": 68,
+      "index": 48,
+      "total": 69,
       "script": "38_coastal_transect.py",
       "desc": "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)",
       "tier": "A",
@@ -443,8 +452,8 @@
       "phase": 16
     },
     {
-      "index": 48,
-      "total": 68,
+      "index": 49,
+      "total": 69,
       "script": "39_ccw_hindcast.py",
       "desc": "SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)",
       "tier": "A",
@@ -452,8 +461,8 @@
       "phase": 16
     },
     {
-      "index": 49,
-      "total": 68,
+      "index": 50,
+      "total": 69,
       "script": "40_shoreline_retreat.py",
       "desc": "Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)",
       "tier": "A",
@@ -461,8 +470,8 @@
       "phase": 16
     },
     {
-      "index": 50,
-      "total": 68,
+      "index": 51,
+      "total": 69,
       "script": "41_canopy_cover.py",
       "desc": "Canopy and forest-cover texture index from the dated aerial series \u2014 registration fitted from the dipwell placemarks; WITHHOLDS a value whose frame is unregistered. Skips when the imagery is absent, which is its normal state in a clone (D-081)",
       "tier": "A",
@@ -470,8 +479,8 @@
       "phase": 16
     },
     {
-      "index": 51,
-      "total": 68,
+      "index": 52,
+      "total": 69,
       "script": "09f_management_effects.py",
       "desc": "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",
       "tier": "D",
@@ -479,8 +488,8 @@
       "phase": 17
     },
     {
-      "index": 52,
-      "total": 68,
+      "index": 53,
+      "total": 69,
       "script": "09g_mechanism_diagrams.py",
       "desc": "Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)",
       "tier": "D",
@@ -488,8 +497,8 @@
       "phase": 17
     },
     {
-      "index": 53,
-      "total": 68,
+      "index": 54,
+      "total": 69,
       "script": "27_greyscale_figures.py",
       "desc": "Greyscale figure conversion (journal-ready B&W) \u2014 on demand only, via --greyscale / --greyscale-full; not part of --full or the opt-in tier",
       "tier": "D",
@@ -497,8 +506,8 @@
       "phase": 17
     },
     {
-      "index": 54,
-      "total": 68,
+      "index": 55,
+      "total": 69,
       "script": "43_ranwell_sites.py",
       "desc": "Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent",
       "tier": "D",
@@ -506,8 +515,8 @@
       "phase": 17
     },
     {
-      "index": 55,
-      "total": 68,
+      "index": 56,
+      "total": 69,
       "script": "44_ranwell_hindcast.py",
       "desc": "Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent",
       "tier": "A",
@@ -515,8 +524,8 @@
       "phase": 17
     },
     {
-      "index": 56,
-      "total": 68,
+      "index": 57,
+      "total": 69,
       "script": "45_wet_area_model.py",
       "desc": "The Sentinel-2 wet-area model (D-178): the two curves fitted from the committed scene series, and phase 27's SSM level through them. Display tier \u2014 an illustration of the area model, not a flood map (D-177)",
       "tier": "D",
@@ -524,8 +533,8 @@
       "phase": 18
     },
     {
-      "index": 57,
-      "total": 68,
+      "index": 58,
+      "total": 69,
       "script": "46_wet_area_feed.py",
       "desc": "The public wet-area feed living/wet_area_model.json (D-178, T-36): the curves, the per-cell switching levels and the SSM history the scenario viewer and the film read. Assembles committed products; fits nothing",
       "tier": "D",
@@ -533,8 +542,8 @@
       "phase": 18
     },
     {
-      "index": 58,
-      "total": 68,
+      "index": 59,
+      "total": 69,
       "script": "47_hindcast_film.py",
       "desc": "The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full",
       "tier": "D",
@@ -542,8 +551,8 @@
       "phase": 18
     },
     {
-      "index": 59,
-      "total": 68,
+      "index": 60,
+      "total": 69,
       "script": "48_pastas_crosscheck.py",
       "desc": "Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)",
       "tier": "A",
@@ -551,8 +560,8 @@
       "phase": 19
     },
     {
-      "index": 60,
-      "total": 68,
+      "index": 61,
+      "total": 69,
       "script": "50a_record_length.py",
       "desc": "What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic",
       "tier": "X",
@@ -560,8 +569,8 @@
       "phase": 19
     },
     {
-      "index": 61,
-      "total": 68,
+      "index": 62,
+      "total": 69,
       "script": "50b_datum_bases.py",
       "desc": "Which datum and drainage base the record supports (D-225, D-229, D-286, D-287): Model A refitted at every datum of Script 03's sweep against the CCW and Ranwell hindcasts, the split test and the UKCP18 projection; one base in elevation (E16) and a base per cluster (E17). Opt-in diagnostic",
       "tier": "X",
@@ -569,8 +578,8 @@
       "phase": 19
     },
     {
-      "index": 62,
-      "total": 68,
+      "index": 63,
+      "total": 69,
       "script": "50c_transfer.py",
       "desc": "Transfer between wells (T-173, D-268, D-282, D-290): a neighbour's coefficients at a well and the transfer rule, per well or per cluster on both hindcasts (E12), placing a new well from a short record (E12b), and a modern-record calibration at CCW 1989\u201396 (E18); Paper M's decision tree. Opt-in diagnostic",
       "tier": "X",
@@ -578,8 +587,8 @@
       "phase": 19
     },
     {
-      "index": 63,
-      "total": 68,
+      "index": 64,
+      "total": 69,
       "script": "50d_two_stores.py",
       "desc": "Two stores and non-climatic change (D-231 to D-236, D-255): two drainage time scales per cluster (E8), a non-climatic change and surface flow (E8b/c), rain event structure (E8d), the felling north of NW9 (E8e), the 2014/15 shore clearance (E8f) and the pre-canopy store (E8g). Opt-in diagnostic",
       "tier": "X",
@@ -587,8 +596,8 @@
       "phase": 19
     },
     {
-      "index": 64,
-      "total": 68,
+      "index": 65,
+      "total": 69,
       "script": "50e_drier_epochs.py",
       "desc": "Drier epochs and forcing (D-260, D-261, D-273, D-274, D-292): the forest's forcing (E10), what Ranwell's 1951\u201353 readings need (E11), other evaporation estimates and a recharge break (E13/E13b), and whether the film's correction transfers (E19). Opt-in diagnostic",
       "tier": "X",
@@ -596,8 +605,8 @@
       "phase": 19
     },
     {
-      "index": 65,
-      "total": 68,
+      "index": 66,
+      "total": 69,
       "script": "51_cluster_gap_fill.py",
       "desc": "Filling gaps in the record from cluster-mates (D-275): the CCW wells clustered on 1989\u201396 alone against the modern clusters; a hold-out test of five donor rules (nearest, best-correlated, nearest cluster-mate, cluster median, and Model A as reference) over an early and a late window, with the rule adopted by a rule fixed before the run; and every well's gaps filled by it, flagged reconstructed and kept out of every other step. Opt-in diagnostic",
       "tier": "X",
@@ -605,8 +614,8 @@
       "phase": 20
     },
     {
-      "index": 66,
-      "total": 68,
+      "index": 67,
+      "total": 69,
       "script": "53_ccw_forest_drift.py",
       "desc": "Did the water table near the forest fall through the CCW epoch? (E14): the Script 39 hindcast rebuilt on both coefficient bases, each admitted well's 1989-96 residual slope against its distance to the forest edge, judged by a rule fixed before the run (rank correlation, near against far, leave one out, second basis). Opt-in diagnostic",
       "tier": "X",
@@ -614,8 +623,8 @@
       "phase": 21
     },
     {
-      "index": 67,
-      "total": 68,
+      "index": 68,
+      "total": 69,
       "script": "54_dry_year_hysteresis.py",
       "desc": "Does a dry year prime the warren? (E15): the record's dry-to-wet sequences and ordinary wet years, chosen from the climate alone, and the E13 single store's response after each, judged by a rule fixed before the run (replication of the 2006-08 excess after 2022, and sequences against controls). Opt-in diagnostic",
       "tier": "X",
@@ -623,8 +632,8 @@
       "phase": 21
     },
     {
-      "index": 68,
-      "total": 68,
+      "index": 69,
+      "total": 69,
       "script": "55_water_balance_drainage.py",
       "desc": "The water-balance residual analysis: a fourth reading of the loss split (spec NRG_spec_water_balance_diagnostic_2026-11-04). Rainfall less PET with the storage change taken as the water table through Script 18's FIXED per-well Sy, so the remainder is drainage; that residual regressed on head as a line and as a threshold; the winter law used to back ET out of every month and read the drainage share of the annual loss - the Paper M \u00a77.1 basis - with a Sy bracket from a winter joint fit that borrows no Sy at all. Two-pass: reads Scripts 18, 48 and 39. Opt-in diagnostic",
       "tier": "X",

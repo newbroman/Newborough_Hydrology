@@ -44,7 +44,7 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.137.0"  # 2026-11-27 (D-349 (12)): PRECANOPY_ANALOGUE {4: 3, 5: 3} (C3f -> C3o). Was "1.136.0"  # 2026-11-27 (D-349 (8)): LANDCOVER_EDGE_M = 50 and LANDCOVER_EDGE_POLYGONS replace LANDCOVER_SET_ASIDE_WELLS (the edge rule). Was "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
+__version__ = "1.138.0"  # 2026-11-27 (D-347 (4) Note): SPRING_SUMMER_GAP_MIN_YEARS, _LONG_START, _LONG_MIN_YEARS for Script 26d. Was "1.137.0"  # 2026-11-27 (D-349 (12)): PRECANOPY_ANALOGUE {4: 3, 5: 3} (C3f -> C3o). Was "1.136.0"  # 2026-11-27 (D-349 (8)): LANDCOVER_EDGE_M = 50 and LANDCOVER_EDGE_POLYGONS replace LANDCOVER_SET_ASIDE_WELLS (the edge rule). Was "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
 #   every partition and model fit (fit_ssm's default, model_utils 1.15.0; Script 02's clustering; the full-record
 #   cluster and water-balance series). CLUSTER_HYDRO_WINDOW_START follows it. CLUSTER_LABELS[3] is "C3 (Western Dune)"
 #   (Martin: "c3, rename to western dune"); ids and colours unchanged.
@@ -3216,6 +3216,12 @@ CLUSTER_BOOT_N          = 1000       # resamples per k (the rebuild handover's v
 # the 2009 drop; analyses whose subject it is pass start=None to fit_ssm (Script 25's step tests).
 RECORD_FIT_START = "2010-01-01"
 CLUSTER_HYDRO_WINDOW_START = RECORD_FIT_START       # D-347; was "2006-12-01"
+# Script 26d (D-347 (4) Note, Martin 2026-11-27: "include the numbers, add a pipeline step"): spring level against
+# summer minimum from RECORD_FIT_START. A well enters when Script 26 marks both its spring mean (valid) and its summer
+# minimum (min_valid) in at least this many hydrological years of the window; per-well OLS slopes, medians over wells.
+SPRING_SUMMER_GAP_MIN_YEARS = 14            # of the 16 years 2010-2025 (the exploratory run, 2026-11-27: 47 wells)
+SPRING_SUMMER_GAP_LONG_START = 2005         # the long-record block: wells read from 2005, the 2009 step against a trend
+SPRING_SUMMER_GAP_LONG_MIN_YEARS = 15       # of the 21 years 2005-2025, the first by 2007
 CLUSTER_HYDRO_WINDOW_END   = "2025-12-01"
 # Uncertainty of Script 10m's raw WMC3-minus-forest-control era steps (D-200).
 # The standard error of each era mean is Newey-West (Bartlett kernel) with this many

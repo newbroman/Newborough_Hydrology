@@ -11,7 +11,7 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "2.7.0"  # Hollingham (2026) - 2026-11-26. OUT_07_COEFF_CLUSTER_TEST (Script 07 1.10.0, D-347). Additive.
+__version__ = "2.8.0"  # 2026-11-27 (D-347 (4) Note): DIR_26D and the OUT_26D_* outputs of Script 26d (spring level against summer minimum). Additive. Was "2.7.0"  # Hollingham (2026) - 2026-11-26. OUT_07_COEFF_CLUSTER_TEST (Script 07 1.10.0, D-347). Additive.
 # 2.6.0  # Hollingham (2026) - 2026-11-26. OUT_10A_CTRL_STEP_2014 (Script 10a 1.28.0). Additive.
 # 2.5.0  # Hollingham (2026) - 2026-11-25 (latest). DATA_TIDES_BARMOUTH and DATA_WAVES_ERA5 (Script 40
 #   1.11.0). Additive.
@@ -1086,6 +1086,16 @@ OUT_37B_FIGURE     = DIR_37B / "37b_driver_footing.png"
 OUT_37B_RESULTS    = DIR_37B / "37b_results.txt"
 
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
+# 26d (D-347 (4) Note, Martin 2026-11-27: "include the numbers, add a pipeline step"): spring level against summer minimum
+DIR_26D = OUT_DIR / "26d_spring_summer_gap"
+OUT_26D_PER_WELL        = DIR_26D / "26d_per_well.csv"
+OUT_26D_GROUP_SUMMARY   = DIR_26D / "26d_group_summary.csv"
+OUT_26D_BY_YEAR         = DIR_26D / "26d_by_year.csv"
+OUT_26D_ROBUSTNESS      = DIR_26D / "26d_robustness.csv"
+OUT_26D_LONG_RECORD     = DIR_26D / "26d_long_record.csv"
+OUT_26D_REPORT_NUMBERS  = DIR_26D / "26d_report_numbers.csv"
+OUT_26D_RESULTS         = DIR_26D / "26d_results.txt"
+OUT_26D_FIG             = DIR_26D / "26d_spring_summer_gap.png"
 DIR_34 = OUT_DIR / "34_window_sensitivity"
 OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"
 OUT_34_RESULTS              = DIR_34 / "34_results.txt"

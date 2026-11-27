@@ -81,6 +81,9 @@ EXEMPT = {
     # the *_results.md memo pattern (scripts build a <script>_results.md memo);
     # written as prose in apply_main_guards.py and DECISION_LOG.md, not a filename
     "_results.md",
+    # the review's *_verified.md pattern (D-349's Traces line, 2026-11-27: "the four *_verified.md
+    # reports" under working/updates/review_2026-11-27/); prose naming a set of files, not a filename
+    "_verified.md",
     # BOOTSTRAP.md was renamed MACHINE_SETUP.md on 2026-09-10, because it collided
     # with working/HANDOVER_BOOTSTRAP.md - the SESSION bootstrap every session is
     # told to read first - and a reader could open the wrong one. The live

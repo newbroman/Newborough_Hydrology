@@ -40,7 +40,7 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.23.0"  # 2026-11-27 (D-348 full run, defaults_lint): drawdown_lambda_m 154.1 -> 177.3 (Script 20 takes the C3o group's Model B beta_3, 0.087) and scrape_offsite_100m_vol -26.1 -> -28.2. Was "1.22.0"  # 2026-11-27 (D-348): REQUESTED_N_CLUSTERS 5 -> 4. Was "1.21.0"  # Hollingham (2026) - 2026-11-27 (D-347 full rerun, defaults_lint): _DEFAULTS["drawdown_lambda_m"] 172.1 -> 154.1
+__version__ = "1.24.0"  # 2026-11-27 (D-349 A8): cluster Sy and h_disp from cluster-level wells (In_Cluster_Level; new cluster_level_sy_median(), which Script 20 reads); h_disp's mean depth over RECORD_FIT_START onward. _DEFAULTS["drawdown_lambda_m"] (177.3; about 173.2 expected) is refreshed by defaults_lint after the full run. Was "1.23.0"  # 2026-11-27 (D-348 full run, defaults_lint): drawdown_lambda_m 154.1 -> 177.3 (Script 20 takes the C3o group's Model B beta_3, 0.087) and scrape_offsite_100m_vol -26.1 -> -28.2. Was "1.22.0"  # 2026-11-27 (D-348): REQUESTED_N_CLUSTERS 5 -> 4. Was "1.21.0"  # Hollingham (2026) - 2026-11-27 (D-347 full rerun, defaults_lint): _DEFAULTS["drawdown_lambda_m"] 172.1 -> 154.1
 #   (Script 20 takes C3 Western Dune's Model B beta_3, and C3 is re-formed on 2010 onward with 13 wells) and
 #   _DEFAULTS["scrape_offsite_100m_vol"] -27.8 -> -26.1 (09d with that lambda).
 # 1.20.0  # Hollingham (2026) - 2026-11-23 (J-33, Martin: "option 2"). Adds coast_event_retreat_m
@@ -440,6 +440,28 @@ _DEFAULTS = {
 }
 
 
+def cluster_level_sy_median(sy_df=None):
+    """D-349 (A8): {group id (int): median Sy} over each group's cluster-level wells.
+
+    `sy_df` is the WTF per-well table (18_wtf_01_well_sy_estimates.csv: Well, Sy_median); the group and the
+    In_Cluster_Level flag are read from 03_master_data.csv, never from the Sy table's own Cluster column, so a
+    boundary well or a set-aside well (WMC3) never enters a group's Sy. Returns a pd.Series indexed by group id.
+    The one helper Script 20 and this module share for a cluster Sy."""
+    from utils.paths import INT_MASTER_DATA, OUT_18_WELL_SY_TABLE
+    from utils.cluster_series import in_cluster_level
+    if sy_df is None:
+        sy_df = read_store(OUT_18_WELL_SY_TABLE)
+    master = read_store(INT_MASTER_DATA)
+    master = master[in_cluster_level(master)]
+    key = master["Name_Original"].astype(str).str.lower().str.replace(" ", "")
+    grp = dict(zip(key, pd.to_numeric(master["Cluster"], errors="coerce")))
+    g = sy_df["Well"].astype(str).str.lower().str.replace(" ", "").map(grp)
+    out = (sy_df.assign(_group=g).dropna(subset=["_group"])
+           .groupby("_group")["Sy_median"].median())
+    out.index = out.index.astype(int)
+    return out
+
+
 # ============================================================================
 # WRITER — called by Script 01
 # ============================================================================
@@ -525,12 +547,17 @@ def write_initial_params(wells_clean, climate):
     h_disp_by_cluster = {}
     if INT_MASTER_DATA.exists() and clusters:
         try:
+            from utils.cluster_series import in_cluster_level
+            from utils.config import RECORD_FIT_START
             master = read_store(INT_MASTER_DATA)
             master["match"] = master["Name_Original"].str.lower().str.replace(" ", "")
+            master = master[in_cluster_level(master)]   # 1.24.0 (D-349 A8): cluster-level wells only
             wells_lower = wells_clean.copy()
             wells_lower.columns = wells_lower.columns.str.lower().str.replace(" ", "")
+            # 1.24.0 (D-349): the mean depth over D-347's window, the one the implied datum is fitted on
+            wells_lower = wells_lower[wells_lower.index >= pd.Timestamp(RECORD_FIT_START)]
             for cl in clusters:
-                cl_wells = master[master["Cluster"] == cl]["match"].tolist()
+                cl_wells = master[pd.to_numeric(master["Cluster"], errors="coerce") == cl]["match"].tolist()
                 available = [w for w in cl_wells if w in wells_lower.columns]
                 if available:
                     mean_depth = wells_lower[available].mean().mean()
@@ -562,7 +589,9 @@ def write_initial_params(wells_clean, climate):
     if OUT_18_WELL_SY_TABLE.exists() and clusters:
         try:
             sy_df = read_store(OUT_18_WELL_SY_TABLE)
-            sy_median = sy_df.groupby("Cluster")["Sy_median"].median()
+            # 1.24.0 (D-349 A8): the group median over its cluster-level wells (In_Cluster_Level in
+            # 03_master_data.csv), as scraping_common.load_cluster_params does; never every well in the group.
+            sy_median = cluster_level_sy_median(sy_df)
             for cl in clusters:
                 if cl in sy_median.index:
                     sy_by_cluster[cl] = float(sy_median[cl])

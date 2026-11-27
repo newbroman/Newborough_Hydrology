@@ -21,15 +21,15 @@ organised by how independent each line of evidence actually is:
                       so magnitude is largely orthogonal to the input.
   Tier 3  CONVERGENT -- same water-level series, different estimation method
                       (SSM betas, WTF Sy, LCSC). Supporting, NOT independent.
-  Tier 4  ROBUSTNESS -- does k=5 survive a different linkage / distance metric
+  Tier 4  ROBUSTNESS -- does k=4 survive a different linkage / distance metric
                       (average, complete; Spearman, DTW)? Adjusted Rand Index
                       against the canonical Ward+Pearson partition.
 
 All canonical numbers are read from live pipeline CSVs; nothing is hardcoded. The
-cluster count K is read from the realised partition (pipeline_params.get_n_clusters())
+cluster count K is the number of hydrogeological clusters (Hydro_Cluster in 03_master_data, 1.6.0, D-349)
 and validated against the requested target (get_requested_n_clusters()); tunables come
-from the CV_* block in pipeline_params; the forest-cluster set is derived from
-config.CLUSTER_LABELS (labels containing "forest"), not a literal.
+from the CV_* block in pipeline_params; the forest cluster is C4, from config.FOREST_CIDS and
+GROUP_HYDRO_CLUSTER (1.6.0, D-349 B4), not a literal. Hydrographs from RECORD_FIT_START (D-347).
 
 Outputs (outputs/31_cluster_validation/):
   31_validation_summary.csv      one row per test (tier, statistic, p, independence)
@@ -53,7 +53,8 @@ from scipy.spatial.distance import squareform, pdist
 from sklearn.metrics import adjusted_rand_score, cohen_kappa_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS
+from utils.config import (CLUSTER_COLOURS, FOREST_CIDS, GROUP_HYDRO_CLUSTER,
+                          HYDRO_CLUSTER_LABELS, RECORD_FIT_START)
 from utils import pipeline_params as pp
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -72,7 +73,7 @@ from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
 
-__version__ = "1.5.0"  # 2026-11-27 (D-348): forest groups from FOREST_CIDS (C4, C3f); figure title states the live k, not k=5. Was "1.4.3"  # 2026-11-27: the correlation distances are sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+__version__ = "1.6.0"  # 2026-11-27 (D-349 A5, B4): every test scored against Hydro_Cluster at k = 4; the hydrographs cut at RECORD_FIT_START; the forest-footprint kappa scored on C4 alone. Was "1.5.0"  # 2026-11-27 (D-348): forest groups from FOREST_CIDS (C4, C3f); figure title states the live k, not k=5. Was "1.4.3"  # 2026-11-27: the correlation distances are sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
 #   ignore (RuntimeWarning) is removed, with its now-unused `import warnings`: no pipeline
 #   module silences its warnings (T-81, D-155). Probed with the filter off
 #   against the committed CSVs, this module raised no warning; outputs unchanged.
@@ -99,15 +100,20 @@ DTW_WINDOW      = pp.CV_DTW_WINDOW      # Sakoe-Chiba band (months) for DTW
 RNG             = np.random.default_rng(pp.CV_RNG_SEED)
 
 # K is the realised partition's cluster count, read from the committed pipeline output.
-K_CANONICAL     = pp.get_n_clusters()
+# 1.6.0 (D-349 A5, rule 3): the tests here are of the HYDROGEOLOGICAL partition, so K is the number of
+# Hydro_Cluster values (four), not the five cluster-level groups pp.get_n_clusters() counts, and every label below
+# is Hydro_Cluster. The wells' records are cut at RECORD_FIT_START, the window the partition was formed on.
+K_CANONICAL     = int(pd.read_csv(INT_MASTER_DATA, usecols=["Hydro_Cluster"])["Hydro_Cluster"].nunique())
+LABEL_COL       = "Hydro_Cluster"
 
 OUTDIR = DIR_31
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 BETA_COLS = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
-# Forest groups from config.FOREST_CIDS (D-348: C4 and C3f), the one definition every
-# consumer shares; it was derived from the labels, which gave the same set.
-FOREST_CLUSTERS = set(FOREST_CIDS)
+# 1.6.0 (D-349 B4): the forest-footprint test is scored on the forest cluster the clustering FOUND, C4: the forest
+# group whose hydrogeological cluster is itself (config.GROUP_HYDRO_CLUSTER). C3f is defined by the canopy polygon
+# (Script 02 splits the Western Dune by land cover), so scoring it against that polygon was circular.
+FOREST_CLUSTERS = {g for g in FOREST_CIDS if GROUP_HYDRO_CLUSTER.get(g) == g}   # hydro ids; {4}
 
 
 # ===========================================================================
@@ -130,6 +136,7 @@ def load_data():
     # per-well monthly hydrographs (restrict to reference wells in master)
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     wells.index = pd.to_datetime(wells.index)
+    wells = wells[wells.index >= pd.Timestamp(RECORD_FIT_START)]        # 1.6.0 (D-349 A5): D-347's window
     wells.columns = [normalize_well_name(c) for c in wells.columns]
     ref_keys = [k for k in master["key"] if k in wells.columns]
     wells = wells[ref_keys]
@@ -265,10 +272,11 @@ def forest_recovery(master):
             cls = "outside"
         rows.append({
             "well": r["Name_Original"], "Cluster": int(r["Cluster"]),
+            "Hydro_Cluster": int(r[LABEL_COL]),
             "in_forest_poly": bool(inside),
             "signed_dist_m": round(signed, 1), "poly_class": cls,
             "in_felling_poly": bool(felling.contains(pt)),
-            "in_forest_cluster": int(r["Cluster"]) in FOREST_CLUSTERS,
+            "in_forest_cluster": int(r[LABEL_COL]) in FOREST_CLUSTERS,   # 1.6.0 (D-349 B4): C4 alone
         })
     fr = pd.DataFrame(rows)
 
@@ -355,7 +363,7 @@ def _dtw_distance(wells):
 
 
 def robustness(wells, master):
-    key2cl = master.set_index("key")["Cluster"]
+    key2cl = master.set_index("key")[LABEL_COL]   # 1.6.0 (D-349): scored against the four clusters, at k = 4
 
     def cut_and_score(sq, cols, method):
         cond = squareform(sq, checks=False)
@@ -392,11 +400,11 @@ def make_panel(master, mag, ari_df, summary_df, fr):
 
     # (a) spatial cluster map
     ax = axes[0, 0]
-    for cid in sorted(master["Cluster"].unique()):
-        sub = master[master["Cluster"] == cid]
+    for cid in sorted(master[LABEL_COL].unique()):     # 1.6.0: the four clusters the tests score
+        sub = master[master[LABEL_COL] == cid]
         ax.scatter(sub["Easting"], sub["Northing"], s=42,
                    c=CLUSTER_COLOURS[cid], edgecolors="k", linewidths=0.4,
-                   label=CLUSTER_LABELS[cid])
+                   label=HYDRO_CLUSTER_LABELS[cid])
     try:
         fx, fy = load_polygon("Forest").exterior.xy
         ax.plot(fx, fy, color="darkgreen", lw=1.4, ls="--", label="Forest polygon")
@@ -423,11 +431,11 @@ def make_panel(master, mag, ari_df, summary_df, fr):
     # (c) magnitude descriptor boxplots (amplitude)
     ax = axes[1, 0]
     m2 = master.merge(mag, left_on="key", right_index=True, how="left")
-    cids = sorted(m2["Cluster"].unique())
-    data = [m2.loc[m2["Cluster"] == cid, "amplitude"].dropna() for cid in cids]
+    cids = sorted(m2[LABEL_COL].unique())          # 1.6.0: the four clusters the tests score
+    data = [m2.loc[m2[LABEL_COL] == cid, "amplitude"].dropna() for cid in cids]
     bp = ax.boxplot(data, patch_artist=True)
     ax.set_xticks(range(1, len(cids) + 1))
-    ax.set_xticklabels([CLUSTER_LABELS[c].split()[0] for c in cids])
+    ax.set_xticklabels([HYDRO_CLUSTER_LABELS[c].split()[0] for c in cids])
     for patch, cid in zip(bp["boxes"], cids):
         patch.set_facecolor(CLUSTER_COLOURS[cid]); patch.set_alpha(0.75)
     ax.set_title("(c) Seasonal amplitude by cluster (metric-independent)")
@@ -439,13 +447,14 @@ def make_panel(master, mag, ari_df, summary_df, fr):
     bars = ax.barh(lab, ari_df["ARI_vs_canonical"], color="#756bb1")
     ax.axvline(1.0, color="green", ls=":", lw=1)
     ax.set_xlim(0, 1.05)
-    ax.set_xlabel("Adjusted Rand Index vs canonical (Ward+Pearson)")
+    ax.set_xlabel("Adjusted Rand Index vs the four clusters (Ward+Pearson)")
     ax.set_title("(d) Partition robustness to linkage / distance")
     for b, v in zip(bars, ari_df["ARI_vs_canonical"]):
         ax.text(v + 0.01, b.get_y() + b.get_height() / 2, f"{v:.2f}",
                 va="center", fontsize=8)
 
-    fig.suptitle(f"Cluster validation panel -- k={K_CANONICAL} partition (five groups, D-348) vs independent evidence",
+    fig.suptitle(f"Cluster validation panel -- k={K_CANONICAL} hydrogeological partition (D-348), "
+                 f"{RECORD_FIT_START[:4]} onward, vs independent evidence",
                  fontsize=14, y=0.99)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
     path = OUT_31_PANEL_FIG
@@ -471,7 +480,7 @@ def main():
 
     phase(1, "Tier 1 external — spatial coherence, forest recovery")
     master, wells = load_data()
-    labels = master["Cluster"].values
+    labels = master[LABEL_COL].values            # 1.6.0 (D-349 rule 3): the four clusters
     coords = master[["Easting", "Northing"]].values
     rows = []  # summary rows
 
@@ -487,8 +496,8 @@ def main():
                      descriptor="same-cluster adjacency", statistic_name="z",
                      statistic=round(bb_z, 2), p_value=round(bb_p, 4),
                      independence="external"))
-    for cid in sorted(master["Cluster"].unique()):
-        ind = (master["Cluster"] == cid).astype(int).values
+    for cid in sorted(master[LABEL_COL].unique()):
+        ind = (master[LABEL_COL] == cid).astype(int).values
         I, pI = morans_i(W, ind, N_PERM)
         rows.append(dict(tier="1 external", test=f"Moran's I (C{cid} indicator)",
                          descriptor=f"C{cid} spatial autocorr",
@@ -505,11 +514,11 @@ def main():
     # ---- forest recovery -------------------------------------------------
     fr, conf, kappa_all, kappa_core, borderline = forest_recovery(master)
     rows.append(dict(tier="1 external", test="forest-footprint recovery",
-                     descriptor="canopy polygon vs forest clusters",
+                     descriptor="canopy polygon vs C4 (the forest cluster found)",
                      statistic_name="cohen_kappa", statistic=round(kappa_all, 3),
                      p_value=np.nan, independence="external"))
     rows.append(dict(tier="1 external", test="forest recovery (edge excluded)",
-                     descriptor="canopy polygon vs forest clusters",
+                     descriptor="canopy polygon vs C4 (the forest cluster found)",
                      statistic_name="cohen_kappa", statistic=round(kappa_core, 3),
                      p_value=np.nan, independence="external"))
 
@@ -570,12 +579,12 @@ def main():
     info("confusion (rows=in_forest_poly, cols=in_forest_cluster):")
     print(conf.to_string())
     info(f"borderline wells (|dist to forest edge| < {EDGE_BUFFER_M:.0f} m):")
-    print(borderline[["well", "Cluster", "signed_dist_m",
+    print(borderline[["well", "Cluster", "Hydro_Cluster", "signed_dist_m",
                       "in_forest_cluster"]].to_string(index=False))
     mism = fr[(fr["in_forest_poly"]) & (~fr["in_forest_cluster"])]
     if len(mism):
-        note("inside forest polygon but NOT in a forest cluster (kappa misses):")
-        print(mism[["well", "Cluster", "signed_dist_m"]].to_string(index=False))
+        note("inside forest polygon but NOT in C4 (kappa misses; C3f's wells among them):")
+        print(mism[["well", "Cluster", "Hydro_Cluster", "signed_dist_m"]].to_string(index=False))
     hr()
     done(SCRIPT_ID)
 

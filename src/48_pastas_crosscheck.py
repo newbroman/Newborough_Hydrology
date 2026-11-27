@@ -61,7 +61,13 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-23 (J-26, D-334). Figure 48_01 (Paper M Figure 1) drops the hollow
+__version__ = "1.12.0"  # 2026-11-27 (D-349 (1), A3; D-348): every fit states its window. The full_record basis is
+#   D-347's record: Pastas is solved from tmin = RECORD_FIT_START and Model B refitted with start=RECORD_FIT_START, so
+#   the two codes see the same 2010-26 months, and fit_start says so. The A/B/M diagnostics, the lag-1 memory statistic
+#   and the split tests run on the record cut at RECORD_FIT_START: forward trains 2010-17, the reverse test scores
+#   2010-17 (start=None on the split fits: the caller lays out the side). Per-cluster agreement rows and report
+#   medians are over cluster-level wells (In_Cluster_Level); "all" and "identified" keep every well.
+# 1.11.0  # Hollingham (2026) - 2026-11-23 (J-26, D-334). Figure 48_01 (Paper M Figure 1) drops the hollow
 #   Model A series: the figure's job is the code check against Model B, and Model A "for comparison" is not one of
 #   D-334's three jobs. The axis label and the note cell no longer mention Model A. 48_01's CSV and every report number
 #   are unchanged (the ssmA_* columns stay as data).
@@ -161,6 +167,7 @@ from utils.config import (                                    # noqa: E402
     HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS,
     MODEL_AB_SPLIT_DATE, MODEL_AB_MIN_TEST_MONTHS,
     ASYM_MIN_PAIRS, ASYM_ALPHA, MONTHS_PER_YEAR,
+    RECORD_FIT_START,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.data_utils import normalize_well_name              # noqa: E402
@@ -314,7 +321,8 @@ def ssm_counterparts_full(ws_row: pd.Series | None, head_full: pd.Series, cl: pd
                                    float(ws_row["beta_2_atmospheric_draw_model_a"]),
                                    float(ws_row["beta_3_drainage_model_a"]), -float(DRAINAGE_DATUM),
                                    float(ws_row["R2_model_a"]))
-    fb = fit_ssm_intercept(head_full, cl, lag=HEADLINE_LAG, window=None)
+    fb = fit_ssm_intercept(head_full, cl, lag=HEADLINE_LAG, window=None,
+                           start=RECORD_FIT_START)   # 1.12.0 (D-349 (1)): D-347's full record, as Pastas is given
     if fb is None:
         out.update({k: np.nan for k in _betas_to_quantities("ssmB", 1, 1, 0.5, 0, 0)})
         return out
@@ -330,7 +338,8 @@ def per_well_table(ps, lev, lev_cols, cl, master, mb, ws, P, E) -> pd.DataFrame:
     """One row per well and basis. comparison_window: the months Script 03's per-well
     fits used (tmin/tmax from 03_16), the report's per-well basis. full_record: every
     month of the well, the basis on which a slow response can be identified."""
-    wells = master.sort_values("Name_Original")
+    from utils.cluster_series import in_cluster_level     # 1.12.0 (D-348)
+    wells = master.assign(_lvl=in_cluster_level(master)).sort_values("Name_Original")
     rows = []
     for w in track(wells.to_dict("records"), lambda r: r["Name_Original"]):
         n = w["_n"]
@@ -341,7 +350,8 @@ def per_well_table(ps, lev, lev_cols, cl, master, mb, ws, P, E) -> pd.DataFrame:
         head = head_raw.copy()
         head.index = head.index + pd.offsets.MonthEnd(0)     # the reading is the end-of-month level
         base = {"well": w["Name_Original"], "Cluster": int(w["Cluster"]),
-                "Cluster_Label": CLUSTER_LABELS.get(int(w["Cluster"]), f"C{int(w['Cluster'])}")}
+                "Cluster_Label": CLUSTER_LABELS.get(int(w["Cluster"]), f"C{int(w['Cluster'])}"),
+                "In_Cluster_Level": bool(w["_lvl"])}                  # 1.12.0 (D-348)
         bases = []
         if n in mb.index:
             tmin = pd.Timestamp(str(mb.loc[n, "fit_start"])) + pd.offsets.MonthEnd(0)
@@ -349,9 +359,13 @@ def per_well_table(ps, lev, lev_cols, cl, master, mb, ws, P, E) -> pd.DataFrame:
             bases.append(("comparison_window", tmin, tmax,
                           {"fit_start": str(mb.loc[n, "fit_start"]), "fit_end": str(mb.loc[n, "fit_end"])},
                           ssm_counterparts_window(pd.Series(w), mb.loc[n])))
-        bases.append(("full_record", None, None,
-                      {"fit_start": head_raw.index.min().strftime("%Y-%m"), "fit_end": head_raw.index.max().strftime("%Y-%m")},
-                      ssm_counterparts_full(ws.loc[n] if n in ws.index else None, head_raw, cl)))
+        # 1.12.0 (D-349 (1), A3): the full record is D-347's, from RECORD_FIT_START, for Pastas and Model B alike
+        head_rec = head_raw[head_raw.index >= pd.Timestamp(RECORD_FIT_START)]
+        if len(head_rec):
+            bases.append(("full_record", pd.Timestamp(RECORD_FIT_START) + pd.offsets.MonthEnd(0), None,
+                          {"fit_start": head_rec.index.min().strftime("%Y-%m"),
+                           "fit_end": head_rec.index.max().strftime("%Y-%m")},
+                          ssm_counterparts_full(ws.loc[n] if n in ws.index else None, head_rec, cl)))
         for basis, tmin, tmax, span, ssm in bases:
             row = dict(base); row["basis"] = basis; row.update(span)
             for fit, noise in (("pastas", False), ("pastas_ar1", True)):
@@ -427,8 +441,11 @@ def agreement(df_all: pd.DataFrame) -> pd.DataFrame:
 
 def _agreement_one(df: pd.DataFrame, basis: str) -> list:
     rows = []
+    # 1.12.0 (D-348): a cluster's row is over its cluster-level wells; "all" and "identified" keep every well
+    lvl = (df["In_Cluster_Level"].astype(bool) if "In_Cluster_Level" in df.columns
+           else pd.Series(True, index=df.index))
     groups = ([("all", df), ("identified", df[df["identified"]])]
-              + [(f"C{c}", g) for c, g in df.groupby("Cluster")])
+              + [(f"C{c}", g) for c, g in df[lvl].groupby("Cluster")])
     for fit in FITS:
         for model in ("ssmB", "ssmA"):
             for q in QUANTITIES:
@@ -559,19 +576,24 @@ def model_ab_diagnostics(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFrame,
     """Per reference well: split-sample skill, memory, identification and partition, for
     Model A (DRAINAGE_DATUM), Model B (free intercept) and M (Model A at the well's depth to MHW)."""
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    from utils.cluster_series import in_cluster_level     # 1.12.0 (D-348)
+    lvl = in_cluster_level(master)
     rows = []
-    for _, r in master.iterrows():
+    for i_, r in master.iterrows():
         col = lev_cols.get(r["_n"])
         if col is None:
             continue
+        # 1.12.0 (D-349 (1), A3): D-347's record - the fits, the lag-1 memory statistic and both split sides
         h = lev[col].dropna()
+        h = h[h.index >= pd.Timestamp(RECORD_FIT_START)]
         row = {"well": r["_n"], "Cluster": int(r["Cluster"]),
-               "Cluster_Label": CLUSTER_LABELS.get(int(r["Cluster"]), "")}
+               "Cluster_Label": CLUSTER_LABELS.get(int(r["Cluster"]), ""),
+               "In_Cluster_Level": bool(lvl.loc[i_])}
         dM = mhw_datum.get(r["_n"], np.nan)
         row["datum_mhw_m"] = dM
-        fA = fit_ssm(h_series=h, climate=cl, with_corr=True)
-        fB = fit_ssm(h_series=h, climate=cl, intercept=True, with_corr=True)
-        fM = (fit_ssm(h_series=h, climate=cl, drainage_datum=dM, with_corr=True)
+        fA = fit_ssm(h_series=h, climate=cl, with_corr=True, start=RECORD_FIT_START)
+        fB = fit_ssm(h_series=h, climate=cl, intercept=True, with_corr=True, start=RECORD_FIT_START)
+        fM = (fit_ssm(h_series=h, climate=cl, drainage_datum=dM, with_corr=True, start=RECORD_FIT_START)
               if np.isfinite(dM) else None)
         for tag, f, icpt in (("A", fA, False), ("B", fB, True), ("M", fM, False)):
             if f is None:
@@ -604,7 +626,8 @@ def model_ab_diagnostics(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFrame,
                     row[f"nse_{d_}_{tag}"] = np.nan
                     continue
                 try:
-                    ft = fit_ssm(h_series=tr, climate=cl, intercept=icpt, drainage_datum=datum)
+                    ft = fit_ssm(h_series=tr, climate=cl, intercept=icpt, drainage_datum=datum,
+                                 start=None)   # 1.12.0 (D-349 (1)): the side is laid out above, on the cut record
                 except Exception:
                     ft = None
                 nse, n_ = _free_run_nse(te, cl, ft, icpt, datum)
@@ -746,7 +769,8 @@ def main(no_fig: bool = False) -> int:
     def _med(col, g=ab):
         v = pd.to_numeric(g[col], errors="coerce").dropna()
         return (float(v.median()), int(len(v))) if len(v) else (np.nan, 0)
-    groups = [("all", ab)] + [(f"C{c}", g) for c, g in ab.groupby("Cluster")]
+    # 1.12.0 (D-348): a cluster's medians over its cluster-level wells; "all" keeps every well
+    groups = [("all", ab)] + [(f"C{c}", g) for c, g in ab[ab["In_Cluster_Level"].astype(bool)].groupby("Cluster")]
     for gname, g in groups:
         for d_ in ("fwd", "rev"):
             both = g[[f"nse_{d_}_A", f"nse_{d_}_B"]].dropna()

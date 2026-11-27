@@ -27,7 +27,7 @@ Decision:
 
 from __future__ import annotations
 
-__version__ = "1.4.0"  # 2026-11-27 (D-348): centroid labels from CLUSTER_LABELS; the C5 row displays as C3f; the C3 test is on group 3 (C3o). Was "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+__version__ = "1.5.0"  # 2026-11-27 (D-349, D-348): the C3 headline counts (c3_n_total, c3_n_testable, the moves) are over cluster-level wells - group 3 held WMC3 (the clearfell well, In_Cluster_Level false) and the boundary wells, so WMC3 was counted as C3o; every well keeps its per-well row, now with In_Cluster_Level. Was "1.4.0"  # 2026-11-27 (D-348): centroid labels from CLUSTER_LABELS; the C5 row displays as C3f; the C3 test is on group 3 (C3o). Was "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - c3_n_total, c3_n_testable,
 #   c3_n_moves_to_c2_forest_free, written to 28_report_numbers.csv so the
 #   Methods Supplement S.19.1 sentence binds to a citation row.
@@ -179,8 +179,11 @@ def main():
 
     # ── Per-well loop ──────────────────────────────────────────────────────────
 
+    # 1.5.0 (D-348/D-349): the group summaries below count cluster-level wells only (WMC3 and the boundary wells out)
+    from utils.cluster_series import in_cluster_level   # noqa: E402
+    _lvl = in_cluster_level(clust)
     rows = []
-    for _, row in clust.iterrows():
+    for _i, row in clust.iterrows():
         mid = row["mid"]
         cluster = int(row["Cluster"])
         label   = row["Cluster_Label"]
@@ -227,6 +230,7 @@ def main():
         rows.append({
             "Match_ID":            row["Match_ID"],
             "Original_Cluster":    f"C{cluster}",
+            "In_Cluster_Level":    bool(_lvl.loc[_i]),    # 1.5.0 (D-348/D-349)
             "Cluster_Label":       label,
             "dist_coast_m":        d_coast,
             "empirical_slope_m_yr": emp_slope,
@@ -259,7 +263,7 @@ def main():
     # ── Headline + sanity checks ───────────────────────────────────────────────
 
     def cluster_summary(df, orig_label):
-        sub = df[df["Original_Cluster"] == orig_label]
+        sub = df[(df["Original_Cluster"] == orig_label) & df["In_Cluster_Level"].astype(bool)]
         has_drift = sub.dropna(subset=["model_delta_mm_yr"])
         n_total = len(sub)
         n_drift = len(has_drift)
@@ -285,7 +289,8 @@ def main():
     from utils.report_numbers_utils import ReportNumbers
     rpt = ReportNumbers()
     rpt.add("c3_n_total", c3["n_total"], unit="wells", well="C3",
-            note="Full group-3 membership (C3o, the Western Dune's open wells; 02_cluster_stats.csv, D-348).")
+            note="Group-3 cluster-level membership (C3o, the Western Dune's open wells, In_Cluster_Level: "
+                 "WMC3 and the boundary wells out; 02_cluster_stats.csv, D-348/D-349).")
     rpt.add("c3_n_testable", c3["n_with_drift"], unit="wells", well="C3",
             note="C3 wells with both Script 25 dist_coast_m and a fitted hydrograph "
                  "drift (model_delta_mm_yr not null) - the 'testable' set quoted in "
@@ -325,7 +330,8 @@ def main():
     # Sensitivities — C3 only
     print()
     print("─── C3 sensitivity ─────────────────────────────────────────────")
-    c3_rows = result[result["Original_Cluster"] == "C3"].dropna(subset=["model_delta_mm_yr"])
+    c3_rows = result[(result["Original_Cluster"] == "C3")
+                     & result["In_Cluster_Level"].astype(bool)].dropna(subset=["model_delta_mm_yr"])
     for col, label in [("Best_Detrended_FF",     "forest-free, monthly-uniform (HEADLINE)"),
                        ("Best_Detrended_Summer", "forest-free, summer-only Jun–Sep"),
                        ("Best_Detrended_Full",   "full δ₀ (includes forest)"),

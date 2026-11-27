@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-27 (D-348): the per-cluster summary groups over cluster-level wells (boundary and set-aside out); the all-wells group unchanged. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.2.0"  # 2026-11-27 (D-349 (1), A2): the record-length layout lies on D-347's window - load_inputs() cuts the levels and record_dry_bounds() the dry months at RECORD_FIT_START, so the forecast/hindcast sides, the stability blocks and the CCW start placement are laid out on 2010 onward (forecast lengths above the 96 months of 2010-17 no longer fit, so they are absent, not equal to the full fit); fit_start/fit_end come from the fit; every fit states its window. Was "1.1.0"  # 2026-11-27 (D-348): the per-cluster summary groups over cluster-level wells (boundary and set-aside out); the all-wells group unchanged. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Script 50 (50_record_length.py) as it was at 1.30.0, carried over whole by J-15: its docstring, then its
@@ -385,7 +385,7 @@ from utils.config import (                                    # noqa: E402
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
     E18_RMSE_CUT_M, E18_BASES, E18_PRIMARY_BASIS, QMAP_MIN_MONTHS, QMAP_MIN_WELLS, E19_MIN_MONTHS_PER_YEAR,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
-    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
+    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE, RECORD_FIT_START,
     TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
     TWO_STORE_SLOW_BOUNDS_DAYS, TWO_STORE_SLOW_SHARE_INIT, TWO_STORE_EARLY_YEARS,
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
@@ -443,7 +443,7 @@ SIG_P = 0.05
 from utils.reclen_common import (   # noqa: E402  (the suite's shared helpers, J-15)
     _censored_well_fit, _dkey, _e16_grounds, _e16_mhw, _model_a_store,
     _nse, beta3_bound_report, describe, fit_frame, free_run,
-    load_inputs, mhw_depths, run_datum,
+    load_inputs, mhw_depths, run_datum, record_dry_bounds,
 )
 
 
@@ -491,6 +491,7 @@ def well_experiments(well: str, cluster: int, h: pd.Series, cl: pd.DataFrame, mh
                 frames = [("all", full)]
             else:
                 # 1.24.0 (D-322): blocks of L calendar months from the record's first month, not L rows
+                # 1.2.0 (D-349, A2): the record's first month on or after RECORD_FIT_START (load_inputs cuts it)
                 t0 = full.index[0] if len(full) else None
                 k = ((full.index[-1].to_period("M") - t0.to_period("M")).n + 1) // int(L) if len(full) else 0
                 frames = [(str(i), full[(full.index >= t0 + pd.DateOffset(months=i * int(L))) &
@@ -528,7 +529,7 @@ def ccw_experiment(lev, lev_cols, cl, master):
             continue
         # 1.24.0 (D-322): Script 03's fit, censored on the dry months, over calendar months.
         h = lev[col].dropna()
-        db = dry_bounds(col)
+        db = record_dry_bounds(col)     # 1.2.0 (D-349, A2): cut as lev is, so t0 is on 2010 onward
         db = db if len(db) else None
         t0 = min([h.index.min()] + ([db.index.min()] if db is not None else []))
         t1 = max([h.index.max()] + ([db.index.max()] if db is not None else []))
@@ -555,7 +556,10 @@ def ccw_experiment(lev, lev_cols, cl, master):
                     try:
                         f = fit_ssm(hs, cl, lag=HEADLINE_LAG, window=win, drainage_datum=DRAINAGE_DATUM,
                                     min_obs=RECLEN_MIN_FIT_MONTHS, intercept=icpt, with_corr=True,
-                                    dry_bound=dbs)
+                                    dry_bound=dbs,
+                                    # 1.2.0 (D-349 (1)): the full record is D-347's; a placement is laid out
+                                    # here, on load_inputs()' cut record
+                                    start=RECORD_FIT_START if L == FULL else None)
                     except Exception:
                         f = None
                     row = {"well": r.well, "code": r.code, "cluster": cluster, "form": form,

@@ -37,7 +37,7 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: the coefficient on the exponential
+__version__ = "1.12.0"  # 2026-11-27 (D-349 A12): "C3" is the hydrogeological cluster, Hydro_Cluster == 3 (C3o and C3f, every well: per-well work), not the group Cluster == 3 (C3o only, which left out C3f's wells); the coefficients of the 1.11.0 note are values of their day. Was "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: the coefficient on the exponential
 #   coastal predictor for slope_m_yr is emitted — univariate and in the full five-predictor model
 #   (C3_slope_coast_coef_univariate / _full, with n) — and the memo's "Reading" states them instead
 #   of asserting the full-model coefficient is "near +1, validating Script 25's exponential form".
@@ -162,8 +162,16 @@ def main():
     # Cluster assignments
     clust = pd.read_csv(F_CLUSTER)
     clust["mid"] = clust["Match_ID"].apply(norm)
-    c3_ids = clust.loc[clust["Cluster"] == 3, "mid"].tolist()
-    print(f"C3 wells: {len(c3_ids)}")
+    # 1.12.0 (D-349 A12, rule 6): C3 is HYDROGEOLOGICAL cluster 3 (D-348), both its land-cover groups, read from the
+    # integer column; a table without Hydro_Cluster (before D-348) maps its group through GROUP_HYDRO_CLUSTER.
+    # Per-well work, so every member well, boundary wells included (D-349 rule 2).
+    from utils.config import GROUP_HYDRO_CLUSTER
+    if "Hydro_Cluster" in clust.columns:
+        _hc = pd.to_numeric(clust["Hydro_Cluster"], errors="coerce")
+    else:
+        _hc = pd.to_numeric(clust["Cluster"], errors="coerce").map(GROUP_HYDRO_CLUSTER)
+    c3_ids = clust.loc[_hc == 3, "mid"].tolist()
+    print(f"C3 wells (Hydro_Cluster 3): {len(c3_ids)}")
 
     # Coastal gradient fit (exponential form, forest-free)
     fit = pd.read_csv(F_FIT)
@@ -285,7 +293,7 @@ def main():
     # "Inland" axis = distance from coast (dist_coast_m); larger = more inland.
     # CEH36 (scraped) and WMC3 (clearfell impact) carry no Script 25 dist_coast
     # by design (intervention-affected wells dropped upstream), so the coastal
-    # correlations run on n = 19 of the 21 C3 wells. Sy is the per-well WTF
+    # correlations run on the C3 wells that carry it (n in C3_gradient_n). Sy is the per-well WTF
     # event-median — Script 17's METHOD, Script 18's TABLE (D-038); Table 4c.
     # The cited endpoints are the empirical C3 range.
     rpt = ReportNumbers()

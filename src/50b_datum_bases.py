@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-27 (D-348): the E17 cluster bases, cluster table and per-cluster verdict tests, and the per-cluster e-fold medians from cluster-level wells (site-wide counts keep every well); cluster loop over CLUSTER_LABELS, not range(1, 6). Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.2.0"  # 2026-11-27 (D-349 (1), A3): every fit states its window; the levels come cut at RECORD_FIT_START from reclen_common.load_inputs() 1.1.0, so E6's and the split series' reverse tests score 2010-17, not 2005-17 (forward train 2010-17); the full-record bases are D-347's; the split figure's panel titles say so. Was "1.1.0"  # 2026-11-27 (D-348): the E17 cluster bases, cluster table and per-cluster verdict tests, and the per-cluster e-fold medians from cluster-level wells (site-wide counts keep every well); cluster loop over CLUSTER_LABELS, not range(1, 6). Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 import argparse
 import importlib.util
@@ -51,7 +51,7 @@ from utils.config import (                                    # noqa: E402
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
     E18_RMSE_CUT_M, E18_BASES, E18_PRIMARY_BASIS, QMAP_MIN_MONTHS, QMAP_MIN_WELLS, E19_MIN_MONTHS_PER_YEAR,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
-    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
+    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE, RECORD_FIT_START,
     TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
     TWO_STORE_SLOW_BOUNDS_DAYS, TWO_STORE_SLOW_SHARE_INIT, TWO_STORE_EARLY_YEARS,
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
@@ -149,7 +149,7 @@ def ccw_by_datum(lev, lev_cols, cl, loc_forest) -> pd.DataFrame:
         db = dry_bounds(col)                             # 1.24.0 (D-322): censored, calendar windows
         for D in datum_grid():
             for basis, win in (("comparison_window", LCSC_DATA_LIMIT), ("full_record", None)):
-                f = _censored_well_fit(h, cl, db, win, False, datum=float(D))
+                f = _censored_well_fit(h, cl, db, win, False, datum=float(D), start=RECORD_FIT_START)
                 row = {"well": r.well, "code": r.code, "cluster": int(md.loc[r.well, "Cluster"]),
                        "in_forest": bool(loc_forest.get(normalize_well_name(r.well), False)),
                        "basis": basis, "datum_m": float(D)}
@@ -181,7 +181,7 @@ def split_by_datum(lev, lev_cols, cl, master) -> pd.DataFrame:
         if col is None:
             continue
         h = lev[col].dropna()
-        pre_h, post_h = h[h.index < split], h[h.index >= split]
+        pre_h, post_h = h[h.index < split], h[h.index >= split]   # D-349 (A3): h is cut at RECORD_FIT_START (load_inputs), so "pre" is 2010-17
         for D in datum_grid():
             for direction, tr, te in (("fwd", pre_h, post_h), ("rev", post_h, pre_h)):
                 fr = build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=float(D))
@@ -217,7 +217,7 @@ def split_series(lev, lev_cols, cl, master, mhw: dict | None = None) -> pd.DataF
         if col is None:
             continue
         h = lev[col].dropna()
-        pre_h, post_h = h[h.index < split], h[h.index >= split]
+        pre_h, post_h = h[h.index < split], h[h.index >= split]   # D-349 (A3): h is cut at RECORD_FIT_START (load_inputs), so "pre" is 2010-17
         D_m = mhw.get(r["_n"])
         for direction, tr, te in (("fwd", pre_h, post_h), ("rev", post_h, pre_h)):
             fr = build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
@@ -254,9 +254,9 @@ def split_series(lev, lev_cols, cl, master, mhw: dict | None = None) -> pd.DataF
 def plot_split_series(series: pd.DataFrame) -> None:
     """J-6: the January 2018 split drawn, BOTH forms, BOTH directions.
 
-    1a (backward) is the comparable case: fitted on 2018-26 and run back over 2005-18, the same
+    1a (backward) is the comparable case: fitted on 2018-26 and run back over 2010-17, the same
     shape of test as the 1989-96 and 1951-53 hindcasts, which also run modern coefficients into an
-    earlier period. 1b (forward) is the forecasting case -- fitted on 2005-18 and run forward --
+    earlier period. 1b (forward) is the forecasting case -- fitted on 2010-17 and run forward --
     and is the only one of the four that tests the model the way it would actually be used.
     1a leads because it is the one scenarios 2 and 3 can be read against.
 
@@ -278,9 +278,10 @@ def plot_split_series(series: pd.DataFrame) -> None:
         o, p = g["observed_m"].values, g["predicted_m"].values
         return 1 - ((o - p) ** 2).sum() / ((o - o.mean()) ** 2).sum()
 
-    panels = [("rev", "1a \u2014 backward: fitted 2018\u201326, run back over 2005\u201318 "
+    # 1.2.0 (D-349, A3): both sides lie on D-347's window (reclen_common.load_inputs cuts the levels at 2010)
+    panels = [("rev", "1a \u2014 backward: fitted 2018\u201326, run back over 2010\u201317 "
                       "(the case scenarios 2 and 3 compare with)"),
-              ("fwd", "1b \u2014 forward: fitted 2005\u201318, run forward over 2018\u201326 "
+              ("fwd", "1b \u2014 forward: fitted 2010\u201317, run forward over 2018\u201326 "
                       "(the forecasting case)")]
     clusters = sorted(series["cluster"].unique())
     fig, axes = plt.subplots(len(clusters), 2, figsize=(14.0, 2.7 * len(clusters)), squeeze=False)
@@ -464,7 +465,8 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
         for D in datum_grid():
             try:
                 f = fit_ssm(h, cl, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT, drainage_datum=float(D),
-                            min_obs=RECLEN_MIN_FIT_MONTHS, dry_bound=db)
+                            min_obs=RECLEN_MIN_FIT_MONTHS, dry_bound=db,
+                            start=RECORD_FIT_START)   # 1.2.0 (D-349 (1)): the comparison window lies inside it
             except Exception:
                 f = None
             if f is None or not response_identified(f["beta_3_drainage"], f["pvalue_beta_3"], f["n"], 3)[0]:
@@ -564,7 +566,7 @@ def ranwell_by_datum(lev, lev_cols, cl) -> pd.DataFrame:
                     # it is fitted once, at the project datum, and run at its own zero-drainage datum.
                     if intercept and not np.isclose(D, DRAINAGE_DATUM):
                         continue
-                    f = _censored_well_fit(h, cl, dry_bounds(col), win, intercept, datum=D)
+                    f = _censored_well_fit(h, cl, dry_bounds(col), win, intercept, datum=D, start=RECORD_FIT_START)
                     row = dict(base, form=form, basis=basis, datum_m=float(D) if not intercept else np.nan)
                     if f is None or not (f["beta_3_drainage"] > 0):
                         rows.append(row)
@@ -849,10 +851,10 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
             continue
         h = lev[col].dropna()
         g = grounds[r["_n"]]
-        pre_h, post_h = h[h.index < split], h[h.index >= split]
+        pre_h, post_h = h[h.index < split], h[h.index >= split]   # D-349 (A3): h is cut at RECORD_FIT_START (load_inputs), so "pre" is 2010-17
         for kind, z0, _lab in specs:
             D = datum_of(kind, z0, g, int(r["Cluster"]))
-            f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D)   # 1.24.0 (D-322)
+            f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D, start=RECORD_FIT_START)   # 1.24.0 (D-322)
             row = _base("fit", r["_n"], int(r["Cluster"]), kind, z0, D)
             if f is not None:
                 b3 = f["beta_3_drainage"]
@@ -887,7 +889,7 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
             h = lev[col].dropna()
             for kind, z0, _lab in specs:
                 D = datum_of(kind, z0, grounds[k], int(md.loc[r.well, "Cluster"]))
-                f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D)   # 1.24.0 (D-322)
+                f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D, start=RECORD_FIT_START)   # 1.24.0 (D-322)
                 row = _base("ccw", k, int(md.loc[r.well, "Cluster"]), kind, z0, D)
                 row["code"] = r.code
                 if f is not None and f["beta_3_drainage"] > 0:
@@ -919,7 +921,7 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
             cl_k = master.loc[master["_n"] == k, "Cluster"]
             for kind, z0, _lab in specs:
                 D = datum_of(kind, z0, grounds[k], int(cl_k.iloc[0]) if len(cl_k) else -1)
-                f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D)   # 1.24.0 (D-322)
+                f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D, start=RECORD_FIT_START)   # 1.24.0 (D-322)
                 row = _base("ranwell", k, int(cl_k.iloc[0]) if len(cl_k) else -1, kind, z0, D)
                 row.update(site_no=int(pr.site_no), headline=bool(pr.headline))
                 if f is not None and f["beta_3_drainage"] > 0:

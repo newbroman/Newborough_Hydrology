@@ -31,7 +31,7 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.15.0"  # 2026-11-27 (D-348): cluster keys from CLUSTER_LABELS (five groups); forest by FOREST_CIDS; scenario_cluster_sy matches a key to its group label so C3 no longer matches C3f; load_cluster_params' Sy median and mean depth from cluster-level wells. Was "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+__version__ = "1.16.0"  # 2026-11-27 (D-349 B2, B3, A8): compute_scenario_bars() returns the SUSTAINED change in stored water (the summer forcing change, recurring each summer, carried to its periodic steady state on the group's beta_3 and averaged over the summer months, x Sy; mm w.e.), not a one-month flux, and NaN at a group whose beta_3 is not identified (beta3_identified_groups, D-333); compute_scenario_bar_range() carries Clearfell / Thinning over the clearfell anchor range; flux_to_summer_min_mm() takes that storage (NaN-safe); load_cluster_params' mean depth over RECORD_FIT_START onward. Was "1.15.0"  # 2026-11-27 (D-348): cluster keys from CLUSTER_LABELS (five groups); forest by FOREST_CIDS; scenario_cluster_sy matches a key to its group label so C3 no longer matches C3f; load_cluster_params' Sy median and mean depth from cluster-level wells. Was "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
 #   compute_scenario_bars(): Clearfell and Thinning 50% return a share of the interception
 #   (clearfell_common.clearfell_return_fraction, calibrated on the observed BACI step) instead of a beta_2
 #   multiplier; arguments clearfell_frac / thinning_frac replace clearfell_b2_mult / thinning_b2_mult.
@@ -407,8 +407,11 @@ def load_cluster_params():
 
     coeff = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     from utils.cluster_series import in_cluster_level
+    from utils.config import RECORD_FIT_START
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     wells.columns = wells.columns.str.lower().str.replace(" ", "")
+    # 1.16.0 (D-349): the mean depth over D-347's window, the one the implied datum is fitted on
+    wells = wells[wells.index >= pd.Timestamp(RECORD_FIT_START)]
     master = pd.read_csv(INT_MASTER_DATA)
     master["match"] = master["Name_Original"].str.lower().str.replace(" ", "")
     master = master[in_cluster_level(master)]   # D-348: cluster-level wells only
@@ -483,13 +486,34 @@ def significance_stars(p):
 # SCENARIO COMPARISON — shared computation
 # ============================================================================
 
+def beta3_identified_groups():
+    """1.16.0 (D-349 B2, D-333): {group id: True/False}, whether the group's Model B centroid beta_3 passes Script
+    48's identifiability rule (model_utils.response_identified on 03_03's beta_3_drainage, pvalue_beta_3 and n;
+    four parameters). A group that fails it carries no level through 1/beta_3 (C4 on the committed run). An absent
+    table (first pass) counts every group identified, with a warning."""
+    from utils.paths import OUT_03_MECHANISTIC_TABLE
+    from utils.model_utils import response_identified
+    try:
+        t = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+    except FileNotFoundError:
+        print(f"  WARNING: {OUT_03_MECHANISTIC_TABLE.name} not found - every group's beta_3 counted identified")
+        return {int(c): True for c in _CLUSTER_LABELS}
+    return {int(r["Cluster"]): bool(response_identified(r["beta_3_drainage"], r["pvalue_beta_3"], r["n"], 4)[0])
+            for _, r in t.iterrows()}
+
+
 def compute_scenario_bars(cluster_params, summer_P, summer_PET,
                           clearfell_frac=None, thinning_frac=None):
-    """Compute per-cluster volumetric scenario bars (mm w.e./month).
+    """Compute per-cluster scenario bars: the SUSTAINED change in stored water (mm w.e.).
 
-    Uses the Option 3 seasonal perturbation formulation:
-        Δh(m) = β₁·ΔP − Δβ₂·PET
-    with forestry interception and UKCP18 climate scaling.
+    Uses the Option 3 seasonal perturbation formulation for the one-month forcing change:
+        Δf = β₁·ΔP − Δβ₂·PET
+    with forestry interception and UKCP18 climate scaling, on the summer-mean climate. 1.16.0 (D-349 B2): that
+    change, applied in the summer months (SUMMER_MINIMUM_MONTHS) of every year, is carried to its sustained level
+    on the group's beta_3 (model_utils.sustained_monthly_response, the periodic steady state), as D-239 says; the
+    bar is that level's mean over the summer months, × Sy × 1000 as stored water. Before 1.16.0 the bar was the one-month flux
+    change × Sy ("mm w.e./month"), a rate set beside levels. A group whose beta_3 is not identified
+    (beta3_identified_groups(), D-333: C4) gets NaN for every scenario: no level is carried through 1/β₃ there.
 
     Parameters
     ----------
@@ -508,8 +532,9 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
 
     Returns
     -------
-    dict : {scenario_name: {cluster: value_mm_per_month}}
+    dict : {scenario_name: {cluster: sustained storage change, mm w.e. (NaN: beta_3 not identified)}}
     """
+    from utils.model_utils import sustained_monthly_response
     from utils.config import (
         FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
         BROADLEAF_B2_SUMMER,
@@ -527,6 +552,8 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
 
     clusters = [f"C{c}" for c in _CLUSTER_LABELS]   # D-348: the five groups (C5 = C3f)
     scenarios = {}
+    identified = beta3_identified_groups()   # 1.16.0 (D-349 B2, D-333)
+    _SUMMER_SET = set(SUMMER_MINIMUM_MONTHS)
 
     def _flux(b1, b2, P_eff, PET, b3, h_disp):
         return b1 * P_eff - b2 * PET - b3 * h_disp
@@ -580,11 +607,36 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
             flux_scen = _flux(cp["b1"], b2_scen, P_scen, PET_scen,
                               cp["b3"], cp["h_disp"])
 
-            vals[c] = round((flux_scen - flux_base) * cp["Sy"] * 1000, 1)
+            # 1.16.0 (D-349 B2): the sustained level of the forcing change, as stored water
+            if not identified.get(int(c[1:]), True):
+                vals[c] = float("nan")
+                continue
+            # The change is a SUMMER one (summer-mean P and PET, UKCP18 summer factors), so it is applied in the
+            # summer months of every year and nothing else; the bar is the mean of the periodic steady state over
+            # those months (the sustained summer level).
+            _f12 = np.array([(flux_scen - flux_base) if m in _SUMMER_SET else 0.0 for m in range(1, 13)])
+            _ss = sustained_monthly_response(cp["b3"], _f12)
+            level = float(np.mean(_ss[[m - 1 for m in sorted(_SUMMER_SET)]]))
+            vals[c] = round(level * cp["Sy"] * 1000, 1)
 
         scenarios[scenario_name] = vals
 
     return scenarios
+
+
+def compute_scenario_bar_range(cluster_params, summer_P, summer_PET):
+    """1.16.0 (D-349 B3): the Clearfell and Thinning 50% bars over the clearfell anchor range,
+    {member: {"Clearfell": {cluster: mm}, "Thinning 50%": {cluster: mm}}} for member in
+    clearfell_common.CLEARFELL_ANCHORS (drift free / drift fixed / drift-free DiD), each with that member's f."""
+    from utils.clearfell_common import clearfell_return_fraction_range
+    out = {}
+    for m, f in clearfell_return_fraction_range(verbose=False).items():
+        if not np.isfinite(f):
+            out[m] = {k: {c: float("nan") for c in _GROUP_KEYS} for k in ("Clearfell", "Thinning 50%")}
+            continue
+        b = compute_scenario_bars(cluster_params, summer_P, summer_PET, clearfell_frac=f, thinning_frac=f / 2.0)
+        out[m] = {k: b[k] for k in ("Clearfell", "Thinning 50%")}
+    return out
 
 
 def compute_scenario_bars_from_params():
@@ -726,16 +778,19 @@ def scenario_cluster_sy(sy_table,
     return sy
 
 
-def flux_to_summer_min_mm(flux_mm_per_month, sy, amp_factor):
-    """Convert a monthly water-equivalent flux to a change in summer-minimum
-    depth, rounded to the nearest mm.
+def flux_to_summer_min_mm(storage_mm, sy, amp_factor):
+    """Convert a sustained change in stored water (mm w.e., compute_scenario_bars 1.16.0) to a change in
+    summer-minimum depth, rounded to the nearest mm.
 
-    summer-minimum change (mm) = round( flux / Sy * amplification factor )
+    summer-minimum change (mm) = round( storage / Sy * amplification factor )
 
-    This is the single conversion used for the ``Delta_summer_min_mm`` scenario
-    metric in 09b_05 and 21_forestry_06.
+    1.16.0 (D-349 B2): the input is a sustained level as stored water; before 1.16.0 it was a one-month flux, so
+    the "head" it gave was one month's rate. NaN in, NaN out (a group whose beta_3 is not identified). The name
+    is kept so its callers stay one search away.
     """
-    return round(flux_mm_per_month / sy * amp_factor)
+    if not np.isfinite(storage_mm):
+        return float("nan")
+    return round(storage_mm / sy * amp_factor)
 
 
 def scenario_summer_min_bars(flux_bars, sy_by_cluster, amp_factors,
@@ -749,7 +804,7 @@ def scenario_summer_min_bars(flux_bars, sy_by_cluster, amp_factors,
     flux_bars : dict or pandas.DataFrame
         Either ``{scenario: {cluster: mm_per_month}}`` (as returned by
         compute_scenario_bars) or a long DataFrame with columns
-        ``Scenario`` / ``Cluster`` / ``Delta_vol_mm_per_month``.
+        ``Scenario`` / ``Cluster`` / ``Delta_storage_sustained_mm`` (or the pre-1.16.0 ``Delta_vol_mm_per_month``).
     sy_by_cluster, amp_factors : dict
         From scenario_cluster_sy() and summer_amplification_factors().
     scenarios : iterable of str
@@ -761,9 +816,10 @@ def scenario_summer_min_bars(flux_bars, sy_by_cluster, amp_factors,
     """
     if hasattr(flux_bars, "columns"):
         fb = {}
+        _col = ("Delta_storage_sustained_mm" if "Delta_storage_sustained_mm" in flux_bars.columns
+                else "Delta_vol_mm_per_month")   # 1.16.0: the column 09b/21 write since D-349 B2
         for _, r in flux_bars.iterrows():
-            fb.setdefault(r["Scenario"], {})[r["Cluster"]] = float(
-                r["Delta_vol_mm_per_month"])
+            fb.setdefault(r["Scenario"], {})[r["Cluster"]] = float(r[_col])
         flux_bars = fb
     out = {}
     for s in scenarios:

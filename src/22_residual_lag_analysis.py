@@ -53,7 +53,7 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # 2026-11-27 (D-348): the cluster-mean residual-inference centroids from cluster-level wells (boundary and set-aside out), as Script 03 builds them. Was "1.7.0"  # Hollingham (2026) — 2026-11-25 (D-332, D-342; Martin: "SI re run script 22"). The
+__version__ = "1.9.0"  # 2026-11-27 (D-349 (1), A5 / N6): every fit states its window - fit_model_b passes start=RECORD_FIT_START, and the residual-inference battery (22_05, 22_06), its own OLS, cuts each series at RECORD_FIT_START as the headline fit does. Was "1.8.0"  # 2026-11-27 (D-348): the cluster-mean residual-inference centroids from cluster-level wells (boundary and set-aside out), as Script 03 builds them. Was "1.7.0"  # Hollingham (2026) — 2026-11-25 (D-332, D-342; Martin: "SI re run script 22"). The
 #   residual-inference battery (22_05 per well, 22_06 per cluster centroid) fitted the FIXED-floor form (no
 #   intercept), which stopped being the headline at D-332: it now fits the fitted-floor form, the headline of Table 1,
 #   with the intercept in the design (const) and beta_3 bounded below at MODEL_B_BETA3_MIN as fit_ssm(intercept=True)
@@ -96,6 +96,7 @@ from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
 from utils.config import MODEL_B_BETA3_MIN  # 1.7.0 (D-332)
+from utils.config import RECORD_FIT_START  # 1.9.0 (D-349 (1)): the D-347 record window
 from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, HEADLINE_LAG,
                           RESIDUAL_DIAG_MIN_MONTHS, RESIDUAL_DIAG_EXCLUDED_WELLS)
 from utils.model_utils import fit_ssm_intercept, build_ssm_frame, MIN_OBS
@@ -140,10 +141,10 @@ apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own 
 def fit_model_b(well_series, climate):
     """Fit Model B (SSM with intercept) via shared model_utils function.
 
-    Uses full record (no windowing), MIN_MONTHS threshold.
+    Uses the full D-347 record (January 2010 on; 1.9.0, D-349 (1) states it), MIN_MONTHS threshold.
     Returns dict with alpha, betas, R2, n, resid — or None.
     """
-    return fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS)
+    return fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS, start=RECORD_FIT_START)
 
 
 def ar1_diagnostic(residuals):
@@ -411,6 +412,7 @@ def ssm_residual_inference(climate, cluster_lookup):
         if norm in EXCLUDED_WELLS_NORM:
             continue
         series = pd.to_numeric(ref[well], errors="coerce").dropna()
+        series = series[series.index >= pd.Timestamp(RECORD_FIT_START)]   # 1.9.0 (D-349 (1), N6): D-347's window
         frame = build_ssm_frame(series, climate, lag=HEADLINE_LAG)
         if frame is None or len(frame) < MIN_MONTHS:
             continue
@@ -450,7 +452,7 @@ def cluster_mean_residual_inference(wells, climate, cluster_df):
     """Cluster-mean (centroid) residual-inference diagnostic — the HAC robustness
     check for the *headline* β table (Report Table 3 / Paper 1 Table 1). Rebuilds
     each cluster's centroid exactly as Script 03's
-    build_cluster_centroids does, fits the headline fitted-floor SSM (full record; 1.7.0),
+    build_cluster_centroids does, fits the headline fitted-floor SSM (full record from RECORD_FIT_START; 1.7.0, 1.9.0),
     and applies the same Durbin–Watson / lag-1 φ / Ljung–Box / OLS-vs-HAC battery
     as the per-well diagnostic. Writes INT_22_SSM_CLUSTER_INFERENCE and returns a
     summary dict. Until 1.7.0 this fitted the fixed-floor form, whose centroid β reproduced
@@ -475,6 +477,7 @@ def cluster_mean_residual_inference(wells, climate, cluster_df):
         # Centroid — identical to Script 03 build_cluster_centroids. No upstand
         # term: the series are already ground-referenced (GEOMETRY_ARCHITECTURE_SPEC §3).
         centroid = wells[cols].mean(axis=1)
+        centroid = centroid[centroid.index >= pd.Timestamp(RECORD_FIT_START)]   # 1.9.0 (D-349 (1), N6): D-347's window
 
         frame = build_ssm_frame(centroid, climate, lag=HEADLINE_LAG)
         if frame is None or len(frame) < MIN_OBS:

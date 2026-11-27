@@ -14,7 +14,7 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.23.0"  # 2026-11-27 (D-349): the Edge flag (50 m from the clearfell or broadleaf restock) and its rule for mixed clusters; consensus-placed wells are boundary wells; silhouette key named for the chosen k. Was "1.22.0"  # 2026-11-27 (D-348): k = 4 (pipeline_params), anchors for four clusters, membership by bootstrap consensus, the Boundary flag, land cover and the cluster-level groups (C3o, C3f), the k = 7 sub-group. Was "1.21.0"  # 2026-11-27: Ward on sqrt(2(1 - r)), the Euclidean distance between standardized series, not 1 - r (Fable review; Martin: "decide after a full test"). Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
+__version__ = "1.24.0"  # 2026-11-27 (D-349 A11): 02_13 and the cluster_mean_level rows carry the group labels (C3o, C3f) and count In_Cluster_Level members. Was "1.23.0"  # 2026-11-27 (D-349): the Edge flag (50 m from the clearfell or broadleaf restock) and its rule for mixed clusters; consensus-placed wells are boundary wells; silhouette key named for the chosen k. Was "1.22.0"  # 2026-11-27 (D-348): k = 4 (pipeline_params), anchors for four clusters, membership by bootstrap consensus, the Boundary flag, land cover and the cluster-level groups (C3o, C3f), the k = 7 sub-group. Was "1.21.0"  # 2026-11-27: Ward on sqrt(2(1 - r)), the Euclidean distance between standardized series, not 1 - r (Fable review; Martin: "decide after a full test"). Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the partition and every diagnostic is
 #   formed on config.RECORD_FIT_START onward (January 2010); the C3 anchor is ceh10 (nw1 joins C2 on that record);
 #   C3 is named Western Dune (config). The period split now reads 2010-17 against 2018-26.
 # 1.19.0  # Hollingham (2026) — 2026-11-25 (D-343; Martin: "I want to see the pre 2018 cluster results and
@@ -158,6 +158,7 @@ from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW,
     HYDRO_CLUSTER_LABELS as CLUSTER_LABELS,   # 1.22.0 (D-348): every label in this script is a hydrogeological cluster
     CLUSTER_LABELS as GROUP_LABELS,           #   ... and the cluster-level groups only where the membership is written
+    CLUSTER_SHORT,                            # 1.24.0 (D-349 A11): the groups' short labels (C3o, C3f)
     GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_SEEDS, CONSENSUS_N_BOOT, CLUSTER_SUBGROUP_K,
     LANDCOVER_EDGE_M,
     REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES, MIN_RECORD_MONTHS,
@@ -1564,10 +1565,12 @@ def add_cluster_mean_level_offsets(rr: ReportNumbers, regional: pd.DataFrame) ->
     ids = sorted(means)
     for i, a in enumerate(ids):
         for b in ids[i + 1:]:
+            # 1.24.0 (D-349 A11): the columns are cluster-level GROUPS, so their labels are GROUP_LABELS
+            sa, sb = CLUSTER_SHORT.get(a, f"C{a}"), CLUSTER_SHORT.get(b, f"C{b}")
             rr.add("cluster_mean_level_offset_m", means[b] - means[a], unit="m",
-                   well=f"C{b} minus C{a}", era=era,
-                   note=f"cluster_mean_level_m of {CLUSTER_LABELS.get(b, f'C{b}')} minus that of "
-                        f"{CLUSTER_LABELS.get(a, f'C{a}')}; negative = C{b} deeper")
+                   well=f"{sb} minus {sa}", era=era,
+                   note=f"cluster_mean_level_m of {GROUP_LABELS.get(b, f'C{b}')} minus that of "
+                        f"{GROUP_LABELS.get(a, f'C{a}')}; negative = {sb} deeper")
 
 
 def add_cluster_mean_level_numbers(rr: ReportNumbers, regional: pd.DataFrame) -> None:
@@ -1586,7 +1589,7 @@ def add_cluster_mean_level_numbers(rr: ReportNumbers, regional: pd.DataFrame) ->
         if series.empty:
             continue
         rr.add("cluster_mean_level_m", float(series.mean()), unit="m",
-               well=CLUSTER_LABELS.get(cid, col), era=era,
+               well=GROUP_LABELS.get(cid, col), era=era,   # 1.24.0 (D-349 A11): a group column
                note=f"mean of the cluster-mean hydrograph (member wells averaged each month), "
                     f"02_03_cluster_hydrographs_wb.png panel (b), {len(series)} months; negative = below ground")
 
@@ -1606,12 +1609,12 @@ def write_cluster_mean_level_table(regional: pd.DataFrame) -> None:
         series = pd.to_numeric(regional[col], errors="coerce").dropna()
         if series.empty:
             continue
-        members = cluster_df_local[
-            pd.to_numeric(cluster_df_local["Cluster"], errors="coerce") == cid
-        ]["Name_Original"].astype(str).values
+        # 1.24.0 (D-349 A11): the column is a cluster-level group built from its In_Cluster_Level members
+        # (regional, above), so it carries the group's label and counts those members only
+        members = cluster_level_members(cluster_df_local, cid)
         rows.append({
             "Cluster": cid,
-            "Cluster_Label": CLUSTER_LABELS.get(cid, col),
+            "Cluster_Label": GROUP_LABELS.get(cid, col),
             "n_wells": sum(1 for m in members if m in wells_cols),
             "n_months": len(series),
             "mean_level_m": float(series.mean()),

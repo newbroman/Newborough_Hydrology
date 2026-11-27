@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-27 (D-348): E13 member-mean centroids and the E11 open-ground coefficient medians from cluster-level wells; FOREST_FORCING_CLUSTERS (4, 5) = C4, C3f per well, unchanged. Was "1.0.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the E13 fits (_e13_run, e13_break) keep
+__version__ = "1.2.0"  # 2026-11-27 (D-349 (1), A3, A4): every fit states its window; the levels come cut at RECORD_FIT_START (reclen_common 1.1.0), so E10's full, pre and post frames lie on 2010 onward and its reverse split scores 2010-17; E10's BIC (and F3's own fit) is scored on the frame the fit used; F1 is F0 under BIC (a constant scaling of P that beta_1 absorbs), so the best forcing is chosen by the strict rule - a variant counts only if its summed BIC is below F0's, else the best is F0; E13 keeps its own uncut wells (D-347 (5)). Was "1.1.0"  # 2026-11-27 (D-348): E13 member-mean centroids and the E11 open-ground coefficient medians from cluster-level wells; FOREST_FORCING_CLUSTERS (4, 5) = C4, C3f per well, unchanged. Was "1.0.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the E13 fits (_e13_run, e13_break) keep
 #   the whole record (start=None); their subject is the 2006-08 excess. Nothing else changes.
 # 1.0.0  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
@@ -53,7 +53,7 @@ from utils.config import (                                    # noqa: E402
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
     E18_RMSE_CUT_M, E18_BASES, E18_PRIMARY_BASIS, QMAP_MIN_MONTHS, QMAP_MIN_WELLS, E19_MIN_MONTHS_PER_YEAR,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
-    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
+    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE, RECORD_FIT_START,
     TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
     TWO_STORE_SLOW_BOUNDS_DAYS, TWO_STORE_SLOW_SHARE_INIT, TWO_STORE_EARLY_YEARS,
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
@@ -158,6 +158,10 @@ def _forcing_climate(cl: pd.DataFrame, variant: str, canopy: pd.Series) -> pd.Da
     return c
 
 
+# 1.2.0 (D-349, A4): a summed-BIC difference smaller than this is a tie (F1 against F0 differs by float noise only)
+FORCING_BIC_TIE = 1e-6
+
+
 def _post_fell_fit(frame: pd.DataFrame, intercept: bool, post: pd.Series):
     """F3 at a clearfell edge well: the SSM with one extra regressor, -PET in the months after felling, so felled
     ground takes its own evaporation coefficient. Ordinary least squares on build_ssm_frame's columns (the
@@ -220,16 +224,20 @@ def forest_forcing(lev, lev_cols, cl, master, df_full):
                 row = {"well": k, "cluster": int(cluster), "edge": edge, "variant": variant, "form": form}
                 f = fit_frame(full, icpt)
                 row.update({f"full_{a}": b for a, b in describe(f, icpt, full).items()})
+                # 1.2.0 (D-349, A4): the BIC is scored on the months the fit used - its own frame - and F3's
+                # least squares runs on that same frame, so every variant's BIC is over one sample
+                fr_fit = full.loc[f["resid"].index] if f is not None else full
                 if f is not None:
-                    res = _ssm_resid(f, full, icpt)
+                    res = _ssm_resid(f, fr_fit, icpt)
                     row["bic"] = _bic(res, 3 + int(icpt))
                     row["season_contrast_m"] = _season_contrast(res)
-                if variant == "F3" and edge and full is not None and len(full):
-                    beta, res, bic = _post_fell_fit(full, icpt, post)
+                if variant == "F3" and edge and fr_fit is not None and len(fr_fit):
+                    beta, res, bic = _post_fell_fit(fr_fit, icpt, post)
                     row.update(bic=bic, season_contrast_m=_season_contrast(res), beta_2_post_fell=float(beta[3]),
                                full_beta_2=float(beta[1]), full_beta_3=float(beta[2]))
                 # split tests: F3's extra coefficient cannot be estimated on either side of the split (the
                 # felling falls at it), so F3 forecasts as F2 does
+                # 1.2.0 (D-349, A3): h is cut at RECORD_FIT_START (load_inputs), so the reverse run scores 2010-17
                 fp, fq = fit_frame(pre, icpt), fit_frame(postf, icpt)
                 row["fwd_nse"] = free_run(h[h.index >= split], clv, fp, icpt)["nse"]
                 row["rev_nse"] = free_run(h[h.index < split], clv, fq, icpt)["nse"]
@@ -249,23 +257,30 @@ def forest_forcing_verdicts(tab: pd.DataFrame) -> dict:
     """The rule fixed before the run (Martin 2026-10-13): per cluster, the best of F1-F3 by summed Model A BIC is
     'supported' if it raises the median Model A forward NSE by FORCING_NSE_GAIN over F0, makes Model B's beta_3
     identified at a majority of wells, and shrinks |summer - winter residual|; 'not supported' if no variant raises
-    the median forward NSE; 'not resolved' otherwise."""
+    the median forward NSE; 'not resolved' otherwise. 1.2.0 (D-349, A4): "best" is strict - a variant whose summed
+    BIC is not below F0's is not best (F1's equals F0's identically); with none, the best is F0 and test 1 fails."""
     out = {}
     for c in sorted(tab["cluster"].unique()):
         g = tab[tab["cluster"] == c]
         A, B = g[g["form"] == "A"], g[g["form"] == "B"]
         med = lambda d, v, col: float(d[d["variant"] == v][col].median())
         bic = {v: float(A[A["variant"] == v]["bic"].sum()) for v in FORCING_VARIANTS}  # post hoc excluded
-        best = min(("F1", "F2", "F3"), key=lambda v: bic[v])
+        # 1.2.0 (D-349, A4): the strict rule. F1 scales P by a constant, which beta_1 absorbs exactly, so its BIC IS
+        # F0's: it cannot win a tie. A variant counts as best only if its summed BIC is below F0's by more than
+        # float noise (FORCING_BIC_TIE); if none is, the best is F0 itself and no forcing is preferred by BIC.
+        elig = [v for v in ("F2", "F3", "F1") if np.isfinite(bic[v]) and bic[v] < bic["F0"] - FORCING_BIC_TIE]
+        best = min(elig, key=lambda v: bic[v]) if elig else "F0"
         n_w = int(B[B["variant"] == best]["well"].nunique())
         n_id = int(B[(B["variant"] == best) & (B["full_identified"] == True)]["well"].nunique())  # noqa: E712
         gains = {v: med(A, v, "fwd_nse") - med(A, "F0", "fwd_nse") for v in ("F1", "F2", "F3")}
-        t1 = gains[best] >= FORCING_NSE_GAIN
+        gains_b = dict(gains, F0=0.0)
+        t1 = gains_b[best] >= FORCING_NSE_GAIN
         t2 = n_id > n_w / 2
         t3 = abs(med(A, best, "season_contrast_m")) < abs(med(A, "F0", "season_contrast_m"))
         v = ("supported" if (t1 and t2 and t3) else
              "not supported" if max(gains.values()) <= 0 else "not resolved")
-        out[c] = {"verdict": v, "best": best, "gain": gains[best], "gains": gains, "n_identified": n_id, "n_wells": n_w,
+        out[c] = {"verdict": v, "best": best, "gain": gains_b[best], "gains": gains,
+                  "dbic_F1": bic["F0"] - bic["F1"], "n_identified": n_id, "n_wells": n_w,
                   "n_identified_F0": int(B[(B["variant"] == "F0") & (B["full_identified"] == True)]["well"].nunique()),  # noqa: E712
                   "fwd_F0": med(A, "F0", "fwd_nse"), "fwd_best": med(A, best, "fwd_nse"),
                   "season_F0": med(A, "F0", "season_contrast_m"), "season_best": med(A, best, "season_contrast_m"),
@@ -283,8 +298,12 @@ def forest_forcing_report(rr, ver: dict, chk: float) -> None:
                note=f"C{c}: {v['verdict']} (2 supported, 1 not resolved, 0 not supported); E10, the forest forcing test, "
                     f"rule fixed before the run (D-260)")
         rr.add(f"forest_forcing_best_variant_C{c}", code[v["best"]], unit="code",
-               note=f"C{c}: best of F1-F3 by summed Model A BIC (1 interception, 2 interception with the canopy, "
-                    f"3 and a post-felling evaporation coefficient)")
+               note=f"C{c}: best of F1-F3 by summed Model A BIC, counted only where it is below F0's (0 none: F0 "
+                    f"stands; 1 interception, 2 interception with the canopy, 3 and a post-felling evaporation "
+                    f"coefficient; D-349: F1 is F0 under BIC and cannot win a tie)")
+        rr.add(f"forest_forcing_dbic_F1_C{c}", v["dbic_F1"], unit="BIC",
+               note=f"C{c}: summed Model A BIC of F0 minus F1's - zero up to float noise, since a constant scaling of P "
+                    f"is absorbed by beta_1 (D-349)")
         rr.add(f"forest_forcing_fwd_nse_F0_median_C{c}", v["fwd_F0"], unit="", note=f"C{c}: median forward NSE, Model A, observed forcing")
         rr.add(f"forest_forcing_fwd_nse_best_median_C{c}", v["fwd_best"], unit="", note=f"C{c}: median forward NSE, Model A, best forcing")
         for var, g in v["gains"].items():
@@ -1036,7 +1055,8 @@ def e13b_residual_seasonality(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFram
             continue
         for name, c in runs.items():
             h = lev[col] if name == "thornthwaite_full" else lev[col].loc[:end]
-            f = fit_ssm_intercept(h, c, min_obs=RESIDUAL_DIAG_MIN_MONTHS)
+            f = fit_ssm_intercept(h, c, min_obs=RESIDUAL_DIAG_MIN_MONTHS,
+                                  start=RECORD_FIT_START)   # D-349 (1): Script 24's window, for the identity
             if f is None:
                 continue
             row = _resid_row(f["resid"])

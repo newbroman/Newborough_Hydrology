@@ -108,7 +108,7 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # 2026-11-27 (D-348): the C4 vs C2+C3o peak-lag test, cluster-mean and cluster-median b11 keys and the cluster-mean ratio bars from cluster-level wells; per-well fits, maps and the network Spearman test keep every well; C5 notes read C3f. Was "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.8.0"  # 2026-11-27 (D-349 (1), A5): the extended Model B (its own OLS) is fitted on D-347's window, from RECORD_FIT_START; the h_prev of January 2010 is December 2009's head, as fit_ssm keeps it. Was "1.7.0"  # 2026-11-27 (D-348): the C4 vs C2+C3o peak-lag test, cluster-mean and cluster-median b11 keys and the cluster-mean ratio bars from cluster-level wells; per-well fits, maps and the network Spearman test keep every well; C5 notes read C3f. Was "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.5.0"  # Hollingham (2026) — 2026-09-29. T-96: 23_report_numbers.csv also carries
@@ -154,6 +154,7 @@ from utils.config import (RESIDUAL_DIAG_MIN_MONTHS,
                           RESIDUAL_DIAG_EXCLUDED_WELLS,
                           CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM,
                           RIDGE_REF_E, RIDGE_REF_N, RIDGE_MAX_DISTANCE_M)
+from utils.config import RECORD_FIT_START   # 1.8.0 (D-349 (1)): the D-347 record window
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -207,7 +208,7 @@ def fit_extended_model(well_series, climate,
                      - b2*PET(t) - b3*h_disp_prev(t)
 
     where h_disp_prev = DRAINAGE_DATUM + h_prev  (displacement formulation,
-    matching Script 03).
+    matching Script 03), on D-347's window from RECORD_FIT_START (1.8.0).
 
     Including P(t-1) absorbs the generic vadose-zone lag that Script 22
     demonstrated contaminates the single-period SSM residuals everywhere.
@@ -235,6 +236,7 @@ def fit_extended_model(well_series, climate,
     df['h_disp_prev'] = drainage_datum + df['h_prev']
 
     df = df.dropna()
+    df = df[df.index >= pd.Timestamp(RECORD_FIT_START)]   # 1.8.0 (D-349 (1), A5): D-347's window
 
     if len(df) < MIN_MONTHS - 1:
         return None

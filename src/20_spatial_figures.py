@@ -108,7 +108,7 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.68.0"  # 2026-11-27 (D-348): comments and docstrings name C3f and C3o; no code change. Was "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
+__version__ = "1.69.0"  # 2026-11-27 (D-349 A8): the C3o Sy behind lambda, D and the drain-cone maps from the group's cluster-level wells (_c3_sy(), one helper for the seven reads; was every well whose Sy-table Cluster was 3). Was "1.68.0"  # 2026-11-27 (D-348): comments and docstrings name C3f and C3o; no code change. Was "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
 #   inferred CEH36 cut depth divides by CEH36's own Sy (0.366) instead of the C3 median (0.298): 0.43 -> 0.35 m. CEH36's
 #   own S_a x beta_1 is 0.89, so the C3 surplus (T-215) gives no reason to lower it. New key scrape_sy_ceh36; the C3
 #   median stays for lambda. Moves one published number (scrape_inferred_cut_depth_m).
@@ -440,6 +440,15 @@ def quote_reach_m(length_m: float) -> float:
 
 from utils.render_utils import render_figure
 from utils.console_utils import track
+
+
+def _c3_sy() -> float:
+    """1.69.0 (D-349 A8): the C3o group's Sy - the median WTF Sy over its CLUSTER-LEVEL wells (In_Cluster_Level in
+    03_master_data.csv), through pipeline_params.cluster_level_sy_median, the one rule pipeline_params and
+    scraping_common use. The seven reads it replaces took every well whose Sy-table Cluster was 3 (D25, NW1, NW2,
+    NW13, WMC4 and the set-aside WMC3 included): 0.3351 against 0.3514."""
+    from utils.pipeline_params import cluster_level_sy_median
+    return float(cluster_level_sy_median(pd.read_csv(OUT_18_WELL_SY_TABLE))[3])
 from utils.coastal_utils import coastal_edge_h0, load_measured_retreat_rate, load_measured_event_retreat
 # J-33 (1.66.0, Martin 2026-11-23 "option 2"): the single drawn event is MEASURED (Script 40's 2019-20
 # winter median displacement), no longer config.COAST_RETREAT_M = 6 m. Bound once here under the old
@@ -1565,8 +1574,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     H0      = DRAWDOWN_H0_MM    # mm forest interception deficit, from config.py
 
     # Load C3 (propagation medium) Sy and β₃ from upstream pipeline outputs
-    _sy_df    = pd.read_csv(OUT_18_WELL_SY_TABLE)
-    Sy        = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())
+    Sy        = _c3_sy()   # 1.69.0 (D-349 A8): C3o's cluster-level wells
     _mech_df  = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     BETA3_M   = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
     BETA3_D   = BETA3_M / DAYS_PER_MONTH
@@ -2437,8 +2445,7 @@ def plot_slr_response(wt, features, dpi=300):
     from shapely import contains_xy
 
     # ── Diffusivity D = K·b/Sy (Sy live from C3 WTF, as in drawdown map) ──
-    _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
-    Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
+    Sy = _c3_sy()   # D-349 A8: C3o's cluster-level wells
     D, diff_len = _slr_diffusion(Sy)             # m²/day; √(D·t), m
     slr_mm = SLR_RISE_M * 1000.0
     print(f"  SLR response: +{SLR_RISE_M:.3f} m over {SLR_WINDOW_YEARS:.0f} yr; "
@@ -2645,8 +2652,7 @@ def _slr_field(gx, gy):
     from scipy.special import erfc
     from shapely.geometry import Point
     from shapely import contains_xy
-    _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
-    Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
+    Sy = _c3_sy()   # D-349 A8: C3o's cluster-level wells
     D, diff_len = _slr_diffusion(Sy)
     slr_mm = SLR_RISE_M * 1000.0
     _f, waterline = _dem_waterline_to_dune_edge(
@@ -2892,8 +2898,7 @@ def _scrape_field(gx, gy, epochs=None):
     geom_union is the union of the *filtered* cut footprints."""
     from shapely.geometry import Point
     try:
-        _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
-        Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
+        Sy = _c3_sy()   # D-349 A8: C3o's cluster-level wells
         _mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
         beta3_m = float(_mech[_mech["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
@@ -2977,8 +2982,7 @@ def _forest_field(gx, gy):
     if forest_geom is None:
         return None, None, None, None
     try:
-        _sy = pd.read_csv(OUT_18_WELL_SY_TABLE)
-        Sy = float(_sy[_sy["Cluster"] == 3]["Sy_median"].median())
+        Sy = _c3_sy()   # D-349 A8: C3o's cluster-level wells
         _m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
@@ -3032,8 +3036,7 @@ def _broadleaf_field(gx, gy):
     if bl_geom is None or bl_geom.is_empty:
         return None, None, None, None
     try:
-        _sy = pd.read_csv(OUT_18_WELL_SY_TABLE)
-        Sy = float(_sy[_sy["Cluster"] == 3]["Sy_median"].median())
+        Sy = _c3_sy()   # D-349 A8: C3o's cluster-level wells
         _m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
@@ -4897,8 +4900,8 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     K = DRAWDOWN_K_MDAY            # m/day (Betson 2002), shared with drawdown/SLR maps
     b = DRAWDOWN_B_M            # m saturated thickness
 
-    _sy_df   = pd.read_csv(OUT_18_WELL_SY_TABLE)
-    Sy       = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())
+    _sy_df   = pd.read_csv(OUT_18_WELL_SY_TABLE)   # CEH36's own Sy is read from it below
+    Sy       = _c3_sy()   # D-349 A8: C3o's cluster-level wells
     # Edge drawdown = the MEASURED CEH36 response (Script 09a), an empirical
     # quantity. The excavation depth (not surveyed) is the inferred output:
     # D = H0 / Sy.

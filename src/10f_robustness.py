@@ -52,14 +52,15 @@ from utils.paths import (
     make_all_dirs, OUT_10F_SSM_RESIDUAL, OUT_10F_SYNTH_CTRL, OUT_10F_REPORT,
 )
 from utils.model_utils import build_ssm_frame, fit_ssm
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, RECORD_FIT_START
 from utils.config import BACI_HAC_MAXLAGS_MONTHS
 from utils.clearfell_common import (
     load_clearfell_data, print_network_summary, CLEARFELL_DATE,
     SCRAPING_DATE, ALL_NETWORK_WELLS, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM-residual calibration is
+__version__ = "1.7.0"  # 2026-11-27 (D-349 (1)): the calibration frame is cut at RECORD_FIT_START here and the fit states start=None, so the MIN_CAL_MONTHS gate counts the fitted rows.
+# "1.6.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM-residual calibration is
 #   Model B (fit_ssm intercept=True, beta_3 bounded below) and the forward run carries its alpha; every SSM_Resid_*
 #   key and 10f_01 column keeps its name and now carries Model B. Model A (no intercept, DRAINAGE_DATUM) runs beside
 #   it: 10f_01 gains *_model_a columns and Alpha_cal, 10f_report_numbers SSM_Resid_*_model_a. Synthetic control
@@ -187,7 +188,9 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt, form="B"):
         h = wells[w].dropna()
         df_full = build_ssm_frame(h, climate, lag=HEADLINE_LAG,
                                   drainage_datum=DRAINAGE_DATUM)
-        df_cal = df_full[df_full.index < SCRAPING_DATE]
+        # 1.7.0 (D-349 (1)): the calibration window is laid out here, D-347's window up to the scraping, so the
+        # MIN_CAL_MONTHS gate and cal_months count the rows the fit uses (they counted from 2005 while the fit cut at 2010)
+        df_cal = df_full[(df_full.index >= pd.Timestamp(RECORD_FIT_START)) & (df_full.index < SCRAPING_DATE)]
 
         if len(df_cal) < MIN_CAL_MONTHS:
             print(f"   {w.upper():<8} [{zone:<14}] SKIP — {len(df_cal)} months < {MIN_CAL_MONTHS}")
@@ -198,7 +201,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt, form="B"):
         # — model_utils consolidation).  df_cal is a pre-sliced SSM
         # frame, so we pass it through pre_built_frame= rather than
         # rebuilding from (h_series, climate).
-        cal_fit = fit_ssm(pre_built_frame=df_cal, min_obs=MIN_CAL_MONTHS, intercept=(form == "B"))
+        cal_fit = fit_ssm(pre_built_frame=df_cal, min_obs=MIN_CAL_MONTHS, intercept=(form == "B"), start=None)
         if cal_fit is None:
             print(f"   {w.upper():<8} [{zone:<14}] SKIP — SSM fit failed")
             continue

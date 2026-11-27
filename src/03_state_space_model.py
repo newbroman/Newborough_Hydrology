@@ -88,7 +88,7 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.34.0"  # 2026-11-27 (D-348): centroids, the composition check and the open-dune warren fit from cluster-level members only; 03_master_data.csv carries the D-348 membership columns. Was "1.33.0"  # Hollingham (2026) - 2026-11-22. cluster_well_median_beta_3_drainage per cluster (03_report_numbers):
+__version__ = "1.35.0"  # 2026-11-27 (D-349): every fit states start=RECORD_FIT_START (_fit_b requires it); the bootstrap, leave-one-out, C1 split and n_wells on cluster-level wells (A6); the m AOD series and mean elevations from cluster-level wells, the scalar from 2010 (A6). Was "1.34.0"  # 2026-11-27 (D-348): centroids, the composition check and the open-dune warren fit from cluster-level members only; 03_master_data.csv carries the D-348 membership columns. Was "1.33.0"  # Hollingham (2026) - 2026-11-22. cluster_well_median_beta_3_drainage per cluster (03_report_numbers):
 #   report9 quotes the C4 per-well median beta_3 beside NW10's, and it had no key (Martin: "creae one").
 __version_prev__ = "1.32.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
 #   questions"). Every Model B row also carries se_alpha and corr_alpha_beta_3 (fit_ssm's with_corr, now on for the
@@ -345,7 +345,7 @@ from utils.config import (
     SSM_BOOT_SEED,
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
-    LCSC_DATA_LIMIT, SSM_MIN_OBS,
+    LCSC_DATA_LIMIT, SSM_MIN_OBS, RECORD_FIT_START,
     DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M, DATUM_RAW_DEPTH_M,
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, DATUM_AOD_NONPOS_CHECK_M, LAKE_GAUGE_KEYS,
 )
@@ -616,7 +616,7 @@ def fill_dry_members(cluster_df: pd.DataFrame, wells_clean: pd.DataFrame,
             continue
         mates = sorted((m for m, k in members.items() if k == c and m != col), key=lambda m: dist(col, m))
         donors = [(m, blank(m)) for m in mates]
-        own = fit_ssm(wells_clean[col], climate, lag=HEADLINE_LAG, window=None,
+        own = fit_ssm(wells_clean[col], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None,
                       min_obs=MIN_OBS_PER_WELL, dry_bound=b)
         h_f, a = donor_censored_fill(wells_clean[col], b, donors, fit=own, climate=climate)
         filled[col] = h_f
@@ -669,12 +669,13 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
     return centroids
 
 
-def _fit_b(h_series, climate, **kw):
+def _fit_b(h_series, climate, *, start, **kw):
     """The headline fit (1.31.0, D-332): Model B, fit_ssm(intercept=True), beta_3 bounded below at
     MODEL_B_BETA3_MIN inside model_utils. Same arguments as the Model A call it replaces.
-    1.32.0: with_corr on by default, so the alpha-beta_3 correlation reaches _b_extra."""
+    1.32.0: with_corr on by default, so the alpha-beta_3 correlation reaches _b_extra.
+    1.35.0 (D-349 (1)): `start` is required, as it is in fit_ssm; every caller here passes RECORD_FIT_START."""
     kw.setdefault("with_corr", True)
-    return fit_ssm(h_series, climate, intercept=True, **kw)
+    return fit_ssm(h_series, climate, start=start, intercept=True, **kw)
 
 
 def _b_extra(fit) -> dict:
@@ -761,11 +762,11 @@ def per_well_window_sensitivity(master_df: pd.DataFrame,
         h_series = wells_clean[target_col]
         for basis, window in (("full_record", None),
                               ("comparison_window", LCSC_DATA_LIMIT)):
-            fit = _fit_b(h_series, climate, lag=HEADLINE_LAG, window=window,
+            fit = _fit_b(h_series, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=window,
                          min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
             if fit is None:
                 continue
-            fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=window,
+            fit_a = fit_ssm(h_series, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=window,
                             min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
             fit_start, fit_end = _fit_span(fit)
             rows.append({
@@ -820,11 +821,11 @@ def centroid_window_sensitivity(centroids: dict[int, pd.Series],
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
         for basis, window in (("full_record", None),
                               ("comparison_window", LCSC_DATA_LIMIT)):
-            fit = _fit_b(centroids[cid], climate, lag=HEADLINE_LAG, window=window)
+            fit = _fit_b(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=window)
             if fit is None:
                 warn(f"  {label}: no fit on the {basis} basis")
                 continue
-            fit_a = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=window)
+            fit_a = fit_ssm(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=window)
             fit_start, fit_end = _fit_span(fit)
             rows.append({
                 "Cluster": cid,
@@ -920,7 +921,7 @@ def centroid_composition_sensitivity(cluster_df: pd.DataFrame,
         published_b3 = np.nan
         for basis, start in bases:
             s = series if start is None else series[series.index >= start]
-            fit = _fit_b(s, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(s, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
             b3 = fit["beta_3_drainage"]
@@ -992,10 +993,10 @@ def per_well_fits(cluster_df: pd.DataFrame,
         h_series = wells_clean[target_col]
 
         # 1.31.0 (D-332): the headline is Model B; Model A beside it as *_model_a columns.
-        fit = _fit_b(h_series, climate, lag=HEADLINE_LAG,
+        fit = _fit_b(h_series, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG,
                      window=LCSC_DATA_LIMIT,
                      min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
-        fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG,
+        fit_a = fit_ssm(h_series, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG,
                         window=LCSC_DATA_LIMIT,
                         min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
 
@@ -1090,8 +1091,8 @@ def centroid_headline_fits(centroids: dict[int, pd.Series],
     violations = []
     warnings = []
     for cid in sorted(centroids):
-        fit = _fit_b(centroids[cid], climate, lag=HEADLINE_LAG, window=None)   # 1.31.0: Model B
-        fit_a = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
+        fit = _fit_b(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)   # 1.31.0: Model B
+        fit_a = fit_ssm(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
 
         if fit is None:
@@ -1188,8 +1189,8 @@ def model_b_persistence(centroids: dict[int, pd.Series],
     """
     rows = []
     for cid in sorted(centroids):
-        fit_a = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
-        fit_b = fit_ssm_intercept(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
+        fit_a = fit_ssm(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
+        fit_b = fit_ssm_intercept(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
         span = _fit_span(fit_a) if fit_a else ("", "")
         rows.append({"level": "centroid", "Cluster": cid,
                      "Cluster_Label": CLUSTER_LABELS.get(cid, f"C{cid}"), "well": "",
@@ -1200,9 +1201,9 @@ def model_b_persistence(centroids: dict[int, pd.Series],
         if target_col is None:
             continue
         h_series = wells_clean[target_col]
-        fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+        fit_a = fit_ssm(h_series, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                         min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
-        fit_b = fit_ssm_intercept(h_series, climate, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+        fit_b = fit_ssm_intercept(h_series, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                                   min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
         span = _fit_span(fit_a) if fit_a else ("", "")
         cid = r.get("Cluster")
@@ -1236,7 +1237,7 @@ def lag_diagnostic(centroids: dict[int, pd.Series],
     for cid in sorted(centroids):
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
         for lag in LAGS:
-            fit = _fit_b(centroids[cid], climate, lag=lag, window=None)
+            fit = _fit_b(centroids[cid], climate, start=RECORD_FIT_START, lag=lag, window=None)
             if fit is None:
                 rows.append({
                     "Cluster": cid, "Cluster_Label": label, "Lag_months": lag,
@@ -1313,7 +1314,7 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
                 cols[f"{col}__{i}"] = wells_clean[col]  # dedup with replacement
             centroid = pd.DataFrame(cols).mean(axis=1)
 
-            fit = _fit_b(centroid, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(centroid, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
             beta_1s.append(fit["beta_1_recharge"])
@@ -1388,7 +1389,7 @@ def leave_one_out_fits(cluster_df: pd.DataFrame,
                 cols[col] = wells_clean[col]
             centroid = pd.DataFrame(cols).mean(axis=1)
 
-            fit = _fit_b(centroid, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(centroid, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 rows.append({
                     "Cluster": cid, "Cluster_Label": label,
@@ -1441,7 +1442,7 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
     def fit_and_boot(series_window: pd.Series,
                       window_label: str,
                       bs_seed: int) -> dict:
-        headline = _fit_b(series_window, climate, lag=HEADLINE_LAG, window=None)
+        headline = _fit_b(series_window, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
         if headline is None:
             return {"window": window_label,
                     "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
@@ -1475,7 +1476,7 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
                     series = series[series.index >= split_date]
                 cols[f"{col}__{i}"] = series
             centroid = pd.DataFrame(cols).mean(axis=1)
-            fit = _fit_b(centroid, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(centroid, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
             b1s.append(fit["beta_1_recharge"])
@@ -1541,7 +1542,7 @@ def datum_sensitivity_analysis(centroids: dict[int, pd.Series],
     for d in datums:
         for cid in sorted(centroids):
             label = CLUSTER_LABELS.get(cid, f"C{cid}")
-            fit = fit_ssm(centroids[cid], climate,
+            fit = fit_ssm(centroids[cid], climate, start=RECORD_FIT_START,
                           lag=HEADLINE_LAG, window=None,
                           drainage_datum=d)
             if fit is None:
@@ -1592,7 +1593,7 @@ def datum_zero_fit(centroids: dict[int, pd.Series],
     rows = []
     for cid in sorted(centroids):
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        fit = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None,
+        fit = fit_ssm(centroids[cid], climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None,
                       drainage_datum=DATUM_RAW_DEPTH_M)
         if fit is None:
             rows.append({"ref_depth": DATUM_RAW_DEPTH_M, "Cluster": cid,
@@ -1684,7 +1685,7 @@ def datum_aod_sweep(wells_clean: pd.DataFrame, climate: pd.DataFrame, locs: pd.D
         r2, nonpos, n = [], 0, 0
         for c, g in wells:
             try:
-                r = fit_ssm(wells_clean[c].dropna(), climate, drainage_datum=datum_of(g), dry_bound=_db(c))
+                r = fit_ssm(wells_clean[c].dropna(), climate, start=RECORD_FIT_START, drainage_datum=datum_of(g), dry_bound=_db(c))
             except Exception:
                 r = None
             if not r:
@@ -2121,7 +2122,7 @@ def _well_datum_one(args):
     best_r2_fit = None
 
     for d in datums:
-        fit = fit_ssm(h_series, climate,
+        fit = fit_ssm(h_series, climate, start=RECORD_FIT_START,
                       lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                       drainage_datum=d, min_obs=MIN_OBS_PER_WELL,
                       dry_bound=dry_bound)
@@ -2209,7 +2210,7 @@ def _well_datum_one(args):
         opt["beta_3_positive_at_max"] = np.nan
 
     # Also record fit at uniform datum for direct comparison
-    fit_uniform = fit_ssm(h_series, climate,
+    fit_uniform = fit_ssm(h_series, climate, start=RECORD_FIT_START,
                            lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                            drainage_datum=DRAINAGE_DATUM,
                            min_obs=MIN_OBS_PER_WELL,
@@ -2969,7 +2970,7 @@ def warren_open_dune_fit(cluster_df: pd.DataFrame, wells_filled: pd.DataFrame,
     cols = [well_col_lookup.get(normalize_well_name(w)) for w in members]
     cols = [c for c in cols if c is not None]
     median_h = wells_filled[cols].median(axis=1)          # 1.30.0: the median hydrograph (was the mean)
-    fit = fit_ssm_intercept(median_h, climate, lag=HEADLINE_LAG, window=None)   # 1.30.0: Model B (was A)
+    fit = fit_ssm_intercept(median_h, climate, start=RECORD_FIT_START, lag=HEADLINE_LAG, window=None)   # 1.30.0: Model B (was A)
     c = median_h.dropna()
     seed_months = c[c.index.month.isin(HINDCAST_SEED_MONTHS)]
     seed = float(seed_months.groupby(seed_months.index.year).min().mean())
@@ -3088,7 +3089,8 @@ def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,
         hit = memb[memb["_w"] == wmin]
         if len(hit):
             cid = int(pd.to_numeric(hit["Cluster"]).iloc[0])
-            others = [x for x in memb.loc[pd.to_numeric(memb["Cluster"]) == cid, "_w"]
+            # 1.35.0 (D-349 A6): the companion of C{n}_mean_elevation_aod, so over the same cluster-level members
+            others = [x for x in memb.loc[(pd.to_numeric(memb["Cluster"]) == cid) & in_cluster_level(memb), "_w"]
                       if x != wmin and x in well_mean_aod.index]
             if others:
                 lab = labels.get(cid, f"C{cid}")
@@ -3119,11 +3121,17 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
         warn(f"maOD cluster averages not written: {exc}")
         return
 
+    # 1.35.0 (D-349 A6): the cluster series and the mean elevations are cluster-level quantities, so they are built
+    # from each group's In_Cluster_Level members (boundary and set-aside wells out), as the centroids are; the scalar
+    # is taken over D-347's window (RECORD_FIT_START onward). The monthly series keeps every month: its readers
+    # (Script 21) set their own windows.
+    cluster_lvl = cluster_df[in_cluster_level(cluster_df)]
+    maod_fit = maod_df[maod_df.index >= pd.Timestamp(RECORD_FIT_START)]
     cluster_maod_ts = {}
-    for cid in sorted(pd.to_numeric(cluster_df["Cluster"],
+    for cid in sorted(pd.to_numeric(cluster_lvl["Cluster"],
                                      errors="coerce").dropna().astype(int).unique()):
-        c_wells = cluster_df[
-            pd.to_numeric(cluster_df["Cluster"], errors="coerce") == cid
+        c_wells = cluster_lvl[
+            pd.to_numeric(cluster_lvl["Cluster"], errors="coerce") == cid
         ]["Match_ID"].astype(str).values
         available = [normalize_well_name(w) for w in c_wells
                      if normalize_well_name(w) in maod_df.columns]
@@ -3143,29 +3151,31 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
     # loaded above — no re-read of a file this function wrote.
     from utils.paths import OUT_03_REPORT_NUMBERS
     from utils.report_numbers_utils import ReportNumbers
-    cluster_mean_elev = {}
-    for cid in sorted(pd.to_numeric(cluster_df["Cluster"],
+    cluster_mean_elev, _elev_n = {}, {}
+    for cid in sorted(pd.to_numeric(cluster_lvl["Cluster"],
                                      errors="coerce").dropna().astype(int).unique()):
-        c_wells = cluster_df[
-            pd.to_numeric(cluster_df["Cluster"], errors="coerce") == cid
+        c_wells = cluster_lvl[
+            pd.to_numeric(cluster_lvl["Cluster"], errors="coerce") == cid
         ]["Match_ID"].astype(str).values
         avail = [normalize_well_name(w) for w in c_wells
-                 if normalize_well_name(w) in maod_df.columns]
+                 if normalize_well_name(w) in maod_fit.columns]
         if avail:
-            cluster_mean_elev[cid] = float(maod_df[avail].mean().mean())
+            cluster_mean_elev[cid] = float(maod_fit[avail].mean().mean())
+            _elev_n[cid] = len(avail)
     if cluster_mean_elev:
         rpt = ReportNumbers()
         for cid, val in cluster_mean_elev.items():
             label = CLUSTER_LABELS.get(cid, f"C{cid}")
             rpt.add(f"C{cid}_mean_elevation_aod", val, unit="m AOD", well=label,
-                    note=f"mean water-table elevation, {label}, full record — "
-                         f"mean of each member well's own full-record mean AOD "
-                         f"(current cluster membership, 66-well reference network)")
+                    era=f"{RECORD_FIT_START[:7]} onward",
+                    note=f"mean water-table elevation, {label}, {RECORD_FIT_START[:4]} onward (D-347) — "
+                         f"mean of each cluster-level member well's own mean AOD over that window "
+                         f"(D-348: {_elev_n.get(cid, 0)} In_Cluster_Level wells; boundary and set-aside wells out)")
         if extra:
             _ref = [normalize_well_name(w) for w in cluster_df["Match_ID"].astype(str)]
             _ref = [w for w in _ref if w in maod_df.columns]
             _t96_report_numbers(rpt, extra["master_df"], extra["sens_df"], extra["inv_df"],
-                                extra["well_opt_df"], maod_df[_ref].mean(), cluster_df)
+                                extra["well_opt_df"], maod_fit[_ref].mean(), cluster_df)   # 1.35.0: D-347 window
             _open_dune_r2_report_numbers(rpt, extra["master_df"])
             _model_b_count_report_numbers(rpt, extra["master_df"])
             if extra.get("zero_df") is not None:
@@ -3279,9 +3289,9 @@ def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
             continue
         series = wells_clean[col].dropna()
         try:
-            ground = fit_ssm(h_series=series, climate=climate,
+            ground = fit_ssm(h_series=series, climate=climate, start=RECORD_FIT_START,
                              lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT, dry_bound=_db(col))
-            pipe = fit_ssm(h_series=series - u, climate=climate,
+            pipe = fit_ssm(h_series=series - u, climate=climate, start=RECORD_FIT_START,
                            lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT, dry_bound=_db(col, shift=u))
         except Exception:
             continue
@@ -3852,7 +3862,7 @@ def main() -> None:
     _tick("Bootstrapping centroid fits (B = {N_BOOTSTRAP}, ")
     print(f"\n -> Bootstrapping centroid fits (B = {N_BOOTSTRAP}, "
           f"seed = {BOOTSTRAP_SEED})...")
-    boot_df = bootstrap_centroid_fits(cluster_df, wells_filled, climate,
+    boot_df = bootstrap_centroid_fits(cluster_df_lvl, wells_filled, climate,   # 1.35.0 (D-349 A6): cluster-level wells
                                         well_col_lookup)
     boot_path = DIR_03 / "03_05_bootstrap_ci.csv"
     boot_df.to_csv(boot_path, index=False)
@@ -3861,7 +3871,7 @@ def main() -> None:
     # ---- Leave-one-out per cluster ----
     _tick("Leave-one-well-out centroid fits")
     print("\n -> Leave-one-well-out centroid fits...")
-    loo_df = leave_one_out_fits(cluster_df, wells_filled, climate,
+    loo_df = leave_one_out_fits(cluster_df_lvl, wells_filled, climate,   # 1.35.0 (D-349 A6)
                                   well_col_lookup)
     loo_path = DIR_03 / "03_06_leave_one_out.csv"
     loo_df.to_csv(loo_path, index=False)
@@ -3870,14 +3880,14 @@ def main() -> None:
     # ---- C1 Lake pre/post-2018 split ----
     _tick("C1 Lake pre/post-2018 split-window diagnostic")
     print("\n -> C1 Lake pre/post-2018 split-window diagnostic...")
-    split_df = c1_split_window_diagnostic(centroids, cluster_df, wells_filled,
+    split_df = c1_split_window_diagnostic(centroids, cluster_df_lvl, wells_filled,   # 1.35.0 (D-349 A6)
                                             climate, well_col_lookup)
     split_path = DIR_03 / "03_07_c1_split_window.csv"
     split_df.to_csv(split_path, index=False)
     saved(f"{split_path.name}")
 
     # ---- Summary table with heterogeneity flag ----
-    summary_df = build_summary_table(mech_df, boot_df, cluster_df)
+    summary_df = build_summary_table(mech_df, boot_df, cluster_df_lvl)   # 1.35.0 (D-349 A6): n_wells = cluster-level wells
     summary_df.to_csv(OUT_03_CLUSTER_SUMMARY, index=False)
     saved(f"{OUT_03_CLUSTER_SUMMARY.name}")
 

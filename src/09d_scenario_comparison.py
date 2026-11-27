@@ -6,16 +6,17 @@ Purpose
 -------
 Compares the observed scraping benefit at CEH36 against what alternative
 interventions would have achieved at the same well.  Uses CEH36's own SSM
-coefficients, Sy, and mean head displacement to compute equilibrium responses
-for clearfell, thinning, broadleaf conversion, and UKCP18 climate scenarios.
+coefficients, Sy, and mean head displacement to compute the SUSTAINED level change
+(as stored water, mm w.e.) for clearfell, thinning, broadleaf conversion, and UKCP18
+climate scenarios, beside the observed scraping step (4.0.0, D-349 B2: every bar is a
+sustained level, as D-239 says; before 4.0.0 the non-scraping bars were one-month fluxes).
 
 This answers the management question: "was scraping a good choice for this
 site compared to alternatives?"
 
 Two figures:
-  1. Monthly equilibrium Δh (mm) at CEH36 under each scenario
-  2. Summer minimum Δ depth (mm) at CEH36 — scraping (observed BACI)
-     vs alternatives (SSM equilibrium × amplification)
+  1. Sustained change in stored water (mm w.e.) at CEH36, annual-mean forcing
+  2. The same under summer-mean forcing
 
 All parameters read from upstream pipeline outputs (Scripts 01, 03, 17).
 Forestry and climate scenario constants from config.py.
@@ -36,7 +37,7 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The hypothetical Clearfell
+__version__ = "4.0.0"  # 2026-11-27 (D-349 B2, B3, A15): every bar a sustained level change (D-239): the clearfell, thinning, broadleaf and climate bars go from a one-month flux change ("mm/month") to the sustained level on CEH36's beta_3 x Sy (mm w.e.), beside the scraping step, which was already a level; the match distance is level against level; the clearfell and thinning bars carry the anchor range (drift free / drift fixed / drift-free DiD) as columns, whiskers and report rows; f on WMC3's own fit. CSV columns renamed Delta_storage_sustained_mm / _summer_mm. Was "3.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The hypothetical Clearfell
 #   and Thinning 50% bars at CEH36 return a share f of the interception (clearfell_common.clearfell_return_fraction,
 #   calibrated on the observed BACI step at the felled well; thinning f/2) instead of a beta_2 multiplier. The D-333
 #   flags, status column and count key are gone; CLEARFELL_MATCH_HINT (282 m, set against the old bar) is now
@@ -108,9 +109,11 @@ from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_B2_SUMMER,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
-    SCRAPE_RISE_BUFFER_M,
+    SCRAPE_RISE_BUFFER_M, SUMMER_MINIMUM_MONTHS,
 )
-from utils.clearfell_common import clearfell_return_fraction   # 3.14.0 (T-209)
+from utils.clearfell_common import (clearfell_return_fraction_range,   # 4.0.0 (D-349 B3)
+                                    CLEARFELL_ANCHORS, CLEARFELL_ANCHOR_LABELS)
+from utils.model_utils import sustained_monthly_response           # 4.0.0 (D-349 B2)
 from utils.paths import OUT_09D_REPORT_NUMBERS                # 3.13.0 (D-333)
 from utils.report_numbers_utils import ReportNumbers          # 3.13.0 (D-333)
 
@@ -316,7 +319,7 @@ def main():
     print("   Annual-mean forcing:")
     scen_annual = _compute_ceh36_scenarios(params, annual_P, annual_PET)
     print("   Summer forcing:")
-    scen_summer = _compute_ceh36_scenarios(params, summer_P, summer_PET)
+    scen_summer = _compute_ceh36_scenarios(params, summer_P, summer_PET, summer=True)   # 4.0.0 (D-349 B2)
 
     # ── 3. Annual-forcing figure ──────────────────────────────────────────
     phase(3, "Plotting annual-mean forcing scenario comparison")
@@ -327,10 +330,27 @@ def main():
     _plot_scenarios(scen_summer, params, forcing="summer")
 
     # ── 5. 3.14.0 (T-209): the clearfell match distance the annual caption quotes ──────────
+    # 4.0.0 (D-349 B2, B3): every quantity on the sustained-level basis, and the clearfell over the anchor range.
     rr = ReportNumbers()
+    _basis = ("sustained level x CEH36's Sy, both bars (D-349 B2: was a level against a one-month flux)")
     rr.add("scenario_clearfell_match_distance_m", scen_annual.get("_cf_match_m", float("nan")), unit="m",
            note="annual forcing: distance from the scrape at which the modelled off-site drawdown equals the "
-                "hypothetical clearfell bar (flux sensitivity) in magnitude (09d_01 caption)")
+                f"hypothetical clearfell bar in magnitude (09d_01 caption); {_basis}; anchor drift free")
+    _scr = scen_annual["Scraping\n(observed)"]
+    rr.add("scenario_ceh36_scraping_storage_mm", _scr, unit="mm", well="CEH36",
+           note="annual forcing: the observed scraping BACI step x CEH36's Sy, mm w.e. (a sustained level)")
+    for m in CLEARFELL_ANCHORS:
+        tag = "" if m == "drift_free" else f"_anchor_{m}"
+        cf = scen_annual["_cf_range"][m]
+        why = f"anchor {m}: {CLEARFELL_ANCHOR_LABELS[m]}"
+        rr.add(f"scenario_ceh36_clearfell_storage_mm{tag}", cf, unit="mm", well="CEH36",
+               note=f"annual forcing: the hypothetical clearfell at CEH36, sustained change in storage (mm w.e.); {why}")
+        rr.add(f"scenario_ceh36_scrape_to_clearfell_ratio{tag}",
+               (_scr / cf) if (np.isfinite(cf) and cf != 0) else float("nan"), unit="-", well="CEH36",
+               note=f"annual forcing: observed scraping storage / hypothetical clearfell storage, both sustained; {why}")
+        if m != "drift_free":
+            rr.add(f"scenario_clearfell_match_distance_m{tag}", scen_annual["_cf_match_range"][m], unit="m",
+                   note=f"annual forcing: as scenario_clearfell_match_distance_m; {why}")
     rr.save(OUT_09D_REPORT_NUMBERS)
     step(f"{OUT_09D_REPORT_NUMBERS.name}")
 
@@ -341,17 +361,28 @@ def main():
 # SCENARIO COMPUTATION — all at CEH36
 # ============================================================================
 
-def _compute_ceh36_scenarios(params, P_force, PET_force):
-    """Equilibrium volumetric Δh at CEH36 for each scenario under a given
-    climate forcing (P_force, PET_force in m/month).
+def _compute_ceh36_scenarios(params, P_force, PET_force, summer=False):
+    """Sustained change in stored water (mm w.e.) at CEH36 for each scenario under a given climate forcing
+    (P_force, PET_force in m/month).
 
-    Called twice by main(): once with annual-mean climate (Figure 26) and
-    once with summer-mean climate (Figure 27). CEH36 is in C3 (not forested),
-    so the forestry scenarios show what would happen *if* CEH36's location
-    had pine canopy and were then managed — a like-for-like comparison of
-    intervention magnitudes at one hydrogeological setting.
+    4.0.0 (D-349 B2): EVERY bar is a sustained level change, as D-239 says, converted to stored water
+    (x Sy x 1000). The scraping bars were already levels (the observed BACI step; the drain-cone drawdown). The
+    clearfell, thinning, broadleaf and climate bars were the one-month change in the flux (a rate, "mm/month")
+    set on the same axis; each is now carried to its sustained level by model_utils.sustained_monthly_response
+    on CEH36's own beta_3: under annual-mean forcing the change is held in every month (so the level is the flux
+    change / beta_3); under summer forcing (summer=True) it is applied in the summer months (SUMMER_MINIMUM_MONTHS)
+    of every year and the bar is the periodic steady state's mean over those months.
 
-    Returns dict {scenario_name: Δh_mm_water_equiv_per_month}.
+    4.0.0 (D-349 B3): the clearfell (and thinning, f/2) bar is carried over the anchor range
+    (clearfell_common.CLEARFELL_ANCHORS: drift free / drift fixed / drift-free DiD), stashed under
+    "_cf_range" / "_thin_range"; the plotted bar is the drift-free headline.
+
+    Called twice by main(): once with annual-mean climate (Figure 26) and once with summer-mean climate
+    (Figure 27). CEH36 is in C3o (not forested), so the forestry scenarios show what would happen *if* CEH36's
+    location had pine canopy and were then managed - a like-for-like comparison of intervention magnitudes at
+    one hydrogeological setting.
+
+    Returns dict {scenario_name: sustained change in storage, mm w.e.}.
     """
     b1, b2, b3 = params["b1"], params["b2"], params["b3"]
     h_disp = params["h_disp"]
@@ -359,8 +390,20 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
 
     # 3.14.0 (T-209, D-333): the clearfell returns a share f of the interception, calibrated on the observed
     # BACI step at the felled well (the flux sensitivity); thinning at most half. No beta_2 multiplier.
-    cf_frac = clearfell_return_fraction(verbose=False)["f"]
-    print(f"     clearfell interception-return fraction f = {cf_frac:.3f} (thinning f/2)")
+    # 4.0.0 (D-349): f over the anchor range; calibrated on WMC3's own fit (clearfell_common 1.18.0).
+    f_range = clearfell_return_fraction_range(verbose=False)
+    cf_frac = f_range["drift_free"]
+    print("     clearfell interception-return fraction f (thinning f/2): "
+          + "; ".join(f"{m} {v:.3f}" for m, v in f_range.items()))
+
+    def _level_mm(dflux):
+        """4.0.0 (D-349 B2): a one-month flux change (m/month) held in every month, carried to its sustained
+        level on CEH36's beta_3 (the periodic steady state; = dflux / beta_3), as stored water in mm w.e."""
+        f12 = np.array([float(dflux) if (not summer or m in SUMMER_MINIMUM_MONTHS) else 0.0 for m in range(1, 13)])
+        ss = sustained_monthly_response(b3, f12)
+        months = sorted(SUMMER_MINIMUM_MONTHS) if summer else list(range(1, 13))
+        lvl = float(np.mean(ss[[m - 1 for m in months]]))
+        return round(lvl * Sy * 1000, 1)
 
     # Baseline: CEH36 is unforested, so P_base = raw P
     P_base = P_force
@@ -368,11 +411,11 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
 
     def _scenario_dh(P_eff_scen, b2_scen, PET_scen):
         flux_scen = b1 * P_eff_scen - b2_scen * PET_scen - b3 * h_disp
-        return round((flux_scen - flux_base) * Sy * 1000, 1)
+        return _level_mm(flux_scen - flux_base)
 
     scenarios = {}
 
-    # Scraping: observed BACI step, converted to volumetric
+    # Scraping: observed BACI step (a sustained level), converted to stored water
     scrape_baci_step = load_site_observation("ceh36_baci_pure_scraping")
     scenarios["Scraping\n(observed)"] = round(scrape_baci_step * Sy * 1000, 1)
 
@@ -394,29 +437,37 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     # Hypothetical: if CEH36 had pine and was clearfelled
     P_pine_base = P_force * (1 - FOREST_INTERCEPTION)
     flux_pine_base = b1 * P_pine_base - b2 * PET_force - b3 * h_disp
-    # Clearfell (3.14.0, T-209): a share f of the interception returned as recharge, the draw unchanged
-    flux_cf = b1 * P_force * (1 - FOREST_INTERCEPTION * (1 - cf_frac)) - b2 * PET_force - b3 * h_disp
-    scenarios["Clearfell\n(hypothetical)"] = round(
-        (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
+    def _cf_bar(frac):
+        # Clearfell (3.14.0, T-209): a share f of the interception returned as recharge, the draw unchanged
+        flux_cf = b1 * P_force * (1 - FOREST_INTERCEPTION * (1 - frac)) - b2 * PET_force - b3 * h_disp
+        return _level_mm(flux_cf - flux_pine_base)
+    scenarios["Clearfell\n(hypothetical)"] = _cf_bar(cf_frac)
     # Thinning 50%: at most half the clearfell's return
-    flux_thin = b1 * P_force * (1 - FOREST_INTERCEPTION * (1 - cf_frac / 2.0)) - b2 * PET_force - b3 * h_disp
-    scenarios["Thinning 50%\n(hypothetical)"] = round(
-        (flux_thin - flux_pine_base) * Sy * 1000, 1)
+    scenarios["Thinning 50%\n(hypothetical)"] = _cf_bar(cf_frac / 2.0)
+    scenarios["_cf_range"] = {m: (_cf_bar(v) if np.isfinite(v) else float("nan")) for m, v in f_range.items()}
+    scenarios["_thin_range"] = {m: (_cf_bar(v / 2.0) if np.isfinite(v) else float("nan"))
+                                for m, v in f_range.items()}
 
     # Broadleaf conversion — seasonal β₂ profile: deciduous canopy has
     # higher transpiration in summer (full leaf) than evergreen pine.
     flux_bl = b1 * P_pine_base - b2 * BROADLEAF_B2_SUMMER * PET_force - b3 * h_disp   # 3.11.0 (D-239)
-    scenarios["Broadleaf\n(hypothetical)"] = round(
-        (flux_bl - flux_pine_base) * Sy * 1000, 1)
+    scenarios["Broadleaf\n(hypothetical)"] = _level_mm(flux_bl - flux_pine_base)
 
-    # 3.14.0 (T-209): the distance at which the modelled off-site drawdown equals the clearfell bar in magnitude
-    # (was the constant CLEARFELL_MATCH_HINT = 282 m, set against the withdrawn multiplier bar)
-    _cf_bar = abs(scenarios["Clearfell\n(hypothetical)"])
+    # The distance at which the modelled off-site drawdown equals the clearfell bar in magnitude. 4.0.0 (D-349 B2):
+    # both are sustained levels now (it was a level against a one-month flux: 504 m on the D-348 run), and the
+    # distance is carried over the anchor range.
     _d = np.arange(OFFSITE_DIST_M, 2000.0, 1.0)
     _vol = np.array([_offsite_scrape_head_mm(onsite_edge_head_mm, dist_m=x) / 1000 * Sy * 1000 for x in _d])
-    _hit = _d[_vol <= _cf_bar]
-    scenarios["_cf_match_m"] = float(_hit[0]) if _cf_bar > 0 and len(_hit) else float("nan")
+
+    def _match(bar):
+        bar = abs(bar)
+        if not (np.isfinite(bar) and bar > 0):
+            return float("nan")
+        hit = _d[_vol <= bar]
+        return float(hit[0]) if len(hit) else float("nan")
+    scenarios["_cf_match_m"] = _match(scenarios["Clearfell\n(hypothetical)"])
+    scenarios["_cf_match_range"] = {m: _match(v) for m, v in scenarios["_cf_range"].items()}
 
     # Climate scenarios — applied to CEH36's actual (unforested) state
     scenarios["Climate dry"] = _scenario_dh(
@@ -424,11 +475,13 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     scenarios["Climate wet"] = _scenario_dh(
         P_force * UKCP18_WET_P_SUMMER, b2, PET_force * UKCP18_WET_PET_SUMMER)
 
-    print("     scenario responses (mm w.e./month):")
+    print("     scenario responses (sustained change in storage, mm w.e.):")
     for name, val in scenarios.items():
         if name.startswith("_"):
             continue
         print(f"       {name.replace(chr(10), ' '):30s}  {val:+.1f}")
+    print("     clearfell over the anchor range: " + "; ".join(
+        f"{m} {v:+.1f} mm (match {scenarios['_cf_match_range'][m]:.0f} m)" for m, v in scenarios["_cf_range"].items()))
 
     return scenarios
 
@@ -454,18 +507,19 @@ def _plot_scenarios(scenarios, params, forcing):
     """Volumetric scenario bar chart at CEH36 under a single climate forcing.
 
     forcing = "annual"  -> Figure 26 (annual-mean P and PET), output 09d_01
-    forcing = "summer"  -> Figure 27 (summer Jul-Sep P and PET), output 09d_02
+    forcing = "summer"  -> Figure 27 (summer Jun-Sep P and PET, SUMMER_MINIMUM_MONTHS), output 09d_02
 
-    Both figures use ONE volumetric scale (mm water-equivalent per month) so
-    they are directly comparable. Converting a bar to a water-table head
-    change requires dividing by an appropriate (uncertain) specific yield and
-    is only approximate — noted on the figure and in the report caption.
+    Both figures use ONE scale, the sustained change in stored water (mm water-equivalent;
+    4.0.0, D-349 B2), so every bar on them is the same kind of quantity. Converting a bar to
+    a water-table head change divides by CEH36's Sy again.
     """
     is_summer = (forcing == "summer")
     out_fig = OUT_09D_SUMMER_SCENARIO if is_summer else OUT_09D_SCENARIO
     out_csv = OUT_09D_SUMMER_SCENARIO_CSV if is_summer else OUT_09D_SCENARIO_CSV
-    col_name = ("Delta_vol_summer_mm_per_month" if is_summer
-                else "Delta_vol_mm_per_month")
+    # 4.0.0 (D-349 B2): every bar is a sustained change in storage; the columns are renamed so no citation of the
+    # old one-month flux values ("mm/month") keeps its meaning.
+    col_name = ("Delta_storage_sustained_summer_mm" if is_summer
+                else "Delta_storage_sustained_mm")
 
     # Pull the 250 m far-distance marker value out of the plotted set.
     far_vol = scenarios.get("_offsite_far_vol", None)
@@ -505,10 +559,15 @@ def _plot_scenarios(scenarios, params, forcing):
     ax.axhline(0, color="black", lw=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(display_names, fontsize=10, ha="center")
-    ax.set_ylabel("\u0394 volumetric water table\n(mm water equiv. / month)",
+    ax.set_ylabel("\u0394 stored water, sustained\n(mm water equiv.)",
                   fontsize=13)
+    # 4.0.0 (D-349 B3): the clearfell and thinning bars carry the anchor range as a whisker
+    for _nm, _rk in (("Clearfell\n(hypothetical)", "_cf_range"), ("Thinning 50%\n(hypothetical)", "_thin_range")):
+        _rv = [v for v in scenarios.get(_rk, {}).values() if np.isfinite(v)]
+        if _nm in names and len(_rv) > 1:
+            ax.plot([x[names.index(_nm)]] * 2, [min(_rv), max(_rv)], color="black", lw=1.4, zorder=6)
 
-    forcing_label = ("summer (Jul\u2013Sep) forcing" if is_summer
+    forcing_label = ("summer (Jun\u2013Sep) forcing" if is_summer
                      else "annual-mean forcing")
     ax.set_title(
         f"Scenario comparison at CEH36 (scraped site) \u2014 {forcing_label}\n"
@@ -526,9 +585,9 @@ def _plot_scenarios(scenarios, params, forcing):
     # overlaps the bars (in particular the off-site drawdown bar).
     lam = _load_drawdown_lambda()
     caveat = (
-        "Bars are volumetric (mm water-equiv. / month) from CEH36's SSM "
-        "coefficients and Sy. A head-change equivalent (mm) needs division "
-        "by an appropriate Sy \u2014 uncertain, so approximate.\n"
+        "Every bar is a SUSTAINED change in stored water (mm water-equiv.): the scraping bars are the observed "
+        "step and the modelled drawdown; the others carry the forcing change to its sustained level on CEH36's "
+        "\u03b2\u2083 (D-239), all \u00d7 CEH36's Sy.\n"
         "Scraping off-site: modelled neighbour drawdown from the drain cone "
         f"(\u03bb = {lam:.0f} m, live from Script 20); bar = "
         f"{OFFSITE_DIST_M:.0f} m, dark line across it = {OFFSITE_FAR_M:.0f} m "
@@ -536,17 +595,17 @@ def _plot_scenarios(scenarios, params, forcing):
     )
     if is_summer:
         caveat += (
-            "\nSummer forcing = equilibrium response to Jul\u2013Sep P and "
-            "PET, NOT a summer minimum (the equilibrium framework cannot "
-            "resolve the transient minimum)."
+            "\nSummer forcing = the change applied each summer (Jun\u2013Sep P and PET), carried to its "
+            "periodic steady state and averaged over those months; NOT a summer minimum."
         )
     else:
         _m = scenarios.get("_cf_match_m", float("nan"))
         if np.isfinite(_m):
             caveat += (
                 f"\nOff-site drawdown decays with distance; at ~{_m:.0f} m it equals the clearfell bar in magnitude.")
-    caveat += ("\nClearfell: flux sensitivity \u2014 the share of the interception returned that reproduces the "
-               "observed step at the felled well; thinning at most half.")   # 3.14.0 (T-209)
+    caveat += ("\nClearfell: the share of the interception returned that reproduces the observed step at the felled "
+               "well (its own fit); thinning at most half. Whisker: the anchor range \u2014 drift free / drift fixed / "
+               "drift-free DiD; the central value depends on the drift model.")   # 3.14.0 (T-209); 4.0.0 (D-349 B3)
     ax.text(0.0, -0.16, caveat, transform=ax.transAxes, fontsize=8,
             ha="left", va="top", color="#555", style="italic")
 
@@ -560,8 +619,11 @@ def _plot_scenarios(scenarios, params, forcing):
     plt.close(fig)
     step(f"{out_fig.name}")
 
-    rows = [{"Scenario": n.replace("\n", " "), col_name: v}
-            for n, v in scenarios.items() if not n.startswith("_")]
+    _rng = {"Clearfell\n(hypothetical)": scenarios.get("_cf_range", {}),
+            "Thinning 50%\n(hypothetical)": scenarios.get("_thin_range", {})}
+    rows = [{"Scenario": n.replace("\n", " "), col_name: v,
+             **{f"anchor_{m}": _rng[n].get(m, np.nan) for m in CLEARFELL_ANCHORS if n in _rng}}
+            for n, v in scenarios.items() if not n.startswith("_")]   # 4.0.0 (D-349 B3): the anchor range
     if far_vol is not None:
         rows.append({"Scenario": "Scraping (off-site 250 m)", col_name: far_vol})
     pd.DataFrame(rows).to_csv(out_csv, index=False, float_format="%.1f")

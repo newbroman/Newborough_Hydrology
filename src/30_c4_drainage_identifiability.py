@@ -78,7 +78,7 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.11.0"  # 2026-11-27 (D-348): the centroids and the C4 exclusion sensitivity from cluster-level members (In_Cluster_Level), as Script 03 1.34.0 builds them. Was "2.10.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "2.12.0"  # 2026-11-27 (D-349 (1), A5 / N5): every fit states start=RECORD_FIT_START (D-347), and the centroid frames for tests A-D (VIF, corr, cond, hd_sd, the recession test, the closure means) and the per-well panel's frame are cut at RECORD_FIT_START with the fit, so diagnostics and fit share one sample. Was "2.11.0"  # 2026-11-27 (D-348): the centroids and the C4 exclusion sensitivity from cluster-level members (In_Cluster_Level), as Script 03 1.34.0 builds them. Was "2.10.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "2.9.0"  # Hollingham (2026) - 2026-11-18 (J-16). The canonical fits reproduce Script 03 again. Since
@@ -159,6 +159,7 @@ from utils.model_utils import fit_ssm, build_ssm_frame, dry_bounds, LCSC_DATA_LI
 from utils.data_utils import normalize_well_name
 from utils.config import (HEADLINE_LAG, DRAINAGE_DATUM, CLUSTER_LABELS,
                           CLUSTER_COLOURS, MSL5_EXCLUDED_WELLS, SSM_MIN_OBS)
+from utils.config import RECORD_FIT_START   # 2.12.0 (D-349 (1)): the D-347 record window
 from utils.paths import (
     INT_CLUSTER_STATS, INT_CLIMATE, INT_WELLS_CLEAN, INT_LOCATIONS,
     OUT_30_C4_IDENTIFIABILITY, OUT_30_C4_PERWELL, OUT_30_C4_REPORT_NUMBERS,
@@ -201,6 +202,12 @@ def _norm(x):
     return normalize_well_name(x).lower().replace(" ", "").replace("_", "")
 
 
+def _d347(frame):
+    """2.12.0 (D-349 (1), N5): a frame cut at RECORD_FIT_START, so a diagnostic computed on it uses the months the fit
+    uses (D-347). Cutting a built frame keeps January 2010's Δh, as fit_ssm's own cut of a pre-built frame does."""
+    return frame[frame.index >= pd.Timestamp(RECORD_FIT_START)]
+
+
 def _collinearity(frame):
     """VIF of h_disp_prev on {P, PET}, corr(PET, h_disp_prev), condition number."""
     X = frame[["P", "PET", "h_disp_prev"]].astype(float)
@@ -236,7 +243,7 @@ def _closure_curve(frame, intercept=True):
     grid = np.arange(0.005, 0.121, 0.001)
     res = []
     for b3 in grid:
-        f = fit_ssm(pre_built_frame=frame, fixed_beta_3=float(b3), intercept=intercept)
+        f = fit_ssm(pre_built_frame=frame, fixed_beta_3=float(b3), intercept=intercept, start=RECORD_FIT_START)
         res.append(f["beta_2_atmospheric_draw"] * PET_bar
                    + b3 * hd_bar
                    - (f.get("alpha", 0.0) or 0.0)
@@ -260,12 +267,12 @@ def _panel_fit(series, climate, window, intercept=True, dry_bound=None):
     straight to build_ssm_frame: LCSC_DATA_LIMIT for the comparison window,
     None for the well's full record.
     """
-    fr = build_ssm_frame(series, climate, lag=HEADLINE_LAG, window=window)
+    fr = _d347(build_ssm_frame(series, climate, lag=HEADLINE_LAG, window=window))   # 2.12.0: the fit's months
     if len(fr) < 30:
         return None
     # 2.9.0: the fit Script 03 makes (per_well_window_sensitivity): dry months censored, same floor.
     f = fit_ssm(series, climate, lag=HEADLINE_LAG, window=window, intercept=intercept,
-                min_obs=SSM_MIN_OBS, dry_bound=dry_bound)
+                min_obs=SSM_MIN_OBS, dry_bound=dry_bound, start=RECORD_FIT_START)
     if f is None:
         return None
     vif, _, _ = _collinearity(fr)
@@ -280,12 +287,12 @@ def _c4_centroid_fit(members, wells_clean, well_col_lookup, climate, intercept=T
 
     The centroid is the simple mean of the member series, matching
     Script 03's build_cluster_centroids; the fit is the shared fit_ssm on the
-    full record (window=None), matching centroid_headline_fits.
+    full record (window=None) from RECORD_FIT_START (D-347), matching centroid_headline_fits.
     """
     cols = [well_col_lookup.get(_norm(w)) for w in members]
     cols = [c for c in cols if c is not None]
     centroid = wells_clean[cols].mean(axis=1)
-    f = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None, intercept=intercept)
+    f = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None, intercept=intercept, start=RECORD_FIT_START)
     b3 = f["beta_3_drainage"]
     return dict(
         alpha=f.get("alpha", 0.0) if intercept else 0.0,
@@ -331,9 +338,11 @@ def main():
     for cid in sorted(CLUSTER_LABELS):
         if cid not in centroids:
             continue
-        fr = build_ssm_frame(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
-        fit = fit_ssm(pre_built_frame=fr, intercept=True)            # Model B (2.8.0)
-        fit_a = fit_ssm(pre_built_frame=fr)                           # Model A beside it
+        # 2.12.0 (D-349 (1), N5): the frame is cut with the fit, so VIF, corr, cond, hd_* and the recession test
+        # describe the months the coefficients come from
+        fr = _d347(build_ssm_frame(centroids[cid], climate, lag=HEADLINE_LAG, window=None))
+        fit = fit_ssm(pre_built_frame=fr, intercept=True, start=RECORD_FIT_START)   # Model B (2.8.0)
+        fit_a = fit_ssm(pre_built_frame=fr, start=RECORD_FIT_START)                  # Model A beside it
         vif, r_pet, cond = _collinearity(fr)
         hd = fr["h_disp_prev"]
         rc_coef, rc_p, n_rec = _recession_headdep(fr)
@@ -375,7 +384,8 @@ def main():
 
     # ---- test D — water-balance closure sensitivity (retained from old S30) ----
     phase(3, "Test D — water-balance closure over β₃")
-    fr4 = build_ssm_frame(centroids[C4_ID], climate, lag=HEADLINE_LAG, window=None)
+    # 2.12.0 (D-349 (1), N5): P̄, PET̄ and h̄_disp over the months the fixed-β₃ fits see (D-347)
+    fr4 = _d347(build_ssm_frame(centroids[C4_ID], climate, lag=HEADLINE_LAG, window=None))
     best_b3, best_abs, flat = _closure_curve(fr4, intercept=True)
     best_b3_a, best_abs_a, flat_a = _closure_curve(fr4, intercept=False)
     # Direction is derived, not asserted: state where the closure-minimising
@@ -512,7 +522,7 @@ def main():
     rpt = ReportNumbers()
     _MA = f"Model A at {DRAINAGE_DATUM:g} m, sensitivity (D-332)"
     rpt.add("c4_centroid_beta3", float(c4["beta3"]), unit="per month",
-            note="C4 centroid β₃, Model B (Script 03's centroid construction, full record)")
+            note=f"C4 centroid β₃, Model B (Script 03's centroid construction, full record from {RECORD_FIT_START[:7]}, D-347)")
     rpt.add("c4_centroid_beta3_p", float(c4["p3"]), unit="",
             note="C4 centroid β₃ p-value, Model B")
     rpt.add("c4_centroid_beta3_model_a", float(c4["beta3_model_a"]), unit="per month",

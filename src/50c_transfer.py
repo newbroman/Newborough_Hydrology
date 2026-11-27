@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-27 (D-348): E12b placement centroids from cluster-level members (every well still placed); diagram names C3o and C3f. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.2.0"  # 2026-11-27 (D-349 (1), A3, D-348 leftovers): every fit states its window; the levels come cut at RECORD_FIT_START (reclen_common 1.1.0) and E12's centroid series is cut the same way, so the reverse split scores 2010-17 and E12's shift covers the months the fit saw (N7); T-173's centroids are medians over cluster-level wells (every well still a target), its per-cluster medians over cluster-level wells and its open-dune/forest medians without edge wells (D-349 (8)). Was "1.1.0"  # 2026-11-27 (D-348): E12b placement centroids from cluster-level members (every well still placed); diagram names C3o and C3f. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 import argparse
 import importlib.util
@@ -51,7 +51,7 @@ from utils.config import (                                    # noqa: E402
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
     E18_RMSE_CUT_M, E18_BASES, E18_PRIMARY_BASIS, QMAP_MIN_MONTHS, QMAP_MIN_WELLS, E19_MIN_MONTHS_PER_YEAR,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
-    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
+    RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE, RECORD_FIT_START,
     TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
     TWO_STORE_SLOW_BOUNDS_DAYS, TWO_STORE_SLOW_SHARE_INIT, TWO_STORE_EARLY_YEARS,
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
@@ -121,8 +121,13 @@ def transfer_report(rr, trule=None, nbt_mhw=None, nbt_b=None) -> None:
     # |bias| is within TRANSFER_BIAS_TOL_M of own. C4 is reported, not claimed (beta_3 not identified).
     if nbt_b is not None and not nbt_b.empty:
         _b = nbt_b.assign(abs_bias_m=nbt_b["bias_m"].abs())
-        _grp = [(f"C{int(c)}", g) for c, g in _b.groupby("cluster")]
-        _grp += [("open_dune", _b[~_b["in_forest"].astype(bool)]), ("forest", _b[_b["in_forest"].astype(bool)]),
+        # 1.2.0 (D-348, D-349 (8)): a cluster's median over its cluster-level wells; open dune / forest without the
+        # edge wells; "all" keeps every well
+        _lvl = _b["in_cluster_level"].astype(bool) if "in_cluster_level" in _b.columns else pd.Series(True, index=_b.index)
+        _edge = _b["edge"].astype(bool) if "edge" in _b.columns else pd.Series(False, index=_b.index)
+        _grp = [(f"C{int(c)}", g) for c, g in _b[_lvl].groupby("cluster")]
+        _grp += [("open_dune", _b[~_b["in_forest"].astype(bool) & ~_edge]),
+                 ("forest", _b[_b["in_forest"].astype(bool) & ~_edge]),
                  ("all", _b)]
         for _g, _d in _grp:
             _pv = _d.pivot_table(index="well", columns="source", values=["r2", "abs_bias_m"])
@@ -173,7 +178,9 @@ def transfer_report(rr, trule=None, nbt_mhw=None, nbt_b=None) -> None:
                    note="wells where a neighbour's coefficients score below -1 NSE")
             rr.add("transfer_fail_own_n", float((_pairs["own_nse"] < -1).sum()), unit="",
                    note="wells where their OWN coefficients score below -1 NSE")
-            for _c, _g in _pairs.groupby("cluster"):
+            _pl = (_pairs[_pairs["in_cluster_level"].astype(bool)] if "in_cluster_level" in _pairs.columns
+                   else _pairs)    # 1.2.0 (D-348): a cluster's median over its cluster-level wells
+            for _c, _g in _pl.groupby("cluster"):
                 if pd.notna(_c):
                     rr.add(f"transfer_median_gain_C{int(_c)}", float(_g["gain_nse"].median()),
                            unit="", note="median change in NSE from borrowing, this cluster")
@@ -250,6 +257,7 @@ def transfer_rule(nbt, lev, lev_cols, master) -> pd.DataFrame:
         a, b = both[ca], both[cb]
         rec = dict(scope="pair", well=w, neighbour=n,
                    cluster=int(nb.loc[w, "cluster"]) if pd.notna(nb.loc[w, "cluster"]) else None,
+                   in_cluster_level=bool(nb.loc[w, "in_cluster_level"]) if "in_cluster_level" in nb.columns else True,
                    n_shared_months=int(len(both)),
                    own_nse=float(piv.loc[w, "own"]),
                    neighbour_nse=float(piv.loc[w, "neighbour"]),
@@ -534,8 +542,12 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None,
     xy = {r.wkey: (float(r.E), float(r.N)) for r in loc.itertuples()
           if pd.notna(r.E) and pd.notna(r.N)}
     forest = {r.wkey: bool(getattr(r, "in_forest", False)) for r in loc.itertuples()}
+    # 1.2.0 (D-348, D-349 (8)): the centroid is built from cluster-level wells; every well is still a target
+    from utils.cluster_series import in_cluster_level, is_edge
+    lvl = set(master.loc[in_cluster_level(master), "_n"])
 
     # one pre-2018 fit per well, and per cluster centroid, reused for every target
+    # 1.2.0 (D-349, A3): h is cut at RECORD_FIT_START (load_inputs), so "pre" is 2010-17
     fits, post, clust = {}, {}, {}
     for _, r in master.iterrows():
         col = lev_cols.get(r["_n"])
@@ -550,7 +562,7 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None,
 
     cent = {}
     for cid in sorted(set(clust.values())):
-        members = [w for w, c in clust.items() if c == cid]
+        members = [w for w, c in clust.items() if c == cid and w in lvl]
         if not members:
             continue
         cent[cid] = {k: float(np.median([fits[w][k] for w in members]))
@@ -593,6 +605,7 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None,
                 continue
             pr = sim.reindex(obs.index)
             rows.append({"well": w, "cluster": clust[w], "in_forest": forest.get(k, False),
+                         "in_cluster_level": w in lvl, "edge": bool(is_edge(w)),
                          "source": source, "n": len(obs),
                          "r2": float(np.corrcoef(obs.values, pr.values)[0, 1] ** 2),
                          "bias_m": float((pr.values - obs.values).mean()),
@@ -611,12 +624,13 @@ def _centroid_fit(ra: pd.DataFrame, c: int, cl, intercept: bool, span: str, spli
     full record), 'window' (the last LCSC_DATA_LIMIT months), 'pre' or 'post' (either side of the split).
     Returns (fit, centroid series)."""
     h = ra[f"C{c}"].dropna()
+    h = h[h.index >= pd.Timestamp(RECORD_FIT_START)]   # 1.2.0 (D-349 (1), A3, N7): D-347's window, as the wells are cut
     if span == "pre":
         h = h[h.index < split]
     elif span == "post":
         h = h[h.index >= split]
     if span == "window":   # 1.24.0 (D-322): the last LCSC_DATA_LIMIT calendar months, not rows
-        f = _censored_well_fit(h, cl, None, LCSC_DATA_LIMIT, intercept)
+        f = _censored_well_fit(h, cl, None, LCSC_DATA_LIMIT, intercept, start=RECORD_FIT_START)
     else:
         f = fit_frame(build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), intercept)
     return (f if f is not None and f["beta_3_drainage"] > 0 else None), h
@@ -686,7 +700,7 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
             for form, icpt in FORMS:
                 for basis in bases:
                     if basis == "well":
-                        f = _censored_well_fit(hw, cl, dry_bounds(col), None, icpt)      # 1.24.0 (D-322)
+                        f = _censored_well_fit(hw, cl, dry_bounds(col), None, icpt, start=RECORD_FIT_START)      # 1.24.0 (D-322)
                         f = f if f is not None and f["beta_3_drainage"] > 0 else None
                         sh = 0.0
                     else:
@@ -726,7 +740,7 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
             for form, icpt in FORMS:
                 for basis in bases:
                     if basis == "well":
-                        f = _censored_well_fit(hw, cl, dry_bounds(col), LCSC_DATA_LIMIT, icpt)   # 1.24.0 (D-322)
+                        f = _censored_well_fit(hw, cl, dry_bounds(col), LCSC_DATA_LIMIT, icpt, start=RECORD_FIT_START)   # 1.24.0 (D-322)
                         f = f if f is not None and f["beta_3_drainage"] > 0 else None
                     else:
                         f, _hc = cfit(c, icpt, "window")
@@ -751,7 +765,7 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
         if col is None:
             continue
         hw = lev[col].dropna()
-        pre_h, post_h = hw[hw.index < split], hw[hw.index >= split]
+        pre_h, post_h = hw[hw.index < split], hw[hw.index >= split]   # D-349 (A3): hw is cut at RECORD_FIT_START (load_inputs), so the reverse test scores 2010-17
         for form, icpt in FORMS:
             for direction, tr, te, span in (("fwd", pre_h, post_h, "pre"), ("rev", post_h, pre_h, "post")):
                 c = cluster_of(k, span)
@@ -1088,7 +1102,7 @@ def e18_tests(lev, lev_cols, cl, master) -> pd.DataFrame:
         for basis in E18_BASES:
             row = {"well": k, "code": r.code, "cluster": c, "basis": basis, "n_censored_ccw": int(n_cens)}
             if basis == "well":
-                f = _censored_well_fit(hw, cl, dry_bounds(col), None, False)   # 1.24.0 (D-322)
+                f = _censored_well_fit(hw, cl, dry_bounds(col), None, False, start=RECORD_FIT_START)   # 1.24.0 (D-322)
                 f = f if f is not None and f["beta_3_drainage"] > 0 else None
                 sh = 0.0
             else:

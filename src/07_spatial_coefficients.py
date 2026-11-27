@@ -44,7 +44,10 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-11-26 (D-347 (3)). coeff_cluster_test(): the wells grouped
+__version__ = "1.11.0"  # 2026-11-27 (D-349 A7, B9): the cluster summary, ranges and means on In_Cluster_Level wells;
+#   the coefficient test and the F-test against Hydro_Cluster (the four clusters); the test's headline on the
+#   cluster-level wells, the every-well value beside it (07_06 basis column; coeff_cluster_*_all_wells).
+# 1.10.0  # Hollingham (2026) — 2026-11-26 (D-347 (3)). coeff_cluster_test(): the wells grouped
 #   on their per-well coefficients alone, against the partition (ARI, leave-one-out nearest centroid, per-coefficient
 #   eta^2, each with a permutation p) -> 07_06_coeff_cluster_test.csv and coeff_cluster_* report numbers.
 # 1.9.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
@@ -128,7 +131,9 @@ from utils.map_utils import (
     add_en_axes,
 )
 from utils.data_utils import normalize_well_name
+from utils.cluster_series import in_cluster_level   # 1.11.0 (D-349 A7)
 from utils.config import (
+    CLUSTER_SHORT,
     DRAINAGE_DATUM,
     LAKE_GAUGE_KEYS,
     CLUSTER_LABELS,
@@ -434,6 +439,9 @@ def make_cluster_summary(master):
     print("  " + "-" * 78)
 
     rows = []
+    # 1.11.0 (D-349 A7): a cluster-level summary, so over each group's In_Cluster_Level wells (boundary and set-aside
+    # wells out), as the centroids are
+    master = master[in_cluster_level(master)]
     for cid in sorted(master["Cluster"].unique()):
         sub = master[master["Cluster"] == cid]
         label = CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
@@ -562,13 +570,13 @@ def clusters_vs_covariates(df):
         rhs0 = " + ".join(t for t, _ in terms)
         for coef in _CVC_COEFFICIENTS:
             m0 = smf.ols(f"{coef} ~ {rhs0}", data=sub).fit()
-            m1 = smf.ols(f"{coef} ~ {rhs0} + C(Cluster)", data=sub).fit()
+            m1 = smf.ols(f"{coef} ~ {rhs0} + C(Hydro_Cluster)", data=sub).fit()   # 1.11.0 (D-349 A7)
             f_stat, f_p, df_num = m1.compare_f_test(m0)
             row = {
                 "panel": panel,
                 "coefficient": coef,
                 "n": int(m1.nobs),
-                "n_clusters": int(sub["Cluster"].nunique()),
+                "n_clusters": int(sub["Hydro_Cluster"].nunique()),
                 "R2_adj_covariates": float(m0.rsquared_adj),
                 "R2_adj_with_clusters": float(m1.rsquared_adj),
                 "delta_R2_adj": float(m1.rsquared_adj - m0.rsquared_adj),
@@ -597,22 +605,25 @@ def clusters_vs_covariates(df):
 # ------------------------------------------------------------------
 
 
-def coeff_cluster_test(df: pd.DataFrame, seed: int = 11, n_perm: int = 5000, n_perm_loo: int = 1000) -> pd.DataFrame:
+def coeff_cluster_test(df: pd.DataFrame, seed: int = 11, n_perm: int = 5000, n_perm_loo: int = 1000,
+                       label_col: str = "Hydro_Cluster") -> pd.DataFrame:
     """1.10.0 (D-347 (3); Martin 2026-11-26: "Do we use the SSM coefficients to verify the clusters? - we dont but could
-    we", then "3 yes"). The partition comes from hydrograph SHAPE (Ward on 1 - r); the per-well fitted-floor
+    we", then "3 yes"). The partition comes from hydrograph SHAPE (Ward on sqrt(2(1 - r)), D-348); the per-well fitted-floor
     coefficients (beta_1, beta_2, beta_3 on the comparison window) never see the cluster labels. Three tests, each
     against permutations of the labels:
       ari    the wells grouped on their standardized coefficients alone (Ward, k = the partition's k) against the
              partition: adjusted Rand index;
       loo    leave one well out, assign it to the nearest cluster centroid in coefficient space: share returned;
       eta2_* per coefficient, the between-cluster share of the variance.
-    The coefficients are independent of the labels, not of the data: both come from the same hydrographs."""
+    The coefficients are independent of the labels, not of the data: both come from the same hydrographs.
+    1.11.0 (D-349 A7, B9): scored against `label_col`, the four hydrogeological clusters (Hydro_Cluster), not the five
+    groups; the caller runs it on the cluster-level wells (the headline) and on every well (beside it)."""
     from scipy.cluster.hierarchy import linkage, fcluster
     from sklearn.metrics import adjusted_rand_score
     cols = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
-    d = df.dropna(subset=cols + ["Cluster_ID"])
+    d = df.dropna(subset=cols + [label_col])
     X = d[cols].to_numpy(float); X = (X - X.mean(0)) / X.std(0)
-    y = d["Cluster_ID"].to_numpy(int); k = len(np.unique(y))
+    y = pd.to_numeric(d[label_col]).to_numpy(int); k = len(np.unique(y))
     rng = np.random.default_rng(seed)
     g = fcluster(linkage(X, "ward"), k, "maxclust")
     ari = adjusted_rand_score(y, g)
@@ -755,7 +766,10 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     _coef_cols = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
     _range_rows = []
-    for _cid, _grp in df.groupby("Cluster_ID"):
+    # 1.11.0 (D-349 A7): per-cluster ranges and means are cluster-level quantities: In_Cluster_Level wells only
+    df_lvl = df[in_cluster_level(df)]
+    info(f"cluster level: {len(df_lvl)} of {len(df)} wells (D-348: boundary and set-aside wells out)")
+    for _cid, _grp in df_lvl.groupby("Cluster_ID"):
         _row = {
             "Cluster_ID": int(_cid),
             "Cluster": CLUSTER_LABELS.get(int(_cid), f"C{int(_cid)}"),
@@ -777,7 +791,7 @@ if __name__ == "__main__":
     # findable source. β₃ also reported as % head drained / month.
     # ------------------------------------------------------------------
     _mean_rows = []
-    for _cid, _grp in df.groupby("Cluster_ID"):
+    for _cid, _grp in df_lvl.groupby("Cluster_ID"):
         _row = {
             "Cluster_ID": int(_cid),
             "Cluster": CLUSTER_LABELS.get(int(_cid), f"C{int(_cid)}"),
@@ -806,29 +820,40 @@ if __name__ == "__main__":
 
     # 1.10.0 (D-347 (3)): do the coefficients alone recover the partition?
     info("Coefficient test (D-347): the wells grouped on their coefficients alone, against the partition")
-    cct = coeff_cluster_test(df)
-    cct.to_csv(OUT_07_COEFF_CLUSTER_TEST, index=False)
+    # 1.11.0 (D-349 A7, B9): against the four clusters; the headline on the cluster-level wells, the same set as every
+    # cluster-level number, with the every-well value beside it
+    cct = coeff_cluster_test(df_lvl).assign(basis="cluster_level")
+    cct_all = coeff_cluster_test(df).assign(basis="all_wells")
+    for _b, _t in (("cluster level", cct), ("all wells", cct_all)):
+        _a = _t[_t["test"] == "ari"].iloc[0]
+        info(f"  {_b}: ARI {_a['value']:.3f} (chance {_a['chance_mean']:.3f}, p {_a['perm_p']:.4f}), "
+             f"n {int(_a['n_wells'])}, k {int(_a['k'])}")
+    pd.concat([cct, cct_all], ignore_index=True).to_csv(OUT_07_COEFF_CLUSTER_TEST, index=False)
     saved(OUT_07_COEFF_CLUSTER_TEST)
     hr()
 
     rpt = ReportNumbers()
-    for _, _r in cct.iterrows():
-        rpt.add(f"coeff_cluster_{_r['test']}", float(_r["value"]), unit="",
-                note=f"D-347 coefficient test, {_r['test']} (07_06_coeff_cluster_test.csv value), n={int(_r['n_wells'])}")
-        rpt.add(f"coeff_cluster_{_r['test']}_perm_p", float(_r["perm_p"]), unit="",
-                note="permutation p of that value (07_06 perm_p)")
-        rpt.add(f"coeff_cluster_{_r['test']}_chance", float(_r["chance_mean"]), unit="",
-                note="its mean under shuffled labels (07_06 chance_mean)")
+    for _t, _sfx, _basis in ((cct, "", "the cluster-level wells (D-349 B9)"),
+                             (cct_all, "_all_wells", "every reference well, beside the headline")):
+        for _, _r in _t.iterrows():
+            rpt.add(f"coeff_cluster_{_r['test']}{_sfx}", float(_r["value"]), unit="",
+                    note=f"D-347 coefficient test, {_r['test']} against the {int(_r['k'])} hydrogeological clusters "
+                         f"(Hydro_Cluster), on {_basis} (07_06_coeff_cluster_test.csv value), n={int(_r['n_wells'])}")
+            rpt.add(f"coeff_cluster_{_r['test']}{_sfx}_perm_p", float(_r["perm_p"]), unit="",
+                    note="permutation p of that value (07_06 perm_p)")
+            rpt.add(f"coeff_cluster_{_r['test']}{_sfx}_chance", float(_r["chance_mean"]), unit="",
+                    note="its mean under shuffled labels (07_06 chance_mean)")
     for _, _r in _means_df.iterrows():
-        _cl = f"C{int(_r['Cluster_ID'])}"
-        rpt.add(f"{_cl}_beta1_mean", _r["beta_1_recharge_mean"], unit="mm/mm",
-                note=f"mean β₁ recharge, {_cl}, Model B (free intercept), n={int(_r['n'])}")
-        rpt.add(f"{_cl}_beta2_mean", _r["beta_2_atmospheric_draw_mean"], unit="mm/mm",
-                note=f"mean β₂ atmospheric draw, {_cl}, Model B (free intercept), n={int(_r['n'])}")
-        rpt.add(f"{_cl}_beta3_mean", _r["beta_3_drainage_mean"], unit="/month",
-                note=f"mean β₃ drainage, {_cl}, Model B (free intercept), n={int(_r['n'])}")
-        rpt.add(f"{_cl}_beta3_pct_mean", _r["beta_3_pct_mean"], unit="%/month",
-                note=f"mean β₃ as % head drained/month, {_cl}")
+        _cl = f"C{int(_r['Cluster_ID'])}"            # the key keeps the group id (C5 = C3f); the note names the group
+        _gl = CLUSTER_SHORT.get(int(_r["Cluster_ID"]), _cl)
+        rpt.add(f"{_cl}_beta1_mean", _r["beta_1_recharge_mean"], unit="mm/mm", well=_gl,
+                note=f"mean β₁ recharge, {_gl}, Model B (free intercept), n={int(_r['n'])} cluster-level wells")
+        rpt.add(f"{_cl}_beta2_mean", _r["beta_2_atmospheric_draw_mean"], unit="mm/mm", well=_gl,
+                note=f"mean β₂ atmospheric draw, {_gl}, Model B (free intercept), n={int(_r['n'])} cluster-level wells")
+        rpt.add(f"{_cl}_beta3_mean", _r["beta_3_drainage_mean"], unit="/month", well=_gl,
+                note=f"mean β₃ drainage, {_gl}, Model B (free intercept), n={int(_r['n'])} cluster-level wells")
+        rpt.add(f"{_cl}_beta3_pct_mean", _r["beta_3_pct_mean"], unit="%/month", well=_gl,
+                note=f"mean β₃ as % head drained/month, {_gl}")
     # CEH14: cited for its negative β₃ (lateral recharge from the rock ridge). That was Model A's estimate;
     # since 1.7.0 (D-332) the unsuffixed keys carry Model B's (positive, with an implied drainage base above
     # ground), and Model A's negative value is kept in the *_model_a keys.
@@ -883,11 +908,11 @@ if __name__ == "__main__":
     for _, _r in cvc_df[cvc_df["panel"] == "all"].iterrows():
         _b = _cvc_short[_r["coefficient"]]
         rpt.add(f"clusters_vs_covariates_F_p_{_b}", _r["F_pvalue"], unit="",
-                note=(f"nested F-test p, C(Cluster) over six site covariates, per-well "
+                note=(f"nested F-test p, C(Hydro_Cluster) over six site covariates, per-well "
                       f"{_r['coefficient']}, n={int(_r['n'])}, "
                       f"F({int(_r['df_num'])},{int(_r['df_den'])}); 07_05_clusters_vs_covariates.csv"))
         rpt.add(f"clusters_vs_covariates_dAIC_{_b}", _r["delta_AIC"], unit="",
-                note=(f"AIC(covariates + C(Cluster)) − AIC(covariates), per-well "
+                note=(f"AIC(covariates + C(Hydro_Cluster)) − AIC(covariates), per-well "
                       f"{_r['coefficient']}, n={int(_r['n'])}; negative favours clusters"))
     n_saved = rpt.save(OUT_07_REPORT_NUMBERS)
     step(f"Exported {n_saved} report numbers to {OUT_07_REPORT_NUMBERS.name}")

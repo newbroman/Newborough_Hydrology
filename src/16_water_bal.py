@@ -1,7 +1,7 @@
 """
-16_water_bal.py — Mean monthly water balance decomposition by cluster, 2005-2026.
+16_water_bal.py — Mean monthly water balance decomposition by cluster, 2010-2026 (D-347).
 ===============
-Mean Monthly Water Balance Decomposition by Cluster — Newborough Warren 2005–2026
+Mean Monthly Water Balance Decomposition by Cluster — Newborough Warren, from RECORD_FIT_START (2010) to 2026
 
 Produces the outputs supporting Section 4.2.3 of the report:
 
@@ -41,8 +41,9 @@ Volumetric water balance (mm/yr):
     P            =  measured rainfall (RAF Valley, identical for all clusters)
     PET          =  Thornthwaite PET (identical for all clusters)
     I            =  0.24 × P (forest only; Freeman 2008)
-    Net recharge =  P − I
-    ET + drainage=  P_net, split by the cluster's drainage fraction
+    Net recharge =  P − I  (throughfall)
+    ET + drainage=  P_net, split by the cluster's drainage fraction (1.22.0, D-349 (3):
+                    interception sits in recharge, so the split is of throughfall)
 
     Interception is subtracted ONCE, from the input, and drawn a second time on
     the loss bar, where the two appearances cancel in the net surplus. It is NOT
@@ -79,7 +80,7 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.21.0"  # 2026-11-27 (D-348): comments name the forest groups C4 and C3f; the balance reads Script 03's cluster-level centroids, no code change. Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the water balance is computed from
+__version__ = "1.22.0"  # 2026-11-27 (D-349 (3) B1, A14): the volumetric split at the forest groups is of THROUGHFALL, rain less FOREST_INTERCEPTION: drainage = P_net*df, evaporation after interception = P_net*(1-df), total evaporation = I + P_net*(1-df). Interception sits in recharge, not in evaporation (a fit on gross rain absorbs I = F*P as (1-F)*beta_1; C3f's beta_1 is 0.751 of C3o's), so the 1.15.0 rationale (beta_2*PET carries the canopy loss) is withdrawn. Open groups are unchanged (P_net = P). Partition_identified (Model B beta_3 p < 0.05) flags the row whose split is not an estimate (C4); report numbers carry it. The rainfall note and docstring state the window: complete calendar years from RECORD_FIT_START (2010-2025), Script 00's mean_annual_rain_record_fit_window, not mean_annual_rain_well_record (2006-2025). Was "1.21.0"  # 2026-11-27 (D-348): comments name the forest groups C4 and C3f; the balance reads Script 03's cluster-level centroids, no code change. Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the water balance is computed from
 #   config.RECORD_FIT_START (January 2010), the window of the coefficients it uses.
 # 1.19.1  # Hollingham (2026) — 2026-11-24. The site-wide P and PET are the mean over COMPLETE calendar
 #   years (site_annual_means, Script 00's definition: 891 mm), not mean monthly x 12 over every reporting month, which the
@@ -528,9 +529,10 @@ def site_climate_means(df):
 def site_annual_means(df):
     """(P_mm_yr, PET_mm_yr): the mean over the COMPLETE calendar years in which any cluster reports (1.19.1).
 
-    The definition Script 00 uses for mean_annual_rain_well_record (2006-2025, 891 mm), so the volumetric table and the
-    paper's quoted mean annual rainfall agree. A mean monthly value x 12 over every reporting month (1.19.0) is pulled
-    to 889 mm by the two part-years, April-December 2005 and January-February 2026, which miss different seasons.
+    Script 00's definition (complete calendar years), on THIS script's frame, which starts at RECORD_FIT_START (D-347):
+    the years 2010-2025, Script 00's mean_annual_rain_record_fit_window. It is not mean_annual_rain_well_record
+    (2006-2025), which is about 5 mm higher (1.22.0, D-349 A14: the note said they were equal). A mean monthly value
+    x 12 over every reporting month (1.19.0) is pulled off by the part-year at the record's end.
     """
     cols = [f"C{cid}" for cid in sorted(_CFG_LABELS.keys()) if f"C{cid}" in df.columns]
     sub = df[df[cols].notna().any(axis=1)][["Date", "P_m", "PET"]].dropna()
@@ -602,12 +604,15 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=No
         # (until 1.11.0 the midpoint of Model A and the recession ratio, and the range between them)
         pe = partition_estimates(s, r, (ddp or {}).get(cid, np.nan))
         df_mid, df_lo, df_hi = pe["mid"], pe["lo"], pe["hi"]
-        # 1.15.0 (Martin 2026-11-17, review Q3): the SSM is fitted on gross rainfall and above-canopy PET, so
-        # beta_2*PET already carries the canopy's interception loss (Paper 1 SI S9.2). The split therefore
-        # applies to GROSS rainfall: drainage = P*df, total evaporation = P*(1-df), and interception is a part
-        # of that total, not an addition to it. Until 1.14.0 the split was applied to P_net and I added on top,
-        # which counted the canopy loss twice (C4 total evaporation 1.06 x PET).
-        Pg = P_annual
+        # 1.22.0 (D-349 (3), B1; Martin 2026-11-27): the split is of THROUGHFALL at the forest groups. The SSM is
+        # fitted on gross rainfall, so an interception loss I = F*P sits in RECHARGE: the regression absorbs it as
+        # (1 - F)*beta_1 (C3f's beta_1 is 0.751 of C3o's, the same hydrogeology in the open), and beta_2*PET does not
+        # carry it. The 1.15.0 rationale (beta_2*PET carries the canopy loss; split gross rain) is withdrawn: on gross
+        # rain C3f drained more than any open group. Drainage = P_net*df, evaporation after interception =
+        # P_net*(1-df), total evaporation = I + P_net*(1-df). Open groups: P_net = P, nothing moves. C4's row is
+        # flagged: its beta_3 is not identified, so its split is not an estimate (and its total evaporation exceeds PET).
+        Pg = P_net
+        identified = bool(pd.notna(s.get("p_b3_B")) and s["p_b3_B"] < 0.05)
 
         rows.append({
             "Cluster": cid,
@@ -626,27 +631,32 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=No
             "Mid_drain_frac": df_mid,
             "Lo_drain_frac": df_lo,
             "Hi_drain_frac": df_hi,
-            # ET = evaporation after interception (from throughfall and the water table); ET_total = I + ET
-            "ET_mid_mm_yr": Pg * (1 - df_mid) - I_val,
-            "ET_lo_mm_yr": Pg * (1 - df_hi) - I_val,
-            "ET_hi_mm_yr": Pg * (1 - df_lo) - I_val,
+            # ET = evaporation after interception (from throughfall and the water table); ET_total = I + ET.
+            # 1.22.0 (D-349 (3)): the split is of throughfall Pg = P_net (= P in the open)
+            "ET_mid_mm_yr": Pg * (1 - df_mid),
+            "ET_lo_mm_yr": Pg * (1 - df_hi),
+            "ET_hi_mm_yr": Pg * (1 - df_lo),
             "Drain_mid_mm_yr": Pg * df_mid,
             "Drain_lo_mm_yr": Pg * df_lo,
             "Drain_hi_mm_yr": Pg * df_hi,
-            "ET_total_mid_mm_yr": Pg * (1 - df_mid),
-            "ET_total_lo_mm_yr": Pg * (1 - df_hi),
-            "ET_total_hi_mm_yr": Pg * (1 - df_lo),
-            # 1.11.0: the third estimator, additive - not in Mid/lo/hi
+            "ET_total_mid_mm_yr": I_val + Pg * (1 - df_mid),
+            "ET_total_lo_mm_yr": I_val + Pg * (1 - df_hi),
+            "ET_total_hi_mm_yr": I_val + Pg * (1 - df_lo),
+            # 1.11.0: the third estimator, additive - not in Mid/lo/hi. DDP_ET_mm_yr is total evaporation, as before.
             "DDP_drain_frac": (ddp or {}).get(cid, np.nan),
             "DDP_ET_frac": 1.0 - (ddp or {}).get(cid, np.nan),
             "DDP_drain_mm_yr": Pg * (ddp or {}).get(cid, np.nan),
-            "DDP_ET_mm_yr": Pg * (1.0 - (ddp or {}).get(cid, np.nan)),
+            "DDP_ET_mm_yr": I_val + Pg * (1.0 - (ddp or {}).get(cid, np.nan)),
             # 1.16.0: the split by difference (drainage = recharge - atmospheric draw, as a share of recharge),
             # for the cluster whose beta_3 Model B does not identify; same Pg convention as the mid columns
             "Bydiff_drain_frac": (s["recharge_B"] - s["et_draw_B"]) / s["recharge_B"],
             "Drain_bydiff_mm_yr": Pg * (s["recharge_B"] - s["et_draw_B"]) / s["recharge_B"],
-            "ET_bydiff_mm_yr": Pg * s["et_draw_B"] / s["recharge_B"] - I_val,
-            "ET_total_bydiff_mm_yr": Pg * s["et_draw_B"] / s["recharge_B"],
+            "ET_bydiff_mm_yr": Pg * s["et_draw_B"] / s["recharge_B"],
+            "ET_total_bydiff_mm_yr": I_val + Pg * s["et_draw_B"] / s["recharge_B"],
+            # 1.22.0 (D-349 (3)): appended. False where Model B does not identify beta_3 (p >= 0.05): the split
+            # there rests on an unidentified coefficient and is not an estimate (C4)
+            "Rain_basis": "throughfall" if is_forest else "gross",
+            "Partition_identified": identified,
         })
 
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.4f")   # 1.12.0: fractions need more than 1 dp
@@ -875,12 +885,14 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         pe = partition_estimates(summary[cid], recession.get(cid, {}), (ddp or {}).get(cid, np.nan))
         df_lo, df_hi, df_mid = pe["lo"], pe["hi"], pe["mid"]
 
-        # 1.15.0: the split is of GROSS rainfall; the loss bar stacks ET after interception, then
-        # interception (part of the evaporation), then drainage, and sums to P
-        et_mid    = P_annual * (1 - df_mid) - I_val      # evaporation after interception
-        drain_mid = P_annual * df_mid
-        et_lo     = P_annual * (1 - df_hi)    # ET/drainage boundary, lowest (most drainage)
-        et_hi     = P_annual * (1 - df_lo)    # boundary highest (most ET)
+        # 1.22.0 (D-349 (3)): the split is of THROUGHFALL P_net; the loss bar stacks ET after interception, then
+        # interception, then drainage, and sums to P
+        et_mid    = P_net * (1 - df_mid)               # evaporation after interception
+        drain_mid = P_net * df_mid
+        et_lo     = I_val + P_net * (1 - df_hi)    # ET/drainage boundary (top of ET + I), lowest (most drainage)
+        et_hi     = I_val + P_net * (1 - df_lo)    # boundary highest (most ET)
+        _p3 = summary[cid].get("p_b3_B")
+        unident = not (pd.notna(_p3) and _p3 < 0.05)   # 1.22.0: beta_3 not identified - the split is not an estimate
 
         x_p = i - width_p/2 - gap/2
         x_l = i + width_loss/2 + gap/2
@@ -924,7 +936,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         # the loss bar's right edge (separate from the hatched SSM-recession band, which it does not widen)
         if datum_range and cid in datum_range:
             f_lo, f_hi = datum_range[cid][0], datum_range[cid][1]
-            y_a, y_b = P_net * (1 - f_hi), P_net * (1 - f_lo)
+            y_a, y_b = I_val + P_net * (1 - f_hi), I_val + P_net * (1 - f_lo)   # 1.22.0: top of ET + I
             xb = x_l + width_loss / 2 + 0.03
             ax2.plot([xb, xb], [y_a, y_b], color="black", lw=1.1, zorder=6)
             ax2.plot([xb - 0.02, xb + 0.02], [y_a, y_a], color="black", lw=1.1, zorder=6)
@@ -955,7 +967,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         # Column headers
         ax2.text(x_p, P_annual + 30, 'P', ha='center', va='bottom', fontsize=9,
                  color=C_P, fontweight='bold')
-        ax2.text(x_l, P_annual + 30, 'Losses', ha='center', va='bottom',
+        ax2.text(x_l, P_annual + 30, 'Losses*' if unident else 'Losses', ha='center', va='bottom',
                  fontsize=8.5, color='#444')
 
     # Reference lines
@@ -1003,10 +1015,10 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     ax2.text(0.5, -0.14,
              f"Rainfall P = {_tabP:.0f} mm/yr at every cluster "
              f"(the site mean over the record). At steady state, "
-             f"total losses = P. The bars split the losses by Model B, interception counted within evaporation; the hatched band spans the ET/drainage\nboundary "
+             f"total losses = P. The bars split the losses by Model B; at the forest groups the split is of throughfall (P less interception); the hatched band spans the ET/drainage\nboundary "
              f"between Model B and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
-             f"is shown inside the evaporation, not added to it.",
+             f"is drawn as its own loss. * drainage coefficient not identified (Model B β₃ p ≥ 0.05): the split is not an estimate.",
              transform=ax2.transAxes, ha='center', va='top', fontsize=8.5,
              color='#666', style='italic')
 
@@ -1069,8 +1081,9 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
     rr.add("water_balance_P_mm_yr_max", max(P_yr), unit="mm/yr",
            note="highest cluster annual rainfall (Table 7 P_mm_yr); one site value since 1.19.1")
     rr.add("water_balance_P_mm_yr_mean", float(np.mean(P_yr)), unit="mm/yr",
-           note="annual rainfall at every cluster (Table 7 P_mm_yr): the site mean over complete calendar years, "
-                "as Script 00's mean_annual_rain_well_record")
+           note="annual rainfall at every cluster (Table 7 P_mm_yr): the site mean over the complete calendar years "
+                "from RECORD_FIT_START (D-347), as Script 00's mean_annual_rain_record_fit_window; not "
+                "mean_annual_rain_well_record, which runs from 2006 (1.22.0, D-349 A14)")
     rr.add("water_balance_closure_max_pct", worst[1] if worst else np.nan, unit="%",
            note=f"Model B (D-332): largest per-cluster residual as a share of total losses "
                 f"({worst[0] if worst else 'none'}): the balance closes to within this at every cluster")
@@ -1078,7 +1091,7 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
            note=f"Model A at DRAINAGE_DATUM: largest per-cluster residual as a share of total losses ({worst_a[0]})")
     # 1.12.0 (D-283): the partition as quoted. Model B's drainage share of the modelled loss is the
     # headline; the range spans Model A, Model B, the depth-dependent model and the recession ratio.
-    # 1.15.0: volumes split GROSS rainfall; interception (FOREST_INTERCEPTION of P at C4, C3f) is part of the evaporation.
+    # 1.22.0 (D-349 (3)): volumes split THROUGHFALL at the forest groups (P less FOREST_INTERCEPTION of P at C4, C3f).
     recession = recession or {}
     for cid in sorted(summary.keys()):
         s = summary[cid]
@@ -1101,16 +1114,19 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
              "drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)"),
             ("water_balance_drain_share_B_pct", 100 * pe["est"]["B"], "%",
              "drainage share of the modelled loss under Model B (the headline)"),
-            ("water_balance_drain_mm_yr", P_yr * pe["mid"], "mm/yr",
-             "drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"),
-            ("water_balance_et_wt_mm_yr", P_yr * (1 - pe["mid"]) - I_yr, "mm/yr",
-             "evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)"),
+            ("water_balance_drain_mm_yr", Pn * pe["mid"], "mm/yr",
+             "drainage, headline share of throughfall (gross rain in the open; Table 7 Drain_mid_mm_yr; 1.22.0, D-349 (3))"),
+            ("water_balance_et_wt_mm_yr", Pn * (1 - pe["mid"]), "mm/yr",
+             "evaporation after interception: the headline evaporation share of throughfall (Table 7 ET_mid_mm_yr)"),
             ("water_balance_interception_mm_yr", I_yr, "mm/yr",
              "canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"),
-            ("water_balance_et_total_mm_yr", P_yr * (1 - pe["mid"]), "mm/yr",
-             "total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"),
-            ("water_balance_et_total_over_pet", P_yr * (1 - pe["mid"]) / PET_yr, "ratio",
+            ("water_balance_et_total_mm_yr", I_yr + Pn * (1 - pe["mid"]), "mm/yr",
+             "total evaporation, interception included: I plus the headline evaporation share of throughfall (Table 7 ET_total_mid_mm_yr)"),
+            ("water_balance_et_total_over_pet", (I_yr + Pn * (1 - pe["mid"])) / PET_yr, "ratio",
              "total evaporation over Thornthwaite PET over the cluster's months"),
+            ("water_balance_partition_identified", int(pd.notna(s.get("p_b3_B")) and s["p_b3_B"] < 0.05), "flag",
+             "1 = Model B identifies beta_3 (p < 0.05); 0 = it does not, and this cluster's split is not an estimate "
+             "(D-349 (3): C4's row is flagged)"),
             ("water_balance_residual_B_pct", 100 * abs(s["residual_B"]) / s["total_loss_B"]
              if s["total_loss_B"] and s["total_loss_B"] > 0 else np.nan, "%",
              "|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv"),

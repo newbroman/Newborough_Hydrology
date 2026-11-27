@@ -45,7 +45,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.47.0"  # Hollingham (2026) — 2026-11-25 (D-343, changelog 2026-11-25f). 14_summer_trend_stats robust_start and
+__version__ = "1.48.0"  # 2026-11-27 (D-349 B2): 09d/09b columns Delta_storage_sustained_mm / _summer_mm (were Delta_vol_mm_per_month / _summer_). Was "1.47.0"  # Hollingham (2026) — 2026-11-25 (D-343, changelog 2026-11-25f). 14_summer_trend_stats robust_start and
 #   25_13_rolling_window.csv (spec, window_years, window_start: delta_0_mm_yr, L_m) registered, for Paper C v1_2 and its SI v1_1.
 # "1.46.0"  # Hollingham (2026) — 2026-11-25 (changelog 2026-11-25e). 22_05 publishes its beta_3 p-values
 #   (OLS and HAC): on the fitted floor (Script 22 1.7.0) the one HAC flip is CEH20's beta_3, quoted in the MS and Paper 1 SI.
@@ -552,7 +552,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/19_spatial_groundwater/19_scenario_summary.csv", ("scenario", "season", "cluster"),
      ["dh_mean_m", "dh_median_m", "we_mean_mm", "we_median_mm"]),
     ("outputs/09_scraping_intervention/09b_04_scenario_comparison.csv", ("Scenario", "Cluster"),
-     ["Delta_vol_mm_per_month"]),
+     ["Delta_storage_sustained_mm"]),
     ("outputs/00_climate_summary/00_06_pet_monthly_trends.csv", ("window", "month"),
      ["slope_mm_per_yr", "p_value", "r2", "n_years"]),
     # J-27 (1.42.0): Script 50's PET comparison, one row per (basis, pet, quantity); Paper M §3 binds
@@ -620,7 +620,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/09_scraping_intervention/09c_06_spring_means_shifts.csv", ("Well", "Control"),    # report8 3.1.1, report9 4.11
      ["Pre_mean_gap_m", "Post_mean_gap_m", "Shift_m", "Shift_mm", "t_stat", "p_value"]),
     ("outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv", "Scenario",    # report9 4.5.6
-     ["Delta_vol_summer_mm_per_month"]),
+     ["Delta_storage_sustained_summer_mm"]),
     ("outputs/10_clearfell_baci/10a_12_control_subset_sensitivity.csv", ("subset", "drift_variant"),    # report8 3.5.4, report9 4.6.8
      ["step_mm", "se_mm", "p"]),
     ("outputs/10_clearfell_baci/10a_13_era_split.csv", ("contrast", "drift_mode", "era"),    # report9 4.6.8
@@ -1005,9 +1005,9 @@ EXTRA_VALUE_TABLES = [
       "Min_depth_m", "Max_depth_m"]),
     # Script 09d's CEH36 scenario bars (T-84, 2026-09-26).
     ("outputs/09_scraping_intervention/09d_01_scenario_comparison.csv", "Scenario",
-     ["Delta_vol_mm_per_month"]),
+     ["Delta_storage_sustained_mm"]),
     ("outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv", "Scenario",
-     ["Delta_vol_summer_mm_per_month"]),
+     ["Delta_storage_sustained_summer_mm"]),
     # Script 09b's uphill propagation shifts, per well and per centroid (T-84, 2026-09-26).
     ("outputs/09_scraping_intervention/09b_01_individual_well_baci.csv", "well",
      ["baci_db3_pct"]),

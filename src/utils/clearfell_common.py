@@ -70,7 +70,7 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.17.0"  # 2026-11-27 (D-348): comments and docstring name group 5 C3f (was C5 Coastal Forest); no code change. Was "1.16.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+__version__ = "1.18.0"  # 2026-11-27 (D-349 A15, B3): clearfell_return_fraction() calibrated on WMC3's own Model B per-well fit (was the centroid its Cluster id named: C3o) and names its basis; the anchor carried as a range (load_clearfell_anchor_range, CLEARFELL_ANCHORS: drift free / drift fixed (D-076) / drift-free DiD) and clearfell_return_fraction_range(). Was "1.17.0"  # 2026-11-27 (D-348): comments and docstring name group 5 C3f (was C5 Coastal Forest); no code change. Was "1.16.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
 #   load_clearfell_observed_step() and clearfell_return_fraction(): the scenarios' anchor (the 10a step, its
 #   HAC interval, by season) and the flux sensitivity calibrated on it. Additive.
 # 1.15.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). Docstrings only, no code change:
@@ -1972,40 +1972,125 @@ def load_clearfell_observed_step(verbose=True):
     return out
 
 
-def clearfell_return_fraction(verbose=True):
+# 1.18.0 (D-349 B3): the anchor is carried as a RANGE through every forest scenario. The +0.108 m headline is
+# mostly 10a's free coastal-drift term (without it the step is near zero), so the central value depends on the
+# drift model and two other members travel beside it. Each member is (Parameter key, output) for the annual and
+# the Oct-Mar step; the Oct-Mar step is what f is calibrated on.
+CLEARFELL_ANCHORS = ("drift_free", "drift_fixed", "did")
+CLEARFELL_ANCHOR_LABELS = {
+    "drift_free":  "coastal drift fitted (s_coast free; the 10a headline, D-076)",
+    "drift_fixed": "coastal drift fixed at its modelled amplitude (s_coast = 1; D-076's sensitivity)",
+    "did":         "no drift term: the raw consecutive-era difference-in-differences (10m, Apr 2015-Nov 2017 "
+                   "against Dec 2017-Sep 2023)",
+}
+_ANCHOR_KEYS = {
+    "drift_free":  (("10a", "ANCOVA_Forest_Impact_clearfell_step"),
+                    ("10a", "ANCOVA_Forest_Impact_clearfell_step_winter")),
+    "drift_fixed": (("10a", "ANCOVA_Forest_Impact_clearfell_step_s_fixed1"),
+                    ("10a", "ANCOVA_Forest_Impact_clearfell_step_winter_s_fixed1")),
+    "did":         (("10m", "WMC3_BACI_DiD_step_2017_clearfell"),
+                    ("10m", "WMC3_BACI_DiD_step_2017_clearfell_winter")),
+}
+
+
+def load_clearfell_anchor_range(verbose=True):
+    """D-349 (B3): the clearfell anchor's three members, {member: {"annual": m, "winter": m, "keys": (k_a, k_w)}}
+    for member in CLEARFELL_ANCHORS (labels in CLEARFELL_ANCHOR_LABELS). Read from 10a_report_numbers.csv and
+    10m_report_numbers.csv. A key not yet written (Scripts 09 run before 10, so the first pass after a new key
+    reads the previous run's file) is NaN with a printed warning; the run's settle pass fills it."""
+    from utils.paths import OUT_10A_REPORT, OUT_10M_REPORT
+    files = {"10a": OUT_10A_REPORT, "10m": OUT_10M_REPORT}
+    tables = {}
+    for tag, path in files.items():
+        try:
+            tables[tag] = pd.read_csv(path)
+        except FileNotFoundError:
+            tables[tag] = None
+
+    def val(tag, key):
+        t = tables.get(tag)
+        if t is None:
+            print(f"  WARNING: {files[tag].name} not found - clearfell anchor {key} is NaN until Script {tag} runs")
+            return float("nan")
+        hit = t.loc[t["Parameter"] == key, "Value"]
+        if hit.empty:
+            print(f"  WARNING: {key} not in {files[tag].name} - NaN until Script {tag} runs (settle pass)")
+            return float("nan")
+        return float(hit.iloc[0])
+    out = {}
+    for m in CLEARFELL_ANCHORS:
+        (ta, ka), (tw, kw) = _ANCHOR_KEYS[m]
+        out[m] = {"annual": val(ta, ka), "winter": val(tw, kw), "keys": (ka, kw)}
+    if verbose:
+        print("  Clearfell anchor range (annual / Oct-Mar, m): " + "; ".join(
+            f"{m} {v['annual']:+.3f} / {v['winter']:+.3f}" for m, v in out.items()))
+    return out
+
+
+def clearfell_return_fraction(verbose=True, anchor="drift_free"):
     """The share f of the canopy's interception (FOREST_INTERCEPTION) that, returned as recharge, reproduces
-    the observed winter step at the felled well through its own cluster's state-space model - the clearfell
+    the observed winter step at the felled well through the felled well's OWN state-space model - the clearfell
     FLUX SENSITIVITY (T-209; Martin 2026-11-20: the observed step is the headline, the flux a named
-    sensitivity). The felled well WMC3 sits in cluster C3, whose Model B beta_3 is identified. The
-    sustained level response to returning ALL the interception (f = 1), averaged over the winter months, is
-    linear in f, so f = winter step / that response, and the step's interval gives f's. f_lo is floored at 0.
+    sensitivity). The sustained level response to returning ALL the interception (f = 1), averaged over the
+    winter months, is linear in f, so f = winter step / that response, and the step's interval gives f's.
+    f_lo is floored at 0.
+
+    1.18.0 (D-349 A15): the model is WMC3's own Model B per-well fit (beta_1_recharge, beta_3_drainage in
+    03_master_data.csv; Script 03's per-well basis, the 98-month window January 2018 - February 2026, after the
+    felling), named in the returned "basis". Before 1.18.0 it was the centroid of whatever group WMC3's Cluster
+    id named; under D-348 that is C3o, from which WMC3 is set aside (f 0.191 there, against 0.211 on WMC3's own
+    fit).
+
+    1.18.0 (D-349 B3): `anchor` picks the member of the anchor range (CLEARFELL_ANCHORS) the Oct-Mar step is
+    taken from; the HAC interval (f_lo, f_hi) exists for the drift-free headline only and is NaN otherwise.
+    Every clearfell scenario quantity is linear in f, so clearfell_return_fraction_range() carries the range.
 
     Two limits travel with it: the return is spread over the year, so the form puts part of the gain in
     summer where the record shows none; and it is calibrated on one well. Never applied through 1/beta_3 at
     C4, where Model B's beta_3 is not identified (D-333).
 
-    Returns dict(f, f_lo, f_hi, cluster, b1, b3, full_return_winter_m, step_winter, ci_lo, ci_hi)."""
+    Returns dict(f, f_lo, f_hi, basis, basis_note, anchor, b1, b3, full_return_winter_m, step_winter, ci_lo,
+    ci_hi)."""
     from utils.paths import INT_CLIMATE, INT_MASTER_DATA
     from utils.config import FOREST_INTERCEPTION, WINTER_RECHARGE_MONTHS, REFERENCE_CUTOFF_DATE
     from utils.model_utils import sustained_monthly_response
-    from utils.pipeline_params import load_params
-    step = load_clearfell_observed_step(verbose=False)["winter"]
+    if anchor not in CLEARFELL_ANCHORS:
+        raise ValueError(f"anchor {anchor!r} is not one of {CLEARFELL_ANCHORS}")
+    if anchor == "drift_free":
+        step = load_clearfell_observed_step(verbose=False)["winter"]
+    else:
+        _w = load_clearfell_anchor_range(verbose=False)[anchor]["winter"]
+        step = (_w, float("nan"), float("nan"))
     master = pd.read_csv(INT_MASTER_DATA)
-    wcol = "Well" if "Well" in master.columns else master.columns[0]
+    wcol = "Name_Original" if "Name_Original" in master.columns else master.columns[0]
     row = master[master[wcol].astype(str).str.lower().str.replace(" ", "") == IMPACT_WELLS[0]]
-    cid = int(row["Cluster"].iloc[0]) if not row.empty else 3
-    cluster = f"C{cid}"
-    cp = load_params(warn_defaults=False)["clusters"][cluster]
-    b1, b3 = float(cp["b1"]), float(cp["b3"])
+    if row.empty:
+        raise KeyError(f"{IMPACT_WELLS[0]} not in {INT_MASTER_DATA.name}: the return fraction is calibrated on its "
+                       "own fit (D-349) and has no fallback")
+    b1, b3 = float(row["beta_1_recharge"].iloc[0]), float(row["beta_3_drainage"].iloc[0])
+    n_fit = int(row["n"].iloc[0]) if "n" in row.columns and pd.notna(row["n"].iloc[0]) else None
+    basis = IMPACT_WELLS[0].upper()
+    basis_note = (f"{basis}'s own Model B per-well fit (03_master_data.csv: beta_1 {b1:.3f}, beta_3 {b3:.4f}"
+                  + (f", {n_fit} months" if n_fit else "") + ", Script 03's per-well window, after the felling)")
     clim = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True).sort_index()
     clim = clim.loc["2005-04-01":REFERENCE_CUTOFF_DATE]
     P12 = clim.groupby(clim.index.month)["P_m"].mean().values
     full = sustained_monthly_response(b3, b1 * FOREST_INTERCEPTION * P12)
     w = float(np.mean(full[[m - 1 for m in WINTER_RECHARGE_MONTHS]]))
-    f, f_lo, f_hi = step[0] / w, max(step[1] / w, 0.0), step[2] / w
+    f, f_lo, f_hi = step[0] / w, max(step[1] / w, 0.0) if np.isfinite(step[1]) else float("nan"), step[2] / w
     if verbose:
-        print(f"  Clearfell interception-return fraction (flux sensitivity, {cluster}): f = {f:.3f} "
-              f"[{f_lo:.3f}, {f_hi:.3f}] of {FOREST_INTERCEPTION:.2f}")
-    return dict(f=f, f_lo=f_lo, f_hi=f_hi, cluster=cluster, b1=b1, b3=b3, full_return_winter_m=w,
-                step_winter=step[0], ci_lo=step[1], ci_hi=step[2])
+        print(f"  Clearfell interception-return fraction (flux sensitivity, {basis_note}; anchor {anchor}): "
+              f"f = {f:.3f} [{f_lo:.3f}, {f_hi:.3f}] of {FOREST_INTERCEPTION:.2f}")
+    return dict(f=f, f_lo=f_lo, f_hi=f_hi, basis=basis, basis_note=basis_note, anchor=anchor, b1=b1, b3=b3,
+                full_return_winter_m=w, step_winter=step[0], ci_lo=step[1], ci_hi=step[2])
 
+
+def clearfell_return_fraction_range(verbose=True):
+    """D-349 (B3): {member: f} over CLEARFELL_ANCHORS, each calibrated on that member's Oct-Mar step through the
+    same model (clearfell_return_fraction). Every clearfell and thinning scenario quantity is linear in f, so a
+    consumer carries the range by recomputing with each f (or, equivalently, scaling by f_member / f)."""
+    out = {m: clearfell_return_fraction(verbose=False, anchor=m)["f"] for m in CLEARFELL_ANCHORS}
+    if verbose:
+        print("  Clearfell return fraction over the anchor range: " + "; ".join(
+            f"{m} f = {v:.3f}" for m, v in out.items()))
+    return out

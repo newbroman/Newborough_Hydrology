@@ -26,7 +26,7 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.39.0"  # 2026-11-27 (D-348): cluster means and medians of per-well responses (scenario rows, MSL5 rows, interception bounds, cluster heads, the C3f clearfell spread) from cluster-level wells, SITE rows over every well; loops over CLUSTER_LABELS; viewer and notes name C3o and C3f. Was "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
+__version__ = "2.40.0"  # 2026-11-27 (D-349 A15, B3, B11): the return fraction calibrated on WMC3's own fit and named in its row; the clearfell anchor range (drift free / drift fixed / drift-free DiD) emitted with the C3f clearfell and thinning means under each member (_anchor_<member> keys); the open-dune end state of a cluster whose Model B beta_3 is not identified (C4) kept but labelled a bound on an unidentified beta_3 in its response, notes, viewer text and a _beta3_identified flag row. Was "2.39.0"  # 2026-11-27 (D-348): cluster means and medians of per-well responses (scenario rows, MSL5 rows, interception bounds, cluster heads, the C3f clearfell spread) from cluster-level wells, SITE rows over every well; loops over CLUSTER_LABELS; viewer and notes name C3o and C3f. Was "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
 #   all the interception returned at the felled well, Model B, draw unchanged (the f = 1 end of the flux sensitivity),
 #   replacing the interception-form diagnostic 2.37.0 removed, which carried the withdrawn Edge-tier multiplier.
 # 2.37.0  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The clearfell and thinning
@@ -455,6 +455,8 @@ from utils.config import (
     MODEL_B_BETA3_MIN,                   # 2.33.0 (D-332): the beta_3 bound, for the count key
 )
 from utils.clearfell_common import clearfell_return_fraction, load_clearfell_observed_step   # 2.37.0 (T-209)
+from utils.clearfell_common import (load_clearfell_anchor_range, clearfell_return_fraction_range,   # 2.40.0 (D-349 B3)
+                                    CLEARFELL_ANCHORS, CLEARFELL_ANCHOR_LABELS)
 from utils.map_utils import load_site_outline
 
 from utils.console_utils import (
@@ -576,17 +578,21 @@ VIEWER_HILLSHADE_GREY_LEVELS = 64
 SCENARIO_PARAMS = None
 CLEARFELL_FRAC = None   # 2.37.0 (T-209): clearfell_common.clearfell_return_fraction()
 CLEARFELL_STEP = None   # 2.37.0 (T-209): clearfell_common.load_clearfell_observed_step()
+CLEARFELL_RANGE = None       # 2.40.0 (D-349 B3): clearfell_common.load_clearfell_anchor_range()
+CLEARFELL_FRAC_RANGE = None  # 2.40.0 (D-349 B3): clearfell_common.clearfell_return_fraction_range()
 
 
 def _init_scenario_params():
     """Build SCENARIO_PARAMS; 2.37.0 (T-209, D-333): the clearfell and thinning on the observed BACI step."""
-    global SCENARIO_PARAMS, CLEARFELL_FRAC, CLEARFELL_STEP
+    global SCENARIO_PARAMS, CLEARFELL_FRAC, CLEARFELL_STEP, CLEARFELL_RANGE, CLEARFELL_FRAC_RANGE
 
     # 2.37.0 (T-209, D-333): the clearfell's headline is the observed step at the felled well (Script 10a), not
     # mapped; its flux sensitivity returns a share f of the interception (calibrated on that step) and is carried
     # to a level at C5 wells only - C4's drainage coefficient is not identified, so no level there (c5_only).
     CLEARFELL_STEP = load_clearfell_observed_step()
     CLEARFELL_FRAC = clearfell_return_fraction()
+    CLEARFELL_RANGE = load_clearfell_anchor_range()           # 2.40.0 (D-349 B3)
+    CLEARFELL_FRAC_RANGE = clearfell_return_fraction_range()  # 2.40.0 (D-349 B3)
     _f = CLEARFELL_FRAC["f"]
 
     # Forest β₂ scaling: merged across C4/C5 (same management assumptions),
@@ -2568,8 +2574,25 @@ def _end_state_text(climate_stats):
     P12 = np.asarray(climate_stats["monthly_P_m_arr"], dtype=float)
     PET12 = np.asarray(climate_stats["monthly_PET_m_arr"], dtype=float)
     es = open_dune_end_state(P12, PET12)
+    ident = end_state_beta3_identified()   # 2.40.0 (D-349 B11)
     return "; ".join(f"{CLUSTER_SHORT.get(c, f'C{c}')} as {CLUSTER_SHORT.get(ref, f'C{ref}')}: {es[(c, 'B')]:+.2f} m"
+                     + ("" if ident[c][0] else " (a bound only: its drainage coefficient is not identified)")
                      for c, ref in END_STATE_OPEN_DUNE_COUNTERPART.items())   # D-348: C3f as C3o
+
+
+def end_state_beta3_identified():
+    """2.40.0 (D-349 B11): {felled cluster: (identified, p)} for the Model B centroid beta_3 that the cluster's own
+    equilibrium in open_dune_end_state() divides by (03_16 centroid rows; Script 48's rule, four parameters). Where it
+    fails (C4: p 0.37 on the committed run) the end state is kept as a BOUND resting on an unidentified drainage
+    coefficient, labelled so in every row and note, and never quoted as an estimate (D-239, D-333)."""
+    mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
+    cb = mb[mb["level"] == "centroid"].set_index("Cluster")
+    out = {}
+    for c in END_STATE_OPEN_DUNE_COUNTERPART:
+        r = cb.loc[c]
+        out[c] = (bool(response_identified(r["beta_3_B"], r["pvalue_beta_3_B"], r["n"], 4)[0]),
+                  float(r["pvalue_beta_3_B"]))
+    return out
 
 
 def open_dune_end_state(P12, PET12):
@@ -2937,17 +2960,30 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                            "dh_median_m": np.nan})
 
     # ── 2.31.0 (T-97, D-239): the open-dune end state, cluster basis - a bound, not a scenario ──
+    # 2.40.0 (D-349 B11): where the felled cluster's own Model B beta_3 is not identified (C4), the end state is kept
+    # as a bound on an unidentified drainage coefficient - the response label and the note say so; never an estimate.
+    _es_id = end_state_beta3_identified()
     for (cl_int, form), d in open_dune_end_state(P12, PET12).items():
         sink = rows if form == "B" else rows_A
+        _ok, _p3 = _es_id[cl_int]
         sink.append({"scenario": "end_state_open_dune", "season": "annual",
-                     "response": f"end_state_open_dune_model_{form.lower()}", "cluster": f"C{cl_int}",
+                     "response": (f"end_state_open_dune_model_{form.lower()}"
+                                  + ("" if _ok else "_bound_beta3_not_identified")), "cluster": f"C{cl_int}",
                      "n_wells": 0, "dh_mean_m": d,
                      "dh_median_m": np.nan})
+        _why = ("" if _ok else
+                f"; A BOUND RESTING ON AN UNIDENTIFIED DRAINAGE COEFFICIENT: C{cl_int}'s Model B beta_3 fails "
+                f"Script 48's rule (p = {_p3:.2f}), so this is not an estimate and is never quoted as one (D-333, D-349)")
         rpt.add(f"scenario_end_state_open_dune_C{cl_int}" + ("_model_a" if form == "A" else ""), d, unit="m",
                 well=f"C{cl_int}", era="end_state_open_dune annual",
                 note=f"change in the equilibrium level when C{cl_int} takes the C{END_STATE_OPEN_DUNE_COUNTERPART[cl_int]} "
                      f"centroid coefficients, Model {form} (a bound: carries position and topography as well "
-                     f"as canopy; D-239)")
+                     f"as canopy; D-239){_why}")
+    for cl_int, (_ok, _p3) in _es_id.items():
+        rpt.add(f"scenario_end_state_open_dune_C{cl_int}_beta3_identified", int(_ok), unit="flag", well=f"C{cl_int}",
+                era="end_state_open_dune annual",
+                note=f"1 if C{cl_int}'s Model B centroid beta_3 passes Script 48's rule (p = {_p3:.3g}); 0: its end state "
+                     "is a bound on an unidentified drainage coefficient, not an estimate (D-349 B11)")
 
     # ── 2.31.0 (Martin 2026-10-04): clearfell and broadleaf conversion as ranges - the bound that returns the
     # canopy's interception difference as recharge (FOREST_INTERCEPTION -> 0 for clearfell, -> BROADLEAF_INTERCEPTION
@@ -3110,9 +3146,36 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         rpt.add("scenario_clearfell_anchor_step_m", _st, unit="m", well="WMC3", era=_sea,
                 note=f"the clearfell scenario's headline: observed BACI step at the felled well vs the Forest controls "
                      f"(HAC 95% CI {_lo:+.3f} to {_hi:+.3f} m); not mapped (10a)")
-    rpt.add("scenario_clearfell_return_fraction", CLEARFELL_FRAC["f"], unit="-", well=CLEARFELL_FRAC["cluster"],
-            note=f"flux sensitivity f (range {CLEARFELL_FRAC['f_lo']:.3f}-{CLEARFELL_FRAC['f_hi']:.3f}): the share of the "
-                 "interception returned as recharge in the clearfell rows (C3f wells only, key C5); thinning returns f/2")
+    # 2.40.0 (D-349 A15): f is calibrated on WMC3's own fit and the row says so (was Well = C3, the C3o centroid)
+    rpt.add("scenario_clearfell_return_fraction", CLEARFELL_FRAC["f"], unit="-", well=CLEARFELL_FRAC["basis"],
+            note=f"flux sensitivity f (range {CLEARFELL_FRAC['f_lo']:.3f}-{CLEARFELL_FRAC['f_hi']:.3f}), calibrated through "
+                 f"{CLEARFELL_FRAC['basis_note']}: the share of the interception returned as recharge in the clearfell "
+                 "rows (applied at C3f wells only, key C5); thinning returns f/2; anchor drift free")
+    # 2.40.0 (D-349 B3): the anchor range through the clearfell and thinning rows. Every clearfell/thinning level is
+    # linear in f (Model B; the forcing change is beta_1 P I f), so each member's C3f mean is the central value
+    # scaled by f_member / f.
+    _out = pd.DataFrame(rows)
+    for m in CLEARFELL_ANCHORS:
+        if m == "drift_free":
+            continue
+        _fm = CLEARFELL_FRAC_RANGE[m]
+        _lab = CLEARFELL_ANCHOR_LABELS[m]
+        for _sea in ("annual", "winter"):
+            rpt.add(f"scenario_clearfell_anchor_step_m_anchor_{m}", CLEARFELL_RANGE[m][_sea], unit="m", well="WMC3",
+                    era=_sea, note=f"the clearfell anchor's {m} member: {_lab}; the headline "
+                                   "scenario_clearfell_anchor_step_m is drift free and depends on the drift model")
+        rpt.add(f"scenario_clearfell_return_fraction_anchor_{m}", _fm, unit="-", well=CLEARFELL_FRAC["basis"],
+                note=f"as scenario_clearfell_return_fraction, calibrated on the anchor's {m} member: {_lab}")
+        for _scn, _share in (("clearfell", 1.0), ("thinning", 0.5)):
+            for _sea in ("annual", "winter"):
+                _r = _out[(_out["scenario"] == _scn) & (_out["season"] == _sea) & (_out["cluster"] == "C5")
+                          & (_out["response"] == "level_sustained_model_b")]["dh_mean_m"]
+                _v = (float(_r.iloc[0]) * _fm / CLEARFELL_FRAC["f"]
+                      if len(_r) and pd.notna(_r.iloc[0]) and CLEARFELL_FRAC["f"] else float("nan"))
+                rpt.add(f"scenario_dh_mean_{_scn}_{_sea}_C5_anchor_{m}", _v, unit="m", well="C5",
+                        era=f"{_scn} {_sea}",
+                        note=f"C3f (key C5) cluster-mean sustained level, Model B, with f from the anchor's {m} member "
+                             f"({_lab}); the 19_scenario_summary.csv row scaled by f_member / f (linear in f)")
     n_rpt = rpt.save(OUT_19_REPORT_NUMBERS)  # T-91
     print(f"  Saved → {OUT_19_REPORT_NUMBERS.name} ({n_rpt} report numbers)")
     return out
@@ -3201,7 +3264,10 @@ def main(out_path=None):
         thinning_f_pct=f'{50 * CLEARFELL_FRAC["f"]:.0f}',
         clearfell_f_range=f'{100 * CLEARFELL_FRAC["f_lo"]:.0f}\u2013{100 * CLEARFELL_FRAC["f_hi"]:.0f}%',
         clearfell_step_text=(f'{CLEARFELL_STEP["annual"][0]:+.2f} m a year, {CLEARFELL_STEP["winter"][0]:+.2f} m in '
-                             f'October\u2013March and none in June\u2013September').replace("-", "\u2212"),
+                             f'October\u2013March and none in June\u2013September, with the coastal drift fitted; '
+                             f'{CLEARFELL_RANGE["drift_fixed"]["annual"]:+.2f} m a year with it fixed and '
+                             f'{CLEARFELL_RANGE["did"]["annual"]:+.2f} m as a raw difference-in-differences, so the '
+                             f'central value depends on the drift model').replace("-", "\u2212"),   # 2.40.0 (D-349 B3)
         end_state_text=_end_state_text(climate_stats),
         broadleaf_b2_winter=BROADLEAF_B2_WINTER,
         broadleaf_b2_summer=BROADLEAF_B2_SUMMER,

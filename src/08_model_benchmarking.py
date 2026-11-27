@@ -36,7 +36,10 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "2.2.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "2.3.0"  # 2026-11-27 (D-349 A16): the one-step and free-run series (SSM forms and TLM) restart at every
+#   calendar break in the window's rows, so no run steps across a gap; Free_Run_Segments records the runs. The fits
+#   state start=None (the 98-month window is this script's own, inside D-347's).
+# "2.2.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "2.1.0"  # Hollingham (2026) - 2026-11-22. 08_lcsc_05_nse_gain_atlas.png: Paper 1 Figure 10 as the iterative-NSE
@@ -325,23 +328,36 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
     p_arr = df['P'].values
     pet_arr = df['PET'].values
     h_obs = df['h'].values
+    # 2.3.0 (D-349 A16): the frame drops gap and dry months, so consecutive rows are not always consecutive months.
+    # A run that stepped row to row carried its state across the gap and skipped the missing months' forcing. Every
+    # run now restarts at each calendar break, from the observed level, exactly as it starts at the window's first row.
+    _ix = df.index
+    _mon = (_ix.asi8 if isinstance(_ix, pd.PeriodIndex)
+            else (pd.DatetimeIndex(_ix).year * 12 + pd.DatetimeIndex(_ix).month).to_numpy())
+    seg_start = np.r_[True, np.diff(np.asarray(_mon)) != 1]
+    seg_bounds = list(np.flatnonzero(seg_start)) + [len(h_obs)]
 
     def _run(fit, datum, alpha):
         """One-step (observed h_prev) and iterative (free-run) series for one SSM form, and their scores."""
         b1, b2, b3 = (float(fit['beta_1_recharge']), float(fit['beta_2_atmospheric_draw']),
                       float(fit['beta_3_drainage']))
         one = np.full(len(h_obs), np.nan)
-        one[0] = h_obs[0]
-        for t in range(1, len(h_obs)):
-            one[t] = h_obs[t - 1] + alpha + b1 * p_arr[t] - b2 * pet_arr[t] - b3 * (datum + h_obs[t - 1])
-        it = np.concatenate([[h_obs[0]], simulate_ssm(
-            h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:], b1=b1, b2=b2, b3=b3,
-            drainage_datum=datum, alpha=alpha)])
+        it = np.full(len(h_obs), np.nan)
+        for s0, s1 in zip(seg_bounds[:-1], seg_bounds[1:]):     # one calendar-contiguous run per segment
+            one[s0] = it[s0] = h_obs[s0]
+            for t in range(s0 + 1, s1):
+                one[t] = h_obs[t - 1] + alpha + b1 * p_arr[t] - b2 * pet_arr[t] - b3 * (datum + h_obs[t - 1])
+            if s1 - s0 > 1:
+                it[s0 + 1:s1] = simulate_ssm(
+                    h0=h_obs[s0], P=p_arr[s0 + 1:s1], PET=pet_arr[s0 + 1:s1], b1=b1, b2=b2, b3=b3,
+                    drainage_datum=datum, alpha=alpha)
         nse, rmse, _ = get_metrics(h_obs, it)
         return {'one': one, 'iter': it, 'r2_one': get_r2(h_obs, one), 'nse': nse, 'rmse': rmse,
                 'r2_iter': get_r2(h_obs, it), 'b1': b1, 'b2': b2, 'b3': b3}
 
-    ssm = fit_ssm(pre_built_frame=df, intercept=True)          # Model B: the headline SSM
+    # 2.3.0 (D-349 (1)): start=None - this caller lays out its own window, the 98-month comparison window
+    # (LCSC_DATA_LIMIT, 2018-01 onward), which lies inside D-347's
+    ssm = fit_ssm(pre_built_frame=df, intercept=True, start=None)   # Model B: the headline SSM
     if ssm is None:
         base_row['Status'] = 'ssm_fit_failed'
         base_row['Months_Used'] = len(df)
@@ -349,7 +365,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
     alpha_b = float(ssm['alpha'])
     rb = _run(ssm, DRAINAGE_DATUM, alpha_b)
 
-    ssm_a = fit_ssm(pre_built_frame=df)                          # Model A at DRAINAGE_DATUM (alternative)
+    ssm_a = fit_ssm(pre_built_frame=df, start=None)              # Model A at DRAINAGE_DATUM (alternative)
     ra = _run(ssm_a, DRAINAGE_DATUM, 0.0) if ssm_a is not None else None
 
     # The MHW form - Model A with each well's depth to mean high water as its datum, on the same window
@@ -359,7 +375,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
         df_m = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT, drainage_datum=float(mhw_datum))
         if not df_m.index.equals(df.index):
             raise ValueError(f"{target_norm}: the MHW frame's rows differ from the benchmark window's")
-        ssm_m = fit_ssm(pre_built_frame=df_m)
+        ssm_m = fit_ssm(pre_built_frame=df_m, start=None)
         if ssm_m is not None:
             rm = _run(ssm_m, float(mhw_datum), 0.0)
 
@@ -369,8 +385,10 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
                 - model_trad.params['PET'] * pet_arr[t])
     h_trad_one = np.full(len(h_obs), np.nan)
     h_trad_iter = np.full(len(h_obs), np.nan)
-    h_trad_one[0] = h_trad_iter[0] = h_obs[0]
-    for t in range(1, len(h_obs)):
+    for t in range(len(h_obs)):                                # 2.3.0 (D-349 A16): restarts at calendar breaks
+        if seg_start[t]:
+            h_trad_one[t] = h_trad_iter[t] = h_obs[t]
+            continue
         h_trad_one[t] = h_obs[t - 1] + _dh_trad(t)
         h_trad_iter[t] = h_trad_iter[t - 1] + _dh_trad(t)
     r2_trad_one = get_r2(h_obs, h_trad_one)
@@ -382,6 +400,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
 
     base_row.update({
         'Months_Used': len(df),
+        'Free_Run_Segments': len(seg_bounds) - 1,   # 2.3.0 (D-349 A16): calendar-contiguous runs; 1 = no gap
         'OneStep_R2_Traditional': r2_trad_one,
         'OneStep_R2_StateSpace': rb['r2_one'],
         'OneStep_R2_Improvement': rb['r2_one'] - r2_trad_one,

@@ -30,8 +30,9 @@ Notes:
       legitimate where it RANKS wells; it is wrong wherever an absolute
       duration is asserted. It is emitted here as a diagnostic only: it is not
       mapped, and it is not offered in 18_report_numbers.csv.
-    - Forest groups (C4 Main Forest, C3f Western Dune forest; FOREST_CIDS) receive interception
-      correction per well: R_eff = (1 - FOREST_INTERCEPTION)*P - PET (config.py).
+    - Forest wells (Land_Cover forest; 1.25.0, D-349: by land cover, not group) receive interception
+      correction per well: R_eff = (1 - FOREST_INTERCEPTION)*P - PET (config.py); a well inside the
+      2017 clearfell is not corrected from CLEARFELL_DATE_ISO on.
       Interception fraction measured at
       C3f (the former C5) and applied across both forest groups.
     - D-348: per-well estimates and maps keep every well; the cluster summaries of per-well values
@@ -40,7 +41,7 @@ Notes:
     - Under the k=5 partition all clusters are analytically usable; the old
       EXCLUDE_CLUSTERS list (tidal / lake) is empty.
     - 18_wtf_07_sy_spatial_trends.csv carries two independent diagnostics.
-      (a) The OPEN-DUNE PLANE is fitted to C1-C3 only. The forested wells all
+      (a) The OPEN-DUNE PLANE is fitted to the open wells (Land_Cover) less the edge wells (1.25.0). The forested wells all
       lie outside the convex hull of the open-dune network, so the plane is
       neither evaluated nor reported at their positions and must never be
       extrapolated beneath the plantation. (b) The WITHIN-FOREST CORRELATIONS
@@ -57,7 +58,7 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.24.0"  # 2026-11-27 (D-348): cluster summaries of per-well values (t½ ranges and Table 6 summary, cluster-mean Sy, synthesis-figure cluster means) from cluster-level wells; per-well maps and tables keep every well; text names C3f. Was "1.23.0"  # Hollingham (2026) — 2026-11-26 (D-347): WTF S_a events are read from config.RECORD_FIT_START (January 2010).
+__version__ = "1.25.0"  # 2026-11-27 (D-349 rule 4, A13; D-349 (1)): the per-well canopy correction (reference, windowed and extended wells) is keyed on the well's Land_Cover (the polygon; 01_locations.in_forest for an extended well), not its group, and a well inside the 2017 clearfell is not corrected from CLEARFELL_DATE_ISO on; the open-dune plane is the open wells less the land-cover edge wells (Edge), and the within-forest correlations select forest by Land_Cover; the extended wells are cut at RECORD_FIT_START as the reference wells are (D-347). Was "1.24.0"  # 2026-11-27 (D-348): cluster summaries of per-well values (t½ ranges and Table 6 summary, cluster-mean Sy, synthesis-figure cluster means) from cluster-level wells; per-well maps and tables keep every well; text names C3f. Was "1.23.0"  # Hollingham (2026) — 2026-11-26 (D-347): WTF S_a events are read from config.RECORD_FIT_START (January 2010).
 # 1.22.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
@@ -186,6 +187,7 @@ from utils.config import (
     RIDGE_REF_E, RIDGE_REF_N, PER_WELL_RECESSION_BASIS,
     WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M, WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX,
     MODEL_AB_SPLIT_DATE,
+    RECORD_FIT_START, CLEARFELL_DATE_ISO,   # 1.25.0 (D-349 (1); D-349 rule 4)
 )
 from utils.render_utils import render_figure
 make_all_dirs()
@@ -233,12 +235,59 @@ def _cluster_level(df: pd.DataFrame, col: str = "Well") -> pd.DataFrame:
     return df[df[col].astype(str).str.lower().str.strip().str.replace(" ", "").isin(keep)]
 
 
+_COVER: dict | None = None
+
+
+def _norm_key(name) -> str:
+    from utils.data_utils import normalize_well_name
+    return normalize_well_name(str(name)).lower()
+
+
+def _cover(well) -> dict:
+    """1.25.0 (D-349 rule 4, A13): {"forest", "felled", "edge"} for one well. Land cover is Script 02's Land_Cover (the
+    polygon), else 01_locations.in_forest (cluster_series.land_cover_lookup) for a well 02 does not list; "felled" is
+    inside the 2017 clearfell polygon (WMC3, FE2, FE4); "edge" is Script 02's Edge, else cluster_series.is_edge."""
+    global _COVER
+    if _COVER is None:
+        import json
+        from shapely.geometry import shape, Point
+        from shapely.ops import unary_union
+        from utils.cluster_series import land_cover_lookup
+        from utils.paths import DATA_CLEARFELL
+        lc = dict(land_cover_lookup())
+        edge = {}
+        cs = pd.read_csv(INT_CLUSTER_STATS)
+        if "Land_Cover" in cs.columns:
+            lc.update({_norm_key(n): str(v).strip().lower() for n, v in zip(cs["Match_ID"], cs["Land_Cover"])})
+        if "Edge" in cs.columns:
+            edge = {_norm_key(n): str(v).strip().lower() in {"true", "1", "1.0"}
+                    for n, v in zip(cs["Match_ID"], cs["Edge"])}
+        geo = unary_union([shape(f["geometry"]) for f in json.loads(DATA_CLEARFELL.read_text())["features"]])
+        loc = pd.read_csv(INT_LOCATIONS)
+        felled = {_norm_key(n) for n, e, nn in zip(loc["Name"], loc["E"], loc["N"]) if geo.covers(Point(e, nn))}
+        _COVER = {"lc": lc, "edge": edge, "felled": felled}
+    from utils.cluster_series import is_edge
+    k = _norm_key(well)
+    return {"forest": _COVER["lc"].get(k) == "forest", "felled": k in _COVER["felled"],
+            "edge": _COVER["edge"].get(k, is_edge(k))}
+
+
+def _net_recharge(merged, well, apply_forest_correction=True):
+    """1.25.0 (D-349 rule 4): net recharge with the canopy correction by the well's land cover. Returns (net_R,
+    corrected): FOREST_INTERCEPTION under forest cover, none in the open, none from CLEARFELL_DATE_ISO on at a well
+    inside the clearfell; corrected is True when any month is corrected."""
+    c = _cover(well)
+    fr = pd.Series(FOREST_INTERCEPTION if (c["forest"] and apply_forest_correction) else 0.0, index=merged.index)
+    if c["felled"]:
+        fr[fr.index >= pd.Timestamp(CLEARFELL_DATE_ISO)] = 0.0
+    return merged["P_m"] * (1 - fr) - merged["PET"], bool((fr > 0).any())
+
+
 def load_well_data(out_root):
     """Load individual well time series, climate, locations and cluster assignments."""
     wells_df   = pd.read_csv(INT_WELLS_CLEAN,
                               index_col=0, parse_dates=True)
     # D-347 (2026-11-26): WTF events are read from config.RECORD_FIT_START (January 2010) onward
-    from utils.config import RECORD_FIT_START
     wells_df = wells_df[wells_df.index >= pd.Timestamp(RECORD_FIT_START)]
     climate    = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
     cluster_df = pd.read_csv(INT_CLUSTER_STATS)
@@ -287,13 +336,8 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
         if len(merged) < 24:
             continue
 
-        # Interception correction for Forest clusters
-        if cluster in FOREST_CIDS and apply_forest_correction:
-            merged["net_R"] = merged["P_m"] * (1 - FOREST_INTERCEPTION) - merged["PET"]
-            corrected = True
-        else:
-            merged["net_R"] = merged["P_m"] - merged["PET"]
-            corrected = False
+        # Interception correction by the well's land cover (1.25.0, D-349 rule 4; was: by group)
+        merged["net_R"], corrected = _net_recharge(merged, well, apply_forest_correction)
 
         # Event selection
         events = merged[
@@ -375,12 +419,7 @@ def wtf_windowed_wells(wells_df, climate, cluster_df,
         if merged.empty:
             continue
 
-        if cluster in FOREST_CIDS:
-            merged["net_R"] = merged["P_m"] * (1 - FOREST_INTERCEPTION) - merged["PET"]
-            corrected = True
-        else:
-            merged["net_R"] = merged["P_m"] - merged["PET"]
-            corrected = False
+        merged["net_R"], corrected = _net_recharge(merged, well)   # 1.25.0: by land cover
 
         row = {"Well": well, "Cluster": cluster, "Corrected": corrected,
                "split_date": split.strftime("%Y-%m-%d")}
@@ -485,7 +524,14 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
     rows = []
 
     # ── (a) open-dune plane ──────────────────────────────────────────────────
-    open_df = corr_df[~corr_df["Cluster"].isin(FOREST_CIDS)].dropna(
+    # 1.25.0 (D-349 rule 4, A13): the open wells by land cover, less the edge wells, whose cover is ambiguous (WMC3
+    # was in the plane as a group-3 well; NW1 and NW2 sit beside the broadleaf restock). Boundary wells stay: this is
+    # per-well work.
+    _cv = corr_df["Well"].map(_cover)
+    corr_df["_forest"] = _cv.map(lambda c: c["forest"])
+    corr_df["_edge"] = _cv.map(lambda c: c["edge"])
+    unc_df["_forest"] = unc_df["Well"].map(lambda w: _cover(w)["forest"])
+    open_df = corr_df[~corr_df["_forest"] & ~corr_df["_edge"]].dropna(
         subset=["Sy_median", "Easting", "Northing"])
     if len(open_df) < 6:
         warn("Too few open-dune wells for a planar S_a fit — block skipped")
@@ -514,9 +560,9 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
                f"{grad:.4f} S_a/km at {azimuth:.0f}\u00b0")
 
     # ── (b) within-forest correlations ───────────────────────────────────────
-    forest = corr_df[corr_df["Cluster"].isin(FOREST_CIDS)].dropna(
+    forest = corr_df[corr_df["_forest"]].dropna(          # 1.25.0: forest by land cover
         subset=["Sy_median", "ground_elev_m"])
-    forest_unc = unc_df[unc_df["Cluster"].isin(FOREST_CIDS)].dropna(
+    forest_unc = unc_df[unc_df["_forest"]].dropna(
         subset=["Sy_median", "ground_elev_m"])
 
     if len(forest) < 5:
@@ -681,7 +727,7 @@ def wtf_extended_wells(climate, locations, out_root):
     """
     Apply event-based WTF S_a to the 20 extended network wells.
     Cluster assignments from 06_pear_membership_audit_sitewide.csv
-    (Best_Match_Cluster column). Interception correction applied to C4 wells.
+    (Best_Match_Cluster column). Interception correction by land cover (in_forest; 1.25.0).
     Returns DataFrame in same format as wtf_individual_wells(), with
     Network='Extended' column added.
     """
@@ -694,6 +740,7 @@ def wtf_extended_wells(climate, locations, out_root):
         return None
 
     wells_ext.index = pd.to_datetime(wells_ext.index)
+    wells_ext = wells_ext[wells_ext.index >= pd.Timestamp(RECORD_FIT_START)]   # 1.25.0 (D-347), as the reference wells
     membership['norm'] = (membership['Well_Normalised']
                           .str.lower().str.strip().str.replace(' ',''))
     locations_copy = locations.copy()
@@ -723,12 +770,7 @@ def wtf_extended_wells(climate, locations, out_root):
         if len(merged) < 24:
             continue
 
-        if cluster in FOREST_CIDS:
-            merged['net_R'] = merged['P_m'] * (1 - FOREST_INTERCEPTION) - merged['PET']
-            corrected = True
-        else:
-            merged['net_R'] = merged['P_m'] - merged['PET']
-            corrected = False
+        merged['net_R'], corrected = _net_recharge(merged, well)   # 1.25.0: by land cover (in_forest)
 
         events = merged[
             (merged['net_R'] > WTF_EVENT_MIN_NET_RECH_M) &

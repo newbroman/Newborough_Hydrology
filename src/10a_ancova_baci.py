@@ -33,7 +33,7 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.28.0"  # Hollingham (2026) — 2026-11-26 (Martin: "Add the 2014–15 term inside Script 10a as a
+__version__ = "1.29.0"  # 2026-11-27 (D-349 B3): ANCOVA_Forest_Impact_clearfell_step_winter_s_fixed1, the Oct-Mar step with s_coast fixed at 1 (the drift-fixed member of the clearfell anchor range that clearfell_common carries through every forest scenario). Additive. Was "1.28.0"  # Hollingham (2026) — 2026-11-26 (Martin: "Add the 2014–15 term inside Script 10a as a
 #   sensitivity"). 10a_16_control_step_2014_sensitivity.csv: every control tier x zone refitted with one extra
 #   regressor, a step 1[t >= t*] at the best-AIC month of 2014-06..2015-06 (the winter 2014-15 drop at CEH17/CEH19 and
 #   across the site, inside the clearfell BEFORE period); Ctrl_step_2014_* report rows. run_ancova() gains
@@ -2295,6 +2295,7 @@ def main():
     # That is the variant that moves the headline step, and it is committed here so
     # the number is a pipeline output rather than a figure in a working note.
     sens_rows = []
+    winter_fixed1 = None   # 1.29.0 (D-349 B3)
     for row in coastal_rows:
         if not row['identified']:
             continue
@@ -2308,6 +2309,12 @@ def main():
         X = np.column_stack([np.ones(len(df_k))] + [df_k[c].values for c in cols])
         f1 = ols_fit(df_k['baci_disp'].values - off, X)
         j = 3   # D_fell, with the intercept prepended
+        # 1.29.0 (D-349 B3): the same offset on the Oct-Mar months, the step the clearfell return fraction is
+        # calibrated on, so the anchor range has a drift-fixed winter member (Forest x Impact only).
+        if key == SUMMER_KEY:
+            _wm = df_k.index.month.isin(list(WINTER_RECHARGE_MONTHS))
+            _fw = ols_fit(df_k['baci_disp'].values[_wm] - off[_wm], X[_wm])
+            winter_fixed1 = {'step': _fw['b'][j], 'se': _fw['se'][j], 'p': _fw['p'][j], 'n': int(_wm.sum())}
         sens_rows.append({
             'control_tier': row['control_tier'], 'zone': row['zone'],
             'clearfell_step_free_m': results[key]['clearfell_step'],
@@ -2493,6 +2500,13 @@ def main():
             rpt.add(f"{prefix}_clearfell_step_winter_minus_summer", _d['diff'], well="Impact", era="Post_felling", note=_n)
             rpt.add(f"{prefix}_clearfell_step_winter_minus_summer_se_hac", _d['se_hac'], well="Impact", era="Post_felling", note=_n)
             rpt.add(f"{prefix}_clearfell_step_winter_minus_summer_p_hac", _d['p_hac'], unit="", well="Impact", era="Post_felling", note=_n)
+        if winter_fixed1 is not None:   # 1.29.0 (D-349 B3): the anchor range's drift-fixed winter member
+            rpt.add(f"{prefix}_clearfell_step_winter_s_fixed1", winter_fixed1['step'],
+                    well="Impact", era="Post_felling_Oct-Mar",
+                    note=(f"SENSITIVITY, not the headline (D-076, D-349 B3): the Oct-Mar clearfell step with the "
+                          f"coastal correction imposed at the fitted amplitude (s_coast = 1) as an offset; "
+                          f"p={format_p(winter_fixed1['p'])}, n={winter_fixed1['n']}; the drift-fixed member of "
+                          f"the clearfell anchor range"))
         rpt.add(f"{prefix}_winter_R2", wf['r2'], unit="",
                 well="Impact", era="Oct-Mar",
                 note="Winter model R² (full spec)")

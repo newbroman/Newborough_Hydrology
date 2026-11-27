@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # 2026-11-27 (D-348): the E8d note names the groups C2, C3o, C4, C3f; centroids are Script 03's cluster-level series, no code change. Was "1.1.0"  # Hollingham (2026) - 2026-11-25 (Martin: "the forest was cleared after May 2012 - the forest is
+__version__ = "1.3.0"  # 2026-11-27 (D-349 (1)): reads the levels with reclen_common.load_inputs(record_window=False) - E8's subject is the 2006-08 excess and the 2007 flood winter (D-347 (5)), so the 1.1.0 cut at RECORD_FIT_START does not apply; no fit_ssm call here; outputs unchanged. Was "1.2.0"  # 2026-11-27 (D-348): the E8d note names the groups C2, C3o, C4, C3f; centroids are Script 03's cluster-level series, no code change. Was "1.1.0"  # Hollingham (2026) - 2026-11-25 (Martin: "the forest was cleared after May 2012 - the forest is
 #   there in the aerial photo but missing in March 2017; I have no photos in between"). E8f's step date is now
 #   ESTIMATED over config.E8F_STEP_WINDOW = 2012-06..2017-03 (was 2014-10..2015-04, which assumed the date). Labels say
 #   "the shore clearance (2012-17)"; the site-wide verdict is "site-wide shift" (code 0 unchanged). The file name
@@ -1564,7 +1564,8 @@ def main(no_fig: bool = False) -> int:
     DIR_50D.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Inputs")
-    lev, lev_cols, cl, master = load_inputs()
+    # D-349 (1): uncut - E8's subject is 2005-09 (D-347 (5)); the record-window cut is for 50a-c and 50e
+    lev, lev_cols, cl, master = load_inputs(record_window=False)
     info(f"{len(master)} reference wells; lengths {', '.join(LENGTHS)} (fitted monthly changes); "
          f"split {MODEL_AB_SPLIT_DATE}; stability tolerance {RECLEN_STABLE_TOL:g}")
 

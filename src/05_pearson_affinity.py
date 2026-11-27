@@ -8,7 +8,7 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.9.0"  # 2026-11-27 (D-348): tested against the four cluster centroids from cluster-level wells; ids reported as groups by land cover. Was "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.10.0"  # 2026-11-27 (D-349 A5): the well matrix is cut at RECORD_FIT_START (2010-01), the window the partition was formed on. Was "1.9.0"  # 2026-11-27 (D-348): tested against the four cluster centroids from cluster-level wells; ids reported as groups by land cover. Was "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.7.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
@@ -61,7 +61,7 @@ from adjustText import adjust_text
 from matplotlib.lines import Line2D
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE,
                           LABEL_ADJUST_ITER_LIM,
-                          PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH)
+                          PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH, RECORD_FIT_START)
 from utils.render_utils import apply_house_style  # noqa: E402  (T-178)
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
@@ -138,6 +138,9 @@ def main():
     make_all_dirs()
     print("Starting 05: Pearson Membership Affinity Audit...")
     wells_matrix = load_matrix(INT_WELLS_CLEAN)
+    # 1.10.0 (D-349 A5): the audit of the 2010 partition runs on D-347's window, as Script 06 does
+    wells_matrix = wells_matrix.loc[:, wells_matrix.columns >= pd.Timestamp(RECORD_FIT_START)]
+    info(f"window: {wells_matrix.columns.min():%Y-%m} to {wells_matrix.columns.max():%Y-%m} (RECORD_FIT_START, D-347)")
     cluster_df = pd.read_csv(INT_CLUSTER_STATS)
     cluster_df["Match_ID"] = cluster_df["Match_ID"].apply(normalize_well_name)
     cluster_df["Group"]    = pd.to_numeric(cluster_df["Cluster"],errors="coerce").astype("Int64")

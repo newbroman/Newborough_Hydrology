@@ -105,7 +105,7 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.37.0"  # 2026-11-27 (D-348): cluster MSL5, MAX5 and rolling-minimum trajectories, the MSL5-MIN5 cluster pairs and the metric-diagnostic rollup from cluster-level wells (boundary and set-aside reference wells out); EWI open-dune scope by FOREST_CIDS with WMC3 set aside; Method B labels from CLUSTER_LABELS. Was "1.36.1"  # Hollingham (2026) — 2026-11-26 (D-347): C3's label is "C3 (Western Dune)".
+__version__ = "1.38.0"  # 2026-11-27 (D-349 (1), (8)): the extended-tier fits state D-347's window (start=RECORD_FIT_START, the cut fit_ssm made silently before); the EWI open-dune scope leaves out the edge wells (cluster_series.is_edge) in place of LANDCOVER_SET_ASIDE_WELLS. Was "1.37.0"  # 2026-11-27 (D-348): cluster MSL5, MAX5 and rolling-minimum trajectories, the MSL5-MIN5 cluster pairs and the metric-diagnostic rollup from cluster-level wells (boundary and set-aside reference wells out); EWI open-dune scope by FOREST_CIDS with WMC3 set aside; Method B labels from CLUSTER_LABELS. Was "1.36.1"  # Hollingham (2026) — 2026-11-26 (D-347): C3's label is "C3 (Western Dune)".
 # 1.36.0  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
 #   questions"). The full EWI standard error (EWI_se_m_full, ewi_se_mm_full) carries the alpha-beta_3 covariance,
 #   cov = corr_alpha_beta_3 * se_alpha * se_beta_3 (reference wells: Script 03 1.32.0's corr_alpha_beta_3; extended wells:
@@ -353,6 +353,7 @@ from utils.console_utils import (
 )
 
 from utils import config, paths
+from utils.config import RECORD_FIT_START   # 1.38.0 (D-349 (1))
 from utils.model_utils import fit_ssm
 from utils.community_bands import CURRELI_SUMMER, band, band_names, band_counts   # D-294 (1.29.0); band 1.30.0
 from utils.map_utils import (
@@ -1529,7 +1530,9 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
             # 1.34.0 (D-332): Model B (free intercept, beta_3 bounded below) is the index's fit;
             # Model A (no intercept) is fitted beside it on the same record for the *_model_a columns.
             try:
-                fit = fit_ssm(h_series=ext[w], climate=clim, intercept=True, with_corr=True)
+                # 1.38.0 (D-349 (1)): D-347's record window, stated (it was fit_ssm's former silent default)
+                fit = fit_ssm(h_series=ext[w], climate=clim, intercept=True, with_corr=True,
+                              start=RECORD_FIT_START)
             except Exception as e:
                 warn(f"extended {wl.upper()} SSM fit failed: {str(e)[:50]}")
                 continue
@@ -1550,7 +1553,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                            pvalue_beta_3_B=fit.get("pvalue_beta_3", np.nan),
                            n_B=fit.get("n", np.nan))
                 try:
-                    fa = fit_ssm(h_series=ext[w], climate=clim)
+                    fa = fit_ssm(h_series=ext[w], climate=clim, start=RECORD_FIT_START)   # 1.38.0 (D-349)
                 except Exception:
                     fa = None
                 _a = ([float(fa.get(c, np.nan)) for c in
@@ -1640,12 +1643,14 @@ def compute_ewi_msl5_comparison(ewi: pd.DataFrame,
     # open-dune metric (C1–C3), mirroring MSL5's own open-dune framing (§4.8.4).
     # C4/C3f forest wells are predicted but flagged out-of-scope — the coefficients
     # are least constrained there (§4.9.2) and predictions degrade badly.
-    # D-348: open = the groups outside FOREST_CIDS (C1, C2, C3o), as [1, 2, 3] was; the set-aside
-    # WMC3 (2017 clearfell, in no land-cover group) is out of the open-dune scope.
+    # D-348: open = the groups outside FOREST_CIDS (C1, C2, C3o), as [1, 2, 3] was. 1.38.0 (D-349 (8)): an open/forest
+    # scope is a land-cover question, so the EDGE wells (cluster_series.is_edge: inside, or within
+    # config.LANDCOVER_EDGE_M of, the 2017 clearfell or the 1995 broadleaf restock) are out of it; this replaces the
+    # single set-aside well WMC3 (config.LANDCOVER_SET_ASIDE_WELLS, retired).
+    from utils.cluster_series import is_edge
     comp["open_dune_scope"] = (comp["cluster_id"].notna()
                                & ~comp["cluster_id"].isin(config.FOREST_CIDS)
-                               & ~comp["well"].astype(str).str.strip().str.lower()
-                                   .isin(set(config.LANDCOVER_SET_ASIDE_WELLS)))
+                               & ~comp["well"].astype(str).map(is_edge))
 
     cal = comp[(comp["open_dune_scope"])].dropna(subset=["EWI_m_bg", "MSL5_m_bg"])
     if len(cal) < 3:

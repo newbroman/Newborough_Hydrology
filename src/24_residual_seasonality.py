@@ -53,7 +53,7 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # 2026-11-27 (D-348): per-cluster seasonal statistics, the summer-minus-winter tests, the amplitude keys, the C3o split and the panels' bold cluster means from cluster-level wells; per-well table and figures keep every well. Was "1.5.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.7.0"  # 2026-11-27 (D-349 (1)): the residual fit states its window, start=RECORD_FIT_START (D-347; the value the 1.15.0 default gave). Was "1.6.0"  # 2026-11-27 (D-348): per-cluster seasonal statistics, the summer-minus-winter tests, the amplitude keys, the C3o split and the panels' bold cluster means from cluster-level wells; per-well table and figures keep every well. Was "1.5.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.4.1"  # Hollingham (2026) — 2026-10-08. Comment only: the Paper 1 SI
@@ -104,6 +104,7 @@ from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, BW_MODE,
                           RESIDUAL_DIAG_MIN_MONTHS, RESIDUAL_DIAG_EXCLUDED_WELLS,
                           RESIDUAL_DIAG_SW_BOOT_N, RESIDUAL_DIAG_SW_BOOT_SEED)
 from utils.model_utils import fit_ssm_intercept
+from utils.config import RECORD_FIT_START  # 1.7.0 (D-349 (1)): the D-347 record window
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -147,7 +148,7 @@ apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own 
 
 def fit_ssm_residual(well_series, climate):
     """Fit SSM via shared model_utils, return residual Series or None."""
-    result = fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS)
+    result = fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS, start=RECORD_FIT_START)
     if result is None:
         return None
     return result['resid']

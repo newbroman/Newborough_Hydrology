@@ -8,7 +8,7 @@ variable X it places side by side:
   SEPARATION    eta^2  -- "do the pre-formed clusters DIFFER on X?"
                           (variance in X explained by the partition)
   RECOVERABILITY ARI   -- "does X ALONE rebuild the clusters?"
-                          (Ward k=5 on standardised X, ARI vs canonical)
+                          (Ward k=4 on standardised X, ARI vs Hydro_Cluster)
 
 The point of the figure: separation is consistently high while recoverability
 is consistently low. The clusters differ on these variables (so they are real),
@@ -42,6 +42,7 @@ from sklearn.metrics import adjusted_rand_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from utils import pipeline_params as pp
+from utils.config import RECORD_FIT_START
 from utils.data_utils import normalize_well_name
 from utils.paths import (
     DIR_31, DATA_KML_FEATURES,
@@ -56,7 +57,7 @@ from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
 
-__version__ = "1.3.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+__version__ = "1.4.0"  # 2026-11-27 (D-349 A5): separation and recoverability scored on Hydro_Cluster at k = 4; hydrograph descriptors from RECORD_FIT_START; the caption no longer says the clusters "never saw" the variables. Was "1.3.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
 #   ignore (RuntimeWarning, UserWarning) is removed, with its now-unused `import warnings`: no pipeline
 #   module silences its warnings (T-81, D-155). Probed with the filter off
 #   against the committed CSVs, this module raised no warning; outputs unchanged.
@@ -67,7 +68,11 @@ VERSION = __version__
 OUTDIR = DIR_31
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
-K = pp.get_n_clusters()                 # realised partition cluster count (never hard-coded)
+# 1.4.0 (D-349 rule 3): the hydrogeological partition, Hydro_Cluster (four clusters), not the five land-cover
+# groups: the groups split the Western Dune by the canopy polygon, so the forest flag's separation on them was
+# partly the definition. K is its realised count (never hard-coded).
+LABEL_COL = "Hydro_Cluster"
+K = int(pd.read_csv(INT_MASTER_DATA, usecols=[LABEL_COL])[LABEL_COL].nunique())
 SUMMER = tuple(pp.CV_AMPLITUDE_MONTHS)  # summer-amplitude months
 MIN_YR = pp.CV_MIN_YEAR_OBS             # min monthly obs in a year to use it
 C_SEP = "#2c7fb8"   # separation (eta^2)
@@ -83,6 +88,7 @@ def load():
 
     w = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     w.index = pd.to_datetime(w.index)
+    w = w[w.index >= pd.Timestamp(RECORD_FIT_START)]     # 1.4.0 (D-349 A5): D-347's window
     w.columns = [normalize_well_name(c) for c in w.columns]
     yr, mo = w.index.year, w.index.month
     md, amp, smin = {}, {}, {}
@@ -133,7 +139,7 @@ def ari_on(m, col, canon):
     sub = m.dropna(subset=[col])
     X = StandardScaler().fit_transform(sub[[col]])
     lab = AgglomerativeClustering(K, linkage="ward").fit_predict(X)
-    return adjusted_rand_score(sub["Cluster"].values, lab)
+    return adjusted_rand_score(sub[LABEL_COL].values, lab)
 
 
 def main():
@@ -147,7 +153,7 @@ def main():
 
     phase(1, "Load descriptors")
     m = load()
-    canon = m["Cluster"].values
+    canon = m[LABEL_COL].values
 
     # (label, column, is_binary)
     descriptors = [
@@ -206,7 +212,8 @@ def main():
     ax.set_title("Two different questions about each independent variable",
                  fontsize=14, pad=10)
 
-    cap = ("Clusters differ strongly on variables they never saw (high eta^2), yet "
+    cap = (f"The {K} hydrogeological clusters (formed on hydrograph correlation, {RECORD_FIT_START[:4]} onward) differ "
+           "on variables the clustering did not use (high eta^2), yet "
            "those variables do not reconstruct the clusters (low ARI).\nThe gap is the "
            "hydrograph-timing information no static attribute holds — high separation "
            "does not imply recoverability.\n"

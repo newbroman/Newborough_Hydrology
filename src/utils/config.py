@@ -44,7 +44,7 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.136.0"  # 2026-11-27 (D-349 (8)): LANDCOVER_EDGE_M = 50 and LANDCOVER_EDGE_POLYGONS replace LANDCOVER_SET_ASIDE_WELLS (the edge rule). Was "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
+__version__ = "1.137.0"  # 2026-11-27 (D-349 (12)): PRECANOPY_ANALOGUE {4: 3, 5: 3} (C3f -> C3o). Was "1.136.0"  # 2026-11-27 (D-349 (8)): LANDCOVER_EDGE_M = 50 and LANDCOVER_EDGE_POLYGONS replace LANDCOVER_SET_ASIDE_WELLS (the edge rule). Was "1.135.0"  # 2026-11-27 (D-348): four hydrogeological clusters; five cluster-level groups (C3o, C3f); HYDRO_CLUSTER_LABELS, CLUSTER_SHORT, GROUP_HYDRO_CLUSTER, BOUNDARY_MARGIN, CONSENSUS_*, CLUSTER_SUBGROUP_K, LANDCOVER_SET_ASIDE_WELLS. Was "1.134.0"  # Hollingham (2026) - 2026-11-26 (D-347). RECORD_FIT_START = 2010-01-01: one record window for
 #   every partition and model fit (fit_ssm's default, model_utils 1.15.0; Script 02's clustering; the full-record
 #   cluster and water-balance series). CLUSTER_HYDRO_WINDOW_START follows it. CLUSTER_LABELS[3] is "C3 (Western Dune)"
 #   (Martin: "c3, rename to western dune"); ids and colours unchanged.
@@ -2394,7 +2394,7 @@ PREPLANT_BETA3_P_MAX  = 0.05
 # Before the canopy closed the ground now under the plantation behaved as the open dune it then was
 # (D-254, Martin 2026-10-10): forest cluster -> open-dune analogue whose centroid coefficients stand in
 # for the pre-canopy years. Script 44 (pre-planting sensitivity, T-122); Script 50 E8g (T-121).
-PRECANOPY_ANALOGUE    = {4: 3, 5: 2}
+PRECANOPY_ANALOGUE    = {4: 3, 5: 3}   # D-349 (12) (Martin, B10): C3f takes C3o, the same hydrogeological cluster in the open; C4 keeps C3 (D-254). Was {4: 3, 5: 2}
 # E8g (Script 50 1.8.0, T-121, D-255): the canopy closes along a logistic whose forest share is
 # PRECANOPY_W_TAILS[0] at planting and PRECANOPY_W_TAILS[1] at closure. Closure ages from Forest Research,
 # Corsican pine: canopy closure "usually achieved by 15-20 years" (Martin 17:06: use the literature values,

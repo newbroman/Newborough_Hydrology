@@ -70,7 +70,7 @@ Run directly:  python3 src/55_water_balance_drainage.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # 2026-11-27 (D-348): every per-cluster summary (Stages A, B, E, F, J, K and their figures) over cluster-level wells; CLUSTERS from CLUSTER_LABELS; Script 17's rows mapped to groups by label (C3f no longer read as C3); plot labels C3o and C3f. Was "1.5.0"  # Hollingham (2026) - 2026-11-24 (T-215; Martin: "approve both tests"). Stage K tests the C3
+__version__ = "1.7.0"  # 2026-11-27 (D-349 (1) A5, A9, A13; rule 6): the reference wells are cut at RECORD_FIT_START (D-347), as Script 18 cuts the S_a it reads (the climate stays whole for the CCW hindcast); Stage J normalises the well names of 48_04 and 48_01 BEFORE the merge and keeps 48_01's full_record basis only, one row per well (asserted), so Stage K's recharge fractions follow; the per-well canopy correction (P_eff, the free runs, the CCW hindcast) is keyed on the well's Land_Cover, not its group, and a well inside the 2017 clearfell is not corrected from CLEARFELL_DATE_ISO on; Script 17's rows map to groups by its Cluster_ID column, not by label. Was "1.6.0"  # 2026-11-27 (D-348): every per-cluster summary (Stages A, B, E, F, J, K and their figures) over cluster-level wells; CLUSTERS from CLUSTER_LABELS; Script 17's rows mapped to groups by label (C3f no longer read as C3); plot labels C3o and C3f. Was "1.5.0"  # Hollingham (2026) - 2026-11-24 (T-215; Martin: "approve both tests"). Stage K tests the C3
 #   surplus (S_a * beta_1 > 1) for lateral inflow against an S_a overestimate. (a) Spatial: inflow per unit area is
 #   T * laplacian(h), so inflow predicts the surplus is largest where the kriged mean head (01b) is concave up; the
 #   Spearman of S_a*beta_1 on the curvature across C3 wells. (b) Dry summers: inflow keeps arriving when rain stops, so
@@ -130,6 +130,7 @@ from utils.config import (                                    # noqa: E402
     WB_DRY_RAIN_QUANTILE, WB_RISE_MARGIN_M, WB_DRY_WINTER_MONTHS, WINTER_RECESSION_MONTHS,
     FOREST_INTERCEPTION, FOREST_CIDS, CLUSTER_LABELS, CLUSTER_SHORT, MODEL_AB_SPLIT_DATE,
     MODEL_AB_MIN_TEST_MONTHS, WB_INFLOW_LAPLACE_STEP_M,
+    RECORD_FIT_START, CLEARFELL_DATE_ISO,                     # 1.7.0 (D-349 (1); D-349 rule 4)
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import simulate_water_balance          # noqa: E402
@@ -222,6 +223,9 @@ def load_inputs():
     cl = (pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)[["P_m", "PET"]]
           .apply(pd.to_numeric, errors="coerce").dropna())
     wells = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True)
+    # 1.7.0 (D-349 (1), A5): D-347's window, cut exactly as Script 18 cuts the S_a this step reads. The climate is
+    # NOT cut: Stage G's CCW hindcast runs on the whole forcing (D-347 (6): from the 2010 fits).
+    wells = wells[wells.index >= pd.Timestamp(RECORD_FIT_START)]
     sy = pd.read_csv(OUT_18_WELL_SY_TABLE)
     cols = {normalize_well_name(c): c for c in wells.columns}
     sy["col"] = sy["Well"].astype(str).apply(normalize_well_name).map(cols)
@@ -233,12 +237,52 @@ def load_inputs():
     return cl, wells, sy.reset_index(drop=True), win
 
 
+_COVER: dict | None = None
+
+
+def _cover(well: str) -> tuple[bool, bool]:
+    """1.7.0 (D-349 rule 4, A13): (forest, inside the 2017 clearfell) for one well. The canopy correction is keyed on
+    the well's LAND COVER (Script 02's Land_Cover, the polygon; 01_locations.in_forest for a well 02 does not list),
+    not on its group: a well's group is a cluster-level label, and LIS1 (open ground, matched to C4) was corrected as
+    forest by group. A well inside the clearfell polygon (WMC3, FE2, FE4) has no canopy from CLEARFELL_DATE_ISO."""
+    global _COVER
+    if _COVER is None:
+        import json
+        from shapely.geometry import shape, Point
+        from shapely.ops import unary_union
+        from utils.cluster_series import land_cover_lookup
+        from utils.paths import INT_CLUSTER_STATS, INT_LOCATIONS, DATA_CLEARFELL
+        lc = dict(land_cover_lookup())
+        cs = pd.read_csv(INT_CLUSTER_STATS)
+        if "Land_Cover" in cs.columns:
+            lc.update({normalize_well_name(str(n)).lower(): str(v).strip().lower()
+                       for n, v in zip(cs["Match_ID"], cs["Land_Cover"])})
+        geo = unary_union([shape(f_["geometry"]) for f_ in json.loads(DATA_CLEARFELL.read_text())["features"]])
+        loc = pd.read_csv(INT_LOCATIONS)
+        inside = {normalize_well_name(str(n)).lower() for n, e, nn in zip(loc["Name"], loc["E"], loc["N"])
+                  if geo.covers(Point(e, nn))}
+        _COVER = {"lc": lc, "inside": inside}
+    k = normalize_well_name(str(well)).lower()
+    return _COVER["lc"].get(k) == "forest", k in _COVER["inside"]
+
+
+def interception_fraction(well: str, index: pd.DatetimeIndex, f: float) -> pd.Series:
+    """1.7.0 (D-349 rule 4): the canopy interception fraction of one well, month by month - f under forest cover,
+    0 in the open, and 0 from CLEARFELL_DATE_ISO on at a well inside the clearfell."""
+    forest, felled = _cover(well)
+    fr = pd.Series(float(f) if forest else 0.0, index=index)
+    if forest and felled:
+        fr[fr.index >= pd.Timestamp(CLEARFELL_DATE_ISO)] = 0.0
+    return fr
+
+
 def well_frame(wells: pd.DataFrame, col: str, cl: pd.DataFrame, cluster: int,
                sy_value: float, interception: float | None = None) -> pd.DataFrame | None:
     """One well's aligned monthly frame, with the residual already formed.
 
     Differenced on the monthly calendar before incomplete months drop (D-195), so a change across a
-    missed visit is not booked as one month's."""
+    missed visit is not booked as one month's. 1.7.0 (D-349 rule 4): the canopy correction follows the
+    well's land cover (interception_fraction), not `cluster`, which no longer enters the frame."""
     f = interception if interception is not None else FOREST_INTERCEPTION
     h = pd.to_numeric(wells[col], errors="coerce")
     df = pd.DataFrame({"h": h}).join(cl, how="inner").sort_index()
@@ -247,9 +291,9 @@ def well_frame(wells: pd.DataFrame, col: str, cl: pd.DataFrame, cluster: int,
     df = df.dropna(subset=["h", "h_prev", "Delta_h", "P_m", "PET"])
     if len(df) < WB_MIN_MONTHS:
         return None
-    forest = cluster in FOREST_CIDS
-    df["P_eff"] = df["P_m"] * (1 - f) if forest else df["P_m"]
-    df["interception"] = df["P_m"] * f if forest else 0.0
+    fr = interception_fraction(col, df.index, f)
+    df["P_eff"] = df["P_m"] * (1 - fr)
+    df["interception"] = df["P_m"] * fr
     df["storage_m"] = sy_value * df["Delta_h"]
     df["D_residual"] = df["P_eff"] - df["PET"] - df["storage_m"]
     return df
@@ -562,7 +606,9 @@ def stage_e(wells, cl, sy, dper: pd.DataFrame) -> pd.DataFrame:
                     return float(cid)
             m_ = re.match(r"^C(\d) ", lab)
             return float(m_.group(1)) if m_ else np.nan
-        s17["k"] = s17["Cluster"].map(_k17)
+        # 1.7.0 (D-349 rule 6): Script 17 1.13.0 writes the integer group id; the label is read only for an older table
+        s17["k"] = (pd.to_numeric(s17["Cluster_ID"], errors="coerce") if "Cluster_ID" in s17.columns
+                    else s17["Cluster"].map(_k17))
         for k in CLUSTERS:
             g = s17[(s17["k"] == k) & (s17["Corrected"] == (k in FOREST_CIDS))]
             if g.empty:
@@ -659,10 +705,10 @@ def _nse(obs: pd.Series, sim: pd.Series) -> tuple[float, int]:
 
 
 def _free_run(cl: pd.DataFrame, cluster: int, sy_value: float, law: dict,
-              months: pd.DatetimeIndex, h0: float, interception=None) -> pd.Series:
+              months: pd.DatetimeIndex, h0: float, interception=None, well: str = "") -> pd.Series:
     f = interception if interception is not None else FOREST_INTERCEPTION
     c = cl.reindex(months).dropna()
-    P_eff = (c["P_m"] * (1 - f) if cluster in FOREST_CIDS else c["P_m"]).values
+    P_eff = (c["P_m"] * (1 - interception_fraction(well, c.index, f))).values   # 1.7.0: by land cover
     h = simulate_water_balance(h0, P_eff, c["PET"].values, sy_value,
                                law["a"], law["c"], law.get("h0") if law["form"] == "threshold" else None)
     return pd.Series(h, index=c.index)
@@ -708,7 +754,7 @@ def stage_g_split(wells, cl, sy, win) -> pd.DataFrame:
             _, _, law, _ = select_law(train["h_prev"].values, train["D_residual"].values)
             months = pd.date_range(test.index[0], test.index[-1], freq="MS")
             sim = _free_run(cl, int(r.Cluster), float(sy_w), law, months,
-                            float(test["h"].iloc[0]))
+                            float(test["h"].iloc[0]), well=r.col)
             nse, n = _nse(test["h"].iloc[1:], sim)
             row[f"nse_{direction}"] = nse
             row[f"n_test_{direction}"] = n
@@ -755,8 +801,7 @@ def stage_g_ccw(wells, cl, sy, both_laws) -> pd.DataFrame:
             note(f"{r.code}: no uncensored observations")
             continue
         sub = cl.loc[:last]
-        P_eff = (sub["P_m"] * (1 - FOREST_INTERCEPTION) if cluster in FOREST_CIDS
-                 else sub["P_m"])
+        P_eff = sub["P_m"] * (1 - interception_fraction(r.well, sub.index, FOREST_INTERCEPTION))   # 1.7.0
         surplus = float((P_eff - sub["PET"]).mean())
         # BOTH forms are run at every code, not only the one BIC selected: the two carry the
         # diagnostic, and a bias quoted for "the line" has to be the line everywhere.
@@ -795,7 +840,7 @@ def dry_months(cl: pd.DataFrame, wells: pd.DataFrame) -> tuple[set, float]:
     """The site's driest WB_DRY_RAIN_QUANTILE of months over the reference period. One gauge, so ONE
     set of dry months for every well (D9), and the cut is on RAINFALL only — Delta_h sits inside the
     residual, so selecting months because the level fell would select on the outcome."""
-    ref = cl.loc[wells.index.min():wells.index.max()]
+    ref = cl.loc[wells.index.min():wells.index.max()]   # wells are cut at RECORD_FIT_START (1.7.0)
     thr = float(ref["P_m"].quantile(WB_DRY_RAIN_QUANTILE))
     return set(ref.index[ref["P_m"] <= thr]), thr
 
@@ -864,13 +909,25 @@ def stage_j(dper: pd.DataFrame):
     if not (OUT_48_MODEL_AB.is_file() and OUT_48_PER_WELL.is_file()):
         warn("Script 48's per-well outputs are absent - the same-basis comparison is skipped")
         return None, None, None
+    # 1.7.0 (D-349 A9): the two tables disagree on case (48_04 all lower case; 48_01 "D5", "WMC1", ...) and 48_01
+    # carries every well twice (basis comparison_window / full_record). Normalise BEFORE the merge, keep the
+    # full_record basis (48_04's own basis: the D-347 record), and require one row per well.
     ab = pd.read_csv(OUT_48_MODEL_AB)[["well", "drainage_share_B"]]
-    pw = pd.read_csv(OUT_48_PER_WELL)[["well", "ssmB_beta_1_recharge"]]
-    m = ab.merge(pw, on="well")
-    m["key"] = m["well"].astype(str).apply(normalize_well_name)
+    pw = pd.read_csv(OUT_48_PER_WELL)
+    if "basis" in pw.columns:
+        pw = pw[pw["basis"].astype(str) == "full_record"]
+    pw = pw[["well", "ssmB_beta_1_recharge"]]
+    for t in (ab, pw):
+        t["key"] = t["well"].astype(str).apply(normalize_well_name).str.lower()
+    m = ab.drop(columns="well").merge(pw.drop(columns="well"), on="key", how="inner")
+    if not m["key"].is_unique:
+        raise ValueError("Stage J: 48_04 / 48_01 give more than one row for "
+                         f"{sorted(m.loc[m['key'].duplicated(), 'key'].unique())}")
     d = dper[["Well", "Cluster", "Sy", "drainage_share"]].copy()
-    d["key"] = d["Well"].astype(str).apply(normalize_well_name)
-    j = d.merge(m.drop(columns="well"), on="key", how="inner").drop(columns="key")
+    d["key"] = d["Well"].astype(str).apply(normalize_well_name).str.lower()
+    j = d.merge(m, on="key", how="inner").drop(columns="key")
+    if not j["Well"].is_unique:
+        raise ValueError("Stage J: the same-basis table holds a well twice")
     j = j.rename(columns={"Sy": "S_a", "drainage_share": "share_wb", "drainage_share_B": "share_B_watertable",
                           "ssmB_beta_1_recharge": "beta_1_B"})
     j["recharge_fraction_B"] = j["S_a"] * j["beta_1_B"]

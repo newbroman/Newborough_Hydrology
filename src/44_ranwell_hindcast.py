@@ -112,7 +112,7 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.16.0"  # 2026-11-27 (D-348): the inland slack-floor baseline and the per-forest-group summaries (residuals, pre-planting changes) from cluster-level wells; forest groups from FOREST_CIDS; notes name C3o and C3f, C5 keys kept. Was "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 44_report_numbers.csv gains
+__version__ = "1.17.0"  # 2026-11-27 (D-349 (1), (8)): every fit states its window - the fixed-floor fits and the "pre2018" / "whole" refits take start=config.RECORD_FIT_START (D-347 (6); no number moves); the open-dune count within the coastal reach is by land cover (01_locations.in_forest, not the group id) with the edge wells out (cluster_series.is_edge: WMC3 left it); the per-cluster slack-floor medians are over cluster-level wells. Was "1.16.0"  # 2026-11-27 (D-348): the inland slack-floor baseline and the per-forest-group summaries (residuals, pre-planting changes) from cluster-level wells; forest groups from FOREST_CIDS; notes name C3o and C3f, C5 keys kept. Was "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 44_report_numbers.csv gains
 #   ranwell_span_first_month and ranwell_span_last_month, ISO dates (config.RANWELL_HINDCAST_SPAN), so the
 #   documents' "1951–53" are date fields (field_sync 1.3.0). No other output moves.
 # 1.14.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
@@ -280,7 +280,8 @@ def fixed_floor_fit(h: pd.Series, cl: pd.DataFrame, well: str, datum: float):
     try:
         return fit_ssm(h, cl, lag=config.HEADLINE_LAG, window=config.LCSC_DATA_LIMIT,
                        drainage_datum=float(datum), min_obs=config.RECLEN_MIN_FIT_MONTHS,
-                       intercept=False, dry_bound=db)
+                       intercept=False, dry_bound=db,
+                       start=config.RECORD_FIT_START)   # D-349 (1): the comparison window lies inside D-347's
     except Exception as e:                                       # noqa: BLE001
         warn(f"{well}: fixed-floor fit at {datum:.2f} m failed ({type(e).__name__}: {e})")
         return None
@@ -1057,8 +1058,9 @@ def main() -> int:
                 _c = cl[cl.index < _split] if _win == "pre2018" else cl
                 if len(_h) < MIN_FIT_OBS:
                     continue
-                _fa = fit_ssm(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
-                _fb = fit_ssm_intercept(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
+                # D-349 (1): D-347 (6) - the hindcasts run from the 2010 fits: "pre2018" is 2010-17, "whole" 2010-26
+                _fa = fit_ssm(_h, _c, lag=0, min_obs=MIN_FIT_OBS, start=config.RECORD_FIT_START)
+                _fb = fit_ssm_intercept(_h, _c, lag=0, min_obs=MIN_FIT_OBS, start=config.RECORD_FIT_START)
                 if _fa and np.isfinite(_fa.get("beta_3_drainage", np.nan)) and _fa["beta_3_drainage"] > 0:
                     fits[_win].setdefault(_w, {})["A"] = (
                         (_fa["beta_1_recharge"], _fa["beta_2_atmospheric_draw"], _fa["beta_3_drainage"]),
@@ -1622,12 +1624,17 @@ def main() -> int:
     # (report9 SS4.14.2).
     if comb_all:
         _thr = config.RANWELL_ELEVATED_K_SIGMA * float(comb_all["sigma_total_m"])
-        _od = wells_q4[~wells_q4["cluster"].isin(config.FOREST_CIDS) & wells_q4["within_coastal_reach"].astype(bool)]
+        # 1.17.0 (D-349 (8)): "open dune" is land cover, the polygon (not the group id), with the edge wells out -
+        # a well within LANDCOVER_EDGE_M of a management boundary is neither open nor forest for this count
+        from utils.cluster_series import land_cover_lookup, is_edge   # noqa: PLC0415
+        _lcov = land_cover_lookup()
+        _open = wells_q4["well"].map(lambda w: _lcov.get(normalize_well_name(w)) == "open" and not is_edge(w))
+        _od = wells_q4[_open.astype(bool) & wells_q4["within_coastal_reach"].astype(bool)]
         _ev = _od[_od["excess_min_m"] > _thr]
         _nev = _od[_od["excess_min_m"] <= _thr]
         _k = f"{config.RANWELL_ELEVATED_K_SIGMA:g} x ranwell_sigma_m_combined_all"
         rn += [("slack_floor_reach_open_dune_n", int(len(_od)), "count",
-                "open-dune wells (clusters not in FOREST_CIDS) within the coastal reach"),
+                "open-dune wells (land cover open, edge wells out, D-349) within the coastal reach"),
                ("slack_floor_reach_elevated_threshold_m", _thr, "m",
                 f"ELEVATED threshold on the annual-minimum excess over the inland baseline: {_k}"),
                ("slack_floor_reach_elevated_n", int(len(_ev)), "count", f"of those, wells whose excess exceeds {_k}"),
@@ -1640,7 +1647,8 @@ def main() -> int:
         if len(_nev):
             rn.append(("slack_floor_reach_not_elevated_excess_max_m", float(_nev["excess_min_m"].max()), "m",
                        "largest annual-minimum excess among the wells that are not elevated"))
-    for c, g in wells_q4.groupby("cluster"):
+    # 1.17.0 (D-348): a cluster's medians over its cluster-level wells (the per-well rows keep every well)
+    for c, g in wells_q4[wells_q4["in_cluster_level"].astype(bool)].groupby("cluster"):
         c = int(c)
         rn += [(f"slack_floor_depth_min_median_C{c}_m", float(g["depth_min_m"].median()), "m", f"C{c}: median depth of the annual minimum below the floor"),
                (f"slack_floor_depth_spring_median_C{c}_m", float(g["depth_spring_m"].median()), "m", f"C{c}: median depth of the spring level below the floor"),

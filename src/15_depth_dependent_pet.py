@@ -52,7 +52,7 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal L_E and β coefficients per cluster
 """
 
-__version__ = "1.12.0"  # 2026-11-27 (D-348): cluster centroids from cluster-level wells (boundary and set-aside out). Was "1.11.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Every fit is Model B: an intercept α in
+__version__ = "1.13.0"  # 2026-11-27 (D-349 (1), A5): every fit states its window; the full-record pass is cut at RECORD_FIT_START before the grid search, the partition and the n, so the standard fit and the grid search share one sample (N4) and the identity check against Script 03 is like for like. Was "1.12.0"  # 2026-11-27 (D-348): cluster centroids from cluster-level wells (boundary and set-aside out). Was "1.11.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Every fit is Model B: an intercept α in
 #   the grid-search OLS (fit_at_inv_LE) and in the 1/L_E = 0 baseline (fit_ssm(intercept=True)), with β₃ bounded below at
 #   config.MODEL_B_BETA3_MIN as model_utils does; α is carried into the iterative simulation (Δh += α) and the loss
 #   partition (drainage = β₃·mean h_disp_prev − α = β₃·mean(h_prev + implied_datum_m)). The headline report numbers
@@ -149,6 +149,7 @@ from utils.paths import (
 )
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG, LCSC_DATA_LIMIT
 from utils.config import MODEL_B_BETA3_MIN   # 1.11.0 (D-332): Model B's lower bound on β₃
+from utils.config import RECORD_FIT_START    # 1.13.0 (D-349 (1)): the D-347 record window
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -401,7 +402,8 @@ def build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand
 
 def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
                         data_limit: int = DATA_LIMIT,
-                        drainage_datum: float = DRAINAGE_DATUM) -> pd.DataFrame:
+                        drainage_datum: float = DRAINAGE_DATUM,
+                        start: str | None = None) -> pd.DataFrame:
     """Merge centroid with climate and build Δh, h_prev, h_disp_prev, P.
 
     Builds the design-matrix columns used downstream by fit_standard_ssm
@@ -427,6 +429,9 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
     df["P"] = df["P_m"].shift(HEADLINE_LAG)
 
     df = df.dropna(subset=["Delta_h", "P", "PET", "h_prev", "h_disp_prev"])
+    # 1.13.0 (D-349 (1)): `start` cuts the FRAME, so every consumer (fit, grid search, partition, n) sees one sample
+    if start is not None:
+        df = df[df.index >= pd.Timestamp(start)]
     # 1.10.0 (D-281): the last data_limit CALENDAR months, as model_utils' window, not the last
     # data_limit valid rows (which reached further back at a well with gaps)
     return last_calendar_months(df, data_limit) if data_limit is not None else df
@@ -462,7 +467,9 @@ def fit_standard_ssm(df: pd.DataFrame, intercept: bool = True) -> dict | None:
     1.11.0 (D-332): intercept=True (default) is Model B, fit_ssm(intercept=True) with its β₃ bound, and
     α enters the simulation; intercept=False is the Model A sensitivity.
     """
-    fit = fit_ssm(pre_built_frame=df, intercept=intercept)
+    # 1.13.0 (D-349 (1)): the caller lays out df's window (the 98-month comparison window, or the full record cut at
+    # RECORD_FIT_START by build_regression_df); both lie inside D-347's window, so the cut here is a no-op that states it
+    fit = fit_ssm(pre_built_frame=df, intercept=intercept, start=RECORD_FIT_START)
     if fit is None:                        # < SSM_MIN_OBS rows, or OLS failed
         return None
     b1 = fit["beta_1_recharge"]
@@ -892,7 +899,9 @@ def main():
     full_sets = {}
     full_dfs = {}
     for cid, (centroid, _u) in centroids.items():
-        df_f = build_regression_df(centroid, climate, data_limit=len(centroid) + 1)
+        # 1.13.0 (D-349 (1), A5 / N4): the full record is D-347's, January 2010 on. The frame itself is cut, not only
+        # the fit, so the grid search, the loss partition and the quoted n use the months the standard fit uses.
+        df_f = build_regression_df(centroid, climate, data_limit=None, start=RECORD_FIT_START)
         ssm_f = fit_standard_ssm(df_f)
         if ssm_f is None or len(df_f) <= 30:
             continue
@@ -919,7 +928,7 @@ def main():
     for cid, (p_ssm, p_ddp, kap_f, n_f) in full_parts.items():
         rn.add("depth_dependent_pet_drainage_share_ssm_full_pct", p_ssm["share_pct"], unit="%", well=f"C{cid}",
                note=f"Model B (D-332): drainage share of the modelled mean loss, standard SSM, centroid on the full "
-                    f"record (n = {n_f})")
+                    f"record from {RECORD_FIT_START[:7]} (D-347; n = {n_f})")
         rn.add("depth_dependent_pet_drainage_share_ddp_full_pct", p_ddp["share_pct"], unit="%", well=f"C{cid}",
                note="Model B (D-332): the same share with the PET term attenuated by exp(-d / L_E), L_E from a "
                     "full-record grid search")

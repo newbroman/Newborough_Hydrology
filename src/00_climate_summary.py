@@ -78,7 +78,7 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
+__version__ = "1.20.0"  # 2026-11-27 (D-349 A14): emits mean_annual_rain_record_fit_window, the mean annual rainfall over the complete calendar years from config.RECORD_FIT_START (D-347; 2010-2025), the basis of Script 16's volumetric balance, beside mean_annual_rain_well_record (2006-2025), which does not move. Was "1.19.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). DETREND_START / DETREND_END come from config
 #   (1.131.0) instead of being typed here; values unchanged, no output moves.
 # 1.18.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the reference record length in years, the shallowest and deepest per-well mean level and
@@ -1127,6 +1127,18 @@ def _run_all() -> None:
            era=_fsr["post_era"],
            note=f"mean annual precipitation over complete well-record years after "
                 f"the clearfell (n={_fsr['post_n']}).")
+    # 1.20.0 (D-349 A14): the same mean from D-347's window, which Script 16's volumetric table uses (it was said to
+    # equal mean_annual_rain_well_record, and is 4.7 mm below it)
+    from utils.config import RECORD_FIT_START as _RFS
+    _a = table1_short.copy()
+    _a = _a[pd.to_numeric(_a["Year"], errors="coerce").notna()].copy()
+    _a["Year"] = _a["Year"].astype(int)
+    _a = _a[(_a["Months_complete"] == 12) & (_a["Year"] >= pd.Timestamp(_RFS).year)]
+    if len(_a):
+        rr.add("mean_annual_rain_record_fit_window", float(_a["Annual_P_mm"].mean()), unit="mm",
+               era=f"{int(_a['Year'].min())}-{int(_a['Year'].max())}",
+               note=f"mean annual precipitation over the complete calendar years from RECORD_FIT_START (D-347; "
+                    f"n={len(_a)}): the window of Script 16's volumetric balance (16_water_bal_vol_table P_mm_yr)")
     rr.add("rain_pre_post_felling_diff", _fsr["diff"], unit="mm",
            era=f"{_fsr['post_era']} vs {_fsr['pre_era']}",
            note="post minus pre; small relative to interannual variability, the "

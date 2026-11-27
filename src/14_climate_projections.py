@@ -34,7 +34,7 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.16.0"  # 2026-11-27 (D-348): fixed-effects centroids from cluster-level wells (boundary and set-aside out); TRAJECTORY_CLUSTERS from CLUSTER_LABELS; text names C3o and C3f. Was "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347; Martin: "switch from summer minima to MSL").
+__version__ = "1.17.0"  # 2026-11-27 (D-349 (14), B12): 14_annual_extremes.csv also carries the annual mean spring level per cluster (Season "Spring_Mean", the fixed-effects series of the spring trend table; HydroYear is the calendar year, which is the spring's hydrology year under MSL_HYDRO_YEAR_START_MONTH), so Script 14b reads its MSL series from a table; rows appended after the summer and winter rows, which do not move, and kept out of the annual_extreme_* report numbers. Was "1.16.0"  # 2026-11-27 (D-348): fixed-effects centroids from cluster-level wells (boundary and set-aside out); TRAJECTORY_CLUSTERS from CLUSTER_LABELS; text names C3o and C3f. Was "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347; Martin: "switch from summer minima to MSL").
 #   14_spring_trend_stats.csv gains the trend on the one record window, from config.RECORD_FIT_START's year (2010):
 #   fit_start, n_years_fit, Slope_m_per_yr_fit, R2_fit, p_value_fit, and spring_trend_fit_* report numbers. The
 #   full-record and from-2011 columns, and every summer/winter output, are unchanged.
@@ -881,7 +881,11 @@ def main() -> None:
             for yr, val in winter_max[c].items():
                 annual_rows.append({"Cluster": c, "HydroYear": yr, "Season": "Winter_Max", "Value_m": round(val, 4)})
                 annual_rows_unrounded.append({"Cluster": c, "HydroYear": yr, "Season": "Winter_Max", "Value_m": val})
-    pd.DataFrame(annual_rows).to_csv(OUT_14_ANNUAL_EXTREMES, index=False)
+    # 1.17.0 (D-349 (14)): the annual mean spring level, for Script 14b's year of crossing on MSL. Appended after the
+    # extremes; the calendar year is the spring's hydrology year (MSL_HYDRO_YEAR_START_MONTH), so HydroYear holds it.
+    spring_rows = [{"Cluster": c, "HydroYear": int(yr), "Season": "Spring_Mean", "Value_m": round(float(val), 4)}
+                   for c in TRAJECTORY_CLUSTERS if c in spring_mean for yr, val in spring_mean[c].items()]
+    pd.DataFrame(annual_rows + spring_rows).to_csv(OUT_14_ANNUAL_EXTREMES, index=False)
     saved("14_annual_extremes.csv")
 
     # T-91: bind the unrounded per-cluster/year annual extremes (annual_rows

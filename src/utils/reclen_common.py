@@ -4,7 +4,7 @@ datum runs and the beta_3-bound count. Moved whole from 50_record_length.py 1.30
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208).
+__version__ = "1.1.0"  # 2026-11-27 (D-349 (1)): every fit states its window - fit_frame start=None (the caller lays out the frame), _censored_well_fit start=RECORD_FIT_START unless told; load_inputs() cuts the levels at RECORD_FIT_START once (record_window=False for the 2005-09 experiments), record_dry_bounds() cuts the dry bounds the same way; describe() labels fit_start/fit_end from the months fitted. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208).
 
 import argparse
 import importlib.util
@@ -74,6 +74,7 @@ from utils.config import (                                    # noqa: E402
     E13_EXCESS_SHARE, E13_RMSE_TOL, E13_CLUSTERS, E13_BREAK_WINDOW, E13_MIN_LATER_MONTHS,
     E13B_WINDOW_YEARS, E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS, E13B_RESID_WINTER_PHASE,
     RESIDUAL_DIAG_MIN_MONTHS, MIDAS_MONTH_MIN_DAYS, MODEL_B_BETA3_MIN,
+    RECORD_FIT_START,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, fit_ssm_intercept, simulate_ssm, get_metrics,   # noqa: E402
@@ -113,19 +114,22 @@ def fit_frame(frame: pd.DataFrame, intercept: bool):
         return None
     try:
         return fit_ssm(pre_built_frame=frame, intercept=intercept,
-                       min_obs=RECLEN_MIN_FIT_MONTHS, with_corr=True)
+                       min_obs=RECLEN_MIN_FIT_MONTHS, with_corr=True,
+                       start=None)   # 1.1.0 (D-349 (1)): the caller lays out the frame, on load_inputs()' cut record
     except Exception:
         return None
 
 
 def _censored_well_fit(h: pd.Series, cl: pd.DataFrame, db, window, intercept: bool,
-                       datum: float = DRAINAGE_DATUM):
+                       datum: float = DRAINAGE_DATUM, start=RECORD_FIT_START):
     """1.24.0 (D-322): one well fitted as Script 03 fits it: dry months censored (dry_bound), over calendar
-    months (window = the last N, None = all of h). None where the fit fails, as fit_frame returns."""
+    months (window = the last N, None = all of h). None where the fit fails, as fit_frame returns.
+    1.1.0 (D-349 (1)): `start` is the fit's window, stated: D-347's RECORD_FIT_START unless the caller says."""
     db = db if (db is not None and len(db)) else None
     try:
         return fit_ssm(h, cl, lag=HEADLINE_LAG, window=window, drainage_datum=float(datum),
-                       min_obs=RECLEN_MIN_FIT_MONTHS, intercept=intercept, with_corr=True, dry_bound=db)
+                       min_obs=RECLEN_MIN_FIT_MONTHS, intercept=intercept, with_corr=True, dry_bound=db,
+                       start=start)
     except Exception:
         return None
 
@@ -146,11 +150,15 @@ def describe(fit: dict, intercept: bool, frame: pd.DataFrame) -> dict:
     drain = b3 * fit["mean_h_disp_prev"] - (fit["alpha"] if intercept else 0.0)
     et = b2 * fit["mean_PET"]
     ident = bool(b3 > 0 and fit["pvalue_beta_3"] < SIG_P)
+    # 1.1.0 (D-349 (1), A2): the span is the months the fit used (its residuals), not the frame it was handed
+    _r = fit.get("resid")
+    span = _r.index if (_r is not None and len(_r)) else (frame.index if frame is not None else None)
     if intercept:
         ident = ident and bool(np.isfinite(efold) and efold < PASTAS_IDENT_EFOLD_WINDOW_FRAC * fit["n"])
     return {
         "fitted": True, "n_fit": int(fit["n"]),
-        "fit_start": frame.index.min().strftime("%Y-%m"), "fit_end": frame.index.max().strftime("%Y-%m"),
+        "fit_start": span.min().strftime("%Y-%m") if span is not None else "",
+        "fit_end": span.max().strftime("%Y-%m") if span is not None else "",
         "beta_1": b1, "beta_2": b2, "beta_3": b3, "p_beta_3": fit["pvalue_beta_3"],
         "alpha": fit.get("alpha", np.nan), "R2": fit["R2"],
         "efold_months": efold,
@@ -206,15 +214,31 @@ def _model_a_store(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop(columns=[v for v in ren.values() if v in df.columns]).rename(columns=ren)
 
 
-def load_inputs():
+def load_inputs(record_window: bool = True):
+    """The levels, their column map, the climate and the master table. 1.1.0 (D-349 (1), A2): the levels are cut
+    at D-347's RECORD_FIT_START here, once, so that every window the 50 suite lays out (record-length blocks,
+    split and reverse-split sides, CCW placements, E10's frames) lies on 2010 onward. record_window=False keeps
+    2005-09, for an experiment whose subject it is (D-347 (5): 50d's early winters; 50e's E13 reads its own
+    uncut wells and is not affected)."""
     lev = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     lev.index = pd.to_datetime(lev.index)
+    if record_window:
+        lev = lev[lev.index >= pd.Timestamp(RECORD_FIT_START)]
     cl = pd.read_csv(INT_CLIMATE, index_col=0)
     cl.index = pd.to_datetime(cl.index)
     master = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     master["_n"] = master["Name_Original"].astype(str).apply(normalize_well_name)
     lev_cols = {normalize_well_name(c): c for c in lev.columns}
     return lev, lev_cols, cl, master
+
+
+def record_dry_bounds(col: str, record_window: bool = True) -> pd.Series:
+    """1.1.0 (D-349 (1), A2): dry_bounds(col) cut as load_inputs() cuts the levels, so that a caller-laid window
+    (start=None) cannot reach back into 2005-09 through a dry month."""
+    db = dry_bounds(col)
+    if record_window and db is not None and len(db):
+        db = db[db.index >= pd.Timestamp(RECORD_FIT_START)]
+    return db
 
 
 def _dkey(D: float) -> str:

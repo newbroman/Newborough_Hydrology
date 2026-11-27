@@ -9,7 +9,7 @@ peak_month,,,,,seed,February — typical for most clusters; not a mirror
 drawdown_lambda_m,OUT_20_REPORT_NUMBERS,Parameter=drawdown_lambda,Value,1.0,cell,forest-interception drawdown reach
 coast_delta0_mm_yr,OUT_25_FIT_PARAMETERS,source=forest_free;model=linear_capped,delta_0_mm_yr,1.0,cell,coast-edge anomaly; stored negative in both places
 coast_reach_L_m,OUT_25_FIT_PARAMETERS,source=forest_free;model=linear_capped,L_m,1.0,cell,fitted inland reach
-scrape_offsite_100m_vol,OUT_09D_SCENARIO_CSV,Scenario=Scraping (off-site 100 m),Delta_vol_mm_per_month,1.0,cell,off-site scraping volume change
+scrape_offsite_100m_vol,OUT_09D_SCENARIO_CSV,Scenario=Scraping (off-site 100 m),Delta_storage_sustained_mm,1.0,cell,off-site scraping sustained storage change (D-349 B2: a level, mm w.e.)
 clearfell_recovery_mm,OUT_10A_REPORT,Parameter=ANCOVA_Forest_Impact_clearfell_step,Value,1000.0,cell,clearfell step in mm; CSV stores metres
 ceh36_scrape_response_m,OUT_09_BACI_SHIFTS,Well=CEH36;Shift=Pure_Scraping,Delta_m,1.0,cell,CEH36 paired BACI against CEH4
 uniform_residual_mm_yr,OUT_25_CLUSTER_PARTITION,,,,derived,"mean over the open-dune clusters of (balanced observed decline - modelled coastal gradient); computed in 37b_driver_footing.py, not a single cell"

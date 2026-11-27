@@ -2,7 +2,7 @@
 17_wtf_specific_yield.py — Water Table Fluctuation (WTF) method: specific yield estimated cluster by cluster.
 ========================
 Water Table Fluctuation (WTF) Method — Cluster-Level Specific Yield Estimation
-Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
+Newborough Warren Coastal Sand Dune Aquifer, 2010–2026 (D-347's window; 1.13.0)
 
 Produces cluster-level WTF S_a estimates (Approaches A and B) for all clusters
 in the live partition. Forest groups (FOREST_CIDS from config — C4 and C3f, D-348)
@@ -30,7 +30,7 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.12.0"  # 2026-11-27 (D-348): text and notes name the forest groups C4 and C3f; the cluster series are Script 03's cluster-level centroids, no code change. Was "1.11.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.13.0"  # 2026-11-27 (D-349 (1) A5, (7) B5): the frame is cut at RECORD_FIT_START (D-347); Approach C's interception-corrected forest value is written on the Corrected=True row, not the uncorrected one; the interception sweep is reported as a robustness check that does not discriminate (C4 inside the open-dune range uncorrected), with the unclipped event median beside it; the interception evidence is C3f against C3o (same cluster, other cover): unclipped event medians and the beta_1 ratio from 03_03 (report numbers and summary); a Cluster_ID column so no consumer reads a group id from a label. Was "1.12.0"  # 2026-11-27 (D-348): text and notes name the forest groups C4 and C3f; the cluster series are Script 03's cluster-level centroids, no code change. Was "1.11.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.10.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin 2026-11-12: the drainage correction
@@ -122,6 +122,8 @@ from utils.config import (
     INTERCEPTION_SWEEP_MIN, INTERCEPTION_SWEEP_MAX, INTERCEPTION_SWEEP_STEP,
     WTF_C_DRY_BASELINE, WTF_C_MIN_RISE_M, WTF_C_MAX_DURATION,
     WTF_C_SY_MIN, WTF_C_SY_MAX, WTF_C_BOOTSTRAP_N, WTF_RAPID_BOOT_SEED,
+    RECORD_FIT_START,       # 1.13.0 (D-349 (1)): the D-347 record window
+    GROUP_HYDRO_CLUSTER,    # 1.13.0 (D-349 (7)): C3f's open partner is the group of its own cluster
 )
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_17, INT_MASTER_DATA, OUT_17_SY_TABLE, OUT_03_MECHANISTIC_TABLE,
@@ -214,6 +216,9 @@ def load_data(out_root):
             # 1.10.0 (D-332): the previous month's head, the h_prev of the SSM's drainage term
             df[f"hprev_{cid}"] = df[cid].shift(1)
 
+    # 1.13.0 (D-349 (1), A5): D-347's window. Cut after the differences, so January 2010's rise (from December
+    # 2009's head) is kept, as fit_ssm keeps it on a pre-built frame.
+    df = df[df["Date"] >= pd.Timestamp(RECORD_FIT_START)].reset_index(drop=True)
     return df
 
 
@@ -419,9 +424,10 @@ def _event_median_sy(df, cid, r_col):
     sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
     events = sub[(sub[r_col] > WTF_EVENT_MIN_NET_RECH_M) & (sub[f"dh_{cid}"] > WTF_EVENT_MIN_RISE_M)].copy()
     events["sy_i"] = events[r_col] / events[f"dh_{cid}"]
+    med_unclipped = float(events["sy_i"].median()) if len(events) else float("nan")   # 1.13.0: ceiling lifted
     events = events[(events["sy_i"] > WTF_EVENT_SY_MIN) & (events["sy_i"] < WTF_EVENT_SY_MAX)]
     return (float(events["sy_i"].median()), float(events["sy_i"].quantile(0.25)),
-            float(events["sy_i"].quantile(0.75)), int(len(events)))
+            float(events["sy_i"].quantile(0.75)), int(len(events)), med_unclipped)
 
 
 def approach_b_interception_sweep(df, b_results):
@@ -435,6 +441,11 @@ def approach_b_interception_sweep(df, b_results):
     the F-interval over which each forest cluster sits inside the range, printed
     and returned. F = FOREST_INTERCEPTION is always included in the grid so the
     headline row is present exactly.
+
+    1.13.0 (D-349 (7), B5): this is a ROBUSTNESS CHECK, not a test of the interception fraction. The open-dune range
+    is wide, the 0.50 ceiling censors the upper tail of every run, and C4 sits inside the range with no correction
+    (F = 0), so the sweep cannot fail. It shows that the forest groups' convergence on the open dune does not depend
+    on F. The evidence for interception is interception_evidence(): C3f against C3o.
     """
     open_dune = [b_results[f"C{i}"]["sy_median"] for i in CLUSTER_IDS
                  if i not in FOREST_CIDS and f"C{i}" in b_results
@@ -451,12 +462,15 @@ def approach_b_interception_sweep(df, b_results):
             cid = f"C{i}"
             if f"dh_{cid}" not in df.columns:
                 continue
-            med, q25, q75, n = _event_median_sy(df, cid, r_col)
+            med, q25, q75, n, med_u = _event_median_sy(df, cid, r_col)
             rows.append(dict(F=float(F), cluster=cid, label=CLUSTER_LABELS[cid],
                              Sy_event_median=med, Sy_event_Q25=q25, Sy_event_Q75=q75,
                              Sy_event_n=n, open_dune_min=lo, open_dune_max=hi,
                              within_open_dune_range=bool(np.isfinite(med) and lo <= med <= hi),
-                             is_headline_F=bool(np.isclose(F, FOREST_INTERCEPTION))))
+                             is_headline_F=bool(np.isclose(F, FOREST_INTERCEPTION)),
+                             # 1.13.0 (D-349 (7)): appended; the ceiling censors the upper tail, so the clipped
+                             # median is held inside the range at almost every F
+                             Sy_event_median_unclipped=med_u))
         df.drop(columns=[r_col], inplace=True)
     sweep = pd.DataFrame(rows)
     print(f"  open-dune range (uncorrected event medians, non-forest clusters): "
@@ -470,7 +484,64 @@ def approach_b_interception_sweep(df, b_results):
                   f"({len(inside)} of {int((sweep.cluster == cid).sum())} grid points)")
         else:
             print(f"  {CLUSTER_LABELS[cid]:<20} never inside the range on this grid")
+    print("  (a robustness check, not a test: it does not discriminate between interception fractions, D-349 (7))")
     return sweep
+
+
+def _forest_open_pairs():
+    """1.13.0 (D-349 (7)): (forest group, open group) pairs with the same hydrogeology - each forest group whose
+    cluster also has an open group (GROUP_HYDRO_CLUSTER; group ids, never labels). Today [(5, 3)]: C3f and C3o.
+    C4 is a cluster of its own and has no open partner."""
+    pairs = []
+    for g in FOREST_CIDS:
+        h = GROUP_HYDRO_CLUSTER.get(g)
+        if h is not None and h != g and h in CLUSTER_IDS and h not in FOREST_CIDS:
+            pairs.append((g, h))
+    return pairs
+
+
+def interception_evidence(b_results, sweep):
+    """1.13.0 (D-349 (7), B5): the evidence for interception - a forest group against the open group of the same
+    hydrogeological cluster (C3f against C3o), on the quantities the 0.50 ceiling does not hold in range:
+
+      - the UNCLIPPED event-median S_a of the forest group, uncorrected and corrected, against the open group's;
+      - the interception fraction at which the forest group's unclipped median equals the open group's (linear
+        interpolation on the sweep grid; NaN where the grid does not bracket it);
+      - the ratio of the two groups' centroid beta_1 (03_03, Model B): if interception I = F*P sits in recharge, a
+        regression on gross P absorbs it as (1 - F)*beta_1. The ratio also scales with 1/S_a, so it is suggestive,
+        not diagnostic (stage 1 verification, finding 2).
+
+    Returns a list of dicts, one per pair."""
+    out = []
+    try:
+        mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+    except Exception as e:  # noqa: BLE001 - reported, the beta_1 ratio is then NaN
+        warn(f"03_03 not readable ({type(e).__name__}: {e}); the beta_1 ratio is NaN")
+        mech = None
+    for g, h in _forest_open_pairs():
+        fk, ok = f"C{g}", f"C{h}"
+        u_f = b_results.get(fk, {}).get("sy_median_unclipped", np.nan)
+        c_f = b_results.get(f"{fk}_corr", {}).get("sy_median_unclipped", np.nan)
+        u_o = b_results.get(ok, {}).get("sy_median_unclipped", np.nan)
+        F_match = np.nan
+        sw = sweep[sweep["cluster"] == fk].sort_values("F") if len(sweep) else sweep
+        if len(sw) and np.isfinite(u_o):
+            d = (sw["Sy_event_median_unclipped"] - u_o).to_numpy(float)
+            Fg = sw["F"].to_numpy(float)
+            for i in range(len(d) - 1):
+                if np.isfinite(d[i]) and np.isfinite(d[i + 1]) and d[i] * d[i + 1] <= 0 and d[i] != d[i + 1]:
+                    F_match = float(Fg[i] - d[i] * (Fg[i + 1] - Fg[i]) / (d[i + 1] - d[i]))
+                    break
+        b1_ratio = np.nan
+        if mech is not None and g in mech.index and h in mech.index:
+            b1_ratio = float(mech.loc[g, "beta_1_recharge"]) / float(mech.loc[h, "beta_1_recharge"])
+        out.append(dict(forest=g, open=h, forest_key=fk, open_key=ok,
+                        sy_unclipped_forest_uncorrected=float(u_f), sy_unclipped_forest_corrected=float(c_f),
+                        sy_unclipped_open=float(u_o), F_match_unclipped=F_match, beta_1_ratio=b1_ratio))
+        print(f"  {CLUSTER_LABELS[fk]} against {CLUSTER_LABELS[ok]}: unclipped event-median S_a "
+              f"{u_f:.3f} uncorrected, {c_f:.3f} corrected (F = {FOREST_INTERCEPTION:g}), against {u_o:.3f}; "
+              f"equal at F = {F_match:.3f}; beta_1 ratio {b1_ratio:.3f} (1 - F = {1 - FOREST_INTERCEPTION:.3f})")
+    return out
 
 
 def approach_c_rapid_events(df):
@@ -723,7 +794,7 @@ def plot_regression(df, a_results, out_path):
 
     fig.suptitle(
         "Approach A — WTF apparent storage coefficient $S_a$: Drainage-Corrected OLS Regression\n"
-        "Newborough Warren 2005–2026  |  Winter months (Nov–Mar, PET < 25 mm/month)\n"
+        f"Newborough Warren {RECORD_FIT_START[:4]}–2026 (D-347)  |  Winter months (Nov–Mar, PET < 25 mm/month)\n"
         "Δh corrected for Model B drainage: Δh_corr = Δh + β₃·(h_prev + z), z = implied base (D-332)",
         fontsize=10, fontweight="bold", y=1.02,
     )
@@ -827,10 +898,11 @@ def plot_event_boxplot(b_results, out_path):
 def export_csv(a_results, b_results, c_results, out_path):
     """Export summary CSV: one row per (cluster, corrected) entry.
 
-    Approach A/B columns are unchanged and byte-stable. Approach C columns are
-    populated per base cluster (uncorrected rows only — Approach C runs once per
-    cluster, with forest clusters interception-corrected internally); the
-    forest-corrected duplicate rows carry NaN Approach C fields.
+    Approach A/B columns are unchanged. Approach C runs once per cluster, with the
+    forest groups interception-corrected internally. 1.13.0 (D-349 (7), B5): its value is
+    written on the row whose basis it shares - the open groups' (uncorrected) row, and the
+    forest groups' Corrected=True row - so no row mixes bases; the forest groups'
+    uncorrected rows carry NaN Approach C fields. Cluster_ID (appended) is the integer group id.
     """
     rows = []
     for cid, corrected in _build_runs():
@@ -842,7 +914,8 @@ def export_csv(a_results, b_results, c_results, out_path):
         # rather than the dropdown-friendly "(interception-corrected)".
         # Approach C is keyed by base cluster; attach it to the uncorrected row
         # only so the A/B corrected-forest rows stay exactly as before.
-        c = c_results[cid] if not corrected else None
+        # 1.13.0 (D-349 (7)): Approach C on the row of its own basis (corrected at the forest groups)
+        c = c_results[cid] if corrected == bool(c_results[cid].get("corrected", False)) else None
         rows.append({
             "Cluster":               label,
             "Corrected":             corrected,
@@ -874,6 +947,7 @@ def export_csv(a_results, b_results, c_results, out_path):
             "Sy_event_n_censored":       b.get("n_censored", np.nan),
             "Sy_event_pct_censored":     b.get("pct_censored", np.nan),
             "Sy_event_median_unclipped": b.get("sy_median_unclipped", np.nan),
+            "Cluster_ID":                int(cid[1:]),   # 1.13.0 (D-349, rule 6): the group id, not read from a label
         })
     table = pd.DataFrame(rows)
     table.to_csv(out_path, index=False)
@@ -881,10 +955,12 @@ def export_csv(a_results, b_results, c_results, out_path):
     return table
 
 
-def write_report_numbers(table, out_path, excluded_datum=None):
+def write_report_numbers(table, out_path, excluded_datum=None, sweep=None, evidence=None):
     """T-96: the estimator comparisons report9 SS4.2.4 quotes, one row per
-    cluster from the uncorrected rows of the S_a table (the rapid-event
-    estimator is interception-corrected internally at C4/C3f, as in Table 8).
+    cluster from the uncorrected rows of the S_a table. 1.13.0 (D-349 (7)): the
+    rapid-event estimate sits on the forest groups' Corrected=True row, so at C4
+    and C3f sy_estimator_range spans the two uncorrected estimators only.
+    Then the sweep's robustness keys and the C3f-against-C3o evidence.
     Stored unrounded (D-035)."""
     rpt = ReportNumbers()
     base = table[~table["Corrected"].astype(bool)]
@@ -900,8 +976,9 @@ def write_report_numbers(table, out_path, excluded_datum=None):
                 note="Sy_OLS_winter / Sy_event_median (uncorrected run)")
         vals = r[est_cols].astype(float)
         rpt.add("sy_estimator_range", float(vals.max() - vals.min()), unit="", well=lab,
-                note="max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median "
-                     "(uncorrected run; the rapid-event estimate is interception-corrected at C4/C3f)")
+                note="max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median, uncorrected run; "
+                     "at the forest groups the rapid-event estimate is on the Corrected=True row, so the range "
+                     "spans the two uncorrected estimators (D-349 (7): one basis per row)")
     rpt.add("sy_ols_to_event_ratio_mean", float(ratios.mean()), unit="",
             note=f"mean of sy_ols_to_event_ratio over the n={len(ratios)} clusters (uncorrected run)")
     rpt.add("sy_ols_to_event_ratio_n_above_1", int((ratios > 1).sum()), unit="clusters",
@@ -940,16 +1017,62 @@ def write_report_numbers(table, out_path, excluded_datum=None):
             note="clusters with no Approach A S_a: Model B centroid implied base DRAINAGE_DATUM - alpha/beta_3 "
                  "not below ground (D-332)" + (" (" + ", ".join(f"C{c} {v:+.2f} m" for c, v in
                                                                  sorted(excl.items())) + ")" if excl else ""))
+    # 1.13.0 (D-349 (7), B5): the sweep is a robustness check, stated as one; the evidence is C3f against C3o
+    if sweep is not None and len(sweep):
+        for i in FOREST_CIDS:
+            cid = f"C{i}"
+            sw = sweep[sweep["cluster"] == cid]
+            if sw.empty:
+                continue
+            inside = sw[sw["within_open_dune_range"].astype(bool)]
+            at0 = sw[np.isclose(sw["F"], 0.0)]
+            rpt.add("sy_sweep_inside_at_F0", int(bool(len(at0)) and bool(at0["within_open_dune_range"].iloc[0])),
+                    unit="flag", well=cid,
+                    note="1 = the uncorrected (F = 0) event-median S_a already lies inside the open-dune range, so the "
+                         "interception sweep cannot discriminate between fractions here; the sweep is a robustness "
+                         "check, not a test (D-349 (7))")
+            rpt.add("sy_sweep_n_inside", len(inside), unit="grid points", well=cid,
+                    note=f"interception fractions of the {len(sw)}-point sweep grid at which the event-median S_a "
+                         "lies inside the open-dune range (robustness check, D-349 (7))")
+            if len(inside):
+                rpt.add("sy_sweep_F_inside_min", float(inside["F"].min()), unit="", well=cid,
+                        note="smallest grid F with the event-median S_a inside the open-dune range")
+                rpt.add("sy_sweep_F_inside_max", float(inside["F"].max()), unit="", well=cid,
+                        note="largest grid F with the event-median S_a inside the open-dune range")
+    for ev in (evidence or []):
+        pair = f"{ev['forest_key']}_vs_{ev['open_key']}"
+        _src = (f"{CLUSTER_LABELS[ev['forest_key']]} against {CLUSTER_LABELS[ev['open_key']]}, the same "
+                "hydrogeological cluster under the other cover (D-349 (7))")
+        rpt.add("sy_unclipped_forest_uncorrected", ev["sy_unclipped_forest_uncorrected"], unit="", well=pair,
+                note=f"unclipped event-median S_a of the forest group, uncorrected; {_src}")
+        rpt.add("sy_unclipped_forest_corrected", ev["sy_unclipped_forest_corrected"], unit="", well=pair,
+                note=f"unclipped event-median S_a of the forest group, corrected at F = {FOREST_INTERCEPTION:g}; "
+                     f"{_src}")
+        rpt.add("sy_unclipped_open", ev["sy_unclipped_open"], unit="", well=pair,
+                note=f"unclipped event-median S_a of the open group; {_src}")
+        rpt.add("sy_unclipped_ratio_open_to_forest_uncorrected",
+                ev["sy_unclipped_open"] / ev["sy_unclipped_forest_uncorrected"]
+                if ev["sy_unclipped_forest_uncorrected"] else np.nan, unit="", well=pair,
+                note=f"open over uncorrected forest unclipped event-median S_a; {_src}")
+        rpt.add("sy_unclipped_F_match", ev["F_match_unclipped"], unit="", well=pair,
+                note="interception fraction at which the forest group's unclipped event-median S_a equals the "
+                     f"open group's (interpolated on the sweep grid; NaN if not bracketed); {_src}")
+        rpt.add("beta_1_ratio_forest_to_open", ev["beta_1_ratio"], unit="", well=pair,
+                note="centroid beta_1 (03_03, Model B) of the forest group over the open group's: if interception "
+                     "sits in recharge, a fit on gross rain absorbs it as (1 - F) beta_1; beta_1 also scales with "
+                     f"1/S_a, so suggestive, not diagnostic; {_src}")
     n_saved = rpt.save(out_path)
     saved(f"{out_path.name} ({n_saved} rows)")
 
 
-def write_summary(a_results, b_results, c_results, out_path):
+def write_summary(a_results, b_results, c_results, out_path, df=None, sweep=None, evidence=None):
     """Plain-text summary for manuscript."""
+    _span = (f"{df['Date'].min():%Y-%m} to {df['Date'].max():%Y-%m} (D-347)" if df is not None and len(df)
+             else f"from {RECORD_FIT_START[:7]} (D-347)")
     lines = [
         "=" * 70,
         "SPECIFIC YIELD ESTIMATION — WATER TABLE FLUCTUATION METHOD",
-        "Newborough Warren 2005-2026",
+        f"Newborough Warren, {_span}",
         "=" * 70,
         "",
         "Method: Healy and Cook (2002)",
@@ -1024,8 +1147,8 @@ def write_summary(a_results, b_results, c_results, out_path):
         a = a_results[rkey]; b = b_results[rkey]
         label = _entry_label(cid, corrected)
         ols_s = f"{a['sy']:.3f}" if not np.isnan(a['sy']) else "n/a"
-        # Approach C attaches to the base (uncorrected) cluster row only.
-        c = c_results[cid] if not corrected else None
+        # 1.13.0 (D-349 (7)): Approach C attaches to the row of its own basis (corrected at the forest groups).
+        c = c_results[cid] if corrected == bool(c_results[cid].get("corrected", False)) else None
         if c and not np.isnan(c["sy_median"]):
             rap_s = f"{c['sy_median']:.3f}"
         elif c:
@@ -1036,6 +1159,36 @@ def write_summary(a_results, b_results, c_results, out_path):
             f"  {label:<33} {SY_ASSUMED[cid]:>8.3f}  "
             f"{ols_s:>8}  {b['sy_median']:>8.3f}  {rap_s:>8}"
         )
+
+    # 1.13.0 (D-349 (7), B5): the sweep stated as a robustness check; the evidence is C3f against C3o
+    lines += ["", "INTERCEPTION — ROBUSTNESS CHECK AND EVIDENCE (D-349 (7))", "-" * 70]
+    if sweep is not None and len(sweep):
+        lo, hi = float(sweep["open_dune_min"].iloc[0]), float(sweep["open_dune_max"].iloc[0])
+        lines.append(f"  Open-dune range of event-median S_a (uncorrected, open groups): [{lo:.3f}, {hi:.3f}]")
+        for i in FOREST_CIDS:
+            cid = f"C{i}"
+            sw = sweep[sweep["cluster"] == cid]
+            if sw.empty:
+                continue
+            ins = sw[sw["within_open_dune_range"].astype(bool)]
+            at0 = sw[np.isclose(sw["F"], 0.0)]
+            in0 = bool(len(at0)) and bool(at0["within_open_dune_range"].iloc[0])
+            span = (f"inside at {len(ins)} of {len(sw)} grid F in [{ins['F'].min():.2f}, {ins['F'].max():.2f}]"
+                    if len(ins) else "never inside")
+            lines.append(f"  {CLUSTER_LABELS[cid]:<32}  {span}; "
+                         + ("inside with NO correction (F = 0)" if in0 else "outside at F = 0"))
+        lines += ["  The sweep is a robustness check, not a test: the range is wide and the 0.50 ceiling",
+                  "  holds the clipped medians in it, so it cannot discriminate between interception",
+                  "  fractions. It shows the forest groups' convergence does not depend on F."]
+    for ev in (evidence or []):
+        fl, ol = CLUSTER_LABELS[ev["forest_key"]], CLUSTER_LABELS[ev["open_key"]]
+        fm = (f"{ev['F_match_unclipped']:.3f}" if np.isfinite(ev["F_match_unclipped"]) else "not bracketed")
+        lines += [f"  Evidence: {fl} against {ol} (same cluster, other cover)",
+                  f"    unclipped event-median S_a: {ev['sy_unclipped_forest_uncorrected']:.3f} uncorrected, "
+                  f"{ev['sy_unclipped_forest_corrected']:.3f} corrected, against {ev['sy_unclipped_open']:.3f};",
+                  f"    the two are equal at F = {fm};",
+                  f"    centroid beta_1 ratio (03_03) {ev['beta_1_ratio']:.3f}, against 1 - F = "
+                  f"{1 - FOREST_INTERCEPTION:.3f} (suggestive: beta_1 also scales with 1/S_a)."]
 
     lines += [
         "",
@@ -1060,6 +1213,8 @@ def write_summary(a_results, b_results, c_results, out_path):
         "  is not reduced because Thornthwaite PET is an energy-based atmospheric",
         "  demand (independent of land cover), so reducing only P is physically",
         "  motivated and not double-counting.",
+        "- Approach C's forest values are interception-corrected and sit on the",
+        "  corrected rows (D-349 (7)).",
         "- Approach A corrected variants are not fitted in this version (the",
         "  corrected fits were unstable; the report uses Approach B for the",
         "  corrected forest values populating Table 3c).",
@@ -1119,10 +1274,13 @@ def main():
 
     print("\nExporting outputs...")
     sy_table = export_csv(a_results, b_results, c_results, path_table)
-    write_report_numbers(sy_table, OUT_17_REPORT_NUMBERS, excluded_datum=a_excluded_datum)
+    print("\nInterception evidence — forest group against the open group of its cluster (D-349 (7)):")
+    evidence = interception_evidence(b_results, sweep)
+    write_report_numbers(sy_table, OUT_17_REPORT_NUMBERS, excluded_datum=a_excluded_datum,
+                         sweep=sweep, evidence=evidence)
     sweep.to_csv(OUT_17_INTERCEPTION_SWEEP, index=False)   # full precision (D-035)
     saved(OUT_17_INTERCEPTION_SWEEP)
-    write_summary(a_results, b_results, c_results, path_summary)
+    write_summary(a_results, b_results, c_results, path_summary, df=df, sweep=sweep, evidence=evidence)
 
     print("\nAll outputs written to", out_dir)
 

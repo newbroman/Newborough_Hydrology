@@ -77,7 +77,7 @@ is retired by D-200 (T-88): the raw WMC3 step is within the record's noise.
 ====================================================================================
 """
 
-__version__ = "1.13.0"  # 2026-11-27 (D-348): the forest half-life band names C3f fast and C4 slow, the scrape curve C3o; β3 from Script 03's cluster-level centroids. Was "1.12.0"  # Hollingham (2026) — 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
+__version__ = "1.14.0"  # 2026-11-27 (D-349 B2): reads 09d_01's renamed column Delta_storage_sustained_mm (every 09d bar now a sustained level, mm w.e.). Was "1.13.0"  # 2026-11-27 (D-348): the forest half-life band names C3f fast and C4 slow, the scrape curve C3o; β3 from Script 03's cluster-level centroids. Was "1.12.0"  # Hollingham (2026) — 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
 #   MEASURED (coastal_utils.load_measured_event_retreat: Script 40's 2019-20 winter median), not config's
 #   6 m exemplar. 09f_01's column coastal_6m_storm_head_mm is renamed coastal_storm_head_mm.
 # 1.11.0  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
@@ -186,7 +186,8 @@ def _load_clearfell_recovery_mm():
 
 
 def _load_scrape_bars():
-    """Scrape on-site + off-site volumetric values (mm w.e./month) from 09d_01.
+    """Scrape on-site + off-site values and the other bars (sustained change in storage, mm w.e.; 09d 4.0.0,
+    D-349 B2) from 09d_01.
 
     Falls back to the documented off-site default on a first-pass run before
     Script 09d has executed; the other bars are figure context and default to
@@ -194,7 +195,7 @@ def _load_scrape_bars():
     """
     try:
         df = pd.read_csv(OUT_09D_SCENARIO_CSV)
-        d = dict(zip(df["Scenario"], df["Delta_vol_mm_per_month"]))
+        d = dict(zip(df["Scenario"], df["Delta_storage_sustained_mm"]))   # 1.14.0: 09d 4.0.0's column
         return {
             "on_site":   float(d["Scraping (observed)"]),
             "off_100":   float(d["Scraping (off-site 100 m)"]),
@@ -208,7 +209,7 @@ def _load_scrape_bars():
     except (FileNotFoundError, KeyError, IndexError):
         off100 = default_value("scrape_offsite_100m_vol")
         warn("09d_01_scenario_comparison.csv unavailable — scrape bars from "
-             f"defaults (off-site 100 m = {off100:.1f} mm w.e./month; "
+             f"defaults (off-site 100 m = {off100:.1f} mm w.e.; "
              "run Script 09d for live values).")
         return {"on_site": np.nan, "off_100": off100, "off_250": np.nan,
                 "clearfell": np.nan, "thinning": np.nan, "broadleaf": np.nan,

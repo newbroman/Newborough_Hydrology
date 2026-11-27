@@ -30,7 +30,7 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
+__version__ = "1.17.0"  # 2026-11-27 (D-349 (1), B2, B3): the pre-scrape era is laid out on D-347's window (PRE_SCRAPE_START = RECORD_FIT_START, Jan 2010 to the Apr 2015 scrape; fits start=None) and its key's era says so (was "record start"); every 09b_04/09b_05 bar a sustained level change as stored water (scraping_common 1.16.0), columns renamed Delta_storage_sustained_mm; the scrape bar in the C3 (C3o) column with C3o's Sy (was C3f's column and Sy); Clearfell / Thinning carry the anchor range; the equilibration baseline from 2010. Was "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
 #   bars of 09b_04 (BACI delta-beta_3 of split-window refits through 1/beta_3) are dropped: the scrape is detected
 #   by the paired contrast at CEH36 (09a) and its propagation is not quantified. _compute_scraping_bars,
 #   scrape_bar_n_b3_held_at_bound, the D-333 status column, labels and count key (scenario_n_keys_withdrawn_d333_09b)
@@ -102,7 +102,7 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N,
-                          SCRAPE_PROPAGATION_NEAR_M, CLUSTER_LABELS)
+                          SCRAPE_PROPAGATION_NEAR_M, CLUSTER_LABELS, RECORD_FIT_START)
 # D-348: the bar groups, keys "C1".."C5" (C5 = C3f, the Western Dune's forest wells), and their axis labels
 _GROUP_KEYS = [f"C{c}" for c in CLUSTER_LABELS]
 _GROUP_TICKS = {"C1": "C1\nLake Edge", "C2": "C2\nDune", "C3": "C3o\nWestern Dune\nopen",
@@ -141,6 +141,10 @@ E_CEH36 = CEH36_E   # config.py — documented 2015 dune-scrape site
 N_CEH36 = CEH36_N
 
 MIN_OBS_SPLIT = 12
+# 1.17.0 (D-349 (1)): the pre-scrape era is laid out here, on D-347's window: January 2010 to the April 2015
+# scrape. Before 1.17.0 it was built from 2005-01-01 and fit_ssm's former default cut it silently at 2010, while
+# the key's era said "record start". The fits take start=None because this caller lays out its own window.
+PRE_SCRAPE_START = pd.Timestamp(RECORD_FIT_START)
 
 UPHILL_WELLS = [
     "ceh31",
@@ -180,7 +184,8 @@ def _fit_era(series, climate, start, end, intercept=True):
     intercept=False is the Model A sensitivity (fixed datum DRAINAGE_DATUM)."""
     era_series = series.copy()
     era_series[(era_series.index < start) | (era_series.index >= end)] = np.nan
-    return fit_ssm(era_series, climate, min_obs=MIN_OBS_SPLIT, intercept=intercept)
+    # 1.17.0 (D-349 (1)): the caller lays out the window [start, end), so no further cut
+    return fit_ssm(era_series, climate, min_obs=MIN_OBS_SPLIT, intercept=intercept, start=None)
 
 
 def _b3a(fit):
@@ -231,7 +236,7 @@ def main():
 
     # 2. Fit split-window SSMs
     phase(2, "Fitting split-window SSMs")
-    print(f"   Pre-scrape window:  start of record "
+    print(f"   Pre-scrape window:  {PRE_SCRAPE_START.strftime('%b %Y')} (D-347 window start) "
           f"\u2013 {SCRAPE_DATE.strftime('%b %Y')}")
     print(f"   Post-scrape window: {SCRAPE_DATE.strftime('%b %Y')} "
           f"\u2013 {FELL_DATE.strftime('%b %Y')}")
@@ -246,11 +251,11 @@ def main():
             continue
 
         pre  = _fit_era(series, climate,
-                        pd.Timestamp("2005-01-01"), SCRAPE_DATE)
+                        PRE_SCRAPE_START, SCRAPE_DATE)
         post = _fit_era(series, climate,
                         SCRAPE_DATE, FELL_DATE)
         # Model A sensitivity (D-332): the same windows at the fixed datum
-        pre_a  = _fit_era(series, climate, pd.Timestamp("2005-01-01"), SCRAPE_DATE, intercept=False)
+        pre_a  = _fit_era(series, climate, PRE_SCRAPE_START, SCRAPE_DATE, intercept=False)
         post_a = _fit_era(series, climate, SCRAPE_DATE, FELL_DATE, intercept=False)
 
         if pre is None or post is None:
@@ -358,10 +363,10 @@ def main():
             series_list, axis=1, sort=True).mean(axis=1)
 
         pre  = _fit_era(centroid_ts, climate,
-                        pd.Timestamp("2005-01-01"), SCRAPE_DATE)
+                        PRE_SCRAPE_START, SCRAPE_DATE)
         post = _fit_era(centroid_ts, climate,
                         SCRAPE_DATE, FELL_DATE)
-        pre_a  = _fit_era(centroid_ts, climate, pd.Timestamp("2005-01-01"), SCRAPE_DATE, intercept=False)
+        pre_a  = _fit_era(centroid_ts, climate, PRE_SCRAPE_START, SCRAPE_DATE, intercept=False)
         post_a = _fit_era(centroid_ts, climate, SCRAPE_DATE, FELL_DATE, intercept=False)
 
         if pre and post:
@@ -423,8 +428,9 @@ def main():
            note="fitted months in the post-scrape window at CEH36 (scrape to clearfell): "
                 "the 'N-month post-scraping record' the documents quote")
     rr.add("scrape_window_months_pre", int(_c36["pre_n"]), unit="months",
-           era=f"record start-{SCRAPE_DATE.strftime('%b %Y')}",
-           note="fitted months in the pre-scrape window at CEH36")
+           era=f"{PRE_SCRAPE_START.strftime('%b %Y')}-{SCRAPE_DATE.strftime('%b %Y')}",
+           note=f"fitted months in the pre-scrape window at CEH36, {PRE_SCRAPE_START.strftime('%b %Y')} "
+                f"(D-347's window start) to the {SCRAPE_DATE.strftime('%b %Y')} scrape")
     rr.add("scrape_propagation_n_wells", int(len(df)), unit="count",
            note="CEH36, the uphill transect and the controls fitted in both windows")
     rr.add("scrape_propagation_n_fits_model_b_bound_binds",
@@ -512,7 +518,8 @@ def _plot_equilibration(wells_clean):
             return None
         s_c = s[common]
         ctrl_c = ctrl_centroid[common]
-        pre = common[common < SCRAPE_DATE]
+        # 1.17.0 (D-349): the pre-scraping baseline on D-347's window, not the 2005-09 high stand
+        pre = common[(common >= PRE_SCRAPE_START) & (common < SCRAPE_DATE)]
         if len(pre) < 12:
             return None
         return ((s_c - s_c[pre].mean()) - (ctrl_c - ctrl_c[pre].mean()))
@@ -573,7 +580,7 @@ def _plot_equilibration(wells_clean):
     ax.set_ylabel("Change in water table depth\nrelative to pre-scraping mean (mm)\n"
                   "(climate-corrected, 12-month rolling mean)", fontsize=14)
     ax.set_title("Observed water table response to scraping at CEH36\n"
-                 "Head change relative to pre-2015 baseline, "
+                 f"Head change relative to the {PRE_SCRAPE_START.year}\u2013Mar 2015 baseline, "
                  "corrected for climate using distant C3 wells",
                  fontsize=16, fontweight="bold")
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
@@ -608,7 +615,11 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     cluster_labels = [_GROUP_TICKS.get(c, c) for c in clusters]
 
     # Non-scraping scenarios from the consolidated pipeline params
-    base_scenarios, _, _, _ = compute_scenario_bars_from_params()
+    base_scenarios, _cp, _sP, _sPET = compute_scenario_bars_from_params()
+    # 1.17.0 (D-349 B3): Clearfell / Thinning over the clearfell anchor range
+    from utils.scraping_common import compute_scenario_bar_range
+    from utils.clearfell_common import CLEARFELL_ANCHORS
+    bar_range = compute_scenario_bar_range(_cp, _sP, _sPET)
 
     colour_map = {
         "Clearfell": "#8B4513", "Thinning 50%": "#D2691E",
@@ -654,24 +665,31 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
                 "Thinning 50%": "Thinning 50% (at most half)"}.get(scenario, scenario)
         ax.bar(x + offsets[i], vals, width, label=_lab, color=_col,
                edgecolor="black", linewidth=0.5, alpha=0.85, hatch=_hatch)
+        if scenario in ("Clearfell", "Thinning 50%"):   # 1.17.0 (D-349 B3): the anchor range as a whisker
+            for j, c in enumerate(clusters):
+                _rv = [bar_range[m][scenario].get(c, np.nan) for m in CLEARFELL_ANCHORS]
+                _rv = [v for v in _rv if np.isfinite(v)]
+                if len(_rv) > 1 and max(abs(v) for v in _rv) > 0:
+                    ax.plot([x[j] + offsets[i]] * 2, [min(_rv), max(_rv)], color="black", lw=1.2, zorder=6)
 
     ax.axhline(0, color="black", linewidth=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(cluster_labels, fontsize=14)
-    ax.set_ylabel("\u0394 volumetric water table\n"
-                  "(mm water equiv. / month)", fontsize=15)
+    ax.set_ylabel("\u0394 stored water, sustained\n"
+                  "(mm water equiv.)", fontsize=15)   # 1.17.0 (D-349 B2): a level, not a monthly rate
     ax.tick_params(axis="y", labelsize=13)
     ax.set_title(
-        "Scenario comparison: forest management and climate (k = 5)\n"
-        "Volumetric using WTF-derived, interception-corrected Sy",
+        "Scenario comparison: forest management and climate (five groups)\n"
+        "Sustained level change on each group's \u03b2\u2083 \u00d7 its Sy",
         fontsize=15, fontweight="bold")
 
     # 1.15.0 (T-209): one note, below the axes, clear of the bars
     ax.text(0.0, -0.20,
+            "Every bar is a sustained level change (D-239) as stored water; C4 has none: its \u03b2\u2083 is not "
+            "identified (D-333).\n"
             "Clearfell: the share of the canopy's interception returned that reproduces the observed BACI step at "
-            "the felled well (winter); thinning at most half of it.\n"
-            "Scraping is not shown: its effect is detected at CEH36 (paired contrast) and its spread to other "
-            "wells is not quantified.",
+            "the felled well (winter, its own fit); thinning at most half.\nWhisker: the anchor range, drift free / "
+            "drift fixed / drift-free DiD. Scraping is not shown: its spread to other wells is not quantified.",
             transform=ax.transAxes, fontsize=10, va="top", ha="left", color="#444444")
 
     ax.legend(fontsize=10, loc="upper left", bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
@@ -684,11 +702,16 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     plt.close(fig)
 
     # Export CSV
+    # 1.17.0 (D-349 B2, B3): the column is a sustained storage change (renamed so no citation of the old monthly
+    # flux keeps its meaning); Clearfell / Thinning rows carry the anchor range.
     rows = []
     for scenario, (vals_dict, _, _) in scenarios.items():
         for c in clusters:
-            rows.append({"Scenario": scenario, "Cluster": c,
-                         "Delta_vol_mm_per_month": round(vals_dict.get(c, 0), 1)})
+            r = {"Scenario": scenario, "Cluster": c,
+                 "Delta_storage_sustained_mm": round(vals_dict.get(c, 0), 1)}
+            if scenario in ("Clearfell", "Thinning 50%"):
+                r.update({f"anchor_{m}": bar_range[m][scenario].get(c, np.nan) for m in CLEARFELL_ANCHORS})
+            rows.append(r)
     pd.DataFrame(rows).to_csv(OUT_09B_SCENARIO_CSV, index=False,
                               float_format="%.1f")
     print(f"   \u2192 {OUT_09B_SCENARIO.name}")
@@ -704,10 +727,10 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     amplification slope. The SSM equilibrium framework carries no transient
     and cannot resolve a true summer minimum, and the amplification slope is
     least reliable at the forest (the winter-rise/summer-stagnation paradox).
-    The amplification step is removed: every bar is now the equilibrium
-    volumetric response (mm water-equiv / month), matching Script 09d and the
-    monthly figure 09b-04. The scraping bar is the observed BACI shift
-    rendered on the same volumetric axis (× cluster Sy)."""
+    The amplification step is removed. 1.17.0 (D-349 B2): every bar is a
+    sustained level change as stored water (mm water-equiv.), matching Script
+    09d and 09b-04; the scraping bar is the observed BACI shift (a level) × the
+    Sy of CEH36's own group, C3o, in that group's column."""
     phase(8, "Generating volumetric summer-forcing scenario comparison")
     SUMMER = [6, 7, 8, 9]
     FELLING_YEAR = 2018
@@ -736,16 +759,21 @@ def _summer_scenario(wells_clean, wells_ext, climate):
 
     def _annual_summer_min(series):
         mins = {}
-        for yr in range(2006, 2026):
+        for yr in range(PRE_SCRAPE_START.year, 2026):   # 1.17.0 (D-349): from D-347's window (CEH36 starts 2011)
             mask = (series.index.year == yr) & (series.index.month.isin(SUMMER))
             s = series[mask].dropna()
             if len(s) >= 2:
                 mins[yr] = float(s.min())
         return mins
 
-    # Scraping: CEH36 vs CEH18 observed BACI head shift, rendered volumetric
+    # Scraping: CEH36 vs CEH18 observed BACI head shift (a sustained level), as stored water.
+    # 1.17.0 (D-349 B2): in the C3 column with C3o's Sy - CEH36 and CEH18 are both group 3 (C3o), read from
+    # 03_master_data's Cluster, never a label; it sat in the C3f column (key "C5") with C3f's Sy before.
     scraping_shift_mm = 0.0     # head shift (mm)
-    scraping_vol_c5 = 0.0       # volumetric equivalent (mm w.e./month) in C3f (group 5, key "C5")
+    scraping_vol = 0.0          # stored water (mm w.e.), sustained
+    _m = pd.read_csv(INT_MASTER_DATA)
+    _g = dict(zip(_m["Name_Original"].apply(normalize_well_name), pd.to_numeric(_m["Cluster"], errors="coerce")))
+    scrape_key = f"C{int(_g.get(normalize_well_name('ceh36'), 3))}"
     if 'ceh36' in wells.columns and 'ceh18' in wells.columns:
         m36 = _annual_summer_min(wells['ceh36'])
         m18 = _annual_summer_min(wells['ceh18'])
@@ -757,15 +785,14 @@ def _summer_scenario(wells_clean, wells_ext, climate):
             shift = post.mean() - pre.mean()
             _, p_val = _stats.ttest_ind(post.values, pre.values, equal_var=False)
             scraping_shift_mm = shift * 1000
-            scraping_vol_c5 = scraping_shift_mm * sy_by_cluster.get('C5', SY_FALLBACK)
+            scraping_vol = scraping_shift_mm * sy_by_cluster.get(scrape_key, SY_FALLBACK)
             print(f"   Scraping (CEH36 vs CEH18): {scraping_shift_mm:+.0f} mm head "
-                  f"({scraping_vol_c5:+.0f} mm w.e./month volumetric)  p = {p_val:.3f}")
+                  f"({scraping_vol:+.0f} mm w.e. stored, {scrape_key} Sy)  p = {p_val:.3f}")
 
     # Forestry + climate scenarios: equilibrium volumetric bars taken DIRECTLY
     # from the monthly CSV (09b-04). No ÷Sy, no amplification.
     summer_data = {
-        'Scraping\n(CEH36-type)': {'C1': 0, 'C2': 0, 'C3': 0, 'C4': 0,
-                                    'C5': round(scraping_vol_c5, 1)},
+        'Scraping\n(CEH36-type)': {c: (round(scraping_vol, 1) if c == scrape_key else 0) for c in clusters},
     }
 
     scen_csv = OUT_09B_SCENARIO_CSV
@@ -778,14 +805,14 @@ def _summer_scenario(wells_clean, wells_ext, climate):
                 row = scen[(scen['Scenario'] == scenario) & (scen['Cluster'] == c)]
                 if not row.empty:
                     summer_data[scenario][c] = round(
-                        float(row['Delta_vol_mm_per_month'].iloc[0]), 1)
+                        float(row['Delta_storage_sustained_mm'].iloc[0]), 1)   # 1.17.0: 09b_04's column
                 else:
                     summer_data[scenario][c] = 0
         for s in ['Clearfell', 'Thinning 50%', 'Broadleaf']:
             if s in summer_data:
                 print(f"   {s} volumetric: "
                       f"C4={summer_data[s].get('C4', 0):+.1f}  "
-                      f"C3f={summer_data[s].get('C5', 0):+.1f} mm w.e./month")
+                      f"C3f={summer_data[s].get('C5', 0):+.1f} mm w.e. (sustained)")
     else:
         warn(f"{scen_csv.name} not found \u2014forestry bars set to zero")
         for s in ['Clearfell', 'Thinning 50%', 'Broadleaf',
@@ -839,10 +866,10 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     ax.axhline(0, color='black', lw=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(cluster_labels, fontsize=11)
-    ax.set_ylabel('\u0394 volumetric water table (mm water equiv. / month)', fontsize=12)
+    ax.set_ylabel('\u0394 stored water, sustained (mm water equiv.)', fontsize=12)
     ax.set_title(
-        'Volumetric scenario comparison: forest management, scraping, and climate (five groups)\n'
-        'All bars: SSM equilibrium volumetric response  |  scraping = observed BACI \u00d7 Sy',
+        'Scenario comparison: forest management, scraping, and climate (five groups)\n'
+        'All bars: sustained level change \u00d7 Sy  |  scraping = observed BACI \u00d7 C3o Sy',
         fontsize=12, fontweight='bold')
     ax.legend(fontsize=9, loc='upper left', bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
     ax.grid(axis='y', alpha=0.25, ls='--')
@@ -850,14 +877,11 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         ax.spines[sp].set_visible(False)
     ax.text(0.02, -0.14,
             f'Scraping: empirical BACI at scraped site (CEH36 vs CEH18, '
-            f'{scraping_shift_mm:+.0f} mm head, rendered volumetric \u00d7 C3f Sy). '
+            f'{scraping_shift_mm:+.0f} mm head, \u00d7 C3o Sy). '
             f'Benefit is local.  '
-            'Forest management & climate: SSM equilibrium volumetric bars from '
-            'the monthly figure (09b-04).\n'
-            'Bars are volumetric (mm water-equiv. / month); a head-change '
-            'equivalent needs division by an appropriate (uncertain) Sy and is '
-            'approximate. Not a summer minimum \u2014 the equilibrium framework '
-            'cannot resolve the transient minimum.',
+            'Forest management & climate: the sustained level change on each group\'s \u03b2\u2083 '
+            '\u00d7 Sy, from 09b-04 (C4: \u03b2\u2083 not identified, D-333).\n'
+            'Every bar is a sustained change in stored water (mm water-equiv.), D-239. Not a summer minimum.',
             transform=ax.transAxes, fontsize=7.5, ha='left', va='top',
             color='#555', style='italic')
     plt.tight_layout()
@@ -872,7 +896,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         for c in clusters:
             rows.append({'Scenario': s_name.replace('\n', ' '),
                          'Cluster': c,
-                         'Delta_vol_summer_mm_per_month': summer_data[s_name].get(c, 0)})
+                         'Delta_storage_sustained_mm': summer_data[s_name].get(c, 0)})   # 1.17.0 (D-349 B2)
     pd.DataFrame(rows).to_csv(OUT_09B_SUMMER_SCENARIO_CSV, index=False)
     print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO_CSV.name}")
 

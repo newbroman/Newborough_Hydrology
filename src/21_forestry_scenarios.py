@@ -55,7 +55,7 @@ Hydrograph figure:
 
 Distribution figure:
   Violin/strip plot of observed annual summer minimum depths by cluster
-  and C4 phase, from the full 2005-2026 dipwell record. No modelling.
+  and phase, from January 2010 (D-347; 1.17.0, D-349 A17) on the fixed-effects group series. No modelling.
 
 Inputs
 ------
@@ -87,7 +87,7 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.16.0"  # 2026-11-27 (D-348): cluster member-mean summer-minimum series and the fallback cluster beta means from cluster-level wells; forest groups from FOREST_CIDS (levels stay at C3f, group 5, where beta_3 is identified); figure groups and text name C3o and C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
+__version__ = "1.17.0"  # 2026-11-27 (D-349 A15, A17, B2, B3): the phase distributions start at RECORD_FIT_START on the fixed-effects group series (cluster_series.fixed_effect_series, D-202), phases named by date (no "post-felling" for groups with no felled well); the clearfell f calibrated on WMC3's own fit and named (Well = WMC3); the anchor range (drift free / drift fixed / drift-free DiD) carried through the C3f flux-sensitivity rows (era "anchor_<member>") and emitted (clearfell_anchor_step_m_anchor_*, clearfell_return_fraction_anchor_*); 21_forestry_05/06 bars a sustained storage change (scraping_common 1.16.0), column Delta_storage_sustained_mm; BETA3_UNIDENTIFIED_CLUSTERS from Script 48's rule; C4/C2 context DEMs from cluster-level wells, cycles from 2010. Was "1.16.0"  # 2026-11-27 (D-348): cluster member-mean summer-minimum series and the fallback cluster beta means from cluster-level wells; forest groups from FOREST_CIDS (levels stay at C3f, group 5, where beta_3 is identified); figure groups and text name C3o and C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
 #   sensitivity", thinning "at most half"). The clearfell is rebuilt on the observed BACI step: its headline is the
 #   10a step at the felled well by season (clearfell_anchor_step_m*), drawn on the C4 hydrograph as a benchmark and
 #   not carried to C4 (beta_3 not identified); its flux sensitivity returns a share f of the interception
@@ -190,8 +190,10 @@ from utils.config import (
     SD16, SD16_REC,
     SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
     SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
+    RECORD_FIT_START,
 )
 from utils.model_utils import monthly_perturbation, sustained_monthly_response
+from utils.cluster_series import fixed_effect_series   # 1.17.0 (D-349 A17, D-202)
 from utils.report_numbers_utils import ReportNumbers
 
 
@@ -209,11 +211,16 @@ from utils.report_numbers_utils import ReportNumbers
 # The clearfell scenario's headline is the observed control-differenced BACI step at the felled well
 # (Script 10a, Forest controls, HAC), by season, at the scale of the felled compartment. Its flux
 # sensitivity returns a share f of the canopy's interception as recharge (f calibrated on that step through
-# the felled well's own cluster, clearfell_common.clearfell_return_fraction) and is carried to a level only
+# the felled well's own fit, clearfell_common.clearfell_return_fraction 1.18.0, D-349) and is carried to a level only
 # where Model B's beta_3 is identified - C5, not C4 (D-333). Thinning is at most half of each.
 CF_STEP = None       # {season: (step_m, ci_lo, ci_hi)}  - set by _init_baci_params()
-CF_FRAC = None       # dict(f, f_lo, f_hi, ...)
-BETA3_UNIDENTIFIED_CLUSTERS = ("C4",)   # no clearfell level through 1/beta_3 here (D-333)
+CF_FRAC = None       # dict(f, f_lo, f_hi, basis, ...)
+CF_RANGE = None      # 1.17.0 (D-349 B3): {anchor member: {"annual", "winter"}} (clearfell_common)
+CF_FRAC_RANGE = None # 1.17.0 (D-349 B3): {anchor member: f}
+# No clearfell level through 1/beta_3 at a group whose Model B beta_3 is not identified (D-333). 1.17.0: set by
+# _init_baci_params() from Script 48's rule on 03_03 (scraping_common.beta3_identified_groups; C4 on the committed
+# run), the rule 09b's bars use, instead of a typed tuple.
+BETA3_UNIDENTIFIED_CLUSTERS = ("C4",)
 
 def _fmt_step(v):
     """A step for a figure label: '≈ 0 m' when it rounds to zero at 2 dp."""
@@ -222,10 +229,15 @@ def _fmt_step(v):
 
 def _init_baci_params():
     """Call once at runtime to read the clearfell anchor and its interception-return fraction."""
-    global CF_STEP, CF_FRAC
-    from utils.clearfell_common import load_clearfell_observed_step, clearfell_return_fraction
+    global CF_STEP, CF_FRAC, CF_RANGE, CF_FRAC_RANGE, BETA3_UNIDENTIFIED_CLUSTERS
+    from utils.clearfell_common import (load_clearfell_observed_step, clearfell_return_fraction,
+                                        load_clearfell_anchor_range, clearfell_return_fraction_range)
+    from utils.scraping_common import beta3_identified_groups
     CF_STEP = load_clearfell_observed_step()
     CF_FRAC = clearfell_return_fraction()
+    CF_RANGE = load_clearfell_anchor_range()
+    CF_FRAC_RANGE = clearfell_return_fraction_range()
+    BETA3_UNIDENTIFIED_CLUSTERS = tuple(f"C{g}" for g, ok in sorted(beta3_identified_groups().items()) if not ok)
 
 
 # Summer months (Jun-Sep inclusive, 1-based)
@@ -346,33 +358,14 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
     """
     Return array of annual summer minimum depths below ground for a cluster.
     pre_post: 'all', 'pre' (before FELLING_DATE), 'post' (after).
-    D-348: the cluster's member-mean series over its cluster-level wells.
+    D-348: over its cluster-level wells. 1.17.0 (D-349 A17): from RECORD_FIT_START, on the fixed-effects
+    group series (D-202), through _wells_summer_mins.
     """
     _m = _cluster_level_master(master)
-    wells = _m[_m["Cluster"] == cl]["well"].tolist()
-    well_depths = []
-    for w in wells:
-        maod_s = get_maod(w, df, dates, well_names, elev)
-        dem_r  = elev[elev["well"] == w]["ground_elev_m"]
-        if maod_s is None or dem_r.empty:
-            continue
-        depth = dem_r.values[0] - maod_s   # positive = below ground
-        if pre_post == "pre":
-            depth = depth[depth.index < FELLING_DATE]
-        elif pre_post == "post":
-            depth = depth[depth.index >= FELLING_DATE]
-        well_depths.append(depth)
-    if not well_depths:
-        return np.array([])
-    combined = pd.concat(well_depths, axis=1, sort=False).mean(axis=1)
-    mins = []
-    for yr in sorted(combined.index.year.unique()):
-        mask = ((combined.index.year == yr) &
-                (combined.index.month.isin(SUMMER_MONTHS)))
-        d = combined[mask].dropna()
-        if len(d) >= 2:
-            mins.append(float(d.max()))
-    return np.array(mins)
+    wells = _m[pd.to_numeric(_m["Cluster"], errors="coerce") == cl]["well"].tolist()
+    return _wells_summer_mins(wells, df, dates, well_names, elev, master,
+                              start=(FELLING_DATE if pre_post == "post" else None),
+                              end=(FELLING_DATE if pre_post == "pre" else None))
 
 
 # ============================================================================
@@ -474,14 +467,30 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
                          f"well against the Forest controls, {months}"
                          + ("" if not tag else f", HAC 95% CI {'lower' if tag.endswith('lo') else 'upper'} bound")
                          + "; at the scale of the 4.2 ha compartment, not propagated (10a ANCOVA_Forest_Impact_clearfell_step*)")
+    # 1.17.0 (D-349 B3): the anchor range - the central value depends on the drift model
+    from utils.clearfell_common import CLEARFELL_ANCHORS, CLEARFELL_ANCHOR_LABELS
+    for m in CLEARFELL_ANCHORS:
+        if m == "drift_free":
+            continue
+        for season in ("annual", "winter"):
+            rpt.add(f"clearfell_anchor_step_m_anchor_{m}", CF_RANGE[m][season], unit="m", well="WMC3", era=season,
+                    note=f"the clearfell anchor's {m} member (D-349 B3): {CLEARFELL_ANCHOR_LABELS[m]}; "
+                         f"{'all months' if season == 'annual' else 'Oct-Mar'} ({CF_RANGE[m]['keys'][0 if season == 'annual' else 1]}); "
+                         "the headline clearfell_anchor_step_m is the drift-free member and depends on the drift model")
+    # 1.17.0 (D-349 A15): calibrated on WMC3's own fit, named in Well and the note (was the C3o centroid)
     for tag, k in (("", "f"), ("_lo", "f_lo"), ("_hi", "f_hi")):
-        rpt.add(f"clearfell_return_fraction{tag}", CF_FRAC[k], unit="-", well=CF_FRAC["cluster"],
+        rpt.add(f"clearfell_return_fraction{tag}", CF_FRAC[k], unit="-", well=CF_FRAC["basis"],
                 note="flux sensitivity: share of the canopy interception returned as recharge that reproduces the "
-                     f"observed Oct-Mar step at WMC3 through {CF_FRAC['cluster']}'s state-space model"
+                     f"observed Oct-Mar step at WMC3 through {CF_FRAC['basis_note']}; anchor drift free"
                      + ("" if not tag else f" (from the step's HAC {'lower' if tag == '_lo' else 'upper'} bound, floored at 0)"))
-    rpt.add("clearfell_full_return_winter_m", CF_FRAC["full_return_winter_m"], unit="m", well=CF_FRAC["cluster"],
-            note="sustained Oct-Mar level response of the felled well's cluster to returning all the interception "
-                 "(f = 1); f = observed winter step / this")
+    for m in CLEARFELL_ANCHORS:
+        if m != "drift_free":
+            rpt.add(f"clearfell_return_fraction_anchor_{m}", CF_FRAC_RANGE[m], unit="-", well=CF_FRAC["basis"],
+                    note=f"as clearfell_return_fraction, calibrated on the anchor's {m} member: "
+                         f"{CLEARFELL_ANCHOR_LABELS[m]} (D-349 B3)")
+    rpt.add("clearfell_full_return_winter_m", CF_FRAC["full_return_winter_m"], unit="m", well=CF_FRAC["basis"],
+            note=f"sustained Oct-Mar level response to returning all the interception (f = 1) through "
+                 f"{CF_FRAC['basis_note']}; f = observed winter step / this")
 
     names = {"Full clearfell": "clearfell", "50% thinning": "thinning_50pct",
              "Broadleaf conversion": "broadleaf"}
@@ -495,6 +504,8 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
         bounds = {"central": None}
         if cluster not in BETA3_UNIDENTIFIED_CLUSTERS:
             bounds.update(lo=CF_FRAC["f_lo"], hi=CF_FRAC["f_hi"])
+            # 1.17.0 (D-349 B3): the anchor range's other two members (NaN until 10a/10m write them)
+            bounds.update({f"anchor_{m}": CF_FRAC_RANGE[m] for m in CF_FRAC_RANGE if m != "drift_free"})
         for bound, frac in bounds.items():
             shifts, _, _, _, _, _ = build_scenarios(master, climate, cluster=cluster, frac=frac)
             for scen, key in names.items():
@@ -548,26 +559,30 @@ def get_observed_seasonal_cycle(reg, elev, master):
     """
     Return observed C4 mean monthly depth below ground from regional averages.
     """
-    c4_wells = master[master["Cluster"] == 4]["well"].tolist()
+    _m = _cluster_level_master(master)   # 1.17.0 (D-349): the cluster-level wells the centroid is built on
+    c4_wells = _m[pd.to_numeric(_m["Cluster"], errors="coerce") == 4]["well"].tolist()
     c4_dem   = np.mean([
         elev[elev["well"] == w]["ground_elev_m"].values[0]
         for w in c4_wells
         if not elev[elev["well"] == w].empty
     ])
     depth_c4    = c4_dem - reg["C4"].dropna()
+    depth_c4    = depth_c4[depth_c4.index >= PHASE_START]   # 1.17.0 (D-349): D-347's window
     obs_monthly = depth_c4.groupby(depth_c4.index.month).mean().values  # 12 vals
     return obs_monthly, c4_dem
 
 
 def get_cluster_obs_cycle(cl, reg, elev, master):
     """Observed mean monthly depth for C1 or C2 (for context lines)."""
-    wells = master[master["Cluster"] == cl]["well"].tolist()
+    _m = _cluster_level_master(master)   # 1.17.0 (D-349, item 10): C2's DEM mean without CEH10, D38, T41A
+    wells = _m[pd.to_numeric(_m["Cluster"], errors="coerce") == cl]["well"].tolist()
     dem   = np.mean([
         elev[elev["well"] == w]["ground_elev_m"].values[0]
         for w in wells
         if not elev[elev["well"] == w].empty
     ])
     depth = dem - reg[f"C{cl}"].dropna()
+    depth = depth[depth.index >= PHASE_START]   # 1.17.0 (D-349): D-347's window
     return depth.groupby(depth.index.month).mean().values
 
 
@@ -874,38 +889,47 @@ def _get_maod_monthly_21(w, df, dates, well_names, elev):
     return g.values[0] + raw
 
 
+# 1.17.0 (D-349 A17): the phases start in D-347's window. From 2005 the first phase was the 2005-09 high stand
+# on a thin, growing network (C3f's 2006 was NW9 alone), and C4's "deepens" reversed sign (+0.16 m from 2005,
+# -0.13 m from 2010).
+PHASE_START = pd.Timestamp(RECORD_FIT_START)
+
+
 def _wells_summer_mins(well_list, df, dates, well_names, elev,
                        master, start=None, end=None):
     """
     Return array of annual summer minimum depths (m below ground)
     for a list of wells over an optional date range.
+
+    1.17.0 (D-349 A17): the group series is the fixed-effects series (cluster_series.fixed_effect_series, D-202)
+    fitted on the group's whole panel from PHASE_START (RECORD_FIT_START), then cut to [start, end), so a well
+    that joins or leaves moves no phase; start=None means PHASE_START, not the start of the record.
     """
     SUMMER = [6, 7, 8, 9]
+    start = PHASE_START if start is None else max(pd.Timestamp(start), PHASE_START)
     well_depths = []
     for w in well_list:
         maod = _get_maod_monthly_21(w, df, dates, well_names, elev)
         dem_r = elev[elev["well"] == w]["ground_elev_m"]
         if maod is None or dem_r.empty:
             continue
-        depth = dem_r.values[0] - maod
-        if start:
-            depth = depth[depth.index >= start]
-        if end:
-            depth = depth[depth.index < end]
+        depth = (dem_r.values[0] - maod).rename(w)
+        depth = depth[depth.index >= PHASE_START]
         well_depths.append(depth)
     if not well_depths:
         return np.array([])
     import warnings
     with warnings.catch_warnings():
         # D-155: named, not blanket. pd.concat of per-well depth series with unequal and
-        # partly non-monotonic indices warns about sort order and about the all-NaN slices
-        # that .mean() then skips; both are expected when a well is absent for a span.
-        # Anything else pandas raises is now heard. (T-81 greps filterwarnings, not
-        # simplefilter, so this site was invisible to it.)
+        # partly non-monotonic indices warns about sort order, expected when a well is absent
+        # for a span. Anything else pandas raises is heard. (1.17.0: the "Mean of empty slice"
+        # filter went with the plain .mean(); the fixed-effects series uses pandas means.)
         warnings.filterwarnings("ignore", message=".*sort.*", category=FutureWarning)
-        warnings.filterwarnings("ignore", message=".*Mean of empty slice.*",
-                                category=RuntimeWarning)
-        combined = pd.concat(well_depths, axis=1, sort=False).mean(axis=1)
+        panel = pd.concat(well_depths, axis=1, sort=False).sort_index()
+    combined = fixed_effect_series(panel)
+    combined = combined[combined.index >= start]
+    if end:
+        combined = combined[combined.index < pd.Timestamp(end)]
     mins = []
     for yr in sorted(combined.index.year.unique()):
         mask = ((combined.index.year == yr) &
@@ -919,7 +943,7 @@ def _wells_summer_mins(well_list, df, dates, well_names, elev,
 def _cluster_summer_mins_21(cl, df, dates, well_names, elev,
                              master, start=None, end=None):
     _m = _cluster_level_master(master)   # D-348: cluster-level wells
-    wells = _m[_m["Cluster"] == cl]["well"].tolist()
+    wells = _m[pd.to_numeric(_m["Cluster"], errors="coerce") == cl]["well"].tolist()
     return _wells_summer_mins(wells, df, dates, well_names, elev,
                                master, start, end)
 
@@ -929,14 +953,15 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     Five-group three-phase violin/strip plot of observed annual summer
     minimum depths. Groups in spatial order: C1, C2, C3o, C3f, C4 (D-348).
     C4 and C3f are both forested (Corsican pine); C4 is plotted last
-    as it is typically the deepest. Three phases: pre-scrape (2005–14),
-    scraping era (2015–17), post-felling (2018+). Pure observational —
-    no modelling.
+    as it is typically the deepest. Three phases, named by date (1.17.0, D-349 A17: no group but the clearfell's
+    holds a felled well, so none is "post-felling"): 2010–14 (from RECORD_FIT_START, D-347), 2015–17 (the
+    scraping era) and 2018+, on the fixed-effects group series (D-202). Pure observational — no modelling.
     """
+    _p0 = f"{PHASE_START.year}\u2013{pd.Timestamp(SCRAPE_DATE).year - 1 - 2000:02d}"
     phases = [
-        ("Pre-scrape\n2005–14",   None,        SCRAPE_DATE,  "o", 0.50),
+        (f"Pre-scrape\n{_p0}",    None,        SCRAPE_DATE,  "o", 0.50),
         ("Scraping era\n2015–17", SCRAPE_DATE, FELL_DATE_21, "s", 0.38),
-        ("Post-felling\n2018+",   FELL_DATE_21, None,        "^", 0.50),
+        ("From 2018",             FELL_DATE_21, None,        "^", 0.50),
     ]
 
     groups = [
@@ -1087,7 +1112,7 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
                   fontsize=10)
     ax.set_title(
         "Summer Minimum Depth by Management Phase \u2014 All Clusters\n"
-        "Newborough Warren 2005\u20132026  |  "
+        f"Newborough Warren {PHASE_START.year}\u20132026  |  "
         "Ecological thresholds: Curreli et al. (2013)",
         fontsize=11, fontweight="bold")
     ax.grid(axis="y", alpha=0.2, lw=0.5)
@@ -1095,11 +1120,11 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     # Legend — upper right
     legend_elements = [
         Line2D([0],[0], marker="o", color="w", markerfacecolor="dimgrey",
-               markeredgecolor="dimgrey", ms=7, label="Pre-scrape 2005\u201314"),
+               markeredgecolor="dimgrey", ms=7, label=f"Pre-scrape {_p0}"),
         Line2D([0],[0], marker="s", color="w", markerfacecolor="dimgrey",
                markeredgecolor="dimgrey", ms=7, label="Scraping era 2015\u201317"),
         Line2D([0],[0], marker="^", color="w", markerfacecolor="dimgrey",
-               markeredgecolor="dimgrey", ms=7, label="Post-felling 2018+"),
+               markeredgecolor="dimgrey", ms=7, label="From 2018"),
         Line2D([0],[0], color="grey", lw=2.2, label="Median"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="white",
                markeredgecolor="grey", ms=6, label="Mean"),
@@ -1126,9 +1151,9 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
         _c4_post = _c4_fn(FELL_DATE_21, None)
         if len(_c4_pre) > 0 and len(_c4_post) > 0:
             _shift_summer = _c4_post.mean() - _c4_pre.mean()
-            _shift_text = (
-                f"C4 post-felling (\u25b2) narrows\n"
-                f"and shifts deeper by {abs(_shift_summer):.3f} m (summer mean)."
+            _shift_text = (   # 1.17.0 (D-349 A17): named by date, and the sign is read, not assumed
+                f"C4 from 2018 (\u25b2) against {PHASE_START.year}\u201317:\n"
+                f"{abs(_shift_summer):.3f} m {'deeper' if _shift_summer > 0 else 'shallower'} (summer mean)."
             )
         else:
             _shift_text = ""
@@ -1142,7 +1167,7 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
             "fell at that depth (wider = more common). Each dot is one year.\n"
             "The bar is the median; the diamond is the mean; bracket = \u00b11 SD.\n"
             "Shapes distinguish phases (\u25cf=pre-scrape, \u25a0=scraping era,\n"
-            "\u25b2=post-felling). Scraping era n=3 \u2014 interpret mean only.\n\n"
+            "\u25b2=from 2018). Scraping era n=3 \u2014 interpret mean only.\n\n"
             "General deepening trend across all groups = background\n"
             f"climate drying signal. {_shift_text}",
             fontsize=7.2, color="dimgrey", va="top",
@@ -1174,7 +1199,7 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
             dist_rows.append({
                 "Group":          g,
                 "Phase":          p,
-                "Phase_start":    start or "record_start",
+                "Phase_start":    start or PHASE_START.strftime("%Y-%m-%d"),   # 1.17.0 (D-349 A17)
                 "Phase_end":      end   or "record_end",
                 "N_summers":      len(arr),
                 "Mean_depth_m":   round(float(arr.mean()),  4),
@@ -1989,12 +2014,12 @@ def plot_scenario_comparison(master, climate, dpi=300):
     ax.axhline(0, color="black", lw=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(cluster_labels, fontsize=14)
-    ax.set_ylabel("\u0394 volumetric water table\n"
-                  "(mm water equiv. / month)", fontsize=15)
+    ax.set_ylabel("\u0394 stored water, sustained\n"
+                  "(mm water equiv.)", fontsize=15)   # 1.17.0 (D-349 B2): a level, not a monthly rate
     ax.tick_params(axis="y", labelsize=13)
     ax.set_title(
-        "Scenario comparison: forest management and climate (k = 5)\n"
-        "Volumetric using WTF-derived, interception-corrected Sy",
+        "Scenario comparison: forest management and climate (five groups)\n"
+        "Sustained level change on each group's \u03b2\u2083 \u00d7 its Sy; C4: \u03b2\u2083 not identified (D-333)",
         fontsize=15, fontweight="bold")
     ax.legend(fontsize=12, loc="upper left", bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
     ax.grid(axis="y", alpha=0.3)
@@ -2009,16 +2034,15 @@ def plot_scenario_comparison(master, climate, dpi=300):
     rows = []
     for s_name in scenarios_order:
         for c in clusters:
-            rows.append({"Scenario": s_name, "Cluster": c,
-                         "Delta_vol_mm_per_month": scenario_values[s_name].get(c, 0)})
+            rows.append({"Scenario": s_name, "Cluster": c,   # 1.17.0 (D-349 B2): a sustained storage change
+                         "Delta_storage_sustained_mm": scenario_values[s_name].get(c, 0)})
     pd.DataFrame(rows).to_csv(OUT_21_SCENARIO_CSV, index=False,
                               float_format="%.1f")
     saved(f"{OUT_21_SCENARIO_CSV.name}")
 
     # --- Volumetric summer-forcing scenario metric (21_forestry_06) --------
-    # Equilibrium volumetric Δh (mm water-equiv / month) per cluster for the
-    # forest-management scenarios, taken DIRECTLY from the monthly scenario
-    # values. Re-based 2026-07-02 (v1.4.0): the previous ÷Sy × mean->minimum
+    # 1.17.0 (D-349 B2): the sustained change in stored water (mm water-equiv.) per group for the
+    # forest-management scenarios, taken DIRECTLY from the scenario values (was a one-month flux). Re-based 2026-07-02 (v1.4.0): the previous ÷Sy × mean->minimum
     # amplification conversion to a summer-MINIMUM depth is removed — the SSM
     # equilibrium framework has no transient and cannot resolve a summer
     # minimum, and the amplification slope is least reliable at the forest.
@@ -2032,7 +2056,7 @@ def plot_scenario_comparison(master, climate, dpi=300):
         for c in clusters:
             vol = scenario_values.get(s_name, {}).get(c, 0.0)
             summer_rows.append({"Scenario": s_name, "Cluster": c,
-                                "Delta_vol_summer_mm_per_month": round(vol, 1)})
+                                "Delta_storage_sustained_mm": round(vol, 1)})   # 1.17.0 (D-349 B2)
     pd.DataFrame(summer_rows).to_csv(OUT_21_SUMMER_SCENARIO_CSV, index=False)
     saved(f"{OUT_21_SUMMER_SCENARIO_CSV.name}")
 

@@ -3,7 +3,7 @@
 ================================================================
 
 Predicts the water table over June 1989 to April 1996 from RAF Valley climate
-alone, using SSM coefficients fitted on 2005–2026, and compares the prediction
+alone, using SSM coefficients fitted inside 2010–2026 (D-347), and compares the prediction
 with the CCW dipwell record recovered from `fc and ccw waterlevels`.
 
 Why this exists
@@ -77,7 +77,7 @@ This is the modern aquifer driven by historic climate, NOT a reconstruction of
 the historic aquifer. The coefficients in 03_master_data.csv are fitted on
 the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well)
 -- NOT on 2005-2026, which this docstring claimed until 1.6.0 -- and are applied
-unchanged throughout. Two further windows (pre-2018 and the whole record) are
+unchanged throughout. Two further windows (2010-17 and the whole record from 2010, D-347) are
 refitted here and hindcast alongside, so the fitting window's effect is shown
 rather than assumed; beta_3 in particular encodes a drainage geometry the
 record cannot hold fixed across the span. Any caption must say so.
@@ -121,7 +121,12 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-23 (J-24, J-26). (1) Figure 39_04 (Paper M Figure 5) draws both
+__version__ = "1.12.0"  # 2026-11-27 (D-349 (1)): every fit states its window - the fixed-floor fits and the "pre2018" /
+#   "whole" window refits take start=config.RECORD_FIT_START (D-347 (6): the hindcasts run from the 2010 fits), so
+#   "pre2018" is 2010-17 and "whole" 2010-26, as they already were under model_utils 1.15.0's default; no number
+#   moves. The stale "every month available" comment, the docstring and the summary text's "fitted over 2005-2026"
+#   now say 2010.
+# 1.11.0  # Hollingham (2026) - 2026-11-23 (J-24, J-26). (1) Figure 39_04 (Paper M Figure 5) draws both
 #   fixed-floor forms of Model A beside Model B, thin and grey (dashed: the 3.7 m floor; dash-dot: each well's depth to
 #   mean high water), labelled as the drier-climate BOUND, under the D-334 Note of 2026-11-20 (Martin: "amend d334 -
 #   this is just for the figure 5 to illustrate"; "Grey thin lines"). The series were already in 39_02. (2) J-24:
@@ -623,7 +628,8 @@ def fixed_floor_fit(h: pd.Series, cl: pd.DataFrame, col: str, datum: float):
     try:
         return fit_ssm(h, cl, lag=config.HEADLINE_LAG, window=config.LCSC_DATA_LIMIT,
                        drainage_datum=float(datum), min_obs=config.RECLEN_MIN_FIT_MONTHS,
-                       intercept=False, dry_bound=db)
+                       intercept=False, dry_bound=db,
+                       start=config.RECORD_FIT_START)   # D-349 (1): the comparison window lies inside D-347's
     except Exception as e:                                       # noqa: BLE001
         warn(f"{col}: fixed-floor fit at {datum:.2f} m failed ({type(e).__name__}: {e})")
         return None
@@ -994,9 +1000,10 @@ def main() -> int:
     # an argument about which window is right:
     #
     #   comparison  the last ~100 months, from the master store -- what this script always used
-    #   pre2018     the record before MODEL_AB_SPLIT_DATE -- nearer in time to 1989-96, and
-    #               excluding the recent wet years that inflate beta_1
-    #   whole       every month available -- the largest n, and the fit a reader would assume
+    #   pre2018     the record before MODEL_AB_SPLIT_DATE from RECORD_FIT_START (2010-17) -- nearer in time to
+    #               1989-96, and excluding the recent wet years that inflate beta_1
+    #   whole       every month from RECORD_FIT_START (2010-26, D-347 (6)) -- the largest n, and the fit a
+    #               reader would assume (D-349: the window is stated at the call, not left to a default)
     #
     # None of the three sees 1989-96: the dipwells did not exist then. That is the point of the
     # hindcast and the reason the beta_1 envelope exists. If the three windows agree, the envelope
@@ -1023,8 +1030,8 @@ def main() -> int:
                 _c = cl[cl.index < _split] if _win == "pre2018" else cl
                 if len(_h) < MIN_FIT_OBS:
                     continue
-                _fa = fit_ssm(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
-                _fb = fit_ssm_intercept(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
+                _fa = fit_ssm(_h, _c, lag=0, min_obs=MIN_FIT_OBS, start=config.RECORD_FIT_START)
+                _fb = fit_ssm_intercept(_h, _c, lag=0, min_obs=MIN_FIT_OBS, start=config.RECORD_FIT_START)
                 if _fa and np.isfinite(_fa.get("beta_3_drainage", np.nan)) and _fa["beta_3_drainage"] > 0:
                     fits[_win].setdefault(_w, {})["A"] = (
                         (_fa["beta_1_recharge"], _fa["beta_2_atmospheric_draw"], _fa["beta_3_drainage"]),
@@ -1557,8 +1564,8 @@ def main() -> int:
                 f"mean bias {cg.bias_m.mean():+.3f} m")
         lines += ["",
                   "The two groups are reported apart because the canopy state of "
-                  "1989 is not observed and the coefficients are fitted over "
-                  "2005-2026, which for the clearfell-zone wells spans the felling. "
+                  "1989 is not observed and the coefficients are fitted inside "
+                  "2010-2026, which for the clearfell-zone wells spans the felling. "
                   "Transfer of a canopy well's coefficients to 1989 is therefore "
                   "an assumption the open-ground wells do not require."]
     lines += ["",

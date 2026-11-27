@@ -73,7 +73,8 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.23.0"  # 2026-11-27 (D-349 (1)): every fit states its window - the shielding fit start=RECORD_FIT_START, the era fits start=None (their eras start in 2011). No number moves.
+# "1.22.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.21.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The era fits are Model B
@@ -163,7 +164,7 @@ from utils.clearfell_common import (
     ReportNumbers, print_network_summary, get_tier, IMPACT_WELLS,
 )
 from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS, OUT_10E_SHIELDING
-from utils.config import CANOPY_ON_MONTHS
+from utils.config import CANOPY_ON_MONTHS, RECORD_FIT_START
 from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.render_utils import render_figure
 import pandas as pd
@@ -208,7 +209,8 @@ def shielding_seasonal_b2(wells, climate, form="B"):
             continue
         try:
             fr = build_ssm_frame(wells[w], climate)
-            _ff = fit_ssm(pre_built_frame=fr, min_obs=8, intercept=(form == "B"))
+            _ff = fit_ssm(pre_built_frame=fr, min_obs=8, intercept=(form == "B"),
+                          start=RECORD_FIT_START)                        # 1.23.0 (D-349 (1)): D-347's record fit
             b3 = _ff["beta_3_drainage"]
             a0 = float(_ff.get("alpha", 0.0) or 0.0) if form == "B" else 0.0
         except Exception as e:
@@ -343,12 +345,14 @@ def main():
         era_fits = {}
         for form, icpt in (("B", True), ("A", False)):
             try:
+                # 1.23.0 (D-349 (1)): start=None - the eras are laid out here, from PRE_FELL_START (2011),
+                # inside D-347's window; the scraping dummy is an array, which a start= cut would not shorten
                 bf = fit_ssm(
                     pre_built_frame=before,
                     extra_regressors={'scraping_dummy': before['D_scrape'].values},
-                    min_obs=8, intercept=icpt,
+                    min_obs=8, intercept=icpt, start=None,
                 )
-                af = fit_ssm(pre_built_frame=after, min_obs=6, intercept=icpt)
+                af = fit_ssm(pre_built_frame=after, min_obs=6, intercept=icpt, start=None)
             except Exception as e:
                 warn(f"Model {form} era fit failed for {w}: {e}")
                 bf = af = None

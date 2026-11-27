@@ -8,9 +8,10 @@ Purpose:
     C4/C3f partition reflects a genuine substrate/topographic transition or is
     arbitrary within a continuous gradient.
 
-    D-348 (2026-11-27): C3f is group 5 (the former cluster C5's five wells plus NW11). The comparison is per
-    well and uses every group-4 and group-5 well, boundary wells included (WMC3, set aside, is in neither).
-    The CSV columns keep their C5_* names: C5 means C3f (config.CLUSTER_LABELS).
+    D-348 (2026-11-27): C3f is group 5. The comparison is per well. The CSV columns keep their C5_* names: C5
+    means C3f (config.CLUSTER_LABELS). D-349 (8) (1.5.0): C3f is a land-cover group of the mixed cluster C3, so its
+    edge wells (within config.LANDCOVER_EDGE_M of the clearfell or the broadleaf restock: NW11, WMC3) leave it; C4 is
+    one cover and keeps its edge wells (NW10, CEH14, CEH20).
 
     Four questions are addressed:
 
@@ -49,7 +50,7 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # 2026-11-27 (D-348): C4 vs C5 becomes C4 vs C3f (group 5, every group-4 and group-5 well, NW11 included); titles, notes and summary text relabelled; C5_* column names kept (C5 = C3f). Was "1.3.1"  # Hollingham (2026) - 2026-10-01. The C4/C5 boundary map no longer asks for
+__version__ = "1.5.0"  # 2026-11-27 (D-349 (8)): the hand-typed CLEARFELL_NAMES (which named LIS1 and missed CEH20) is replaced by the clearfell polygon: a clearfell well is inside data/geo/clearfell.geojson or within config.LANDCOVER_EDGE_M of it; C3f, a land-cover group of the mixed cluster C3, leaves out its edge wells (NW11; WMC3, now group 5), while C4, a single-cover cluster, keeps them; the summary names each clearfell well instead of reading the first row as WMC3. Was "1.4.0"  # 2026-11-27 (D-348): C4 vs C5 becomes C4 vs C3f (group 5, every group-4 and group-5 well, NW11 included); titles, notes and summary text relabelled; C5_* column names kept (C5 = C3f). Was "1.3.1"  # Hollingham (2026) - 2026-10-01. The C4/C5 boundary map no longer asks for
 #     streams.kml (include_streams=True dropped): surface routing is kept only on figures that
 #     compare directly with groundwater flow (D-215; map_utils 1.10.0). Figure only.
 # 1.3.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
@@ -106,6 +107,7 @@ from utils.map_utils import load_dem_hillshade, add_kml_features
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS,
     FOREST_CIDS, RIDGE_REF_E, RIDGE_REF_N,
+    LANDCOVER_EDGE_M, GROUP_HYDRO_CLUSTER,      # 1.5.0 (D-349 (8))
 )
 
 from utils.console_utils import (
@@ -142,8 +144,29 @@ def write_report_numbers(forest, c4):
 RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point
 RIDGE_N = RIDGE_REF_N
 
-# Wells known to be clearfell treatment sites
-CLEARFELL_NAMES = {"fe1", "fe2", "fe3", "fe4", "wmc3", "lis1"}
+# 1.5.0 (D-349 (8)): clearfell wells are found from the polygon, never typed. A well inside the December 2017 clearfell
+# (paths.DATA_CLEARFELL) or within config.LANDCOVER_EDGE_M of it is a clearfell well; the distance was fixed before
+# the list was read. The typed list it replaces named LIS1 (92 m away) and missed CEH20 (45 m).
+
+
+def _clearfell_distance(E, N) -> np.ndarray:
+    """Distance (m) of each (E, N) to the 2017 clearfell polygon; 0 inside."""
+    import json
+    from shapely.geometry import shape, Point
+    from shapely.ops import unary_union
+    from utils.paths import DATA_CLEARFELL
+    geo = unary_union([shape(f["geometry"]) for f in json.loads(DATA_CLEARFELL.read_text())["features"]])
+    return np.array([geo.distance(Point(e, n)) for e, n in zip(E, N)], dtype=float)
+
+
+def _edge_flags(names) -> pd.Series:
+    """D-349 (8): each well's edge flag - Script 02's Edge column, else cluster_series.is_edge (the same rule)."""
+    from utils.cluster_series import is_edge
+    from utils.paths import INT_CLUSTER_STATS
+    cs = pd.read_csv(INT_CLUSTER_STATS)
+    em = ({str(n).strip().lower(): str(v).strip().lower() in {"true", "1", "1.0"}
+           for n, v in zip(cs["Match_ID"], cs["Edge"])} if "Edge" in cs.columns else {})
+    return pd.Series([em.get(n, is_edge(n)) for n in names], index=names.index)
 
 # Adjacent C3 wells included for context in the scatter plot —
 # those within the western/southern forest-adjacent zone
@@ -171,13 +194,18 @@ def load_data():
         (coeff["E"] - RIDGE_E) ** 2 + (coeff["N"] - RIDGE_N) ** 2
     )
 
-    # Subsets
-    forest = coeff[coeff["Cluster_ID"].isin(FOREST_CIDS)].copy()
+    # Subsets. 1.5.0 (D-349 (8)): a forest group of a MIXED cluster (C3f; its cluster also has an open group) leaves
+    # out its edge wells; a single-cover cluster (C4) keeps them. Group ids are integers, never read from labels.
+    coeff["edge"] = _edge_flags(coeff["name_norm"])
+    _mixed = {g for g in FOREST_CIDS if GROUP_HYDRO_CLUSTER.get(g, g) != g}
+    forest = coeff[coeff["Cluster_ID"].isin(FOREST_CIDS)
+                   & ~(coeff["Cluster_ID"].isin(_mixed) & coeff["edge"])].copy()
     c4 = forest[forest["Cluster_ID"] == 4]
     c5 = forest[forest["Cluster_ID"] == 5]
 
-    # Clearfell wells present in the dataset
-    clearfell = coeff[coeff["name_norm"].isin(CLEARFELL_NAMES)].copy()
+    # Clearfell wells present in the dataset: inside the clearfell polygon or within LANDCOVER_EDGE_M of it
+    coeff["clearfell_dist_m"] = _clearfell_distance(coeff["E"], coeff["N"])
+    clearfell = coeff[coeff["clearfell_dist_m"] <= LANDCOVER_EDGE_M].copy()
 
     # C3 boundary wells (forest-adjacent subset)
     c3_boundary = coeff[
@@ -326,7 +354,7 @@ def plot_b1_b2_scatter(forest, clearfell, c3_boundary):
             clearfell["beta_1_recharge"],
             clearfell["beta_2_atmospheric_draw"],
             c="none", marker="o", s=100, edgecolors="#D85A30",
-            linewidths=2, label="Clearfell site", zorder=4,
+            linewidths=2, label=f"Clearfell (inside or within {LANDCOVER_EDGE_M:g} m)", zorder=4,
         )
         for _, row in clearfell.iterrows():
             ax.annotate(
@@ -524,10 +552,11 @@ def write_summary(forest, c4, c5, corr_df, reg_df, summary_df,
     lines.append(f"   t-test p = {b2_row['p_value']:.4f} — two distinct groups.")
     b1_row = summary_df[summary_df["Metric"] == "β₁_recharge"].iloc[0]
     lines.append(f"   β₁ t-test p = {b1_row['p_value']:.4f} — ranges overlap (not distinguishing).")
-    if len(clearfell) > 0:
-        cf = clearfell.iloc[0]
-        lines.append(f"   WMC3 (clearfell): β₁ = {cf['beta_1_recharge']:.3f}, "
-                     f"β₂ = {cf['beta_2_atmospheric_draw']:.3f} — sits between C4 and C3f.")
+    # 1.5.0: each clearfell well by name and position; the reading is the reader's (no typed "sits between")
+    for _, cf in clearfell.iterrows():
+        _where = "inside the clearfell" if cf["clearfell_dist_m"] <= 0 else f"{cf['clearfell_dist_m']:.0f} m from it"
+        lines.append(f"   {cf['Name_Original']} (clearfell well, {_where}; group {int(cf['Cluster_ID'])}): "
+                     f"β₁ = {cf['beta_1_recharge']:.3f}, β₂ = {cf['beta_2_atmospheric_draw']:.3f}.")
     lines.append("")
 
     # Q3

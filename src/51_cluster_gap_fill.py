@@ -78,7 +78,7 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # 2026-11-27 (D-348): the reference centroids the extended wells are matched to, and the cluster-median donor series, from cluster-level members; every well keeps its membership and is still filled. Was "1.4.1"  # 2026-11-27: Ward on sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
+__version__ = "1.6.0"  # 2026-11-27 (D-349 A10): the CCW test and its control scored against Hydro_Cluster; the control on the modern record from RECORD_FIT_START; extended wells matched to the cluster centroids and given the group of that cluster and their land cover; the SSM rule fits from RECORD_FIT_START. Was "1.5.0"  # 2026-11-27 (D-348): the reference centroids the extended wells are matched to, and the cluster-median donor series, from cluster-level members; every well keeps its membership and is still filled. Was "1.4.1"  # 2026-11-27: Ward on sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
 #   cells (Martin: "might be better to put the well names in the table cells"); the grey still carries the count.
 # "1.3.0"  # Hollingham (2026) - 2026-11-24 (T-220, D-334). Figure 51_07 panel (a) draws the Model B
 #   SSM run and no longer the Model A fixed-floor column; Model A stays in the CSV and report numbers as reference.
@@ -121,6 +121,7 @@ from utils.config import (                                    # noqa: E402
     GAPFILL_N_PERM, GAPFILL_SEED, GAPFILL_DURABLE_PAIR_SHARE, GAPFILL_CCW_MAX_CENSORED_SHARE, GAPFILL_RULE_ORDER, GAPFILL_PRODUCT_PARTIAL_COVER, E8E_P,
     REFERENCE_CUTOFF_DATE, RECORD_START_DISPLAY, MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     SUMMER_MINIMUM_MONTHS, WINTER_RECHARGE_MONTHS, CLUSTER_LABELS, CLUSTER_COLOURS,
+    HYDRO_CLUSTER_LABELS, RECORD_FIT_START,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import fit_ssm, simulate_ssm           # noqa: E402
@@ -194,8 +195,11 @@ def cross_decade(aud, W):
         w = normalize_well_name(w) if isinstance(w, str) and w else ""
         mod = np.nan
         if w and w in aud.index:
+            # 1.6.0 (D-349 A10): the test is of the HYDROGEOLOGICAL partition, so the modern label is the well's
+            # cluster (Hydro_Cluster), not its land-cover group: C3o and C3f are one cluster split by the canopy
             r = aud.loc[w]
-            mod = r["Original_Cluster"] if pd.notna(r["Original_Cluster"]) else r["Best_Match_Cluster"]
+            mod = (r["Original_Hydro_Cluster"] if pd.notna(r["Original_Hydro_Cluster"])
+                   else r["Best_Match_Hydro_Cluster"])
         rows.append(dict(code=code, well=w, status=cm.loc[code, "status"] if code in cm.index else "",
                          modern_cluster=mod, n_readings=int(lev[code].notna().sum())))
     t = pd.DataFrame(rows)
@@ -216,8 +220,11 @@ def cross_decade(aud, W):
     # CONTROL (added after the first run, 2026-10-24, to check the test can discriminate; outside the rule):
     # the same wells, the same method and k, on their MODERN record. A high value means twelve wells are enough
     # to recover the modern partition, so a low 1989-96 value is about the 1989-96 record, not the test.
-    mw = [w for w in s["well"] if w in W.columns]
-    ctrl = _ward_clusters(W[mw], k)
+    # 1.6.0 (D-349 A10): on D-347's window, the record the modern partition was formed on (from 2005 the control
+    # mixed in the 2005-09 high stand and stopped discriminating)
+    W_mod = W.loc[pd.Timestamp(RECORD_FIT_START):]
+    mw = [w for w in s["well"] if w in W_mod.columns]
+    ctrl = _ward_clusters(W_mod[mw], k)
     control_ari = float(adjusted_rand_score(s.set_index("well").loc[mw, "modern_cluster"].astype(int).values,
                                             ctrl.loc[mw].values))
     t["modern_record_group"] = t["well"].map(ctrl)
@@ -249,7 +256,7 @@ def cross_decade(aud, W):
                            ccw_clusters=" ".join(str(int(c)) for c in ccws if pd.notna(c)),
                            one_modern_cluster=len(set(mods_k)) == 1 and len(mods_k) == len(codes)))
     groups = pd.DataFrame(g_rows)
-    summ = dict(k=k, n_scored=len(scored), ari=ari, p=p, pair_share=share, n_pairs=len(same), control_ari=control_ari,
+    summ = dict(k=k, n_scored=len(scored), control_span=f"{W_mod.index.min():%Y-%m} to {W_mod.index.max():%Y-%m}", ari=ari, p=p, pair_share=share, n_pairs=len(same), control_ari=control_ari,
                 sens_ari_censored_kept=sens_kept, sens_ari_low_censored=sens_low, sens_n_low_censored=len(codes_low),
                 durable=durable, span=f"{lev.index.min():%Y-%m} to {lev.index.max():%Y-%m}",
                 martin_similar_one_cluster=int(groups[groups["similar"] == "yes"]["one_modern_cluster"].sum()),
@@ -281,20 +288,28 @@ def _off_cluster_level() -> set:
 
 
 def membership(W, ref_cols, ext_cols, aud, hide=None) -> dict:
-    """Reference wells: the committed partition. Extended wells: best Pearson match to the reference
-    centroids over the months NOT hidden (so the hidden window never informs the donor choice)."""
+    """Reference wells: the committed partition (their groups). Extended wells: best Pearson match to the reference
+    CLUSTER centroids over the months NOT hidden (so the hidden window never informs the donor choice), then the
+    group of that cluster and the well's land cover.
+
+    1.6.0 (D-349 A10): as Script 06 assigns them. The match was to the five group centroids, so an extended well
+    was placed in C3o or C3f by its hydrograph, when those two groups differ only by the canopy polygon."""
+    from utils.cluster_series import group_of, land_cover_lookup
     mem = {w: int(aud.loc[w, "Original_Cluster"]) for w in ref_cols
            if w in aud.index and pd.notna(aud.loc[w, "Original_Cluster"])}
+    hyd = {w: int(aud.loc[w, "Original_Hydro_Cluster"]) for w in mem
+           if pd.notna(aud.loc[w, "Original_Hydro_Cluster"])}
     vis = W if hide is None else W.drop(index=W.index.intersection(hide))
     off = _off_cluster_level()                         # D-348: the centroids from cluster-level members
-    cents = {c: vis[[w for w, k in mem.items() if k == c and w not in off]].mean(axis=1)
-             for c in sorted(set(mem.values()))}
+    cents = {c: vis[[w for w, k in hyd.items() if k == c and w not in off]].mean(axis=1)
+             for c in sorted(set(hyd.values()))}
+    lc = land_cover_lookup()
     for w in ext_cols:
         s = vis[w]
         rs = {c: s.corr(cv) for c, cv in cents.items() if (s.notna() & cv.notna()).sum() >= DONOR_MIN_OVERLAP_MONTHS}
         rs = {c: r for c, r in rs.items() if pd.notna(r)}
         if rs:
-            mem[w] = max(rs, key=rs.get)
+            mem[w] = group_of(max(rs, key=rs.get), lc.get(str(w).lower(), "open"))
     return mem
 
 
@@ -430,7 +445,8 @@ def holdout(W, ref_cols, ext_cols, aud, xy, cl):
                     else:   # ssm_model_b / ssm_model_a: fitted outside the window, run freely through it from
                         #         the month before; Model B carries its intercept alpha (1.2.0, D-332)
                         h = W[t].where(fit_mask)
-                        f = fit_ssm(h, cl, intercept=(rule == "ssm_model_b"))
+                        # 1.6.0 (D-349 (1)): the SSM rule is D-347's fit, from RECORD_FIT_START
+                        f = fit_ssm(h, cl, intercept=(rule == "ssm_model_b"), start=RECORD_FIT_START)
                         before = W[t].loc[:win[0]].iloc[:-1].dropna()
                         if f is None or before.empty or before.index[-1] != win[0] - pd.DateOffset(months=1):
                             rows.append(row); continue
@@ -663,10 +679,10 @@ def plot(ho, cdt, cd) -> None:
                 a.text(j, i, names.get((ct.index[i], ct.columns[j]), str(v)), ha="center", va="center",
                        fontsize=6.5, color="k", linespacing=1.1)
         a.set_yticks(range(len(ct.index)))
-        a.set_yticklabels([CLUSTER_LABELS.get(int(c), f"C{c}") for c in ct.index], fontsize=7)
+        a.set_yticklabels([HYDRO_CLUSTER_LABELS.get(int(c), f"C{c}") for c in ct.index], fontsize=7)   # 1.6.0
         a.set_xticks(range(len(ct.columns)))
         a.set_xticklabels([f"G{c}" for c in ct.columns], fontsize=7)
-        a.set_xlabel("1989-96 group (Ward, 1 - r)")
+        a.set_xlabel("1989-96 group (Ward, sqrt(2(1 - r)))")
         a.set_title(f"(c) CCW wells: ARI {cd['ari']:.2f}, p {cd['p']:.3f}", loc="left", fontsize=8)
     else:
         a.axis("off")
@@ -689,7 +705,8 @@ def main(no_fig: bool = False) -> int:
         step(f"{cd['n_scored']} wells, k {cd['k']}: ARI {cd['ari']:.3f} (p {cd['p']:.4f}); "
              f"same-cluster pairs kept together {cd['pair_share']:.2f} of {cd['n_pairs']}")
         step(f"Martin's 'similar' charts within one modern cluster: {cd['martin_similar_one_cluster']} of {cd['martin_similar_n']}")
-        step(f"control (outside the rule): the same wells on their modern record, ARI {cd['control_ari']:.3f}")
+        step(f"control (outside the rule): the same wells on their modern record ({cd['control_span']}), "
+             f"ARI {cd['control_ari']:.3f}")
         step(f"sensitivity (outside the rule): pipe-base readings kept, ARI {cd['sens_ari_censored_kept']:.3f}; "
              f"the {cd['sens_n_low_censored']} least-censored wells only, ARI {cd['sens_ari_low_censored']:.3f}")
         result("cross-decade grouping", "durable" if cd["durable"] else "not shown")

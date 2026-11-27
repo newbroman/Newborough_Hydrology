@@ -89,7 +89,7 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.11.0"  # 2026-11-27 (D-348): forest Sy weights count each forest group's cluster-level wells (C4, C3f); text names C3o and C3f; the open-dune residual reads Script 25's cluster-level partition. Was "1.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.12.0"  # 2026-11-27 (D-349 rule 6): load_cluster_sy() maps pipeline_scenario_params' Cluster keys to group ids through the "C<id>" key of each config.CLUSTER_LABELS id, not by stripping the label (a "C3o" key would have raised and sent every cluster to the default Sy); an unknown key is warned and skipped; no number moves. Was "1.11.0"  # 2026-11-27 (D-348): forest Sy weights count each forest group's cluster-level wells (C4, C3f); text names C3o and C3f; the open-dune residual reads Script 25's cluster-level partition. Was "1.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.10.0  # Hollingham (2026) - 2026-10-07. The residual row is named for what the
 #   decomposition now shows. Script 25 1.33.0 averages the capped coastal profile over each
 #   cluster's wells, so the open-dune residuals are C1 -10.4, C2 -14.6, C3 -0.5 mm/yr: the
@@ -385,8 +385,12 @@ def load_cluster_sy() -> dict:
     try:
         params = pipeline_params.load_params(warn_defaults=True)
         out = {}
+        key_to_id = {f"C{k}": int(k) for k in CLUSTER_LABELS}   # 1.12.0 (D-349): the file's key, not a parsed label
         for cname, v in params["clusters"].items():
-            cid = int(str(cname).lstrip("Cc"))
+            cid = key_to_id.get(str(cname).strip())
+            if cid is None:
+                warn(f"pipeline_scenario_params: cluster key {cname!r} is not a group id of CLUSTER_LABELS - skipped")
+                continue
             out[cid] = float(v["Sy"])
         info(f"per-cluster Sy (live, pipeline_scenario_params.csv): "
              f"{{{', '.join(f'C{k}={v:.3f}' for k, v in sorted(out.items()))}}}")

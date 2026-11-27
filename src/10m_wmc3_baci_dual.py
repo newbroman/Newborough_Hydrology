@@ -87,10 +87,11 @@ from utils.clearfell_common import (
 )
 from utils.config import (
     DRAINAGE_DATUM, BACI_STEP_HAC_LAG_MONTHS, BACI_PLACEBO_MIN_COVERAGE,
+    WINTER_RECHARGE_MONTHS,
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.5.0"  # 2026-11-27 (D-349 B3): WMC3_BACI_DiD_step_2017_clearfell_winter (+ _se), the clearfell DiD on the Oct-Mar months, the drift-free winter member of the clearfell anchor range. Additive. Was "1.4.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.3.0"  # Hollingham (2026) — 2026-09-25. D-200: each raw era step
@@ -238,6 +239,19 @@ def compute_era_steps(df):
         })
     step_df = pd.DataFrame(steps)
     return era_df, step_df
+
+
+def clearfell_did_winter(df):
+    """1.5.0 (D-349 B3): the 2017 clearfell DiD on the Oct-Mar months only (WINTER_RECHARGE_MONTHS): the same two
+    consecutive eras as compute_era_steps(), Post-2015 scrape / pre-fell -> Post-clearfell / pre-2023. It is the
+    drift-free member of the clearfell anchor range on the season the return fraction is calibrated on
+    (clearfell_common.load_clearfell_anchor_range). Returns (step_m, se_m, n_before, n_after)."""
+    eras = dict(era_masks(df.index))
+    win = df.index.month.isin(list(WINTER_RECHARGE_MONTHS))
+    a = df.loc[eras['Post-2015 scrape / pre-fell'] & win, 'baci']
+    b = df.loc[eras['Post-clearfell / pre-2023'] & win, 'baci']
+    se = float(np.hypot(hac_se_of_mean(a), hac_se_of_mean(b)))
+    return float(b.mean() - a.mean()), se, int(a.notna().sum()), int(b.notna().sum())
 
 
 def load_ancova_clearfell(path):
@@ -474,6 +488,14 @@ def main():
                era=r['to_era'],
                note=f"share of {r['n_placebo']} slid break dates with |step| >= "
                     f"|observed|; windows of the real eras' month counts")
+    # 1.5.0 (D-349 B3): the winter member of the drift-free anchor
+    _w, _wse, _na, _nb = clearfell_did_winter(df)
+    rn.add('WMC3_BACI_DiD_step_2017_clearfell_winter', _w, unit='m', well='WMC3', era='Post-clearfell / pre-2023',
+           note=(f"raw difference-in-differences on Oct-Mar months only, Post-2015 scrape / pre-fell (n={_na}) -> "
+                 f"Post-clearfell / pre-2023 (n={_nb}); no drift term: the drift-free member of the clearfell "
+                 f"anchor range (D-349 B3)"))
+    rn.add('WMC3_BACI_DiD_step_2017_clearfell_winter_se', _wse, unit='m', well='WMC3', era='Post-clearfell / pre-2023',
+           note=f"Newey-West SE, {BACI_STEP_HAC_LAG_MONTHS} lags on the observed winter months, two eras in quadrature")
     if ancova is not None:
         rn.add('WMC3_ANCOVA_clearfell_step_ref', ancova['step_m'], unit='m',
                well='WMC3', era='Post_felling',

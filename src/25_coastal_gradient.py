@@ -150,7 +150,7 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.42.0"  # 2026-11-27 (D-348): cluster partition rows (25_03 and the record-length table) and the C3-only fit from cluster-level wells (boundary and set-aside reference wells out); per-well panels keep every well; C5 rows annotated as C3f. Was "1.41.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the before/after-step fits keep the
+__version__ = "1.43.0"  # 2026-11-27 (D-348; Martin: "report 'not estimable'"): a partition row needs PARTITION_MIN_WELLS = 3 panel wells; C3f has two (NW9, NW11: four of its six wells are in the BACI clearfell zone) and is written not estimable. Was "1.42.0"  # 2026-11-27 (D-348): cluster partition rows (25_03 and the record-length table) and the C3-only fit from cluster-level wells (boundary and set-aside reference wells out); per-well panels keep every well; C5 rows annotated as C3f. Was "1.41.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the before/after-step fits keep the
 #   whole record (start=None); their subject is the 2009 step. Nothing else changes.
 # 1.41.0  # Hollingham (2026) - 2026-11-25 (later; Martin, Paper C). (1) THE RIDGE BUFFER ("We do have a
 #   ridge outline - it's the 20 m contour. Use 200 m from the 20 m contour"): ridge_distances() takes the bedrock ridge as
@@ -765,6 +765,9 @@ CLEARFELL_ZONE = list(set(
 # AFTER the frame has been filtered to cluster 3 — so neither could ever match,
 # and the `| {"wmc3"}` forced the only member that could. Behaviour-identical.
 CLEARFELL_ZONE_IN_C3 = ["wmc3"]
+# 1.43.0 (D-348): a cluster-level group with fewer panel wells than this has no row estimate in the partition
+# (25_03); the row is written with estimable = False and the reason (Martin, 2026-11-27).
+PARTITION_MIN_WELLS = 3
 
 PANEL_OBS_MIN_YEARS = 8  # per-well seasonal slopes require ≥8 years
 
@@ -1748,6 +1751,14 @@ def cluster_partition(per_well: pd.DataFrame,
         sub = per_well[(per_well["cluster"] == cn) & ~per_well["well"].isin(_off)]
         if sub.empty:
             continue
+        if len(sub) < PARTITION_MIN_WELLS:
+            # 1.43.0 (D-348; Martin 2026-11-27, "report 'not estimable'"): too few of the group's wells are left in
+            # the panel for a cluster row. For C3f, four of its six wells are in the BACI clearfell zone (CEH16,
+            # CEH31 edge; CEH17, CEH19 coastal controls), dropped from every panel fit, leaving NW9 and NW11.
+            rows.append({"cluster_id": cn, "cluster_label": lbl, "n_wells": int(len(sub)), "estimable": False,
+                         "not_estimable_reason": f"{len(sub)} of the group's wells in the panel (fewer than "
+                                                 f"{PARTITION_MIN_WELLS}): " + ", ".join(sorted(sub["well"]))})
+            continue
         wells = set(sub["well"])
         mean_d = float(sub["dist_coast_m"].mean())
         per_well_mean = float(sub["slope_m_yr"].mean() * 1000)      # mm/yr
@@ -1783,6 +1794,8 @@ def cluster_partition(per_well: pd.DataFrame,
             "cluster_id": cn,
             "cluster_label": lbl,
             "n_wells": int(len(sub)),
+            "estimable": True,
+            "not_estimable_reason": "",
             "mean_dist_coast_m": mean_d,
             "observed_centroid_mm_yr": observed_s14,
             "observed_per_well_mean_mm_yr": per_well_mean,
@@ -5773,6 +5786,10 @@ def main() -> None:
                                  L_ci=(_ls["L_well_basis_ci_lo_m"], _ls["L_well_basis_ci_hi_m"]),
                                  loo=loo)
         part.to_csv(m["out_partition"], index=False)
+        _ne = part[~part["estimable"].astype(bool)]
+        for _, _r in _ne.iterrows():
+            info(f"  {_r['cluster_label']}: not estimable ({_r['not_estimable_reason']})")
+        part = part[part["estimable"].astype(bool)].reset_index(drop=True)   # 1.43.0: figures and numbers
         print(part[["cluster_label", "mean_dist_coast_m",
                      "observed_centroid_mm_yr",
                      "observed_per_well_mean_mm_yr",

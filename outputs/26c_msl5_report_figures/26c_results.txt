@@ -17,14 +17,14 @@ No community level is drawn on either panel (D-296).
 ΔMSL5 vs Δsummer-minimum, UKCP18 RCP8.5 (m, below ground):
   Cluster                    ΔMSL5_50s  Δsmin_50s    ΔMSL5_80s  Δsmin_80s
   C1 (Lake Edge)               +0.0247    -0.1661      +0.0545    -0.3060
-  C2 (Dune)                    -0.0406    -0.2122      -0.0624    -0.3867
-  C3 (Western Dune)            -0.0644    -0.2128      -0.1058    -0.3881
+  C2 (Dune)                    -0.0372    -0.2087      -0.0566    -0.3798
+  C3o (Western Dune, open)        +nan       +nan         +nan       +nan
   C4 (Main Forest)                +nan       +nan         +nan       +nan
-  C5 (Coastal Forest)          -0.1674    -0.2816      -0.2935    -0.5094
+  C3f (Western Dune, forest)       +nan       +nan         +nan       +nan
 
 The same on Model A (D-224; Model A projected only where Model B is):
   C1 (Lake Edge)               +0.0204    -0.1205      +0.0476    -0.2312
-  C2 (Dune)                    -0.1519    -0.2974      -0.2641    -0.5441
-  C3 (Western Dune)            -0.1544    -0.2869      -0.2695    -0.5246
+  C2 (Dune)                    -0.1652    -0.3074      -0.2884    -0.5619
+  C3o (Western Dune, open)        +nan       +nan         +nan       +nan
   C4 (Main Forest)                +nan       +nan         +nan       +nan
-  C5 (Coastal Forest)          -0.2861    -0.3935      -0.5080    -0.7123
+  C3f (Western Dune, forest)       +nan       +nan         +nan       +nan

@@ -1,25 +1,25 @@
 Parameter,Well,Era,Value,Unit,Note
 water_balance_residual_pct,C1 (Lake Edge),,0.07145520824423048,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
 water_balance_residual_pct_model_a,C1 (Lake Edge),,1.3905413267556699,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
-water_balance_residual_pct,C2 (Dune),,0.610468809180381,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
-water_balance_residual_pct_model_a,C2 (Dune),,0.2956374194368109,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
-water_balance_residual_pct,C3 (Western Dune),,0.6484272230245908,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
-water_balance_residual_pct_model_a,C3 (Western Dune),,0.002582665477500454,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,C2 (Dune),,0.5303197235345528,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
+water_balance_residual_pct_model_a,C2 (Dune),,0.4495628298348141,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,"C3o (Western Dune, open)",,0.3912640527571608,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
+water_balance_residual_pct_model_a,"C3o (Western Dune, open)",,0.06584836554936903,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
 water_balance_residual_pct,C4 (Main Forest),,0.6095589315757945,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
 water_balance_residual_pct_model_a,C4 (Main Forest),,0.8112460444020188,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
-water_balance_residual_pct,C5 (Coastal Forest),,0.37208001415928077,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
-water_balance_residual_pct_model_a,C5 (Coastal Forest),,0.11010335716579837,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,"C3f (Western Dune, forest)",,0.1167946120153178,%,Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv
+water_balance_residual_pct_model_a,"C3f (Western Dune, forest)",,0.48255290408430385,%,Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
 water_balance_n_clusters_model_b_excluded_datum,,,0.0,clusters,centroids left out of the Model B partition: implied base DRAINAGE_DATUM - alpha/beta_3 not below ground (D-332)
 water_balance_P_mean_mm,C1 (Lake Edge),,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
 water_balance_PET_mean_mm,C1 (Lake Edge),,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
 water_balance_P_mean_mm,C2 (Dune),,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
 water_balance_PET_mean_mm,C2 (Dune),,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
-water_balance_P_mean_mm,C3 (Western Dune),,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
-water_balance_PET_mean_mm,C3 (Western Dune),,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm,"C3o (Western Dune, open)",,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,"C3o (Western Dune, open)",,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
 water_balance_P_mean_mm,C4 (Main Forest),,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
 water_balance_PET_mean_mm,C4 (Main Forest),,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
-water_balance_P_mean_mm,C5 (Coastal Forest),,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
-water_balance_PET_mean_mm,C5 (Coastal Forest),,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm,"C3f (Western Dune, forest)",,73.93969072164947,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,"C3f (Western Dune, forest)",,54.10130917211964,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
 water_balance_P_mean_mm_min,,,73.93969072164947,mm/month,lowest cluster mean P
 water_balance_P_mean_mm_max,,,73.93969072164947,mm/month,highest cluster mean P
 water_balance_PET_mean_mm_min,,,54.10130917211964,mm/month,lowest cluster mean PET
@@ -27,7 +27,7 @@ water_balance_PET_mean_mm_max,,,54.10130917211964,mm/month,highest cluster mean 
 water_balance_P_mm_yr_min,,,886.1687499999998,mm/yr,lowest cluster annual rainfall (Table 7 P_mm_yr); one site value since 1.19.1
 water_balance_P_mm_yr_max,,,886.1687499999998,mm/yr,highest cluster annual rainfall (Table 7 P_mm_yr); one site value since 1.19.1
 water_balance_P_mm_yr_mean,,,886.1687499999998,mm/yr,"annual rainfall at every cluster (Table 7 P_mm_yr): the site mean over complete calendar years, as Script 00's mean_annual_rain_well_record"
-water_balance_closure_max_pct,,,0.6484272230245908,%,Model B (D-332): largest per-cluster residual as a share of total losses (C3 (Western Dune)): the balance closes to within this at every cluster
+water_balance_closure_max_pct,,,0.6095589315757945,%,Model B (D-332): largest per-cluster residual as a share of total losses (C4 (Main Forest)): the balance closes to within this at every cluster
 water_balance_closure_max_pct_model_a,,,1.3905413267556699,%,Model A at DRAINAGE_DATUM: largest per-cluster residual as a share of total losses (C1 (Lake Edge))
 water_balance_drain_share_pct,C1 (Lake Edge),,39.8441153384084,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C1 (Lake Edge),,60.15588466159161,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
@@ -41,30 +41,30 @@ water_balance_interception_mm_yr,C1 (Lake Edge),,0.0,mm/yr,"canopy interception,
 water_balance_et_total_mm_yr,C1 (Lake Edge),,533.082651157068,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
 water_balance_et_total_over_pet,C1 (Lake Edge),,0.8154606648903124,ratio,total evaporation over Thornthwaite PET over the cluster's months
 water_balance_residual_B_pct,C1 (Lake Edge),,0.07145520824423048,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
-water_balance_drain_share_pct,C2 (Dune),,49.30897562795649,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
-water_balance_et_share_pct,C2 (Dune),,50.691024372043515,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C2 (Dune),,49.30897562795649,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
-water_balance_drain_share_hi_pct,C2 (Dune),,49.55480918072373,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
-water_balance_drain_share_A_pct,C2 (Dune),,67.60364214568982,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
-water_balance_drain_share_B_pct,C2 (Dune),,49.30897562795649,%,drainage share of the modelled loss under Model B (the headline)
-water_balance_drain_mm_yr,C2 (Dune),,436.9607329600666,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
-water_balance_et_wt_mm_yr,C2 (Dune),,449.2080170399333,mm/yr,evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)
+water_balance_drain_share_pct,C2 (Dune),,46.288418770007844,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
+water_balance_et_share_pct,C2 (Dune),,53.711581229992156,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
+water_balance_drain_share_lo_pct,C2 (Dune),,46.288418770007844,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,C2 (Dune),,46.345391289225944,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_A_pct,C2 (Dune),,67.24824051691661,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
+water_balance_drain_share_B_pct,C2 (Dune),,46.288418770007844,%,drainage share of the modelled loss under Model B (the headline)
+water_balance_drain_mm_yr,C2 (Dune),,410.1935020089438,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
+water_balance_et_wt_mm_yr,C2 (Dune),,475.975247991056,mm/yr,evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)
 water_balance_interception_mm_yr,C2 (Dune),,0.0,mm/yr,"canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"
-water_balance_et_total_mm_yr,C2 (Dune),,449.2080170399333,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
-water_balance_et_total_over_pet,C2 (Dune),,0.6871569867343374,ratio,total evaporation over Thornthwaite PET over the cluster's months
-water_balance_residual_B_pct,C2 (Dune),,0.610468809180381,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
-water_balance_drain_share_pct,C3 (Western Dune),,58.26125141685691,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
-water_balance_et_share_pct,C3 (Western Dune),,41.73874858314309,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C3 (Western Dune),,58.26125141685691,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
-water_balance_drain_share_hi_pct,C3 (Western Dune),,65.0202450246082,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
-water_balance_drain_share_A_pct,C3 (Western Dune),,69.46048580782794,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
-water_balance_drain_share_B_pct,C3 (Western Dune),,58.26125141685691,%,drainage share of the modelled loss under Model B (the headline)
-water_balance_drain_mm_yr,C3 (Western Dune),,516.293003415118,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
-water_balance_et_wt_mm_yr,C3 (Western Dune),,369.87574658488177,mm/yr,evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)
-water_balance_interception_mm_yr,C3 (Western Dune),,0.0,mm/yr,"canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"
-water_balance_et_total_mm_yr,C3 (Western Dune),,369.87574658488177,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
-water_balance_et_total_over_pet,C3 (Western Dune),,0.5658017974928227,ratio,total evaporation over Thornthwaite PET over the cluster's months
-water_balance_residual_B_pct,C3 (Western Dune),,0.6484272230245907,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
+water_balance_et_total_mm_yr,C2 (Dune),,475.975247991056,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
+water_balance_et_total_over_pet,C2 (Dune),,0.7281030274679793,ratio,total evaporation over Thornthwaite PET over the cluster's months
+water_balance_residual_B_pct,C2 (Dune),,0.5303197235345529,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
+water_balance_drain_share_pct,"C3o (Western Dune, open)",,54.17665225338333,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
+water_balance_et_share_pct,"C3o (Western Dune, open)",,45.82334774661667,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
+water_balance_drain_share_lo_pct,"C3o (Western Dune, open)",,54.17665225338333,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,"C3o (Western Dune, open)",,72.11470850237203,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_A_pct,"C3o (Western Dune, open)",,61.66868077874427,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
+water_balance_drain_share_B_pct,"C3o (Western Dune, open)",,54.17665225338333,%,drainage share of the modelled loss under Model B (the headline)
+water_balance_drain_mm_yr,"C3o (Western Dune, open)",,480.09656206565376,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
+water_balance_et_wt_mm_yr,"C3o (Western Dune, open)",,406.07218793434606,mm/yr,evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)
+water_balance_interception_mm_yr,"C3o (Western Dune, open)",,0.0,mm/yr,"canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"
+water_balance_et_total_mm_yr,"C3o (Western Dune, open)",,406.07218793434606,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
+water_balance_et_total_over_pet,"C3o (Western Dune, open)",,0.621171774485003,ratio,total evaporation over Thornthwaite PET over the cluster's months
+water_balance_residual_B_pct,"C3o (Western Dune, open)",,0.3912640527571608,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
 water_balance_drain_share_pct,C4 (Main Forest),,25.66262416799866,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
 water_balance_et_share_pct,C4 (Main Forest),,74.33737583200134,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
 water_balance_drain_share_lo_pct,C4 (Main Forest),,25.66262416799866,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
@@ -77,15 +77,15 @@ water_balance_interception_mm_yr,C4 (Main Forest),,212.68049999999994,mm/yr,"can
 water_balance_et_total_mm_yr,C4 (Main Forest),,658.7545941932483,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
 water_balance_et_total_over_pet,C4 (Main Forest),,1.0077020105876537,ratio,total evaporation over Thornthwaite PET over the cluster's months
 water_balance_residual_B_pct,C4 (Main Forest),,0.6095589315757945,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
-water_balance_drain_share_pct,C5 (Coastal Forest),,54.098248269819706,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
-water_balance_et_share_pct,C5 (Coastal Forest),,45.901751730180294,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
-water_balance_drain_share_lo_pct,C5 (Coastal Forest),,53.73617155882131,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
-water_balance_drain_share_hi_pct,C5 (Coastal Forest),,54.098248269819706,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
-water_balance_drain_share_A_pct,C5 (Coastal Forest),,58.050827056870844,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
-water_balance_drain_share_B_pct,C5 (Coastal Forest),,54.098248269819706,%,drainage share of the modelled loss under Model B (the headline)
-water_balance_drain_mm_yr,C5 (Coastal Forest),,479.4017704645578,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
-water_balance_et_wt_mm_yr,C5 (Coastal Forest),,194.0864795354421,mm/yr,evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)
-water_balance_interception_mm_yr,C5 (Coastal Forest),,212.68049999999994,mm/yr,"canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"
-water_balance_et_total_mm_yr,C5 (Coastal Forest),,406.76697953544203,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
-water_balance_et_total_over_pet,C5 (Coastal Forest),,0.6222346025844735,ratio,total evaporation over Thornthwaite PET over the cluster's months
-water_balance_residual_B_pct,C5 (Coastal Forest),,0.3720800141592807,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv
+water_balance_drain_share_pct,"C3f (Western Dune, forest)",,58.76763376521518,%,"drainage share of the modelled loss, the headline (Model B, D-283)"
+water_balance_et_share_pct,"C3f (Western Dune, forest)",,41.23236623478482,%,"evaporation share of the modelled loss, the headline (Model B, D-283)"
+water_balance_drain_share_lo_pct,"C3f (Western Dune, forest)",,58.76763376521518,%,"lowest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_hi_pct,"C3f (Western Dune, forest)",,65.38195111811555,%,"highest drainage share of the two range estimators (Model B and the recession ratio; D-334, T-221)"
+water_balance_drain_share_A_pct,"C3f (Western Dune, forest)",,65.15008580780075,%,drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)
+water_balance_drain_share_B_pct,"C3f (Western Dune, forest)",,58.76763376521518,%,drainage share of the modelled loss under Model B (the headline)
+water_balance_drain_mm_yr,"C3f (Western Dune, forest)",,520.7804055417852,mm/yr,"drainage, headline share of gross rainfall (Table 7 Drain_mid_mm_yr; 1.15.0)"
+water_balance_et_wt_mm_yr,"C3f (Western Dune, forest)",,152.7078444582147,mm/yr,evaporation after interception: the headline evaporation share of gross rainfall less I (Table 7 ET_mid_mm_yr)
+water_balance_interception_mm_yr,"C3f (Western Dune, forest)",,212.68049999999994,mm/yr,"canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"
+water_balance_et_total_mm_yr,"C3f (Western Dune, forest)",,365.38834445821465,mm/yr,"total evaporation, interception included: the headline evaporation share of gross rainfall (Table 7 ET_total_mid_mm_yr)"
+water_balance_et_total_over_pet,"C3f (Western Dune, forest)",,0.558937383665249,ratio,total evaporation over Thornthwaite PET over the cluster's months
+water_balance_residual_B_pct,"C3f (Western Dune, forest)",,0.1167946120153178,%,|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv

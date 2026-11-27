@@ -24,4 +24,4 @@ CAVEATS:
   - One line, four/five wells: a growing gradient is erosion-specific, but a flat one means erosion is not detectable HERE, not that it is absent.
   - Even a growing gradient cannot separate erosion from a time-varying substrate effect; it separates growing (erosion-like) from static (geometry-like). The cored SW-NE transect (Sec. 5.7) remains the mechanism-resolving test.
   - CEH40 and CEH41 both carry the Feb-2013 eastern-scrape offset; used for profile shape only, never in the coast-inland metric.
-  - Clearfell (Dec 2017) is deliberately not excluded from the window: the felled compartment is in the western forest (C4/C5), and forest perturbations propagate south-westward toward Caernarfon Bay, not into this open-dune line (site-geography convention) — a geographic argument specific to this transect, not a general one.
+  - Clearfell (Dec 2017) is deliberately not excluded from the window: the felled compartment is in the western forest (C4/C3f), and forest perturbations propagate south-westward toward Caernarfon Bay, not into this open-dune line (site-geography convention) — a geographic argument specific to this transect, not a general one.

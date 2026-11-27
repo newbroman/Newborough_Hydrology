@@ -1,15 +1,15 @@
 Parameter,Well,Era,Value,Unit,Note
 gapfill_ccw_k,,,4.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
 gapfill_ccw_n_scored,,,11.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_ari,,,0.21229991575400167,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_p,,,0.10028997100289971,p,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_pair_share,,,0.5,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_n_pairs,,,12.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_control_ari,,,0.3273753527751646,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_sens_ari_censored_kept,,,0.2961608775137112,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_sens_ari_low_censored,,,0.176056338028169,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_ari,,,0.06346749226006192,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_p,,,0.35026497350264973,p,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_pair_share,,,0.35294117647058826,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_n_pairs,,,17.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_control_ari,,,0.05660377358490566,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_sens_ari_censored_kept,,,0.1497152156224573,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_sens_ari_low_censored,,,0.08163265306122448,,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
 gapfill_ccw_sens_n_low_censored,,,9.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
-gapfill_ccw_martin_similar_one_cluster,,,1.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_martin_similar_one_cluster,,,2.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
 gapfill_ccw_martin_similar_n,,,3.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
 gapfill_ccw_pair_share_threshold,,,0.6666666666666666,fraction,GAPFILL_DURABLE_PAIR_SHARE: the pair share the durability rule requires (D-275)
 gapfill_ccw_durable,,,not shown,text,the rule fixed before the run: p < E8E_P and pair share >= GAPFILL_DURABLE_PAIR_SHARE (D-275)
@@ -27,11 +27,11 @@ gapfill_early_best_r_excluded_rmse_median,,,0.11475422825411183,m,median monthly
 gapfill_early_best_r_excluded_bias_median,,,-0.025499108302954147,m,median monthly bias (D-275)
 gapfill_early_best_r_excluded_n,,,23.0,wells,targets scored (D-275)
 gapfill_early_best_r_excluded_same_cluster_share,,,0.7391304347826086,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_early_cluster_median_excluded_msl_abs_err_median,,,0.0682865494185186,m,"median |MSL error|, 23 targets (D-275)"
-gapfill_early_cluster_median_excluded_msl_ci_hi,,,0.21742303954749845,m,bootstrap 95% upper (D-275)
-gapfill_early_cluster_median_excluded_msl_ci_lo,,,0.052587969175322206,m,bootstrap 95% lower (D-275)
-gapfill_early_cluster_median_excluded_rmse_median,,,0.11292804557183737,m,median monthly RMSE (D-275)
-gapfill_early_cluster_median_excluded_bias_median,,,-0.012835987679558607,m,median monthly bias (D-275)
+gapfill_early_cluster_median_excluded_msl_abs_err_median,,,0.0663948722201877,m,"median |MSL error|, 23 targets (D-275)"
+gapfill_early_cluster_median_excluded_msl_ci_hi,,,0.10793977683633393,m,bootstrap 95% upper (D-275)
+gapfill_early_cluster_median_excluded_msl_ci_lo,,,0.05214988748057621,m,bootstrap 95% lower (D-275)
+gapfill_early_cluster_median_excluded_rmse_median,,,0.11308411964460392,m,median monthly RMSE (D-275)
+gapfill_early_cluster_median_excluded_bias_median,,,0.014662762557632455,m,median monthly bias (D-275)
 gapfill_early_cluster_median_excluded_n,,,23.0,wells,targets scored (D-275)
 gapfill_early_nearest_allowed_msl_abs_err_median,,,0.06511352149436492,m,"median |MSL error|, 19 targets (D-275)"
 gapfill_early_nearest_allowed_msl_ci_hi,,,0.09606837614745173,m,bootstrap 95% upper (D-275)
@@ -39,28 +39,28 @@ gapfill_early_nearest_allowed_msl_ci_lo,,,0.03862411010280086,m,bootstrap 95% lo
 gapfill_early_nearest_allowed_rmse_median,,,0.09944504013190554,m,median monthly RMSE (D-275)
 gapfill_early_nearest_allowed_bias_median,,,-0.00043594502573988204,m,median monthly bias (D-275)
 gapfill_early_nearest_allowed_n,,,19.0,wells,targets scored (D-275)
-gapfill_early_nearest_allowed_same_cluster_share,,,0.4782608695652174,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_early_nearest_allowed_same_cluster_share,,,0.6086956521739131,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_early_nearest_excluded_msl_abs_err_median,,,0.07524169697463264,m,"median |MSL error|, 19 targets (D-275)"
 gapfill_early_nearest_excluded_msl_ci_hi,,,0.09606837614745173,m,bootstrap 95% upper (D-275)
 gapfill_early_nearest_excluded_msl_ci_lo,,,0.05652484269566476,m,bootstrap 95% lower (D-275)
 gapfill_early_nearest_excluded_rmse_median,,,0.10756327033533615,m,median monthly RMSE (D-275)
 gapfill_early_nearest_excluded_bias_median,,,-0.00043594502573988204,m,median monthly bias (D-275)
 gapfill_early_nearest_excluded_n,,,19.0,wells,targets scored (D-275)
-gapfill_early_nearest_excluded_same_cluster_share,,,0.391304347826087,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_early_nearest_cluster_allowed_msl_abs_err_median,,,0.05154423012940228,m,"median |MSL error|, 18 targets (D-275)"
-gapfill_early_nearest_cluster_allowed_msl_ci_hi,,,0.1002520670638577,m,bootstrap 95% upper (D-275)
-gapfill_early_nearest_cluster_allowed_msl_ci_lo,,,0.02520604276433891,m,bootstrap 95% lower (D-275)
-gapfill_early_nearest_cluster_allowed_rmse_median,,,0.0972089243503099,m,median monthly RMSE (D-275)
-gapfill_early_nearest_cluster_allowed_bias_median,,,-0.0024674302064290853,m,median monthly bias (D-275)
-gapfill_early_nearest_cluster_allowed_n,,,18.0,wells,targets scored (D-275)
-gapfill_early_nearest_cluster_allowed_same_cluster_share,,,0.782608695652174,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_early_nearest_cluster_excluded_msl_abs_err_median,,,0.06081918209501484,m,"median |MSL error|, 18 targets (D-275)"
-gapfill_early_nearest_cluster_excluded_msl_ci_hi,,,0.10409024707890877,m,bootstrap 95% upper (D-275)
-gapfill_early_nearest_cluster_excluded_msl_ci_lo,,,0.03964714390348156,m,bootstrap 95% lower (D-275)
-gapfill_early_nearest_cluster_excluded_rmse_median,,,0.1056768871358375,m,median monthly RMSE (D-275)
-gapfill_early_nearest_cluster_excluded_bias_median,,,-0.011689889304165257,m,median monthly bias (D-275)
-gapfill_early_nearest_cluster_excluded_n,,,18.0,wells,targets scored (D-275)
-gapfill_early_nearest_cluster_excluded_same_cluster_share,,,0.782608695652174,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_early_nearest_excluded_same_cluster_share,,,0.6086956521739131,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_early_nearest_cluster_allowed_msl_abs_err_median,,,0.05154423012940228,m,"median |MSL error|, 16 targets (D-275)"
+gapfill_early_nearest_cluster_allowed_msl_ci_hi,,,0.08344496674790738,m,bootstrap 95% upper (D-275)
+gapfill_early_nearest_cluster_allowed_msl_ci_lo,,,0.019497067521830697,m,bootstrap 95% lower (D-275)
+gapfill_early_nearest_cluster_allowed_rmse_median,,,0.08867058653083643,m,median monthly RMSE (D-275)
+gapfill_early_nearest_cluster_allowed_bias_median,,,-0.008346733316331364,m,median monthly bias (D-275)
+gapfill_early_nearest_cluster_allowed_n,,,16.0,wells,targets scored (D-275)
+gapfill_early_nearest_cluster_allowed_same_cluster_share,,,0.6956521739130435,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_early_nearest_cluster_excluded_msl_abs_err_median,,,0.06288984424929461,m,"median |MSL error|, 16 targets (D-275)"
+gapfill_early_nearest_cluster_excluded_msl_ci_hi,,,0.08621823570320158,m,bootstrap 95% upper (D-275)
+gapfill_early_nearest_cluster_excluded_msl_ci_lo,,,0.04067017770416227,m,bootstrap 95% lower (D-275)
+gapfill_early_nearest_cluster_excluded_rmse_median,,,0.10645587515118776,m,median monthly RMSE (D-275)
+gapfill_early_nearest_cluster_excluded_bias_median,,,-0.006224151839065826,m,median monthly bias (D-275)
+gapfill_early_nearest_cluster_excluded_n,,,16.0,wells,targets scored (D-275)
+gapfill_early_nearest_cluster_excluded_same_cluster_share,,,0.6956521739130435,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_early_ssm_model_a_excluded_msl_abs_err_median,,,0.1825434283153387,m,"median |MSL error|, 10 targets (D-275)"
 gapfill_early_ssm_model_a_excluded_msl_ci_hi,,,0.21551038813177356,m,bootstrap 95% upper (D-275)
 gapfill_early_ssm_model_a_excluded_msl_ci_lo,,,0.1601317218455561,m,bootstrap 95% lower (D-275)
@@ -73,19 +73,19 @@ gapfill_late_best_r_allowed_msl_ci_lo,,,0.026176805013145704,m,bootstrap 95% low
 gapfill_late_best_r_allowed_rmse_median,,,0.07032662247334051,m,median monthly RMSE (D-275)
 gapfill_late_best_r_allowed_bias_median,,,0.0021696935959189573,m,median monthly bias (D-275)
 gapfill_late_best_r_allowed_n,,,71.0,wells,targets scored (D-275)
-gapfill_late_best_r_allowed_same_cluster_share,,,0.9295774647887324,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_late_best_r_allowed_same_cluster_share,,,0.8309859154929577,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_late_best_r_excluded_msl_abs_err_median,,,0.03611134399137189,m,"median |MSL error|, 71 targets (D-275)"
 gapfill_late_best_r_excluded_msl_ci_hi,,,0.04307718300668775,m,bootstrap 95% upper (D-275)
 gapfill_late_best_r_excluded_msl_ci_lo,,,0.02822006015637857,m,bootstrap 95% lower (D-275)
 gapfill_late_best_r_excluded_rmse_median,,,0.0727977739821867,m,median monthly RMSE (D-275)
 gapfill_late_best_r_excluded_bias_median,,,0.0016453196756772376,m,median monthly bias (D-275)
 gapfill_late_best_r_excluded_n,,,71.0,wells,targets scored (D-275)
-gapfill_late_best_r_excluded_same_cluster_share,,,0.9154929577464789,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_late_cluster_median_excluded_msl_abs_err_median,,,0.05275707508013608,m,"median |MSL error|, 71 targets (D-275)"
-gapfill_late_cluster_median_excluded_msl_ci_hi,,,0.061748767345405076,m,bootstrap 95% upper (D-275)
-gapfill_late_cluster_median_excluded_msl_ci_lo,,,0.046328021583274454,m,bootstrap 95% lower (D-275)
-gapfill_late_cluster_median_excluded_rmse_median,,,0.08746482076461183,m,median monthly RMSE (D-275)
-gapfill_late_cluster_median_excluded_bias_median,,,-0.002754811751146607,m,median monthly bias (D-275)
+gapfill_late_best_r_excluded_same_cluster_share,,,0.8309859154929577,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_late_cluster_median_excluded_msl_abs_err_median,,,0.05196592479199272,m,"median |MSL error|, 71 targets (D-275)"
+gapfill_late_cluster_median_excluded_msl_ci_hi,,,0.06486931734007698,m,bootstrap 95% upper (D-275)
+gapfill_late_cluster_median_excluded_msl_ci_lo,,,0.04664166294891536,m,bootstrap 95% lower (D-275)
+gapfill_late_cluster_median_excluded_rmse_median,,,0.08208222339914577,m,median monthly RMSE (D-275)
+gapfill_late_cluster_median_excluded_bias_median,,,-0.005397731568060906,m,median monthly bias (D-275)
 gapfill_late_cluster_median_excluded_n,,,71.0,wells,targets scored (D-275)
 gapfill_late_nearest_allowed_msl_abs_err_median,,,0.03382492598726674,m,"median |MSL error|, 69 targets (D-275)"
 gapfill_late_nearest_allowed_msl_ci_hi,,,0.03930678075581645,m,bootstrap 95% upper (D-275)
@@ -93,28 +93,28 @@ gapfill_late_nearest_allowed_msl_ci_lo,,,0.030195854977144408,m,bootstrap 95% lo
 gapfill_late_nearest_allowed_rmse_median,,,0.06896302711641578,m,median monthly RMSE (D-275)
 gapfill_late_nearest_allowed_bias_median,,,-0.0014311443542840542,m,median monthly bias (D-275)
 gapfill_late_nearest_allowed_n,,,69.0,wells,targets scored (D-275)
-gapfill_late_nearest_allowed_same_cluster_share,,,0.9014084507042254,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_late_nearest_allowed_same_cluster_share,,,0.8450704225352113,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_late_nearest_excluded_msl_abs_err_median,,,0.03675675609551435,m,"median |MSL error|, 69 targets (D-275)"
 gapfill_late_nearest_excluded_msl_ci_hi,,,0.04188736572559936,m,bootstrap 95% upper (D-275)
 gapfill_late_nearest_excluded_msl_ci_lo,,,0.0336278181978214,m,bootstrap 95% lower (D-275)
 gapfill_late_nearest_excluded_rmse_median,,,0.07587107653515525,m,median monthly RMSE (D-275)
 gapfill_late_nearest_excluded_bias_median,,,-0.00031452422454594835,m,median monthly bias (D-275)
 gapfill_late_nearest_excluded_n,,,69.0,wells,targets scored (D-275)
-gapfill_late_nearest_excluded_same_cluster_share,,,0.8591549295774648,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_late_nearest_cluster_allowed_msl_abs_err_median,,,0.03377478779980012,m,"median |MSL error|, 69 targets (D-275)"
-gapfill_late_nearest_cluster_allowed_msl_ci_hi,,,0.03675675609551435,m,bootstrap 95% upper (D-275)
+gapfill_late_nearest_excluded_same_cluster_share,,,0.8450704225352113,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_late_nearest_cluster_allowed_msl_abs_err_median,,,0.03456290661928041,m,"median |MSL error|, 68 targets (D-275)"
+gapfill_late_nearest_cluster_allowed_msl_ci_hi,,,0.04061576283102618,m,bootstrap 95% upper (D-275)
 gapfill_late_nearest_cluster_allowed_msl_ci_lo,,,0.02844928856731171,m,bootstrap 95% lower (D-275)
-gapfill_late_nearest_cluster_allowed_rmse_median,,,0.06896302711641578,m,median monthly RMSE (D-275)
-gapfill_late_nearest_cluster_allowed_bias_median,,,-0.0017841616672455106,m,median monthly bias (D-275)
-gapfill_late_nearest_cluster_allowed_n,,,69.0,wells,targets scored (D-275)
-gapfill_late_nearest_cluster_allowed_same_cluster_share,,,0.971830985915493,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_late_nearest_cluster_excluded_msl_abs_err_median,,,0.03491015613523443,m,"median |MSL error|, 69 targets (D-275)"
-gapfill_late_nearest_cluster_excluded_msl_ci_hi,,,0.04061576283102618,m,bootstrap 95% upper (D-275)
-gapfill_late_nearest_cluster_excluded_msl_ci_lo,,,0.03291404209726856,m,bootstrap 95% lower (D-275)
-gapfill_late_nearest_cluster_excluded_rmse_median,,,0.0731971281520122,m,median monthly RMSE (D-275)
-gapfill_late_nearest_cluster_excluded_bias_median,,,-0.0014311443542840542,m,median monthly bias (D-275)
-gapfill_late_nearest_cluster_excluded_n,,,69.0,wells,targets scored (D-275)
-gapfill_late_nearest_cluster_excluded_same_cluster_share,,,0.971830985915493,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_late_nearest_cluster_allowed_rmse_median,,,0.06964482479487814,m,median monthly RMSE (D-275)
+gapfill_late_nearest_cluster_allowed_bias_median,,,-0.0003295825065611095,m,median monthly bias (D-275)
+gapfill_late_nearest_cluster_allowed_n,,,68.0,wells,targets scored (D-275)
+gapfill_late_nearest_cluster_allowed_same_cluster_share,,,0.9577464788732394,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_late_nearest_cluster_excluded_msl_abs_err_median,,,0.03793601361081851,m,"median |MSL error|, 68 targets (D-275)"
+gapfill_late_nearest_cluster_excluded_msl_ci_hi,,,0.042040354340013186,m,bootstrap 95% upper (D-275)
+gapfill_late_nearest_cluster_excluded_msl_ci_lo,,,0.03382492598726674,m,bootstrap 95% lower (D-275)
+gapfill_late_nearest_cluster_excluded_rmse_median,,,0.07701053793941062,m,median monthly RMSE (D-275)
+gapfill_late_nearest_cluster_excluded_bias_median,,,-0.0008728342894150013,m,median monthly bias (D-275)
+gapfill_late_nearest_cluster_excluded_n,,,68.0,wells,targets scored (D-275)
+gapfill_late_nearest_cluster_excluded_same_cluster_share,,,0.9577464788732394,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_late_ssm_model_a_excluded_msl_abs_err_median,,,0.13531100598491716,m,"median |MSL error|, 71 targets (D-275)"
 gapfill_late_ssm_model_a_excluded_msl_ci_hi,,,0.14742516109829754,m,bootstrap 95% upper (D-275)
 gapfill_late_ssm_model_a_excluded_msl_ci_lo,,,0.1100671878318876,m,bootstrap 95% lower (D-275)
@@ -122,53 +122,53 @@ gapfill_late_ssm_model_a_excluded_rmse_median,,,0.17291146339371408,m,median mon
 gapfill_late_ssm_model_a_excluded_bias_median,,,-0.052153487226293906,m,median monthly bias (D-275)
 gapfill_late_ssm_model_a_excluded_n,,,71.0,wells,targets scored (D-275)
 gapfill_pooled_best_r_allowed_msl_abs_err_median,,,0.03750176324449002,m,"median |MSL error|, 94 targets (D-275)"
-gapfill_pooled_best_r_allowed_msl_ci_hi,,,0.04645102869547288,m,bootstrap 95% upper (D-275)
-gapfill_pooled_best_r_allowed_msl_ci_lo,,,0.03034080479228145,m,bootstrap 95% lower (D-275)
+gapfill_pooled_best_r_allowed_msl_ci_hi,,,0.04656361756313979,m,bootstrap 95% upper (D-275)
+gapfill_pooled_best_r_allowed_msl_ci_lo,,,0.030344521454208042,m,bootstrap 95% lower (D-275)
 gapfill_pooled_best_r_allowed_rmse_median,,,0.07817832000205271,m,median monthly RMSE (D-275)
 gapfill_pooled_best_r_allowed_bias_median,,,0.0019075066357980975,m,median monthly bias (D-275)
 gapfill_pooled_best_r_allowed_n,,,94.0,wells,targets scored (D-275)
-gapfill_pooled_best_r_allowed_same_cluster_share,,,0.8936170212765957,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_pooled_best_r_allowed_same_cluster_share,,,0.8191489361702128,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_pooled_best_r_excluded_msl_abs_err_median,,,0.042878230559799085,m,"median |MSL error|, 94 targets (D-275)"
-gapfill_pooled_best_r_excluded_msl_ci_hi,,,0.048738734864551,m,bootstrap 95% upper (D-275)
-gapfill_pooled_best_r_excluded_msl_ci_lo,,,0.03717558857588072,m,bootstrap 95% lower (D-275)
+gapfill_pooled_best_r_excluded_msl_ci_hi,,,0.04874623322880732,m,bootstrap 95% upper (D-275)
+gapfill_pooled_best_r_excluded_msl_ci_lo,,,0.03675675609551435,m,bootstrap 95% lower (D-275)
 gapfill_pooled_best_r_excluded_rmse_median,,,0.08321648877939467,m,median monthly RMSE (D-275)
 gapfill_pooled_best_r_excluded_bias_median,,,0.0008704440098215682,m,median monthly bias (D-275)
 gapfill_pooled_best_r_excluded_n,,,94.0,wells,targets scored (D-275)
-gapfill_pooled_best_r_excluded_same_cluster_share,,,0.8723404255319149,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_pooled_cluster_median_excluded_msl_abs_err_median,,,0.057485103592376144,m,"median |MSL error|, 94 targets (D-275)"
-gapfill_pooled_cluster_median_excluded_msl_ci_hi,,,0.06396708138434515,m,bootstrap 95% upper (D-275)
-gapfill_pooled_cluster_median_excluded_msl_ci_lo,,,0.051709827110239755,m,bootstrap 95% lower (D-275)
-gapfill_pooled_cluster_median_excluded_rmse_median,,,0.09376161969218652,m,median monthly RMSE (D-275)
-gapfill_pooled_cluster_median_excluded_bias_median,,,-0.003540198887108903,m,median monthly bias (D-275)
+gapfill_pooled_best_r_excluded_same_cluster_share,,,0.8085106382978723,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_pooled_cluster_median_excluded_msl_abs_err_median,,,0.05457272918890162,m,"median |MSL error|, 94 targets (D-275)"
+gapfill_pooled_cluster_median_excluded_msl_ci_hi,,,0.06895977198416366,m,bootstrap 95% upper (D-275)
+gapfill_pooled_cluster_median_excluded_msl_ci_lo,,,0.05035649085223881,m,bootstrap 95% lower (D-275)
+gapfill_pooled_cluster_median_excluded_rmse_median,,,0.09176018816589976,m,median monthly RMSE (D-275)
+gapfill_pooled_cluster_median_excluded_bias_median,,,-0.0014309825236605298,m,median monthly bias (D-275)
 gapfill_pooled_cluster_median_excluded_n,,,94.0,wells,targets scored (D-275)
 gapfill_pooled_nearest_allowed_msl_abs_err_median,,,0.035901116146367915,m,"median |MSL error|, 88 targets (D-275)"
-gapfill_pooled_nearest_allowed_msl_ci_hi,,,0.04188776094165465,m,bootstrap 95% upper (D-275)
-gapfill_pooled_nearest_allowed_msl_ci_lo,,,0.03226778223882054,m,bootstrap 95% lower (D-275)
+gapfill_pooled_nearest_allowed_msl_ci_hi,,,0.041903174367811144,m,bootstrap 95% upper (D-275)
+gapfill_pooled_nearest_allowed_msl_ci_lo,,,0.03243092698427552,m,bootstrap 95% lower (D-275)
 gapfill_pooled_nearest_allowed_rmse_median,,,0.07668537714351327,m,median monthly RMSE (D-275)
 gapfill_pooled_nearest_allowed_bias_median,,,-0.0009335446900119682,m,median monthly bias (D-275)
 gapfill_pooled_nearest_allowed_n,,,88.0,wells,targets scored (D-275)
-gapfill_pooled_nearest_allowed_same_cluster_share,,,0.7978723404255319,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_pooled_nearest_allowed_same_cluster_share,,,0.7872340425531915,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_pooled_nearest_excluded_msl_abs_err_median,,,0.04109213585362308,m,"median |MSL error|, 88 targets (D-275)"
-gapfill_pooled_nearest_excluded_msl_ci_hi,,,0.04392220175218382,m,bootstrap 95% upper (D-275)
+gapfill_pooled_nearest_excluded_msl_ci_hi,,,0.04432333010714431,m,bootstrap 95% upper (D-275)
 gapfill_pooled_nearest_excluded_msl_ci_lo,,,0.035901116146367915,m,bootstrap 95% lower (D-275)
 gapfill_pooled_nearest_excluded_rmse_median,,,0.08568369289573116,m,median monthly RMSE (D-275)
 gapfill_pooled_nearest_excluded_bias_median,,,-0.0003752346251429152,m,median monthly bias (D-275)
 gapfill_pooled_nearest_excluded_n,,,88.0,wells,targets scored (D-275)
-gapfill_pooled_nearest_excluded_same_cluster_share,,,0.7446808510638298,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_pooled_nearest_cluster_allowed_msl_abs_err_median,,,0.03456099145262042,m,"median |MSL error|, 87 targets (D-275)"
-gapfill_pooled_nearest_cluster_allowed_msl_ci_hi,,,0.04061576283102618,m,bootstrap 95% upper (D-275)
-gapfill_pooled_nearest_cluster_allowed_msl_ci_lo,,,0.03091501800684712,m,bootstrap 95% lower (D-275)
-gapfill_pooled_nearest_cluster_allowed_rmse_median,,,0.07480325067319714,m,median monthly RMSE (D-275)
-gapfill_pooled_nearest_cluster_allowed_bias_median,,,-0.0017841616672455106,m,median monthly bias (D-275)
-gapfill_pooled_nearest_cluster_allowed_n,,,87.0,wells,targets scored (D-275)
-gapfill_pooled_nearest_cluster_allowed_same_cluster_share,,,0.925531914893617,fraction,share of chosen donors in the target's cluster (D-275)
-gapfill_pooled_nearest_cluster_excluded_msl_abs_err_median,,,0.03748502628611073,m,"median |MSL error|, 87 targets (D-275)"
-gapfill_pooled_nearest_cluster_excluded_msl_ci_hi,,,0.04188736572559936,m,bootstrap 95% upper (D-275)
-gapfill_pooled_nearest_cluster_excluded_msl_ci_lo,,,0.0344090503818094,m,bootstrap 95% lower (D-275)
-gapfill_pooled_nearest_cluster_excluded_rmse_median,,,0.07848449518986224,m,median monthly RMSE (D-275)
-gapfill_pooled_nearest_cluster_excluded_bias_median,,,-0.0032395596331844943,m,median monthly bias (D-275)
-gapfill_pooled_nearest_cluster_excluded_n,,,87.0,wells,targets scored (D-275)
-gapfill_pooled_nearest_cluster_excluded_same_cluster_share,,,0.925531914893617,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_pooled_nearest_excluded_same_cluster_share,,,0.7872340425531915,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_pooled_nearest_cluster_allowed_msl_abs_err_median,,,0.035901116146367915,m,"median |MSL error|, 84 targets (D-275)"
+gapfill_pooled_nearest_cluster_allowed_msl_ci_hi,,,0.04158563442401057,m,bootstrap 95% upper (D-275)
+gapfill_pooled_nearest_cluster_allowed_msl_ci_lo,,,0.03096207445355864,m,bootstrap 95% lower (D-275)
+gapfill_pooled_nearest_cluster_allowed_rmse_median,,,0.07434456188368041,m,median monthly RMSE (D-275)
+gapfill_pooled_nearest_cluster_allowed_bias_median,,,-0.0015671271738008515,m,median monthly bias (D-275)
+gapfill_pooled_nearest_cluster_allowed_n,,,84.0,wells,targets scored (D-275)
+gapfill_pooled_nearest_cluster_allowed_same_cluster_share,,,0.8936170212765957,fraction,share of chosen donors in the target's cluster (D-275)
+gapfill_pooled_nearest_cluster_excluded_msl_abs_err_median,,,0.04084448999138482,m,"median |MSL error|, 84 targets (D-275)"
+gapfill_pooled_nearest_cluster_excluded_msl_ci_hi,,,0.04370668243457955,m,bootstrap 95% upper (D-275)
+gapfill_pooled_nearest_cluster_excluded_msl_ci_lo,,,0.035901116146367915,m,bootstrap 95% lower (D-275)
+gapfill_pooled_nearest_cluster_excluded_rmse_median,,,0.08516986215723868,m,median monthly RMSE (D-275)
+gapfill_pooled_nearest_cluster_excluded_bias_median,,,-0.001845196332629581,m,median monthly bias (D-275)
+gapfill_pooled_nearest_cluster_excluded_n,,,84.0,wells,targets scored (D-275)
+gapfill_pooled_nearest_cluster_excluded_same_cluster_share,,,0.8936170212765957,fraction,share of chosen donors in the target's cluster (D-275)
 gapfill_pooled_ssm_model_a_excluded_msl_abs_err_median,,,0.1431084024443593,m,"median |MSL error|, 81 targets (D-275)"
 gapfill_pooled_ssm_model_a_excluded_msl_ci_hi,,,0.15875284922664745,m,bootstrap 95% upper (D-275)
 gapfill_pooled_ssm_model_a_excluded_msl_ci_lo,,,0.13195176113104692,m,bootstrap 95% lower (D-275)
@@ -194,19 +194,19 @@ gapfill_pooled_ssm_model_b_excluded_rmse_median,,,0.12936651101343258,m,median m
 gapfill_pooled_ssm_model_b_excluded_bias_median,,,-0.03353261531978804,m,median monthly bias (D-275)
 gapfill_pooled_ssm_model_b_excluded_n,,,81.0,wells,targets scored (D-275)
 gapfill_adopted_rule,,,nearest_cluster,text,adopted by the rule fixed before the run (D-275)
-gapfill_pooled_adopted_to_model_b_msl_err_ratio,,,0.4103478516645639,ratio,"median |MSL error|, nearest_cluster over ssm_model_b, twins excluded (D-275)"
-gapfill_pooled_adopted_to_model_a_msl_err_ratio,,,0.26193448914143913,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
-gapfill_early_adopted_to_model_b_msl_err_ratio,,,0.29413226830667905,ratio,"median |MSL error|, nearest_cluster over ssm_model_b, twins excluded (D-275)"
-gapfill_early_adopted_to_model_a_msl_err_ratio,,,0.3331765084961119,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
-gapfill_late_adopted_to_model_b_msl_err_ratio,,,0.4268247855255758,ratio,"median |MSL error|, nearest_cluster over ssm_model_b, twins excluded (D-275)"
-gapfill_late_adopted_to_model_a_msl_err_ratio,,,0.2579993835765717,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
+gapfill_pooled_adopted_to_model_b_msl_err_ratio,,,0.4471238353248739,ratio,"median |MSL error|, nearest_cluster over ssm_model_b, twins excluded (D-275)"
+gapfill_pooled_adopted_to_model_a_msl_err_ratio,,,0.28540944692094655,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
+gapfill_early_adopted_to_model_b_msl_err_ratio,,,0.3041463549049436,ratio,"median |MSL error|, nearest_cluster over ssm_model_b, twins excluded (D-275)"
+gapfill_early_adopted_to_model_a_msl_err_ratio,,,0.3445199031797198,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
+gapfill_late_adopted_to_model_b_msl_err_ratio,,,0.46382006457973124,ratio,"median |MSL error|, nearest_cluster over ssm_model_b, twins excluded (D-275)"
+gapfill_late_adopted_to_model_a_msl_err_ratio,,,0.28036162568362816,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
 gapfill_best_rule,,,nearest_cluster,text,lowest pooled median |MSL error| (D-275)
 gapfill_distance_rho,,,0.6068917977388052,rho,"Spearman, |MSL error| against donor distance, n 182 (D-275)"
 gapfill_distance_p,,,1.0751634734674824e-19,p,(D-275)
-gapfill_wells_filled,,,70.0,wells,wells with at least one month filled (D-275)
-gapfill_gaps_unfilled,,,34.0,gaps,"gaps with no qualifying donor, left empty (D-275)"
-gapfill_months_filled,,,4460.0,months,(D-275)
-gapfill_partial_wells_filled,,,75.0,wells,partial product: donor read in at least GAPFILL_PRODUCT_PARTIAL_COVER of the gap; untested (D-275)
-gapfill_partial_months_filled,,,4949.0,months,partial product (D-275)
-gapfill_partial_gaps_unfilled,,,21.0,gaps,partial product (D-275)
+gapfill_wells_filled,,,68.0,wells,wells with at least one month filled (D-275)
+gapfill_gaps_unfilled,,,39.0,gaps,"gaps with no qualifying donor, left empty (D-275)"
+gapfill_months_filled,,,4330.0,months,(D-275)
+gapfill_partial_wells_filled,,,74.0,wells,partial product: donor read in at least GAPFILL_PRODUCT_PARTIAL_COVER of the gap; untested (D-275)
+gapfill_partial_months_filled,,,4844.0,months,partial product (D-275)
+gapfill_partial_gaps_unfilled,,,25.0,gaps,partial product (D-275)
 gapfill_share_extrapolated_median,,,0.0,fraction,median over filled wells of the share of filled months outside the fitted range (D-275)

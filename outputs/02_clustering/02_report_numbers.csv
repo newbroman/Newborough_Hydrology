@@ -1,63 +1,59 @@
 Parameter,Well,Era,Value,Unit,Note
 cluster_hydro_window_start,,,2010-01-01,date,first month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_START)
 cluster_hydro_window_end,,,2025-12-01,date,last month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_END)
-silhouette_k5,,k=5,0.4295129990132032,,silhouette at chosen k on the 66-well reference network
-calinski_harabasz_k5,,k=5,14.398028525689474,,Calinski-Harabasz at chosen k
-merge_distance_k5,,k=5,0.13539753163409093,,Ward merge distance at chosen k
-silhouette_peak_k,,,2.0,,k maximising silhouette (=0.596)
-calinski_harabasz_peak_k,,,2.0,,k maximising Calinski-Harabasz (=25.66)
-silhouette_k2,,k=2,0.5960880567871508,,per-k silhouette (Fig 6 series)
-silhouette_k3,,k=3,0.42328148946544064,,per-k silhouette (Fig 6 series)
-silhouette_k4,,k=4,0.4425064271995047,,per-k silhouette (Fig 6 series)
-silhouette_k6,,k=6,0.37276129762491467,,per-k silhouette (Fig 6 series)
-silhouette_k7,,k=7,0.3796361990902639,,per-k silhouette (Fig 6 series)
-silhouette_k8,,k=8,0.36759031148521565,,per-k silhouette (Fig 6 series)
-silhouette_k9,,k=9,0.3706405776800235,,per-k silhouette (Fig 6 series)
-silhouette_k10,,k=10,0.3678396099006357,,per-k silhouette (Fig 6 series)
-cluster_stability_wells_median,,k=5,0.9249814807839593,,"median per-well co-assignment, bootstrap over wells"
-cluster_stability_months_median,,k=5,0.9464999999999999,,"median per-well co-assignment, 12-month moving-block bootstrap over months"
-cluster_splithalf_ari_mean,,k=5,0.515087113692149,,ARI between partitions from two disjoint block samples of the record
-cluster_splithalf_ari_p05,,k=5,0.39953213387492936,,5th percentile of the split-half ARI
-cluster_splithalf_ari_p95,,k=5,0.6540070186575995,,95th percentile of the split-half ARI
-cluster_month_merge_rate,,k=5,0.976,,fraction of month-bootstrap replicates in which two or more reference clusters collapsed into one; median co-assignment is blind to this
-cluster_month_clusters_surviving_mean,,k=5,1.911,,mean count of reference clusters surviving a month-bootstrap replicate both intact and unmerged
-C1_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C1 (Lake Edge)'s 7 k=5 members fall into (1 = stays intact); split sizes 7
-C2_k6_n_subgroups,,k=6,2.0,count,number of k=6 raw clusters that C2 (Dune)'s 27 k=5 members fall into (1 = stays intact); split sizes 19+8
-C3_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C3 (Western Dune)'s 13 k=5 members fall into (1 = stays intact); split sizes 13
-C4_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C4 (Main Forest)'s 9 k=5 members fall into (1 = stays intact); split sizes 9
-C5_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C5 (Coastal Forest)'s 10 k=5 members fall into (1 = stays intact); split sizes 10
-cluster_stability_median,C4 (Main Forest),k=5,1.0,,median per-well co-assignment over 1000 well resamples; n = 9
-cluster_stability_median,C5 (Coastal Forest),k=5,0.8972198661766092,,median per-well co-assignment over 1000 well resamples; n = 10
-cluster_stability_median,C3 (Western Dune),k=5,0.6005478208232445,,median per-well co-assignment over 1000 well resamples; n = 13
-cluster_stability_median,C1 (Lake Edge),k=5,0.979096696034051,,median per-well co-assignment over 1000 well resamples; n = 7
-cluster_stability_median,C2 (Dune),k=5,0.9687423956245147,,median per-well co-assignment over 1000 well resamples; n = 27
-cluster_stability_median_min_stable_k5,,k=5,0.8972198661766092,,"lowest per-cluster median co-assignment among the 4 most stable of the 5 k=5 clusters (least stable set aside), 1000 resamples. report9 §4.2 stability bound"
+silhouette_k5,,k=4,0.27626749908991705,,silhouette at chosen k on the 66-well reference network
+calinski_harabasz_k5,,k=4,17.482937618482026,,Calinski-Harabasz at chosen k
+merge_distance_k5,,k=4,0.7289045536866876,,Ward merge distance at chosen k
+silhouette_peak_k,,,2.0,,k maximising silhouette (=0.300)
+calinski_harabasz_peak_k,,,2.0,,k maximising Calinski-Harabasz (=30.81)
+silhouette_k2,,k=2,0.30029896463080297,,per-k silhouette (Fig 6 series)
+silhouette_k3,,k=3,0.28543724133508536,,per-k silhouette (Fig 6 series)
+silhouette_k5,,k=5,0.23278895558024298,,per-k silhouette (Fig 6 series)
+silhouette_k6,,k=6,0.2128337619631074,,per-k silhouette (Fig 6 series)
+silhouette_k7,,k=7,0.22959078733683422,,per-k silhouette (Fig 6 series)
+silhouette_k8,,k=8,0.22424699700242534,,per-k silhouette (Fig 6 series)
+silhouette_k9,,k=9,0.2250560718136017,,per-k silhouette (Fig 6 series)
+silhouette_k10,,k=10,0.19715000554044793,,per-k silhouette (Fig 6 series)
+cluster_stability_wells_median,,k=4,0.8704494060383061,,"median per-well co-assignment, bootstrap over wells"
+cluster_stability_months_median,,k=4,0.89,,"median per-well co-assignment, 12-month moving-block bootstrap over months"
+cluster_splithalf_ari_mean,,k=4,0.5466663465201271,,ARI between partitions from two disjoint block samples of the record
+cluster_splithalf_ari_p05,,k=4,0.3660318865109156,,5th percentile of the split-half ARI
+cluster_splithalf_ari_p95,,k=4,0.7689225540204092,,95th percentile of the split-half ARI
+cluster_month_merge_rate,,k=4,0.997,,fraction of month-bootstrap replicates in which two or more reference clusters collapsed into one; median co-assignment is blind to this
+cluster_month_clusters_surviving_mean,,k=4,1.601,,mean count of reference clusters surviving a month-bootstrap replicate both intact and unmerged
+C1_k5_n_subgroups,,k=5,1.0,count,number of k=5 raw clusters that C1 (Lake Edge)'s 7 k=4 members fall into (1 = stays intact); split sizes 7
+C2_k5_n_subgroups,,k=5,1.0,count,number of k=5 raw clusters that C2 (Dune)'s 25 k=4 members fall into (1 = stays intact); split sizes 25
+C3_k5_n_subgroups,,k=5,2.0,count,number of k=5 raw clusters that C3 (Western Dune)'s 25 k=4 members fall into (1 = stays intact); split sizes 15+10
+C4_k5_n_subgroups,,k=5,1.0,count,number of k=5 raw clusters that C4 (Main Forest)'s 9 k=4 members fall into (1 = stays intact); split sizes 9
+cluster_stability_median,C1 (Lake Edge),k=4,0.9686234106187703,,median per-well co-assignment over 1000 well resamples; n = 7
+cluster_stability_median,C2 (Dune),k=4,0.9886965524642841,,median per-well co-assignment over 1000 well resamples; n = 25
+cluster_stability_median,C4 (Main Forest),k=4,1.0,,median per-well co-assignment over 1000 well resamples; n = 9
+cluster_stability_median,C3 (Western Dune),k=4,0.7642823834849899,,median per-well co-assignment over 1000 well resamples; n = 25
+cluster_stability_median_min_stable_k4,,k=4,0.9686234106187703,,"lowest per-cluster median co-assignment among the 3 most stable of the 4 k=4 clusters (least stable set aside), 1000 resamples. report9 §4.2 stability bound"
 bootstrap_n_resamples,,,1000.0,count,config.CLUSTER_BOOT_N
 bootstrap_k_min,,,4.0,,config.CLUSTER_BOOT_K_RANGE
 bootstrap_k_max,,,7.0,,config.CLUSTER_BOOT_K_RANGE
 cluster_period_kept_pre_C1,,split 2018-01-01,6.0,count,wells of full-record C1 (Lake Edge) (n=7) placed together in the cluster of the same name in the pre-split partition
 cluster_period_kept_post_C1,,split 2018-01-01,7.0,count,wells of full-record C1 (Lake Edge) (n=7) placed together in the cluster of the same name in the post-split partition
-cluster_period_kept_pre_C2,,split 2018-01-01,19.0,count,wells of full-record C2 (Dune) (n=27) placed together in the cluster of the same name in the pre-split partition
-cluster_period_kept_post_C2,,split 2018-01-01,19.0,count,wells of full-record C2 (Dune) (n=27) placed together in the cluster of the same name in the post-split partition
-cluster_period_kept_pre_C3,,split 2018-01-01,10.0,count,wells of full-record C3 (Western Dune) (n=13) placed together in the cluster of the same name in the pre-split partition
-cluster_period_kept_post_C3,,split 2018-01-01,11.0,count,wells of full-record C3 (Western Dune) (n=13) placed together in the cluster of the same name in the post-split partition
+cluster_period_kept_pre_C2,,split 2018-01-01,19.0,count,wells of full-record C2 (Dune) (n=26) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C2,,split 2018-01-01,19.0,count,wells of full-record C2 (Dune) (n=26) placed together in the cluster of the same name in the post-split partition
+cluster_period_kept_pre_C3,,split 2018-01-01,24.0,count,wells of full-record C3 (Western Dune) (n=24) placed together in the cluster of the same name in the pre-split partition
+cluster_period_kept_post_C3,,split 2018-01-01,24.0,count,wells of full-record C3 (Western Dune) (n=24) placed together in the cluster of the same name in the post-split partition
 cluster_period_kept_pre_C4,,split 2018-01-01,9.0,count,wells of full-record C4 (Main Forest) (n=9) placed together in the cluster of the same name in the pre-split partition
 cluster_period_kept_post_C4,,split 2018-01-01,9.0,count,wells of full-record C4 (Main Forest) (n=9) placed together in the cluster of the same name in the post-split partition
-cluster_period_kept_pre_C5,,split 2018-01-01,10.0,count,wells of full-record C5 (Coastal Forest) (n=10) placed together in the cluster of the same name in the pre-split partition
-cluster_period_kept_post_C5,,split 2018-01-01,10.0,count,wells of full-record C5 (Coastal Forest) (n=10) placed together in the cluster of the same name in the post-split partition
 cluster_period_split_date,,,2018-01-01,date,first month of the second half in the pre/post clustering test (config.MODEL_AB_SPLIT_DATE)
-cluster_period_ari_pre_post,,split 2018-01-01,0.6319401887486211,,"adjusted Rand index between Ward k=5 partitions fitted before and after the split, on the 66 wells both halves carry"
+cluster_period_ari_pre_post,,split 2018-01-01,0.6821748241524391,,"adjusted Rand index between Ward k=4 partitions fitted before and after the split, on the 66 wells both halves carry"
 cluster_period_ari_pre_post_p,,split 2018-01-01,0.000999000999000999,,permutation p-value of that ARI (1000 shuffles of one half's labels)
-cluster_period_ari_pre_full,,split 2018-01-01,0.5565142472065966,,ARI of the partition fitted before the split against the full-record partition
-cluster_period_ari_post_full,,split 2018-01-01,0.6030114722753346,,ARI of the partition fitted from the split against the full-record partition
+cluster_period_ari_pre_full,,split 2018-01-01,0.6386930937012866,,ARI of the partition fitted before the split against the full-record partition
+cluster_period_ari_post_full,,split 2018-01-01,0.6748865883447714,,ARI of the partition fitted from the split against the full-record partition
 cluster_period_n_wells_pre,,split 2018-01-01,66.0,count,wells with at least two seasonal cycles in the pre-split half
 cluster_period_n_months_pre,,split 2018-01-01,96.0,count,calendar months in the pre-split half
-cluster_period_same_share_pre,,split 2018-01-01,0.8181818181818182,fraction,share of wells the pre-split partition places in the cluster of the same name (ids matched by maximum shared membership)
+cluster_period_same_share_pre,,split 2018-01-01,0.8787878787878788,fraction,share of wells the pre-split partition places in the cluster of the same name (ids matched by maximum shared membership)
 cluster_period_n_wells_post,,split 2018-01-01,66.0,count,wells with at least two seasonal cycles in the post-split half
 cluster_period_n_months_post,,split 2018-01-01,98.0,count,calendar months in the post-split half
-cluster_period_same_share_post,,split 2018-01-01,0.8484848484848485,fraction,share of wells the post-split partition places in the cluster of the same name (ids matched by maximum shared membership)
+cluster_period_same_share_post,,split 2018-01-01,0.8939393939393939,fraction,share of wells the post-split partition places in the cluster of the same name (ids matched by maximum shared membership)
 cluster_period_n_wells_both,,split 2018-01-01,66.0,count,wells carried by both halves
-cluster_period_same_share_both,,split 2018-01-01,0.7575757575757576,fraction,share of the wells both halves carry that sit in their full-record cluster in both
+cluster_period_same_share_both,,split 2018-01-01,0.8333333333333334,fraction,share of the wells both halves carry that sit in their full-record cluster in both
 cluster_ground_elev_min_m,C1 (Lake Edge),,3.534,m AOD,lowest member: ceh11 (01_locations.csv ground_elev_m)
 cluster_ground_elev_max_m,C1 (Lake Edge),,10.9,m AOD,highest member: ceh27
 cluster_isolated_well,C1 (Lake Edge),,ceh11,,member furthest from any other member of the same cluster (planar E/N)
@@ -65,20 +61,20 @@ cluster_isolated_nearest_dist_m,ceh11,C1 (Lake Edge),1732.4409528711114,m,"ceh11
 cluster_isolated_ground_elev_m,ceh11,C1 (Lake Edge),3.534,m AOD,"ground elevation of ceh11, C1 (Lake Edge)'s most isolated member"
 cluster_others_ground_elev_min_m,C1 (Lake Edge),,8.461,m AOD,the cluster without ceh11
 cluster_others_ground_elev_max_m,C1 (Lake Edge),,10.9,m AOD,the cluster without ceh11
-cluster_ground_elev_min_m,C2 (Dune),,5.71,m AOD,lowest member: t41b (01_locations.csv ground_elev_m)
-cluster_ground_elev_max_m,C2 (Dune),,12.363,m AOD,highest member: nw1
+cluster_ground_elev_min_m,C2 (Dune),,4.661,m AOD,lowest member: d38 (01_locations.csv ground_elev_m)
+cluster_ground_elev_max_m,C2 (Dune),,10.86,m AOD,highest member: l7
 cluster_isolated_well,C2 (Dune),,l7,,member furthest from any other member of the same cluster (planar E/N)
 cluster_isolated_nearest_dist_m,l7,C2 (Dune),277.07623755204736,m,"l7 to its nearest C2 (Dune) member, d7"
 cluster_isolated_ground_elev_m,l7,C2 (Dune),10.86,m AOD,"ground elevation of l7, C2 (Dune)'s most isolated member"
-cluster_others_ground_elev_min_m,C2 (Dune),,5.71,m AOD,the cluster without l7
-cluster_others_ground_elev_max_m,C2 (Dune),,12.363,m AOD,the cluster without l7
+cluster_others_ground_elev_min_m,C2 (Dune),,4.661,m AOD,the cluster without l7
+cluster_others_ground_elev_max_m,C2 (Dune),,10.825,m AOD,the cluster without l7
 cluster_ground_elev_min_m,C3 (Western Dune),,3.62,m AOD,lowest member: ceh42 (01_locations.csv ground_elev_m)
-cluster_ground_elev_max_m,C3 (Western Dune),,9.136,m AOD,highest member: d9
-cluster_isolated_well,C3 (Western Dune),,d9,,member furthest from any other member of the same cluster (planar E/N)
-cluster_isolated_nearest_dist_m,d9,C3 (Western Dune),635.0145014091862,m,"d9 to its nearest C3 (Western Dune) member, t41a"
-cluster_isolated_ground_elev_m,d9,C3 (Western Dune),9.136,m AOD,"ground elevation of d9, C3 (Western Dune)'s most isolated member"
-cluster_others_ground_elev_min_m,C3 (Western Dune),,3.62,m AOD,the cluster without d9
-cluster_others_ground_elev_max_m,C3 (Western Dune),,6.361,m AOD,the cluster without d9
+cluster_ground_elev_max_m,C3 (Western Dune),,12.363,m AOD,highest member: nw1
+cluster_isolated_well,C3 (Western Dune),,d25,,member furthest from any other member of the same cluster (planar E/N)
+cluster_isolated_nearest_dist_m,d25,C3 (Western Dune),411.6404950463451,m,"d25 to its nearest C3 (Western Dune) member, ceh42"
+cluster_isolated_ground_elev_m,d25,C3 (Western Dune),5.351,m AOD,"ground elevation of d25, C3 (Western Dune)'s most isolated member"
+cluster_others_ground_elev_min_m,C3 (Western Dune),,3.62,m AOD,the cluster without d25
+cluster_others_ground_elev_max_m,C3 (Western Dune),,12.363,m AOD,the cluster without d25
 cluster_ground_elev_min_m,C4 (Main Forest),,8.61,m AOD,lowest member: ceh30 (01_locations.csv ground_elev_m)
 cluster_ground_elev_max_m,C4 (Main Forest),,14.42,m AOD,highest member: ceh14
 cluster_isolated_well,C4 (Main Forest),,nw10,,member furthest from any other member of the same cluster (planar E/N)
@@ -86,48 +82,54 @@ cluster_isolated_nearest_dist_m,nw10,C4 (Main Forest),216.81755146895375,m,"nw10
 cluster_isolated_ground_elev_m,nw10,C4 (Main Forest),11.66,m AOD,"ground elevation of nw10, C4 (Main Forest)'s most isolated member"
 cluster_others_ground_elev_min_m,C4 (Main Forest),,8.61,m AOD,the cluster without nw10
 cluster_others_ground_elev_max_m,C4 (Main Forest),,14.42,m AOD,the cluster without nw10
-cluster_ground_elev_min_m,C5 (Coastal Forest),,4.65,m AOD,lowest member: ceh19 (01_locations.csv ground_elev_m)
-cluster_ground_elev_max_m,C5 (Coastal Forest),,10.652,m AOD,highest member: ceh1
-cluster_isolated_well,C5 (Coastal Forest),,ceh1,,member furthest from any other member of the same cluster (planar E/N)
-cluster_isolated_nearest_dist_m,ceh1,C5 (Coastal Forest),402.1875014094753,m,"ceh1 to its nearest C5 (Coastal Forest) member, nw7"
-cluster_isolated_ground_elev_m,ceh1,C5 (Coastal Forest),10.652,m AOD,"ground elevation of ceh1, C5 (Coastal Forest)'s most isolated member"
-cluster_others_ground_elev_min_m,C5 (Coastal Forest),,4.65,m AOD,the cluster without ceh1
-cluster_others_ground_elev_max_m,C5 (Coastal Forest),,8.61,m AOD,the cluster without ceh1
 cluster_n_wells,C1 (Lake Edge),,7.0,wells,members of the canonical cluster (02_cluster_stats.csv)
-cluster_n_wells,C2 (Dune),,27.0,wells,members of the canonical cluster (02_cluster_stats.csv)
-cluster_n_wells,C3 (Western Dune),,13.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+cluster_n_wells,C2 (Dune),,26.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+cluster_n_wells,C3 (Western Dune),,24.0,wells,members of the canonical cluster (02_cluster_stats.csv)
 cluster_n_wells,C4 (Main Forest),,9.0,wells,members of the canonical cluster (02_cluster_stats.csv)
-cluster_n_wells,C5 (Coastal Forest),,10.0,wells,members of the canonical cluster (02_cluster_stats.csv)
-forest_clusters_n_wells,C4 (Main Forest) + C5 (Coastal Forest),,19.0,wells,members of the forest clusters (config.FOREST_CIDS) of the 66-well reference network
-ward_top_merge_distance,,,0.9943611297600713,,"height of the final (top) Ward merge of the reference dendrogram, 1 - r correlation distance (02_01_dendrogram.png); the primary binary division"
+forest_clusters_n_wells,"C4 (Main Forest) + C3f (Western Dune, forest)",,15.0,wells,"wells of the forest groups (config.FOREST_CIDS: C4 and C3f, D-348) of the 66-well reference network, boundary wells included"
+ward_top_merge_distance,,,2.4112070305360507,,"height of the final (top) Ward merge of the reference dendrogram, sqrt(2(1 - r)) correlation distance (02_01_dendrogram.png); the primary binary division"
+group_n_wells,C1 (Lake Edge),,7.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells_cluster_level,C1 (Lake Edge),,7.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
+group_n_wells,C2 (Dune),,26.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells_cluster_level,C2 (Dune),,23.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
+group_n_wells,"C3o (Western Dune, open)",,18.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells_cluster_level,"C3o (Western Dune, open)",,12.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
+group_n_wells,C4 (Main Forest),,9.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells_cluster_level,C4 (Main Forest),,9.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
+group_n_wells,"C3f (Western Dune, forest)",,6.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells_cluster_level,"C3f (Western Dune, forest)",,5.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
+boundary_n_wells,,,9.0,wells,wells whose consensus margin is below config.BOUNDARY_MARGIN = 0.25 (D-348 (4))
+consensus_placed_n_wells,,,1.0,wells,wells placed by consensus in another cluster than Ward's (D-348 (3)): D9
+boundary_margin,,,0.25,,config.BOUNDARY_MARGIN (D-348 (4))
+consensus_n_boot,,,10000.0,replicates,year-block bootstrap replicates of the consensus (5 seeds x 2000)
 amplitude_min_obs_per_window,,,24.0,count,months a well needs in a window for its p90-p10 amplitude: two annual cycles
 cluster_mean_level_m,C1 (Lake Edge),2010-01 to 2025-12,-0.3944317868141282,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_m,C2 (Dune),2010-01 to 2025-12,-0.6187067959947485,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_m,C3 (Western Dune),2010-01 to 2025-12,-0.7280458006597609,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
+cluster_mean_level_m,C2 (Dune),2010-01 to 2025-12,-0.533954559122829,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
+cluster_mean_level_m,C3 (Western Dune),2010-01 to 2025-12,-0.7758907024695384,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
 cluster_mean_level_m,C4 (Main Forest),2010-01 to 2025-12,-1.4255318846089213,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_m,C5 (Coastal Forest),2010-01 to 2025-12,-1.132017040892803,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_offset_m,C2 minus C1,2010-01 to 2025-12,-0.22427500918062032,m,cluster_mean_level_m of C2 (Dune) minus that of C1 (Lake Edge); negative = C2 deeper
-cluster_mean_level_offset_m,C3 minus C1,2010-01 to 2025-12,-0.33361401384563266,m,cluster_mean_level_m of C3 (Western Dune) minus that of C1 (Lake Edge); negative = C3 deeper
+cluster_mean_level_m,C5,2010-01 to 2025-12,-1.3013691470286883,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
+cluster_mean_level_offset_m,C2 minus C1,2010-01 to 2025-12,-0.13952277230870075,m,cluster_mean_level_m of C2 (Dune) minus that of C1 (Lake Edge); negative = C2 deeper
+cluster_mean_level_offset_m,C3 minus C1,2010-01 to 2025-12,-0.3814589156554102,m,cluster_mean_level_m of C3 (Western Dune) minus that of C1 (Lake Edge); negative = C3 deeper
 cluster_mean_level_offset_m,C4 minus C1,2010-01 to 2025-12,-1.031100097794793,m,cluster_mean_level_m of C4 (Main Forest) minus that of C1 (Lake Edge); negative = C4 deeper
-cluster_mean_level_offset_m,C5 minus C1,2010-01 to 2025-12,-0.7375852540786747,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C1 (Lake Edge); negative = C5 deeper
-cluster_mean_level_offset_m,C3 minus C2,2010-01 to 2025-12,-0.10933900466501234,m,cluster_mean_level_m of C3 (Western Dune) minus that of C2 (Dune); negative = C3 deeper
-cluster_mean_level_offset_m,C4 minus C2,2010-01 to 2025-12,-0.8068250886141728,m,cluster_mean_level_m of C4 (Main Forest) minus that of C2 (Dune); negative = C4 deeper
-cluster_mean_level_offset_m,C5 minus C2,2010-01 to 2025-12,-0.5133102448980544,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C2 (Dune); negative = C5 deeper
-cluster_mean_level_offset_m,C4 minus C3,2010-01 to 2025-12,-0.6974860839491605,m,cluster_mean_level_m of C4 (Main Forest) minus that of C3 (Western Dune); negative = C4 deeper
-cluster_mean_level_offset_m,C5 minus C3,2010-01 to 2025-12,-0.4039712402330421,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C3 (Western Dune); negative = C5 deeper
-cluster_mean_level_offset_m,C5 minus C4,2010-01 to 2025-12,0.29351484371611836,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C4 (Main Forest); negative = C5 deeper
+cluster_mean_level_offset_m,C5 minus C1,2010-01 to 2025-12,-0.9069373602145601,m,cluster_mean_level_m of C5 minus that of C1 (Lake Edge); negative = C5 deeper
+cluster_mean_level_offset_m,C3 minus C2,2010-01 to 2025-12,-0.24193614334670943,m,cluster_mean_level_m of C3 (Western Dune) minus that of C2 (Dune); negative = C3 deeper
+cluster_mean_level_offset_m,C4 minus C2,2010-01 to 2025-12,-0.8915773254860924,m,cluster_mean_level_m of C4 (Main Forest) minus that of C2 (Dune); negative = C4 deeper
+cluster_mean_level_offset_m,C5 minus C2,2010-01 to 2025-12,-0.7674145879058594,m,cluster_mean_level_m of C5 minus that of C2 (Dune); negative = C5 deeper
+cluster_mean_level_offset_m,C4 minus C3,2010-01 to 2025-12,-0.6496411821393829,m,cluster_mean_level_m of C4 (Main Forest) minus that of C3 (Western Dune); negative = C4 deeper
+cluster_mean_level_offset_m,C5 minus C3,2010-01 to 2025-12,-0.5254784445591499,m,cluster_mean_level_m of C5 minus that of C3 (Western Dune); negative = C5 deeper
+cluster_mean_level_offset_m,C5 minus C4,2010-01 to 2025-12,0.124162737580233,m,cluster_mean_level_m of C5 minus that of C4 (Main Forest); negative = C5 deeper
 post2018_p90_p10_max_min_ratio,C1 (Lake Edge),,1.433763188745604,,"largest / smallest member post-2018 p90-p10 amplitude, n=7 wells (02_08_cluster_amplitude_per_well.csv)"
-post2018_p90_p10_max_min_ratio,C2 (Dune),,1.5095541401273886,,"largest / smallest member post-2018 p90-p10 amplitude, n=27 wells (02_08_cluster_amplitude_per_well.csv)"
-post2018_p90_p10_max_min_ratio,C3 (Western Dune),,2.135303265940902,,"largest / smallest member post-2018 p90-p10 amplitude, n=13 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,C2 (Dune),,1.7490445859872608,,"largest / smallest member post-2018 p90-p10 amplitude, n=26 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,"C3o (Western Dune, open)",,1.9828926905132198,,"largest / smallest member post-2018 p90-p10 amplitude, n=18 wells (02_08_cluster_amplitude_per_well.csv)"
 post2018_p90_p10_max_min_ratio,C4 (Main Forest),,1.5739514348785875,,"largest / smallest member post-2018 p90-p10 amplitude, n=9 wells (02_08_cluster_amplitude_per_well.csv)"
-post2018_p90_p10_max_min_ratio,C5 (Coastal Forest),,2.1982758620689653,,"largest / smallest member post-2018 p90-p10 amplitude, n=10 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,"C3f (Western Dune, forest)",,2.043103448275862,,"largest / smallest member post-2018 p90-p10 amplitude, n=6 wells (02_08_cluster_amplitude_per_well.csv)"
 c1_amp_change_pct,C1 (Lake Edge),,-15.277777777777779,%,"C1 (Lake Edge): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=7 wells (02_09 amplitude_damping_pct)"
 c1_amp_change_climnorm_pct,C1 (Lake Edge),,-11.226851851851862,%,"C1 (Lake Edge): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
-c2_amp_change_pct,C2 (Dune),,-1.4895729890764549,%,"C2 (Dune): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=27 wells (02_09 amplitude_damping_pct)"
-c2_amp_change_climnorm_pct,C2 (Dune),,8.738828202581912,%,"C2 (Dune): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
-c3_amp_change_pct,C3 (Western Dune),,-0.09920634920633825,%,"C3 (Western Dune): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=13 wells (02_09 amplitude_damping_pct)"
-c3_amp_change_climnorm_pct,C3 (Western Dune),,7.341269841269846,%,"C3 (Western Dune): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c2_amp_change_pct,C2 (Dune),,2.515090543259571,%,"C2 (Dune): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=23 wells (02_09 amplitude_damping_pct)"
+c2_amp_change_climnorm_pct,C2 (Dune),,8.350100603621705,%,"C2 (Dune): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c3_amp_change_pct,"C3o (Western Dune, open)",,1.9094380796508053,%,"C3o (Western Dune, open): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=12 wells (02_09 amplitude_damping_pct)"
+c3_amp_change_climnorm_pct,"C3o (Western Dune, open)",,2.8368794326240923,%,"C3o (Western Dune, open): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
 c4_amp_change_pct,C4 (Main Forest),,4.736842105263163,%,"C4 (Main Forest): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=9 wells (02_09 amplitude_damping_pct)"
 c4_amp_change_climnorm_pct,C4 (Main Forest),,4.912280701754332,%,"C4 (Main Forest): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
-c5_amp_change_pct,C5 (Coastal Forest),,6.06357853034172,%,"C5 (Coastal Forest): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=10 wells (02_09 amplitude_damping_pct)"
-c5_amp_change_climnorm_pct,C5 (Coastal Forest),,6.93497390575597,%,"C5 (Coastal Forest): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c5_amp_change_pct,"C3f (Western Dune, forest)",,10.920245398773028,%,"C3f (Western Dune, forest): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=5 wells (02_09 amplitude_damping_pct)"
+c5_amp_change_climnorm_pct,"C3f (Western Dune, forest)",,13.987730061349717,%,"C3f (Western Dune, forest): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"

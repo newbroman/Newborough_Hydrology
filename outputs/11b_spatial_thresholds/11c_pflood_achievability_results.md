@@ -22,23 +22,23 @@ the recharge season.
 | Cluster | Achievable | Marginal | Unreachable | Cluster total |
 |---|---|---|---|---|
 | C1 | 8 | 0 | 0 | 8 |
-| C2 | 29 | 3 | 0 | 32 |
-| C3 | 15 | 3 | 0 | 18 |
-| C4 | 1 | 8 | 2 | 11 |
-| C5 | 3 | 10 | 2 | 15 |
-| **All clusters** | **56** | **24** | **4** | **84** |
+| C2 | 30 | 2 | 0 | 32 |
+| C3o | 17 | 7 | 0 | 24 |
+| C4 | 1 | 9 | 2 | 12 |
+| C3f | 1 | 3 | 4 | 8 |
+| **All clusters** | **57** | **21** | **6** | **84** |
 
 ## Reading
 
-- **Open dune zone (C1, C2, C3): 52 of 58 wells achievable**, with the remaining 6 marginal — none unreachable. This is the operational domain Conclusion 6 identifies for scrape targeting.
-- **Forest zone (C4, C5): 4 of 26 wells achievable**, with 18 marginal and 4 unreachable. Most forest wells require more than mildly-wet winters; the unreachable wells split 2 in C5 Coastal Forest and 2 in C4 Main Forest.
+- **Open dune zone (C1, C2, C3o): 55 of 63 wells achievable**, with the remaining 8 marginal — none unreachable. This is the operational domain Conclusion 6 identifies for scrape targeting.
+- **Forest zone (C4, C3f): 2 of 20 wells achievable**, with 12 marginal and 6 unreachable. Most forest wells require more than mildly-wet winters; the unreachable wells split 4 in C3f (Western Dune, forest) and 2 in C4 Main Forest.
 
-The cluster pattern reflects the underlying mechanism. The open dune clusters
-(C1 Lake Edge, C2 Dune, C3 Western Dune) sit on the shallow-substrate or
+The cluster pattern reflects the underlying mechanism. The open dune groups
+(C1 Lake Edge, C2 Dune, C3o Western Dune, open) sit on the shallow-substrate or
 deep-sponge aquifer parcels where summer minima respond to winter recharge
-with high efficiency (β₁ in the 2.5–4.6 range). The forest clusters (C4 Main
-Forest, C5 Coastal Forest) carry canopy interception losses and lower β₁
-(1.32–2.55), and C5 additionally carries the coastal-retreat gradient (Section
+with high efficiency (β₁ in the 2.5–4.6 range). The forest groups (C4 Main
+Forest, C3f Western Dune forest) carry canopy interception losses and lower β₁
+(1.32–2.55), and C3f additionally carries the coastal-retreat gradient (Section
 4.8.1), pushing its summer-minimum baseline progressively further below the
 Curreli thresholds and increasing the rainfall multiplier required to recover.
 
@@ -48,11 +48,11 @@ Insert as a new paragraph in §5.9 after the topographic-scraping discussion,
 between the existing "the operational zone for this intervention" sentence and
 the prediction-equations paragraph:
 
-> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 6. Of 52 wells across the open-dune clusters C1, C2 and C3, all but 6 are in the achievable category (m_P < 1.5); none are unreachable. By contrast, of the 26 forest-zone wells in C4 and C5, only 4 sit in the achievable band and 4 are in the unreachable band (m_P ≥ 2.5): 2 in C5 Coastal Forest (CEH17 and CEH31) and 2 in C4 Main Forest (CEH30 and CEH33). The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = 6) define the upper edge of the operational envelope under current climate.*
+> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 6. Of 55 wells across the open-dune groups C1, C2 and C3o, all but 8 are in the achievable category (m_P < 1.5); none are unreachable. By contrast, of the 20 forest-zone wells in C4 and C3f, only 2 sit in the achievable band and 6 are in the unreachable band (m_P ≥ 2.5): 4 in C3f (Western Dune, forest) (CEH17, CEH31, FE3 and FE2) and 2 in C4 Main Forest (CEH30 and CEH33). The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = 8) define the upper edge of the operational envelope under current climate.*
 
 ## Suggested figure caption
 
-> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3 dominated by achievable; forest C4/C5 dominated by marginal-to-unreachable) operationalises Conclusion 6's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*
+> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3o dominated by achievable; forest C4/C3f dominated by marginal-to-unreachable) operationalises Conclusion 6's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*
 
 ## Caveats
 

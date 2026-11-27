@@ -2,12 +2,12 @@ Parameter,Well,Era,Value,Unit,Note
 scrape_H0_mm,,,128.0873724489796,mm,edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)
 scrape_inferred_cut_depth_m,,,0.3499822689272968,m,"inferred, not surveyed: H0 / Sy, with CEH36's own WTF Sy (1.67.0; was the C3 median)"
 scrape_sy_ceh36,CEH36,,0.3659824620303485,-,"CEH36's own WTF Sy_median (18_wtf_01_well_sy_estimates.csv), used for the inferred cut depth"
-scrape_sy_c3_median,C3,,0.3116197076823448,-,open-dune specific yield used for the inferred cut depth: median of the C3 wells' per-well WTF Sy_median (18_wtf_01_well_sy_estimates.csv)
-scrape_lambda_m,,,154.07373525359205,m,decay length of the scrape field
-scrape_reach_50mm_m,,,337.9880798411924,m,largest distance from a cut edge at which the field is >= 50 mm
-scrape_reach_10mm_m,,,543.64324210888,m,largest distance from a cut edge at which the field is >= 10 mm
-scrape_ceh36_reach_50mm_m,,,142.32253509721167,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 50 mm
-scrape_ceh36_reach_10mm_m,,,390.33038009405266,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 10 mm
-clearfell_baseline_drawdown_max_mm,,,298.37960077367893,mm,"maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus Storm Brendan retreat drawdown on the pre-fell baseline, within the site outline (20_clearfell_baseline_drawdown.png)"
+scrape_sy_c3_median,C3,,0.33507200111885027,-,open-dune specific yield used for the inferred cut depth: median of the C3 wells' per-well WTF Sy_median (18_wtf_01_well_sy_estimates.csv)
+scrape_lambda_m,,,177.33786690436622,m,decay length of the scrape field
+scrape_reach_50mm_m,,,386.95750746751423,m,largest distance from a cut edge at which the field is >= 50 mm
+scrape_reach_10mm_m,,,633.1766481708113,m,largest distance from a cut edge at which the field is >= 10 mm
+scrape_ceh36_reach_50mm_m,,,162.03880881966103,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 50 mm
+scrape_ceh36_reach_10mm_m,,,446.27863742752135,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 10 mm
+clearfell_baseline_drawdown_max_mm,,,294.43707374930716,mm,"maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus Storm Brendan retreat drawdown on the pre-fell baseline, within the site outline (20_clearfell_baseline_drawdown.png)"
 clearfell_baseline_drawdown_max_E_m,,,241300.0,m,easting (OSGB36) of the grid cell holding clearfell_baseline_drawdown_max_mm
 clearfell_baseline_drawdown_max_N_m,,,363000.0,m,northing (OSGB36) of the grid cell holding clearfell_baseline_drawdown_max_mm

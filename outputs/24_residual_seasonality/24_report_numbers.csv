@@ -1,7 +1,7 @@
 Parameter,Well,Era,Value,Unit,Note
-residual_seasonal_amplitude_cluster_mean_min,1.0,,0.009012865103044176,m,Minimum across the 5 clusters of the per-cluster mean seasonal amplitude of SSM residuals (24_05_diagnostic_summary.txt PER-CLUSTER SEASONAL STATISTICS table).
-residual_seasonal_amplitude_cluster_mean_max,4.0,,0.015766674800585304,m,Maximum across the 5 clusters of the per-cluster mean seasonal amplitude of SSM residuals (24_05_diagnostic_summary.txt PER-CLUSTER SEASONAL STATISTICS table).
-residual_sunshine_corr_network_mean,,,-0.03608145096861696,,"Network mean of per-well Pearson r between SSM residual and monthly sunshine hours (independent ET proxy, not in the regression); see 24_05_diagnostic_summary.txt."
-residual_seasonality_n_wells_analysed,,,63.0,wells,wells in the residual climatology (rows of 24_residual_climatology.csv)
-residual_phase_peak_winter_n_wells,,Nov-Mar,51.0,wells,"wells whose residual climatology peaks Nov-Mar, of 63"
-residual_phase_peak_summer_n_wells,,May-Aug,0.0,wells,"wells whose residual climatology peaks May-Aug, of 63"
+residual_seasonal_amplitude_cluster_mean_min,5.0,,0.008818341546522276,m,Minimum across the 5 cluster-level groups of the per-cluster mean seasonal amplitude of SSM residuals (24_05_diagnostic_summary.txt PER-CLUSTER SEASONAL STATISTICS table).
+residual_seasonal_amplitude_cluster_mean_max,4.0,,0.015766674800585304,m,Maximum across the 5 cluster-level groups of the per-cluster mean seasonal amplitude of SSM residuals (24_05_diagnostic_summary.txt PER-CLUSTER SEASONAL STATISTICS table).
+residual_sunshine_corr_network_mean,,,-0.03095763590082727,,"Network mean of per-well Pearson r between SSM residual and monthly sunshine hours (independent ET proxy, not in the regression); see 24_05_diagnostic_summary.txt."
+residual_seasonality_n_wells_analysed,,,52.0,wells,wells in the residual climatology (rows of 24_residual_climatology.csv)
+residual_phase_peak_winter_n_wells,,Nov-Mar,42.0,wells,"wells whose residual climatology peaks Nov-Mar, of 52"
+residual_phase_peak_summer_n_wells,,May-Aug,0.0,wells,"wells whose residual climatology peaks May-Aug, of 52"

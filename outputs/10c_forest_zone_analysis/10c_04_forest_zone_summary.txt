@@ -4,20 +4,20 @@ SCRIPT 10c — Forest Zone Spatial Analysis Summary
 
 1. SPATIAL PREDICTORS
 ----------------------------------------
-   β₂ vs elevation: r = 0.929, R² = 0.862
-   Elevation is the dominant predictor of β₂ (86.2% of β₂ variance explained in sample;
-   leave-one-out predicted R² = 0.800).
+   β₂ vs elevation: r = 0.919, R² = 0.845
+   Elevation is the dominant predictor of β₂ (84.5% of β₂ variance explained in sample;
+   leave-one-out predicted R² = 0.758).
    Distance from ridge adds negligible information for β₂.
-   β₃: elevation R² = 0.617, + dist_ridge R² = 0.619
-   β₁: no strong spatial predictor (best: Easting r = 0.637)
+   β₃: elevation R² = 0.455, + dist_ridge R² = 0.555
+   β₁: no strong spatial predictor (best: Easting r = 0.709)
 
 2. CONTINUUM OR TWO GROUPS?
 ----------------------------------------
    C4 β₂ = 2.654 ± 0.653
-   C5 β₂ = 1.761 ± 0.460
-   t-test p = 0.0029 — two distinct groups.
-   β₁ t-test p = 0.3467 — ranges overlap (not distinguishing).
-   WMC3 (clearfell): β₁ = 2.645, β₂ = 1.994 — sits between C4 and C5.
+   C3f β₂ = 1.497 ± 0.403
+   t-test p = 0.0020 — two distinct groups.
+   β₁ t-test p = 0.7213 — ranges overlap (not distinguishing).
+   WMC3 (clearfell): β₁ = 2.645, β₂ = 1.994 — sits between C4 and C3f.
 
 3. OUTLIER ASSESSMENT
 ----------------------------------------
@@ -26,13 +26,13 @@ SCRIPT 10c — Forest Zone Spatial Analysis Summary
    CEH14: β₂ = 4.210 at elev = 14.4 m — consistent with elevation trend,
    not a genuine outlier (upper end of tight linear relationship).
 
-4. C4/C5 BOUNDARY
+4. C4/C3f BOUNDARY
 ----------------------------------------
    C4 elevation: 8.6–14.4 m (n = 9)
-   C5 elevation: 4.7–10.7 m (n = 10)
-   Elevation gap: -2.0 m (zero overlap).
+   C3f elevation: 4.7–11.9 m (n = 6)
+   Elevation gap: -3.3 m (zero overlap).
    C4 Northing: 363760–364488
-   C5 Northing: 363435–363948
+   C3f Northing: 363533–364237
    Conclusion: boundary reflects a real topographic/substrate
    transition (dune ridge → coastal plain), not an arbitrary cut.
-   Pearson affinity: 19/19 wells have best-match = assigned cluster.
+   Pearson affinity: 15/15 wells have best-match = assigned cluster.

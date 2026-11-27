@@ -1,6 +1,6 @@
 distance,linkage,note,k,n_wells,ARI_vs_canonical
-Pearson,ward,reproduction,5,66,0.527
-Pearson,average,alt linkage,5,66,0.757
-Pearson,complete,alt linkage,5,66,0.692
-Spearman,ward,alt distance,5,66,0.587
-DTW,ward,alt distance,5,66,0.44
+Pearson,ward,reproduction,5,66,0.918
+Pearson,average,alt linkage,5,66,0.674
+Pearson,complete,alt linkage,5,66,0.463
+Spearman,ward,alt distance,5,66,0.781
+DTW,ward,alt distance,5,66,0.492

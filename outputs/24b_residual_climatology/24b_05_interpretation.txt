@@ -7,19 +7,19 @@ Winter-minus-summer SSM residual contrast by cluster
 
   Cluster                   Δ(win−sum)                95% CI         p
   C1 (Lake Edge)                5.6 mm   [  -0.3,   13.8]     0.216
-  C2 (Dune)                     2.7 mm   [  -0.7,    6.0]     0.122
-  C3 (Western Dune)            10.4 mm   [   7.0,   14.9]     0.001
+  C2 (Dune)                     0.9 mm   [  -2.4,    4.1]     0.600
+  C3o (Western Dune, open)      9.2 mm   [   6.6,   12.2]     0.000
   C4 (Main Forest)              4.0 mm   [   0.4,    7.6]     0.089
-  C5 (Coastal Forest)           3.4 mm   [  -0.5,    8.0]     0.178
+  C3f (Western Dune, forest)     -1.1 mm   [  -1.7,   -0.4]     0.048
 
 Reading against the three candidate mechanisms:
 
   (1) CANOPY-INTERCEPTION OVER-ESTIMATION — not supported as the
       primary driver. The most significant winter contrast sits in
-      an OPEN-DUNE cluster (C3, away from canopy), while C5 (Coastal
-      Forest — forested but ridge-distant) shows NO winter peak.
+      an OPEN-DUNE group (C3o, away from canopy), while C3f (Western
+      Dune forest — forested but ridge-distant) shows NO winter peak.
       Interception over-estimation predicts the opposite (both
-      forest clusters peak, open dune does not). Evidence runs
+      forest groups peak, open dune does not). Evidence runs
       against it; no data-driven case to revise F = 0.24.
 
   (2) WINTER-PHASED NONLINEAR RECHARGE (site-wide) — supported.
@@ -29,14 +29,14 @@ Reading against the three candidate mechanisms:
 
   (3) RIDGE-DERIVED LATERAL INPUT — partially consistent, not
       separable from (2) here. Within the forest
-      (n = 19 wells), the contrast correlates with distance-
-      to-ridge at r = -0.64 — i.e. it strengthens toward
+      (n = 15 wells), the contrast correlates with distance-
+      to-ridge at r = -0.77 — i.e. it strengthens toward
       the ridge, the direction ridge subsidy predicts. The small
       forest sample makes this suggestive only, and the strongest
       peak overall is open-dune C3 (several of whose wells also lie
       near the ridge), so a ridge term and a site-wide recharge term
       cannot be distinguished on this evidence.
-      (Contrast vs forest-edge distance: r = -0.36.)
+      (Contrast vs forest-edge distance: r = -0.22.)
 
 Preferred reading:
   The winter contrast is NOT forest-confined, so canopy-interception

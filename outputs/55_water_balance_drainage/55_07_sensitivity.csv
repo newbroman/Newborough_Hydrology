@@ -4,7 +4,7 @@ C1 without CEH11,1,C1 (Lake Edge),0.7123987863775454,0.8058005792303043,0.478224
 CEH11 alone,1,C1 (Lake Edge),0.7271612830661489,0.7978739304771956,0.4287358990293827,1,the lake-edge well on its own
 C1 winter law on below-ground months only,1,C1 (Lake Edge),0.7178383005663086,0.800316201383101,0.3456552347253635,7,"0.463 of C1's winter months are below ground; ponded months carry a storage coefficient near 1, not S_a"
 S_a = Script 17 cluster median,1,C1 (Lake Edge),,,,7,k median 0.4995 at S_a = 0.2101 (Script 17 event median); Script 18 per-well S_a is the headline
-S_a = Script 17 cluster median,2,C2 (Dune),,,,27,k median 0.2746 at S_a = 0.2961 (Script 17 event median); Script 18 per-well S_a is the headline
-S_a = Script 17 cluster median,3,C3 (Western Dune),,,,13,k median 0.1783 at S_a = 0.3361 (Script 17 event median); Script 18 per-well S_a is the headline
+S_a = Script 17 cluster median,2,C2 (Dune),,,,23,k median 0.2947 at S_a = 0.2815 (Script 17 event median); Script 18 per-well S_a is the headline
+S_a = Script 17 cluster median,3,"C3o (Western Dune, open)",,,,12,k median 0.1376 at S_a = 0.3597 (Script 17 event median); Script 18 per-well S_a is the headline
 S_a = Script 17 cluster median,4,C4 (Main Forest),,,,9,k median 0.0202 at S_a = 0.2564 (Script 17 event median); Script 18 per-well S_a is the headline
-S_a = Script 17 cluster median,5,C5 (Coastal Forest),,,,10,k median 0.1069 at S_a = 0.2818 (Script 17 event median); Script 18 per-well S_a is the headline
+S_a = Script 17 cluster median,5,"C3f (Western Dune, forest)",,,,5,k median 0.1132 at S_a = 0.3164 (Script 17 event median); Script 18 per-well S_a is the headline

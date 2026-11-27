@@ -1,6 +1,5 @@
 Cluster,Cluster_Label,n_wells,kept_pre,moved_pre,kept_post,moved_post
-1,C1 (Lake Edge),7,6,CEH11->C2,7,
-2,C2 (Dune),27,19,NW1->C5; NW2->C5; NW11->C5; NW13->C5; CEH40->C5; CEH41->C5; WMC4->C5; D15->C5,19,NW1->C5; NW2->C5; NW11->C5; NW13->C5; WMC4->C5; L7->C3; D7->C3; D43->C3
-3,C3 (Western Dune),13,10,NW6->C5; D38->C2; T41A->C2,11,NW5->C5; NW6->C5
+1,C1 (Lake Edge),7,6,CEH11->C3,7,
+2,C2 (Dune),26,19,CEH10->C3; CEH40->C3; CEH41->C3; D9->C3; D15->C3; D38->C3; T41A->C3,19,CEH10->C3; L7->C3; D7->C3; D9->C3; D38->C3; T41A->C3; D43->C3
+3,C3 (Western Dune),24,24,,24,
 4,C4 (Main Forest),9,9,,9,
-5,C5 (Coastal Forest),10,10,,10,

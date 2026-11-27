@@ -1,2 +1,2 @@
 Parameter,Well,Era,Value,Unit,Note
-scrape_head_at_wmc3_mm,WMC3,,-24.88562281197464,mm,"modelled steady-state scrape head (09f_01 scrape_head_mm) interpolated at the CEH36 -> WMC3 distance, 262.4 m (09b dist_m); modelled, not measured (D-200)"
+scrape_head_at_wmc3_mm,WMC3,,-30.852766500136646,mm,"modelled steady-state scrape head (09f_01 scrape_head_mm) interpolated at the CEH36 -> WMC3 distance, 262.4 m (09b dist_m); modelled, not measured (D-200)"

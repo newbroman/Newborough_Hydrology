@@ -1,12 +1,12 @@
 cluster_id,cluster_label,scenario,msl5_shift_sustained_mean_m,msl5_shift_sustained_median_m,n_wells,n_withheld_not_identified,model,aggregation
 1.0,C1 (Lake Edge),2050s,0.020358607415152497,0.0042539753347960625,7,0.0,A,perwell
-2.0,C2 (Dune),2050s,-0.1652147238507777,-0.1322002031408484,23,0.0,A,perwell
+2.0,C2 (Dune),2050s,-0.1622886165207245,-0.1292571156213897,22,0.0,A,perwell
 3.0,"C3o (Western Dune, open)",2050s,-0.25402739625822773,-0.2027654298544544,12,0.0,A,perwell
 4.0,C4 (Main Forest),2050s,,,0,9.0,A,perwell
 5.0,"C3f (Western Dune, forest)",2050s,-0.17743477291153362,-0.147193843086052,4,1.0,A,perwell
 ,SITE,2050s,-0.15251040254675738,,56,,A,perwell
 1.0,C1 (Lake Edge),2080s,0.04762768778490083,0.015781064945847977,7,0.0,A,perwell
-2.0,C2 (Dune),2080s,-0.28838529017342684,-0.22803573405690733,23,0.0,A,perwell
+2.0,C2 (Dune),2080s,-0.28316146765523703,-0.22253353294714873,22,0.0,A,perwell
 3.0,"C3o (Western Dune, open)",2080s,-0.4497942677179614,-0.3576336562866867,12,0.0,A,perwell
 4.0,C4 (Main Forest),2080s,,,0,9.0,A,perwell
 5.0,"C3f (Western Dune, forest)",2080s,-0.31483415495176437,-0.26002198143415967,4,1.0,A,perwell

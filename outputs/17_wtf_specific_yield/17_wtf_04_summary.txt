@@ -1,6 +1,6 @@
 ======================================================================
 SPECIFIC YIELD ESTIMATION — WATER TABLE FLUCTUATION METHOD
-Newborough Warren 2005-2026
+Newborough Warren, 2010-01 to 2026-02 (D-347)
 ======================================================================
 
 Method: Healy and Cook (2002)
@@ -10,21 +10,21 @@ Method: Healy and Cook (2002)
 
 APPROACH A — OLS Regression (winter months, origin-forced)
 ----------------------------------------------------------------------
-  C1 (Lake Edge)                    S_a = 0.231  ±0.0113 (SE)  R² = 0.880  n = 58
-  C2 (Dune)                         S_a = 0.246  ±0.0105 (SE)  R² = 0.897  n = 64
-  C3o (Western Dune, open)          S_a = 0.254  ±0.0082 (SE)  R² = 0.940  n = 63
-  C4 (Main Forest)                  S_a = 0.279  ±0.0159 (SE)  R² = 0.856  n = 53
-  C3f (Western Dune, forest)        S_a = 0.299  ±0.0149 (SE)  R² = 0.874  n = 59
+  C1 (Lake Edge)                    S_a = 0.228  ±0.0119 (SE)  R² = 0.884  n = 49
+  C2 (Dune)                         S_a = 0.255  ±0.0113 (SE)  R² = 0.912  n = 50
+  C3o (Western Dune, open)          S_a = 0.258  ±0.0098 (SE)  R² = 0.935  n = 49
+  C4 (Main Forest)                  S_a = 0.283  ±0.0184 (SE)  R² = 0.843  n = 45
+  C3f (Western Dune, forest)        S_a = 0.335  ±0.0157 (SE)  R² = 0.905  n = 49
 
 APPROACH B — Event Median (rising limb months)
 ----------------------------------------------------------------------
-  C1 (Lake Edge)                    S_a = 0.210  IQR [0.131, 0.258]  n = 59
-  C2 (Dune)                         S_a = 0.281  IQR [0.210, 0.359]  n = 63
-  C3o (Western Dune, open)          S_a = 0.360  IQR [0.307, 0.433]  n = 58
-  C4 (Main Forest)                  S_a = 0.321  IQR [0.259, 0.417]  n = 52
-  C3f (Western Dune, forest)        S_a = 0.364  IQR [0.329, 0.434]  n = 36
-  C4 (Main Forest) (corrected)      S_a = 0.256  IQR [0.186, 0.338]  n = 64   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
-  C3f (Western Dune, forest) (corrected)  S_a = 0.316  IQR [0.248, 0.396]  n = 52   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C1 (Lake Edge)                    S_a = 0.212  IQR [0.132, 0.265]  n = 52
+  C2 (Dune)                         S_a = 0.270  IQR [0.209, 0.352]  n = 51
+  C3o (Western Dune, open)          S_a = 0.356  IQR [0.308, 0.434]  n = 46
+  C4 (Main Forest)                  S_a = 0.329  IQR [0.263, 0.403]  n = 42
+  C3f (Western Dune, forest)        S_a = 0.365  IQR [0.345, 0.435]  n = 27
+  C4 (Main Forest) (corrected)      S_a = 0.256  IQR [0.186, 0.342]  n = 52   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C3f (Western Dune, forest) (corrected)  S_a = 0.326  IQR [0.250, 0.396]  n = 40   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
 
 APPROACH C — Rapid Recharge Events (Crosbie et al., 2005)
 ----------------------------------------------------------------------
@@ -32,22 +32,35 @@ APPROACH C — Rapid Recharge Events (Crosbie et al., 2005)
   >= 50 mm over <= 2 mo; per-episode S_a in [0.01, 0.50].
   Cluster S_a = median of episode Sy_i, 95% CI from 1000 bootstraps.
 
-  C1 (Lake Edge)                    S_a = 0.180  95% CI [0.101, 0.220]  n = 19
-  C2 (Dune)                         S_a = 0.279  95% CI [0.194, 0.352]  n = 19
-  C3o (Western Dune, open)          S_a = 0.334  95% CI [0.301, 0.373]  n = 14
-  C4 (Main Forest)                  S_a = 0.306  95% CI [0.236, 0.359]  n = 13   [interception-corrected]
-  C3f (Western Dune, forest)        S_a = 0.311  95% CI [0.281, 0.343]  n = 14   [interception-corrected]
+  C1 (Lake Edge)                    S_a = 0.182  95% CI [0.113, 0.226]  n = 16
+  C2 (Dune)                         S_a = 0.270  95% CI [0.166, 0.351]  n = 13
+  C3o (Western Dune, open)          S_a = 0.317  95% CI [0.209, 0.409]  n = 10
+  C4 (Main Forest)                  S_a = 0.306  95% CI [0.236, 0.359]  n = 11   [interception-corrected]
+  C3f (Western Dune, forest)        S_a = 0.315  95% CI [0.281, 0.360]  n = 12   [interception-corrected]
 
 COMPARISON WITH ASSUMED VALUES
 ----------------------------------------------------------------------
   Cluster                            Assumed       OLS     Event     Rapid
-  C1 (Lake Edge)                       0.080     0.231     0.210     0.180
-  C2 (Dune)                            0.120     0.246     0.281     0.279
-  C3o (Western Dune, open)             0.120     0.254     0.360     0.334
-  C4 (Main Forest)                     0.120     0.279     0.321     0.306
-  C3f (Western Dune, forest)           0.120     0.299     0.364     0.311
-  C4 (Main Forest) (corrected)         0.120       n/a     0.256         -
-  C3f (Western Dune, forest) (corrected)    0.120       n/a     0.316         -
+  C1 (Lake Edge)                       0.080     0.228     0.212     0.182
+  C2 (Dune)                            0.120     0.255     0.270     0.270
+  C3o (Western Dune, open)             0.120     0.258     0.356     0.317
+  C4 (Main Forest)                     0.120     0.283     0.329         -
+  C3f (Western Dune, forest)           0.120     0.335     0.365         -
+  C4 (Main Forest) (corrected)         0.120       n/a     0.256     0.306
+  C3f (Western Dune, forest) (corrected)    0.120       n/a     0.326     0.315
+
+INTERCEPTION — ROBUSTNESS CHECK AND EVIDENCE (D-349 (7))
+----------------------------------------------------------------------
+  Open-dune range of event-median S_a (uncorrected, open groups): [0.212, 0.356]
+  C4 (Main Forest)                  inside at 17 of 21 grid F in [0.00, 0.32]; inside with NO correction (F = 0)
+  C3f (Western Dune, forest)        inside at 16 of 21 grid F in [0.02, 0.40]; outside at F = 0
+  The sweep is a robustness check, not a test: the range is wide and the 0.50 ceiling
+  holds the clipped medians in it, so it cannot discriminate between interception
+  fractions. It shows the forest groups' convergence does not depend on F.
+  Evidence: C3f (Western Dune, forest) against C3o (Western Dune, open) (same cluster, other cover)
+    unclipped event-median S_a: 0.653 uncorrected, 0.440 corrected, against 0.478;
+    the two are equal at F = 0.201;
+    centroid beta_1 ratio (03_03) 0.750, against 1 - F = 0.760 (suggestive: beta_1 also scales with 1/S_a).
 
 NOTES
 ----------------------------------------------------------------------
@@ -70,6 +83,8 @@ NOTES
   is not reduced because Thornthwaite PET is an energy-based atmospheric
   demand (independent of land cover), so reducing only P is physically
   motivated and not double-counting.
+- Approach C's forest values are interception-corrected and sit on the
+  corrected rows (D-349 (7)).
 - Approach A corrected variants are not fitted in this version (the
   corrected fits were unstable; the report uses Approach B for the
   corrected forest values populating Table 3c).

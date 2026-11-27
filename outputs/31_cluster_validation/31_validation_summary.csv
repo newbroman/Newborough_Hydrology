@@ -1,21 +1,20 @@
 tier,test,descriptor,statistic_name,statistic,p_value,independence
-1 external,within-cluster compactness,geographic distance,mean_within_m,609.5,0.0001,external
-1 external,join-count (BB),same-cluster adjacency,z,18.35,0.0001,external
+1 external,within-cluster compactness,geographic distance,mean_within_m,644.3,0.0001,external
+1 external,join-count (BB),same-cluster adjacency,z,17.12,0.0001,external
 1 external,Moran's I (C1 indicator),C1 spatial autocorr,morans_I,0.452,0.0001,external
 1 external,Moran's I (C2 indicator),C2 spatial autocorr,morans_I,0.74,0.0001,external
-1 external,Moran's I (C3 indicator),C3 spatial autocorr,morans_I,0.578,0.0001,external
+1 external,Moran's I (C3 indicator),C3 spatial autocorr,morans_I,0.63,0.0001,external
 1 external,Moran's I (C4 indicator),C4 spatial autocorr,morans_I,0.602,0.0001,external
-1 external,Moran's I (C5 indicator),C5 spatial autocorr,morans_I,0.389,0.0001,external
-1 external,ANOVA / Kruskal,distance to coast,eta2,0.593,0.0,external
-1 external,ANOVA / Kruskal,ground elevation,eta2,0.174,0.0187,external
-1 external,forest-footprint recovery,canopy polygon vs forest clusters,cohen_kappa,0.958,,external
-1 external,forest recovery (edge excluded),canopy polygon vs forest clusters,cohen_kappa,0.955,,external
-2 metric-indep,ANOVA,mean depth to water,eta2,0.519,0.0,metric-independent
-2 metric-indep,ANOVA,seasonal amplitude,eta2,0.25,0.0013,metric-independent
-2 metric-indep,ANOVA,summer minimum,eta2,0.481,0.0,metric-independent
-2 metric-indep,ANOVA,dry depth,eta2,0.356,0.0433,metric-independent
-3 convergent,ANOVA,SSM beta1,eta2,0.376,0.0,convergent
-3 convergent,ANOVA,SSM beta2,eta2,0.519,0.0,convergent
+1 external,ANOVA / Kruskal,distance to coast,eta2,0.588,0.0,external
+1 external,ANOVA / Kruskal,ground elevation,eta2,0.166,0.01,external
+1 external,forest-footprint recovery,canopy polygon vs C4 (the forest cluster found),cohen_kappa,0.661,,external
+1 external,forest recovery (edge excluded),canopy polygon vs C4 (the forest cluster found),cohen_kappa,0.695,,external
+2 metric-indep,ANOVA,mean depth to water,eta2,0.479,0.0,metric-independent
+2 metric-indep,ANOVA,seasonal amplitude,eta2,0.186,0.0049,metric-independent
+2 metric-indep,ANOVA,summer minimum,eta2,0.458,0.0,metric-independent
+2 metric-indep,ANOVA,dry depth,eta2,0.318,0.0264,metric-independent
+3 convergent,ANOVA,SSM beta1,eta2,0.304,0.0,convergent
+3 convergent,ANOVA,SSM beta2,eta2,0.475,0.0,convergent
 3 convergent,ANOVA,SSM beta3,eta2,0.857,0.0,convergent
-3 convergent,ANOVA,WTF Sy,eta2,0.527,0.0,convergent
-3 convergent,ANOVA,LCSC,eta2,0.468,0.0,convergent
+3 convergent,ANOVA,WTF Sy,eta2,0.497,0.0,convergent
+3 convergent,ANOVA,LCSC,eta2,0.345,0.0,convergent

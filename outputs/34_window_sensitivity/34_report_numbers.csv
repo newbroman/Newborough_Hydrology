@@ -16,12 +16,12 @@ msl9_window_change_c1_n_negative,,,7.0,pairs,C1: admissible pairs in which the c
 msl9_window_change_c2_min_mm,,,-60.78385263570447,mm,C2: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
 msl9_window_change_c2_max_mm,,,140.66137566137562,mm,C2: maximum cluster-mean MSL9 change over the admissible pairs.
 msl9_window_change_c2_n_negative,,,8.0,pairs,C2: admissible pairs in which the cluster-mean MSL9 fell.
-msl9_window_change_c3_min_mm,,,-78.29704007285974,mm,C3: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
-msl9_window_change_c3_max_mm,,,128.9689090668383,mm,C3: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c3_min_mm,,,-78.40234237688941,mm,C3: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c3_max_mm,,,131.6971200643787,mm,C3: maximum cluster-mean MSL9 change over the admissible pairs.
 msl9_window_change_c3_n_negative,,,14.0,pairs,C3: admissible pairs in which the cluster-mean MSL9 fell.
 msl9_window_change_c4_min_mm,,,-81.64021164021165,mm,C4: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
 msl9_window_change_c4_max_mm,,,173.7169312169312,mm,C4: maximum cluster-mean MSL9 change over the admissible pairs.
 msl9_window_change_c4_n_negative,,,11.0,pairs,C4: admissible pairs in which the cluster-mean MSL9 fell.
-msl9_window_change_c5_min_mm,,,-79.07407407407398,mm,C5: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
-msl9_window_change_c5_max_mm,,,112.09876543209889,mm,C5: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c5_min_mm,,,-78.67724867724858,mm,C5: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c5_max_mm,,,107.49338624338635,mm,C5: maximum cluster-mean MSL9 change over the admissible pairs.
 msl9_window_change_c5_n_negative,,,15.0,pairs,C5: admissible pairs in which the cluster-mean MSL9 fell.

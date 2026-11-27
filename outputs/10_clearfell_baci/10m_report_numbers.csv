@@ -11,4 +11,6 @@ WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.05314711273275424,m,"r
 WMC3_BACI_DiD_step_2023_scraping_se,WMC3,Post-2023 scrape,0.06786802162816312,m,"Newey-West SE, 12 lags, two eras in quadrature"
 WMC3_BACI_DiD_step_2023_scraping_t,WMC3,Post-2023 scrape,-0.7830950638864629,,step / SE
 WMC3_BACI_DiD_step_2023_scraping_placebo_share,WMC3,Post-2023 scrape,0.6462585034013606,,share of 147 slid break dates with |step| >= |observed|; windows of the real eras' month counts
+WMC3_BACI_DiD_step_2017_clearfell_winter,WMC3,Post-clearfell / pre-2023,0.054858864857418366,m,"raw difference-in-differences on Oct-Mar months only, Post-2015 scrape / pre-fell (n=14) -> Post-clearfell / pre-2023 (n=34); no drift term: the drift-free member of the clearfell anchor range (D-349 B3)"
+WMC3_BACI_DiD_step_2017_clearfell_winter_se,WMC3,Post-clearfell / pre-2023,0.06516261529879289,m,"Newey-West SE, 12 lags on the observed winter months, two eras in quadrature"
 WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.108230263783953,m,"reference copy of 10a headline (p=0.0034, CI=[0.0369,0.1796])"

@@ -197,6 +197,7 @@ ANCOVA_Forest_Impact_clearfell_step_winter_ci_hi_hac,Impact,Post_felling_Oct-Mar
 ANCOVA_Forest_Impact_clearfell_step_winter_minus_summer,Impact,Post_felling,0.128542617751701,m,"Oct-Mar step minus Jun-Sep step, one fully interacted Jun-Mar model (n=134); Newey-West (Bartlett), 10 lags"
 ANCOVA_Forest_Impact_clearfell_step_winter_minus_summer_se_hac,Impact,Post_felling,0.06811234400503509,m,"Oct-Mar step minus Jun-Sep step, one fully interacted Jun-Mar model (n=134); Newey-West (Bartlett), 10 lags"
 ANCOVA_Forest_Impact_clearfell_step_winter_minus_summer_p_hac,Impact,Post_felling,0.059131452145250375,,"Oct-Mar step minus Jun-Sep step, one fully interacted Jun-Mar model (n=134); Newey-West (Bartlett), 10 lags"
+ANCOVA_Forest_Impact_clearfell_step_winter_s_fixed1,Impact,Post_felling_Oct-Mar,0.1134346244251713,m,"SENSITIVITY, not the headline (D-076, D-349 B3): the Oct-Mar clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) as an offset; p=0.0033, n=84; the drift-fixed member of the clearfell anchor range"
 ANCOVA_Forest_Impact_winter_R2,Impact,Oct-Mar,0.34320954453522823,,Winter model R² (full spec)
 ANCOVA_Forest_Impact_winter_N,Impact,Oct-Mar,84.0,months,Winter sample size (Oct-Mar months only)
 ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.09148179918204946,m,"p=0.1630, CI=[-0.0350,0.2180], Jun-Sep subset, CWB dropped (sensitivity variant)"

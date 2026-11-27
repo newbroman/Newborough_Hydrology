@@ -121,8 +121,8 @@ check1_msl5_window_predicted_excess,,window-end 2023,-46.57197535975282,mm,"cont
 check1_msl5_window_predicted_excess,,window-end 2025,28.41886529557478,mm,"contemporaneous and carry-over coefficients times the change in mean site-mean spring level, springs 2021-2025 vs 2013-2017"
 check1_model_b_halflife_centroid,C4 (Main Forest),full_record,52.347226009529805,months,Model B t½ = ln(2)/β₃ at the cluster centroid (03_16_model_b_persistence.csv; β₃ p = 0.370)
 check1_model_b_halflife_median_well,C4 (Main Forest),comparison_window,29.773438302722774,months,median over n=9 member wells of Model B t½ (03_16_model_b_persistence.csv)
-check1_model_b_halflife_centroid,"C3o (Western Dune, open)",full_record,7.999011620176571,months,Model B t½ = ln(2)/β₃ at the cluster centroid (03_16_model_b_persistence.csv; β₃ p = 0.000)
-check1_model_b_halflife_median_well,"C3o (Western Dune, open)",comparison_window,6.6292462512756565,months,median over n=18 member wells of Model B t½ (03_16_model_b_persistence.csv)
+check1_model_b_halflife_centroid,"C3o (Western Dune, open)",full_record,7.999438104978148,months,Model B t½ = ln(2)/β₃ at the cluster centroid (03_16_model_b_persistence.csv; β₃ p = 0.000)
+check1_model_b_halflife_median_well,"C3o (Western Dune, open)",comparison_window,6.291971442587702,months,median over n=17 member wells of Model B t½ (03_16_model_b_persistence.csv)
 recession_time_group_mean_of_per_well,Forest ctrl,,58.34001545425305,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
 recession_time_group_reciprocal_mean_beta3,Forest ctrl,,47.6918759438411,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"
 recession_time_group_mean_of_per_well,Climate ctrl,,13.255091698573128,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"

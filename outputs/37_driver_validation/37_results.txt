@@ -14,37 +14,37 @@ SCALE-FACTOR TABLE (HC3 robust SEs, 95% CI)
     R²      = 0.092
 
   window=2018_2025    variant=primary                n=40
-    s_coast =   0.745  95%CI [-0.230, 1.719]
-    s_cf    =   2.038  95%CI [0.496, 3.579]
-    c       =   272.7 mm  95%CI [226.2, 319.3]
-    R²      = 0.089
+    s_coast =   0.723  95%CI [-0.245, 1.690]
+    s_cf    =   2.017  95%CI [0.476, 3.557]
+    c       =   273.0 mm  95%CI [226.4, 319.7]
+    R²      = 0.087
 
   window=2005_2025    variant=primary                n=20
-    s_coast =   0.476  95%CI [0.026, 0.925]
-    s_cf    =  -0.465  95%CI [-3.608, 2.679]
-    c       =    -6.8 mm  95%CI [-66.7, 53.2]
+    s_coast =   0.476  95%CI [0.030, 0.922]
+    s_cf    =  -0.469  95%CI [-3.662, 2.725]
+    c       =    -6.9 mm  95%CI [-66.6, 52.9]
     R²      = 0.347
 
   window=2018_2025    variant=with_broadleaf_covariate n=40
-    s_coast =   0.340  95%CI [-0.628, 1.308]
-    s_cf    =   1.808  95%CI [0.815, 2.800]
-    s_bl    =  -3.809  95%CI [-6.764, -0.853]  (robustness only — NOT headline)
-    c       =   246.1 mm  95%CI [197.2, 294.9]
+    s_coast =   0.326  95%CI [-0.638, 1.290]
+    s_cf    =   1.806  95%CI [0.801, 2.811]
+    s_bl    =  -3.846  95%CI [-6.826, -0.866]  (robustness only — NOT headline)
+    c       =   246.3 mm  95%CI [197.7, 295.0]
     R²      = 0.239
 
 NEGATIVE CONTROL — C2 (Dune) (included in fit, ADDENDUM 1 2026-07-06)
 ----------------------------------------------------------------------
   2006_2012    n=24  mean coast_i=+0.0  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-473.1  mean residual=-46.9
-  2018_2025    n=24  mean coast_i=+0.0  mean clearfell_i=+0.3  mean dh_corr=+233.1  mean residual=+40.2
-  2005_2025    n=6  mean coast_i=+0.0  mean clearfell_i=+0.3  mean dh_corr=-5.1  mean residual=-1.8
+  2018_2025    n=24  mean coast_i=+0.0  mean clearfell_i=+0.3  mean dh_corr=+233.1  mean residual=+40.5
+  2005_2025    n=6  mean coast_i=+0.0  mean clearfell_i=+0.3  mean dh_corr=-5.1  mean residual=-1.9
   C2 (Dune) wells feel no coastal or clearfell field (all covered wells carry a modelled amplitude below 5 mm) — a near-zero mean residual here is CONSISTENT WITH an unbiased climate correction on driver-free wells (not 'confirms'; see ADDENDUM 1 for the n=6 caveat).
 
 EXCLUDED FROM FIT — sluice (C1, Lake Edge; ADDENDUM 1)
 ----------------------------------------------------------------------
   reason: management-controlled lake level (sluice)
   2006_2012    n=7  mean coast_i=-2.8  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-236.8  mean residual=-290.6
-  2018_2025    n=7  mean coast_i=-3.5  mean clearfell_i=+0.1  mean dh_corr=+139.6  mean residual=+130.8
-  2005_2025    n=3  mean coast_i=-22.3  mean clearfell_i=+0.0  mean dh_corr=+20.9  mean residual=-38.3
+  2018_2025    n=7  mean coast_i=-3.5  mean clearfell_i=+0.1  mean dh_corr=+139.6  mean residual=+131.2
+  2005_2025    n=3  mean coast_i=-22.3  mean clearfell_i=+0.0  mean dh_corr=+20.9  mean residual=-38.4
   C1's level is management-set (sluice on Llyn Rhos-Ddu), not a read on natural hydrology — shown here for transparency (e.g. 2006–2012: held near a −269 mm mean against a uniform background well below it), not because C1 is anomalous. Excluding it from the fit moves every coefficient by ≲0.15 of its SE (see ADDENDUM 1).
 
 INDEPENDENT TEST — implied δ₀(t) expanding-window trajectory

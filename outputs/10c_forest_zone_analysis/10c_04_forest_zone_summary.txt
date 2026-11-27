@@ -4,20 +4,21 @@ SCRIPT 10c — Forest Zone Spatial Analysis Summary
 
 1. SPATIAL PREDICTORS
 ----------------------------------------
-   β₂ vs elevation: r = 0.919, R² = 0.845
-   Elevation is the dominant predictor of β₂ (84.5% of β₂ variance explained in sample;
-   leave-one-out predicted R² = 0.758).
+   β₂ vs elevation: r = 0.964, R² = 0.929
+   Elevation is the dominant predictor of β₂ (92.9% of β₂ variance explained in sample;
+   leave-one-out predicted R² = 0.880).
    Distance from ridge adds negligible information for β₂.
-   β₃: elevation R² = 0.455, + dist_ridge R² = 0.555
-   β₁: no strong spatial predictor (best: Easting r = 0.709)
+   β₃: elevation R² = 0.669, + dist_ridge R² = 0.67
+   β₁: no strong spatial predictor (best: Easting r = 0.479)
 
 2. CONTINUUM OR TWO GROUPS?
 ----------------------------------------
    C4 β₂ = 2.654 ± 0.653
-   C3f β₂ = 1.497 ± 0.403
-   t-test p = 0.0020 — two distinct groups.
-   β₁ t-test p = 0.7213 — ranges overlap (not distinguishing).
-   WMC3 (clearfell): β₁ = 2.645, β₂ = 1.994 — sits between C4 and C3f.
+   C3f β₂ = 1.373 ± 0.294
+   t-test p = 0.0015 — two distinct groups.
+   β₁ t-test p = 0.3997 — ranges overlap (not distinguishing).
+   ceh20 (clearfell well, 45 m from it; group 4): β₁ = 2.442, β₂ = 2.099.
+   wmc3 (clearfell well, inside the clearfell; group 5): β₁ = 2.645, β₂ = 1.994.
 
 3. OUTLIER ASSESSMENT
 ----------------------------------------
@@ -29,10 +30,10 @@ SCRIPT 10c — Forest Zone Spatial Analysis Summary
 4. C4/C3f BOUNDARY
 ----------------------------------------
    C4 elevation: 8.6–14.4 m (n = 9)
-   C3f elevation: 4.7–11.9 m (n = 6)
-   Elevation gap: -3.3 m (zero overlap).
+   C3f elevation: 4.7–6.3 m (n = 5)
+   Elevation gap: 2.3 m (zero overlap).
    C4 Northing: 363760–364488
-   C3f Northing: 363533–364237
+   C3f Northing: 363533–363615
    Conclusion: boundary reflects a real topographic/substrate
    transition (dune ridge → coastal plain), not an arbitrary cut.
-   Pearson affinity: 15/15 wells have best-match = assigned cluster.
+   Pearson affinity: 14/14 wells have best-match = assigned cluster.

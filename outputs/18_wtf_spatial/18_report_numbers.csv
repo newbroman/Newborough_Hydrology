@@ -13,10 +13,10 @@ C1_halflife_min,,,1.4325667455637459,months,"min t½, C1, cluster-level referenc
 C1_halflife_max,,,2.5387692454885666,months,"max t½, C1, cluster-level reference wells, n=7, basis full_record (D-192)"
 C1_halflife_mean,,,1.9999622137429314,months,"mean t½, C1, cluster-level reference wells, n=7, basis full_record (D-192)"
 C1_recip_b3_mean,,,2.8853355677322403,months,"mean 1/β₃, C1, cluster-level reference wells, n=7, basis full_record (D-192)"
-C2_halflife_min,,,2.834659755832563,months,"min t½, C2, cluster-level reference wells, n=23, basis full_record (D-192)"
-C2_halflife_max,,,5.477266733127229,months,"max t½, C2, cluster-level reference wells, n=23, basis full_record (D-192)"
-C2_halflife_mean,,,3.995622588912421,months,"mean t½, C2, cluster-level reference wells, n=23, basis full_record (D-192)"
-C2_recip_b3_mean,,,5.764464894287874,months,"mean 1/β₃, C2, cluster-level reference wells, n=23, basis full_record (D-192)"
+C2_halflife_min,,,2.834659755832563,months,"min t½, C2, cluster-level reference wells, n=22, basis full_record (D-192)"
+C2_halflife_max,,,5.477266733127229,months,"max t½, C2, cluster-level reference wells, n=22, basis full_record (D-192)"
+C2_halflife_mean,,,3.9320029820329907,months,"mean t½, C2, cluster-level reference wells, n=22, basis full_record (D-192)"
+C2_recip_b3_mean,,,5.672681202939613,months,"mean 1/β₃, C2, cluster-level reference wells, n=22, basis full_record (D-192)"
 C3_halflife_min,,,4.771583837640907,months,"min t½, C3, cluster-level reference wells, n=12, basis full_record (D-192)"
 C3_halflife_max,,,13.6910313040492,months,"max t½, C3, cluster-level reference wells, n=12, basis full_record (D-192)"
 C3_halflife_mean,,,7.709990193003157,months,"mean t½, C3, cluster-level reference wells, n=12, basis full_record (D-192)"
@@ -35,15 +35,15 @@ C4_halflife_mean_window,,,35.25835234500288,months,"mean t½ = ln(2)/β₃, C4, 
 halflife_ceh13_window,CEH13,excluded,69.72170204049613,months,"t½ = ln(2)/β₃, basis comparison_window (03_master_data.csv); excluded from the map"
 halflife_ceh13_full_record,CEH13,excluded,127.57740408673996,months,"t½ = ln(2)/β₃, basis full_record (03_19); excluded from the map"
 beta3_pvalue_ceh13_full_record,CEH13,excluded,0.7526176091392967,m,p-value of β₃ on the full record (03_19): whether CEH13's drainage term is identified
-sy_recip_beta3_correlation_r,,,0.01698250421742139,,"Pearson r(Sy_median, 1/β₃) over the reference network, non-excluded wells (n=64), basis full_record (D-192); from sdi_df (compute_storage_drainage_index)"
-sy_recip_beta3_correlation_p,,,0.8940416143259458,,p-value for sy_recip_beta3_correlation_r
+sy_recip_beta3_correlation_r,,,0.014220628165974351,,"Pearson r(Sy_median, 1/β₃) over the reference network, non-excluded wells (n=64), basis full_record (D-192); from sdi_df (compute_storage_drainage_index)"
+sy_recip_beta3_correlation_p,,,0.9111973399623446,,p-value for sy_recip_beta3_correlation_r
 sy_recip_beta3_correlation_n,,,64.0,wells,wells behind sy_recip_beta3_correlation_r
-sdi_vs_halflife_correlation_r,,,0.9870228857735317,,"Pearson r between the per-well storage-drainage index τ = S_a/β₃ and t½ = ln(2)/β₃, same wells (n=64), basis full_record"
+sdi_vs_halflife_correlation_r,,,0.9875626805864128,,"Pearson r between the per-well storage-drainage index τ = S_a/β₃ and t½ = ln(2)/β₃, same wells (n=64), basis full_record"
 wtf_n_events_per_well_min,,,27.0,events,min of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv
 wtf_n_events_per_well_max,,,62.0,events,max of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv
-wtf_n_events_per_well_mean,,,47.74242424242424,events,mean of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv
+wtf_n_events_per_well_mean,,,47.77272727272727,events,mean of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv
 well_sy_cluster_mean_c1,C1 (Lake Edge),,0.21046116612777357,,mean of the per-well WTF Sy_median over the 7 cluster-level reference wells of C1 in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)
-well_sy_cluster_mean_c2,C2 (Dune),,0.2675788301725737,,mean of the per-well WTF Sy_median over the 23 cluster-level reference wells of C2 in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)
+well_sy_cluster_mean_c2,C2 (Dune),,0.2673402335756107,,mean of the per-well WTF Sy_median over the 22 cluster-level reference wells of C2 in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)
 well_sy_cluster_mean_c3,"C3o (Western Dune, open)",,0.34223754316281224,,mean of the per-well WTF Sy_median over the 12 cluster-level reference wells of C3 in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)
 well_sy_cluster_mean_c4,C4 (Main Forest),,0.24502542230056207,,mean of the per-well WTF Sy_median over the 9 cluster-level reference wells of C4 in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)
 well_sy_cluster_mean_c5,"C3f (Western Dune, forest)",,0.31722475359907765,,mean of the per-well WTF Sy_median over the 5 cluster-level reference wells of C5 in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)

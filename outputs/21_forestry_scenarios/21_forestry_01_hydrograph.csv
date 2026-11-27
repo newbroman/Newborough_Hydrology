@@ -4,84 +4,84 @@
 # Separation sign: positive = shallower than the observed C4 baseline.
 # BLOCK 1 — monthly depths (long format)
 Series,Series_type,Month_num,Month,Depth_m
-Baseline (Corsican pine),scenario,1,Jan,0.9069
-Baseline (Corsican pine),scenario,2,Feb,0.8336
-Baseline (Corsican pine),scenario,3,Mar,0.8306
-Baseline (Corsican pine),scenario,4,Apr,0.886
-Baseline (Corsican pine),scenario,5,May,0.9496
-Baseline (Corsican pine),scenario,6,Jun,1.1132
-Baseline (Corsican pine),scenario,7,Jul,1.2561
-Baseline (Corsican pine),scenario,8,Aug,1.3986
-Baseline (Corsican pine),scenario,9,Sep,1.5555
-Baseline (Corsican pine),scenario,10,Oct,1.4716
-Baseline (Corsican pine),scenario,11,Nov,1.2475
-Baseline (Corsican pine),scenario,12,Dec,1.0694
-Observed C4 baseline,observed,1,Jan,0.9069
-Observed C4 baseline,observed,2,Feb,0.8336
-Observed C4 baseline,observed,3,Mar,0.8306
-Observed C4 baseline,observed,4,Apr,0.886
-Observed C4 baseline,observed,5,May,0.9496
-Observed C4 baseline,observed,6,Jun,1.1132
-Observed C4 baseline,observed,7,Jul,1.2561
-Observed C4 baseline,observed,8,Aug,1.3986
-Observed C4 baseline,observed,9,Sep,1.5555
-Observed C4 baseline,observed,10,Oct,1.4716
-Observed C4 baseline,observed,11,Nov,1.2475
-Observed C4 baseline,observed,12,Dec,1.0694
-"Clearfell observed step, annual",benchmark,1,Jan,0.7987
-"Clearfell observed step, annual",benchmark,2,Feb,0.7253
-"Clearfell observed step, annual",benchmark,3,Mar,0.7224
-"Clearfell observed step, annual",benchmark,4,Apr,0.7778
-"Clearfell observed step, annual",benchmark,5,May,0.8414
-"Clearfell observed step, annual",benchmark,6,Jun,1.005
-"Clearfell observed step, annual",benchmark,7,Jul,1.1479
-"Clearfell observed step, annual",benchmark,8,Aug,1.2904
-"Clearfell observed step, annual",benchmark,9,Sep,1.4473
-"Clearfell observed step, annual",benchmark,10,Oct,1.3634
-"Clearfell observed step, annual",benchmark,11,Nov,1.1393
-"Clearfell observed step, annual",benchmark,12,Dec,0.9612
-"Clearfell observed step, by season",benchmark,1,Jan,0.7794
-"Clearfell observed step, by season",benchmark,2,Feb,0.706
-"Clearfell observed step, by season",benchmark,3,Mar,0.703
-"Clearfell observed step, by season",benchmark,4,Apr,0.7778
-"Clearfell observed step, by season",benchmark,5,May,0.8414
-"Clearfell observed step, by season",benchmark,6,Jun,1.1142
-"Clearfell observed step, by season",benchmark,7,Jul,1.2571
-"Clearfell observed step, by season",benchmark,8,Aug,1.3996
-"Clearfell observed step, by season",benchmark,9,Sep,1.5565
-"Clearfell observed step, by season",benchmark,10,Oct,1.344
-"Clearfell observed step, by season",benchmark,11,Nov,1.12
-"Clearfell observed step, by season",benchmark,12,Dec,0.9418
-C1 Eastern lake-buffer (observed),observed,1,Jan,0.3613
-C1 Eastern lake-buffer (observed),observed,2,Feb,0.3852
-C1 Eastern lake-buffer (observed),observed,3,Mar,0.4373
-C1 Eastern lake-buffer (observed),observed,4,Apr,0.6295
-C1 Eastern lake-buffer (observed),observed,5,May,0.8464
-C1 Eastern lake-buffer (observed),observed,6,Jun,1.0091
-C1 Eastern lake-buffer (observed),observed,7,Jul,1.1004
-C1 Eastern lake-buffer (observed),observed,8,Aug,1.0993
-C1 Eastern lake-buffer (observed),observed,9,Sep,0.9639
-C1 Eastern lake-buffer (observed),observed,10,Oct,0.724
-C1 Eastern lake-buffer (observed),observed,11,Nov,0.5467
-C1 Eastern lake-buffer (observed),observed,12,Dec,0.3953
-C2 Eastern mature dune (observed),observed,1,Jan,-0.0189
-C2 Eastern mature dune (observed),observed,2,Feb,-0.009
-C2 Eastern mature dune (observed),observed,3,Mar,-0.0069
-C2 Eastern mature dune (observed),observed,4,Apr,0.139
-C2 Eastern mature dune (observed),observed,5,May,0.3398
-C2 Eastern mature dune (observed),observed,6,Jun,0.5207
-C2 Eastern mature dune (observed),observed,7,Jul,0.6735
-C2 Eastern mature dune (observed),observed,8,Aug,0.785
-C2 Eastern mature dune (observed),observed,9,Sep,0.778
-C2 Eastern mature dune (observed),observed,10,Oct,0.4181
-C2 Eastern mature dune (observed),observed,11,Nov,0.2316
-C2 Eastern mature dune (observed),observed,12,Dec,0.0535
+Baseline (Corsican pine),scenario,1,Jan,1.2312
+Baseline (Corsican pine),scenario,2,Feb,1.1302
+Baseline (Corsican pine),scenario,3,Mar,1.1341
+Baseline (Corsican pine),scenario,4,Apr,1.2293
+Baseline (Corsican pine),scenario,5,May,1.3518
+Baseline (Corsican pine),scenario,6,Jun,1.524
+Baseline (Corsican pine),scenario,7,Jul,1.6637
+Baseline (Corsican pine),scenario,8,Aug,1.8213
+Baseline (Corsican pine),scenario,9,Sep,1.9963
+Baseline (Corsican pine),scenario,10,Oct,1.9056
+Baseline (Corsican pine),scenario,11,Nov,1.6224
+Baseline (Corsican pine),scenario,12,Dec,1.4492
+Observed C4 baseline,observed,1,Jan,1.2312
+Observed C4 baseline,observed,2,Feb,1.1302
+Observed C4 baseline,observed,3,Mar,1.1341
+Observed C4 baseline,observed,4,Apr,1.2293
+Observed C4 baseline,observed,5,May,1.3518
+Observed C4 baseline,observed,6,Jun,1.524
+Observed C4 baseline,observed,7,Jul,1.6637
+Observed C4 baseline,observed,8,Aug,1.8213
+Observed C4 baseline,observed,9,Sep,1.9963
+Observed C4 baseline,observed,10,Oct,1.9056
+Observed C4 baseline,observed,11,Nov,1.6224
+Observed C4 baseline,observed,12,Dec,1.4492
+"Clearfell observed step, annual",benchmark,1,Jan,1.123
+"Clearfell observed step, annual",benchmark,2,Feb,1.0219
+"Clearfell observed step, annual",benchmark,3,Mar,1.0258
+"Clearfell observed step, annual",benchmark,4,Apr,1.1211
+"Clearfell observed step, annual",benchmark,5,May,1.2436
+"Clearfell observed step, annual",benchmark,6,Jun,1.4157
+"Clearfell observed step, annual",benchmark,7,Jul,1.5555
+"Clearfell observed step, annual",benchmark,8,Aug,1.7131
+"Clearfell observed step, annual",benchmark,9,Sep,1.8881
+"Clearfell observed step, annual",benchmark,10,Oct,1.7973
+"Clearfell observed step, annual",benchmark,11,Nov,1.5141
+"Clearfell observed step, annual",benchmark,12,Dec,1.3409
+"Clearfell observed step, by season",benchmark,1,Jan,1.1037
+"Clearfell observed step, by season",benchmark,2,Feb,1.0026
+"Clearfell observed step, by season",benchmark,3,Mar,1.0065
+"Clearfell observed step, by season",benchmark,4,Apr,1.1211
+"Clearfell observed step, by season",benchmark,5,May,1.2436
+"Clearfell observed step, by season",benchmark,6,Jun,1.5249
+"Clearfell observed step, by season",benchmark,7,Jul,1.6647
+"Clearfell observed step, by season",benchmark,8,Aug,1.8223
+"Clearfell observed step, by season",benchmark,9,Sep,1.9973
+"Clearfell observed step, by season",benchmark,10,Oct,1.778
+"Clearfell observed step, by season",benchmark,11,Nov,1.4948
+"Clearfell observed step, by season",benchmark,12,Dec,1.3216
+C1 Eastern lake-buffer (observed),observed,1,Jan,0.1437
+C1 Eastern lake-buffer (observed),observed,2,Feb,0.1509
+C1 Eastern lake-buffer (observed),observed,3,Mar,0.1689
+C1 Eastern lake-buffer (observed),observed,4,Apr,0.3876
+C1 Eastern lake-buffer (observed),observed,5,May,0.5367
+C1 Eastern lake-buffer (observed),observed,6,Jun,0.7099
+C1 Eastern lake-buffer (observed),observed,7,Jul,0.7913
+C1 Eastern lake-buffer (observed),observed,8,Aug,0.813
+C1 Eastern lake-buffer (observed),observed,9,Sep,0.6354
+C1 Eastern lake-buffer (observed),observed,10,Oct,0.3885
+C1 Eastern lake-buffer (observed),observed,11,Nov,0.2535
+C1 Eastern lake-buffer (observed),observed,12,Dec,0.0683
+C2 Eastern mature dune (observed),observed,1,Jan,0.1251
+C2 Eastern mature dune (observed),observed,2,Feb,0.1104
+C2 Eastern mature dune (observed),observed,3,Mar,0.2207
+C2 Eastern mature dune (observed),observed,4,Apr,0.4001
+C2 Eastern mature dune (observed),observed,5,May,0.5445
+C2 Eastern mature dune (observed),observed,6,Jun,0.7446
+C2 Eastern mature dune (observed),observed,7,Jul,0.8914
+C2 Eastern mature dune (observed),observed,8,Aug,0.9871
+C2 Eastern mature dune (observed),observed,9,Sep,0.9469
+C2 Eastern mature dune (observed),observed,10,Oct,0.7279
+C2 Eastern mature dune (observed),observed,11,Nov,0.4815
+C2 Eastern mature dune (observed),observed,12,Dec,0.2556
 
 # BLOCK 2 — trough / separation summary. Sep_vs_baseline_at_baseline_trough_m anchors all series at the baseline trough month; Max_summer_separation_m is the largest Jun-Sep departure from baseline.
 Series,Series_type,Trough_month,Trough_month_num,Trough_depth_m,Sep_vs_baseline_at_baseline_trough_m,Max_summer_separation_m,Max_summer_separation_month
-Baseline (Corsican pine),scenario,Sep,9,1.5555,0.0,0.0,Jun
-Observed C4 baseline,observed,Sep,9,1.5555,0.0,0.0,Jun
-"Clearfell observed step, annual",benchmark,Sep,9,1.4473,0.1082,0.1082,Jun
-"Clearfell observed step, by season",benchmark,Sep,9,1.5565,-0.001,-0.001,Jun
-C1 Eastern lake-buffer (observed),observed,Jul,7,1.1004,0.5917,0.5917,Sep
-C2 Eastern mature dune (observed),observed,Aug,8,0.785,0.7775,0.7775,Sep
+Baseline (Corsican pine),scenario,Sep,9,1.9963,0.0,0.0,Jun
+Observed C4 baseline,observed,Sep,9,1.9963,0.0,0.0,Jun
+"Clearfell observed step, annual",benchmark,Sep,9,1.8881,0.1082,0.1082,Jun
+"Clearfell observed step, by season",benchmark,Sep,9,1.9973,-0.001,-0.001,Jun
+C1 Eastern lake-buffer (observed),observed,Aug,8,0.813,1.3609,1.3609,Sep
+C2 Eastern mature dune (observed),observed,Aug,8,0.9871,1.0494,1.0494,Sep

@@ -1,13 +1,13 @@
 Parameter,Well,Era,Value,Unit,Note
-neg_control_c2_mean_residual_mm_full_record,C2,2005_2025,-1.8,mm,"Negative-control (C2, Dune) mean residual, full-record window, n=6 (37_results.txt NEGATIVE CONTROL block)."
+neg_control_c2_mean_residual_mm_full_record,C2,2005_2025,-1.9,mm,"Negative-control (C2, Dune) mean residual, full-record window, n=6 (37_results.txt NEGATIVE CONTROL block)."
 neg_control_c2_n_full_record,C2,2005_2025,6.0,wells,Wells covered by the full-record (2005_2025) negative-control window.
 n_wells_excluded_base_above_ground,,,1.0,wells,Wells left out of every window's fit because their Model B implied drainage base is not below ground (03 implied_datum_m <= 0; D-332): ceh14
 residual_sd_mm,,2006_2012,178.996397361083,mm,"Sample SD (ddof=1) of per-well residual (fitted - dh_corr) over in-fit wells (b3_correction_valid True, exclude_named False), n=40; residual_2006_2012 in 37_driver_validation_per_well.csv."
 residual_sd_n,,2006_2012,40.0,wells,"In-fit wells behind residual_sd_mm for the 2006_2012 window (b3_correction_valid True, exclude_named False)."
 coast_vs_easting_r,,2006_2012,0.6719801759840701,-,"Pearson r, coastal signature coast_i against easting E, in-fit wells, n=40"
-residual_sd_mm,,2018_2025,114.74799520982162,mm,"Sample SD (ddof=1) of per-well residual (fitted - dh_corr) over in-fit wells (b3_correction_valid True, exclude_named False), n=40; residual_2018_2025 in 37_driver_validation_per_well.csv."
+residual_sd_mm,,2018_2025,114.87570845823095,mm,"Sample SD (ddof=1) of per-well residual (fitted - dh_corr) over in-fit wells (b3_correction_valid True, exclude_named False), n=40; residual_2018_2025 in 37_driver_validation_per_well.csv."
 residual_sd_n,,2018_2025,40.0,wells,"In-fit wells behind residual_sd_mm for the 2018_2025 window (b3_correction_valid True, exclude_named False)."
 coast_vs_easting_r,,2018_2025,0.7298614656057995,-,"Pearson r, coastal signature coast_i against easting E, in-fit wells, n=40"
-residual_sd_mm,,2005_2025,77.78263924130427,mm,"Sample SD (ddof=1) of per-well residual (fitted - dh_corr) over in-fit wells (b3_correction_valid True, exclude_named False), n=20; residual_2005_2025 in 37_driver_validation_per_well.csv."
+residual_sd_mm,,2005_2025,77.7840287410323,mm,"Sample SD (ddof=1) of per-well residual (fitted - dh_corr) over in-fit wells (b3_correction_valid True, exclude_named False), n=20; residual_2005_2025 in 37_driver_validation_per_well.csv."
 residual_sd_n,,2005_2025,20.0,wells,"In-fit wells behind residual_sd_mm for the 2005_2025 window (b3_correction_valid True, exclude_named False)."
 coast_vs_easting_r,,2005_2025,0.6603126214636673,-,"Pearson r, coastal signature coast_i against easting E, in-fit wells, n=20"

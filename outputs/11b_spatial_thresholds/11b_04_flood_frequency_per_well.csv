@@ -45,7 +45,7 @@ ceh41,2,Reference,12,41.66666666666667
 ceh42,3,Reference,12,33.33333333333333
 WMC1,2,Reference,18,5.555555555555555
 WMC2,3,Reference,17,29.411764705882355
-wmc3,3,Reference,17,0.0
+wmc3,5,Reference,17,0.0
 wmc4,3,Reference,14,14.285714285714285
 L7,2,Reference,17,0.0
 D5,2,Reference,16,62.5
@@ -72,7 +72,7 @@ ceh7,2,Extended,10,50.0
 ceh8,2,Extended,13,0.0
 ceh15,4,Extended,10,0.0
 ceh22,3,Extended,16,18.75
-ceh35,2,Extended,5,40.0
+ceh35,3,Extended,5,40.0
 ceh37,2,Extended,12,58.333333333333336
 ceh38,3,Extended,8,25.0
 fe1,4,Extended,11,18.181818181818183

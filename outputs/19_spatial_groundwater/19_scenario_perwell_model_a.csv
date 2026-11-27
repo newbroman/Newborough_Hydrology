@@ -30,7 +30,7 @@ ceh31,C5,True,ukcp18_2050s,annual,level_sustained_model_a,-0.34058918704643837,0
 ceh40,C2,False,ukcp18_2050s,annual,level_sustained_model_a,-0.43437378665640525,0.2858968408018025,-124.18609333218242
 ceh41,C2,False,ukcp18_2050s,annual,level_sustained_model_a,-0.547709636656913,0.3066572677314246,-167.95914068738026
 d7,C2,False,ukcp18_2050s,annual,level_sustained_model_a,-0.2609891305209771,0.2899269789947779,-75.66779016242067
-wmc3,C3,True,ukcp18_2050s,annual,level_sustained_model_a,-0.39418219962132856,0.3375230014688626,-133.04555914178917
+wmc3,C5,True,ukcp18_2050s,annual,level_sustained_model_a,-0.39418219962132856,0.3021500208571221,-119.1021598370907
 wmc2,C3,False,ukcp18_2050s,annual,level_sustained_model_a,-0.38186610534466386,0.3531125399531855,-134.84171038028495
 wmc1,C2,False,ukcp18_2050s,annual,level_sustained_model_a,-0.2758652180774989,0.2855206295718883,-78.76521074247376
 ceh42,C3,False,ukcp18_2050s,annual,level_sustained_model_a,-0.25512831659260604,0.3523956477509311,-89.90610838525602
@@ -86,7 +86,7 @@ ceh31,C5,True,ukcp18_2050s,winter,level_sustained_model_a,-0.3211582834230699,0.
 ceh40,C2,False,ukcp18_2050s,winter,level_sustained_model_a,-0.4100658569978208,0.2858968408018025,-117.23653303636068
 ceh41,C2,False,ukcp18_2050s,winter,level_sustained_model_a,-0.5188623814327968,0.3066572677314246,-159.11292021880172
 d7,C2,False,ukcp18_2050s,winter,level_sustained_model_a,-0.21440343612744744,0.2899269789947779,-62.16134052253065
-wmc3,C3,True,ukcp18_2050s,winter,level_sustained_model_a,-0.3674428232937895,0.3375230014688626,-124.02040458631275
+wmc3,C5,True,ukcp18_2050s,winter,level_sustained_model_a,-0.3674428232937895,0.3021500208571221,-111.02285672201833
 wmc2,C3,False,ukcp18_2050s,winter,level_sustained_model_a,-0.3522389646215064,0.3531125399531855,-124.37999546798035
 wmc1,C2,False,ukcp18_2050s,winter,level_sustained_model_a,-0.2437105525260806,0.2855206295718883,-69.58439039055928
 ceh42,C3,False,ukcp18_2050s,winter,level_sustained_model_a,-0.22860958408466706,0.3523956477509311,-80.56102246558719
@@ -142,7 +142,7 @@ ceh31,C5,True,ukcp18_2050s,summer,level_sustained_model_a,-0.3586307914294824,0.
 ceh40,C2,False,ukcp18_2050s,summer,level_sustained_model_a,-0.4567885979877756,0.2858968408018025,-130.59441707898964
 ceh41,C2,False,ukcp18_2050s,summer,level_sustained_model_a,-0.5745392201324255,0.3066572677314246,-176.18662745035311
 d7,C2,False,ukcp18_2050s,summer,level_sustained_model_a,-0.30370745372924435,0.2899269789947779,-88.0529845579161
-wmc3,C3,True,ukcp18_2050s,summer,level_sustained_model_a,-0.4190508912388292,0.3375230014688626,-141.43931457913152
+wmc3,C5,True,ukcp18_2050s,summer,level_sustained_model_a,-0.4190508912388292,0.3021500208571221,-126.61623552800785
 wmc2,C3,False,ukcp18_2050s,summer,level_sustained_model_a,-0.4091439967019256,0.3531125399531855,-144.47387588201468
 wmc1,C2,False,ukcp18_2050s,summer,level_sustained_model_a,-0.30517377660733247,0.2855206295718883,-87.13340882575636
 ceh42,C3,False,ukcp18_2050s,summer,level_sustained_model_a,-0.2790532515539365,0.3523956477509311,-98.33715133835297
@@ -198,7 +198,7 @@ ceh31,C5,True,ukcp18_2080s,annual,level_sustained_model_a,-0.6138376371073203,0.
 ceh40,C2,False,ukcp18_2080s,annual,level_sustained_model_a,-0.7838752415394606,0.2858968408018025,-224.10745513888168
 ceh41,C2,False,ukcp18_2080s,annual,level_sustained_model_a,-0.9865948136643375,0.3066572677314246,-302.54646991629977
 d7,C2,False,ukcp18_2080s,annual,level_sustained_model_a,-0.4745674657195402,0.2899269789947779,-137.5899116652741
-wmc3,C3,True,ukcp18_2080s,annual,level_sustained_model_a,-0.7105808546591063,0.3375230014688626,-239.83738285085116
+wmc3,C5,True,ukcp18_2080s,annual,level_sustained_model_a,-0.7105808546591063,0.3021500208571221,-214.70202005592063
 wmc2,C3,False,ukcp18_2080s,annual,level_sustained_model_a,-0.6901832810859948,0.3531125399531855,-243.71237141749899
 wmc1,C2,False,ukcp18_2080s,annual,level_sustained_model_a,-0.500955606841157,0.2855206295718883,-143.03316025285451
 ceh42,C3,False,ukcp18_2080s,annual,level_sustained_model_a,-0.46432644979068116,0.3523956477509311,-163.62662004187726
@@ -254,7 +254,7 @@ ceh31,C5,True,ukcp18_2080s,winter,level_sustained_model_a,-0.5767835484016984,0.
 ceh40,C2,False,ukcp18_2080s,winter,level_sustained_model_a,-0.737404359504835,0.2858968408018025,-210.82157677590894
 ceh41,C2,False,ukcp18_2080s,winter,level_sustained_model_a,-0.9316427647307723,0.3066572677314246,-285.6950247340891
 d7,C2,False,ukcp18_2080s,winter,level_sustained_model_a,-0.38453064671409043,0.2899269789947779,-111.48580873272444
-wmc3,C3,True,ukcp18_2080s,winter,level_sustained_model_a,-0.6595721271183725,0.3375230014688626,-222.6207640301953
+wmc3,C5,True,ukcp18_2080s,winter,level_sustained_model_a,-0.6595721271183725,0.3021500208571221,-199.28973196559267
 wmc2,C3,False,ukcp18_2080s,winter,level_sustained_model_a,-0.6333969510174249,0.3531125399531855,-223.66040617236632
 wmc1,C2,False,ukcp18_2080s,winter,level_sustained_model_a,-0.4389018788431166,0.2855206295718883,-125.31554076757129
 ceh42,C3,False,ukcp18_2080s,winter,level_sustained_model_a,-0.41300617826915653,0.3523956477509311,-145.54157971629593
@@ -310,7 +310,7 @@ ceh31,C5,True,ukcp18_2080s,summer,level_sustained_model_a,-0.6478567961377872,0.
 ceh40,C2,False,ukcp18_2080s,summer,level_sustained_model_a,-0.8262531835587621,0.2858968408018025,-236.2231748818819
 ceh41,C2,False,ukcp18_2080s,summer,level_sustained_model_a,-1.0371192303480463,0.3066572677314246,-318.04014949024986
 d7,C2,False,ukcp18_2080s,summer,level_sustained_model_a,-0.5564866231913503,0.2899269789947779,-161.3404855128735
-wmc3,C3,True,ukcp18_2080s,summer,level_sustained_model_a,-0.7575064235246254,0.3375230014688626,-255.675841699975
+wmc3,C5,True,ukcp18_2080s,summer,level_sustained_model_a,-0.7575064235246254,0.3021500208571221,-228.88058166736954
 wmc2,C3,False,ukcp18_2080s,summer,level_sustained_model_a,-0.7419324646726057,0.3531125399531855,-261.9856570742709
 wmc1,C2,False,ukcp18_2080s,summer,level_sustained_model_a,-0.5570213455736767,0.2855206295718883,-159.04108527317652
 ceh42,C3,False,ukcp18_2080s,summer,level_sustained_model_a,-0.5102274624442409,0.3523956477509311,-179.80193712835214
@@ -370,7 +370,7 @@ ceh31,C5,True,broadleaf,annual,level_sustained_model_a,-0.04815292064068003,0.29
 ceh40,C2,False,broadleaf,annual,level_sustained_model_a,0.0,0.2858968408018025,0.0
 ceh41,C2,False,broadleaf,annual,level_sustained_model_a,0.0,0.3066572677314246,0.0
 d7,C2,False,broadleaf,annual,level_sustained_model_a,0.0,0.2899269789947779,0.0
-wmc3,C3,True,broadleaf,annual,level_sustained_model_a,-0.055620193914507766,0.3375230014688626,-18.773094792304825
+wmc3,C5,True,broadleaf,annual,level_sustained_model_a,-0.055620193914507766,0.3021500208571221,-16.805642751345697
 wmc2,C3,False,broadleaf,annual,level_sustained_model_a,0.0,0.3531125399531855,0.0
 wmc1,C2,False,broadleaf,annual,level_sustained_model_a,0.0,0.2855206295718883,0.0
 ceh42,C3,False,broadleaf,annual,level_sustained_model_a,0.0,0.3523956477509311,0.0
@@ -430,7 +430,7 @@ ceh31,C5,True,broadleaf,winter,level_sustained_model_a,-0.04459810707721104,0.29
 ceh40,C2,False,broadleaf,winter,level_sustained_model_a,0.0,0.2858968408018025,0.0
 ceh41,C2,False,broadleaf,winter,level_sustained_model_a,0.0,0.3066572677314246,0.0
 d7,C2,False,broadleaf,winter,level_sustained_model_a,0.0,0.2899269789947779,0.0
-wmc3,C3,True,broadleaf,winter,level_sustained_model_a,-0.05075621589444752,0.3375230014688626,-17.131390331895517
+wmc3,C5,True,broadleaf,winter,level_sustained_model_a,-0.05075621589444752,0.3021500208571221,-15.335991691135913
 wmc2,C3,False,broadleaf,winter,level_sustained_model_a,0.0,0.3531125399531855,0.0
 wmc1,C2,False,broadleaf,winter,level_sustained_model_a,0.0,0.2855206295718883,0.0
 ceh42,C3,False,broadleaf,winter,level_sustained_model_a,0.0,0.3523956477509311,0.0
@@ -490,7 +490,7 @@ ceh31,C5,True,broadleaf,summer,level_sustained_model_a,-0.05248291950303678,0.29
 ceh40,C2,False,broadleaf,summer,level_sustained_model_a,0.0,0.2858968408018025,0.0
 ceh41,C2,False,broadleaf,summer,level_sustained_model_a,0.0,0.3066572677314246,0.0
 d7,C2,False,broadleaf,summer,level_sustained_model_a,0.0,0.2899269789947779,0.0
-wmc3,C3,True,broadleaf,summer,level_sustained_model_a,-0.06151708305006879,0.3375230014688626,-20.76343051266851
+wmc3,C5,True,broadleaf,summer,level_sustained_model_a,-0.06151708305006879,0.3021500208571221,-18.5873879266476
 wmc2,C3,False,broadleaf,summer,level_sustained_model_a,0.0,0.3531125399531855,0.0
 wmc1,C2,False,broadleaf,summer,level_sustained_model_a,0.0,0.2855206295718883,0.0
 ceh42,C3,False,broadleaf,summer,level_sustained_model_a,0.0,0.3523956477509311,0.0

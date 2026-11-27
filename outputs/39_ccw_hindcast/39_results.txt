@@ -1,4 +1,4 @@
-39_ccw_hindcast v1.11.0
+39_ccw_hindcast v1.12.0
 comparison window 1989-05 to 1996-04
 climate forcing from 1930-12
 
@@ -67,7 +67,7 @@ beta_1 sensitivity (the coefficients are fitted on the last 100 months of each w
   scale 1.10:  Model B open ground (n=6) mean NSE -0.837, mean bias +0.317 m   |  under canopy (n=3) mean NSE -8.153, mean bias +0.674 m
               Model A open ground (n=6) mean NSE -0.506, mean bias +0.267 m   |  under canopy (n=3) mean NSE -8.172, mean bias +0.680 m
 
-The two groups are reported apart because the canopy state of 1989 is not observed and the coefficients are fitted over 2005-2026, which for the clearfell-zone wells spans the felling. Transfer of a canopy well's coefficients to 1989 is therefore an assumption the open-ground wells do not require.
+The two groups are reported apart because the canopy state of 1989 is not observed and the coefficients are fitted inside 2010-2026, which for the clearfell-zone wells spans the felling. Transfer of a canopy well's coefficients to 1989 is therefore an assumption the open-ground wells do not require.
 
 Codes not admitted:
   1A  nw12   no committed coefficients

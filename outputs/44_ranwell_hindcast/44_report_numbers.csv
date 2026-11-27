@@ -126,16 +126,16 @@ ranwell_rate_mm_yr_combined_beyond_reach_model_a,-1.290616435139887,mm/yr,COMBIN
 ranwell_resolved_combined_beyond_reach_model_a,0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma (Model A at 3.7 m)
 ranwell_delta_lower_2sigma_m_combined_beyond_reach_model_a,-0.28106981630054295,m,COMBINED_BEYOND_REACH: delta - 2 x standard error; a fall larger than this is excluded (Model A at 3.7 m)
 ranwell_delta_upper_2sigma_m_combined_beyond_reach_model_a,0.11017069001410308,m,COMBINED_BEYOND_REACH: delta + 2 x standard error; a rise larger than this is excluded (Model A at 3.7 m)
-slack_floor_baseline_depth_mean_m,0.40795667447306794,m,"inland baseline: median depth of the full-record mean below the slack floor, C1/C2/C3o cluster-level wells at or beyond L (D-348)"
-slack_floor_baseline_depth_mean_mad_m,0.046872914227166274,m,inland baseline (full-record mean): median absolute deviation
-slack_floor_baseline_depth_spring_m,0.19416666666666665,m,"inland baseline: median depth of the spring level (D-189/D-207) below the slack floor, C1/C2/C3o cluster-level wells at or beyond L (D-348)"
-slack_floor_baseline_depth_spring_mad_m,0.05333333333333337,m,inland baseline (spring level (D-189/D-207)): median absolute deviation
+slack_floor_baseline_depth_mean_m,0.4060525631017435,m,"inland baseline: median depth of the full-record mean below the slack floor, C1/C2/C3o cluster-level wells at or beyond L (D-348)"
+slack_floor_baseline_depth_mean_mad_m,0.0443892263531096,m,inland baseline (full-record mean): median absolute deviation
+slack_floor_baseline_depth_spring_m,0.19,m,"inland baseline: median depth of the spring level (D-189/D-207) below the slack floor, C1/C2/C3o cluster-level wells at or beyond L (D-348)"
+slack_floor_baseline_depth_spring_mad_m,0.0500000000000001,m,inland baseline (spring level (D-189/D-207)): median absolute deviation
 slack_floor_baseline_depth_min_m,0.89,m,"inland baseline: median depth of the annual minimum below the slack floor, C1/C2/C3o cluster-level wells at or beyond L (D-348)"
-slack_floor_baseline_depth_min_mad_m,0.06750000000000006,m,inland baseline (annual minimum): median absolute deviation
-slack_floor_baseline_n,30,count,wells in the inland baseline
-slack_floor_reach_open_dune_n,14,count,open-dune wells (clusters not in FOREST_CIDS) within the coastal reach
+slack_floor_baseline_depth_min_mad_m,0.07000000000000006,m,inland baseline (annual minimum): median absolute deviation
+slack_floor_baseline_n,29,count,wells in the inland baseline
+slack_floor_reach_open_dune_n,13,count,"open-dune wells (land cover open, edge wells out, D-349) within the coastal reach"
 slack_floor_reach_elevated_threshold_m,0.1851914916989195,m,ELEVATED threshold on the annual-minimum excess over the inland baseline: 2 x ranwell_sigma_m_combined_all
-slack_floor_reach_elevated_n,4,count,"of those, wells whose excess exceeds 2 x ranwell_sigma_m_combined_all"
+slack_floor_reach_elevated_n,3,count,"of those, wells whose excess exceeds 2 x ranwell_sigma_m_combined_all"
 slack_floor_reach_not_elevated_n,10,count,"of those, wells whose excess does not exceed 2 x ranwell_sigma_m_combined_all"
 slack_floor_reach_elevated_excess_min_m,0.37,m,smallest annual-minimum excess over the inland baseline among the elevated wells
 slack_floor_reach_elevated_excess_max_m,0.7250000000000002,m,largest annual-minimum excess over the inland baseline among the elevated wells
@@ -146,29 +146,29 @@ slack_floor_excess_min_median_C1_m,-0.040000000000000036,m,C1: median excess of 
 slack_floor_retreat_expectation_median_C1_m,0.0,m,"C1: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
 slack_floor_residual_min_median_C1_m,-0.050000000000000044,m,C1: median excess less the modelled retreat response
 slack_floor_wells_within_reach_C1,1,count,C1: wells nearer the eroding shoreline than L
-slack_floor_depth_min_median_C2_m,0.9175,m,C2: median depth of the annual minimum below the floor
-slack_floor_depth_spring_median_C2_m,0.21333333333333332,m,C2: median depth of the spring level below the floor
-slack_floor_excess_min_median_C2_m,0.02749999999999997,m,C2: median excess of the annual-minimum depth over the inland baseline
+slack_floor_depth_min_median_C2_m,0.89,m,C2: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C2_m,0.185,m,C2: median depth of the spring level below the floor
+slack_floor_excess_min_median_C2_m,0.0,m,C2: median excess of the annual-minimum depth over the inland baseline
 slack_floor_retreat_expectation_median_C2_m,0.0,m,"C2: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
-slack_floor_residual_min_median_C2_m,0.02749999999999997,m,C2: median excess less the modelled retreat response
+slack_floor_residual_min_median_C2_m,0.0,m,C2: median excess less the modelled retreat response
 slack_floor_wells_within_reach_C2,0,count,C2: wells nearer the eroding shoreline than L
-slack_floor_depth_min_median_C3_m,1.0550000000000002,m,C3: median depth of the annual minimum below the floor
-slack_floor_depth_spring_median_C3_m,0.49916666666666665,m,C3: median depth of the spring level below the floor
-slack_floor_excess_min_median_C3_m,0.16500000000000004,m,C3: median excess of the annual-minimum depth over the inland baseline
-slack_floor_retreat_expectation_median_C3_m,0.5267181892817527,m,"C3: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
-slack_floor_residual_min_median_C3_m,-0.1505131144464723,m,C3: median excess less the modelled retreat response
-slack_floor_wells_within_reach_C3,13,count,C3: wells nearer the eroding shoreline than L
+slack_floor_depth_min_median_C3_m,1.0150000000000001,m,C3: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C3_m,0.4875,m,C3: median depth of the spring level below the floor
+slack_floor_excess_min_median_C3_m,0.125,m,C3: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C3_m,0.7964340161423703,m,"C3: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C3_m,-0.7545791929096491,m,C3: median excess less the modelled retreat response
+slack_floor_wells_within_reach_C3,11,count,C3: wells nearer the eroding shoreline than L
 slack_floor_depth_min_median_C4_m,1.59,m,C4: median depth of the annual minimum below the floor
 slack_floor_depth_spring_median_C4_m,0.9433333333333334,m,C4: median depth of the spring level below the floor
 slack_floor_excess_min_median_C4_m,0.7000000000000001,m,C4: median excess of the annual-minimum depth over the inland baseline
 slack_floor_retreat_expectation_median_C4_m,0.023634527316790572,m,"C4: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
 slack_floor_residual_min_median_C4_m,0.65,m,C4: median excess less the modelled retreat response
 slack_floor_wells_within_reach_C4,5,count,C4: wells nearer the eroding shoreline than L
-slack_floor_depth_min_median_C5_m,1.23,m,C5: median depth of the annual minimum below the floor
-slack_floor_depth_spring_median_C5_m,0.8183333333333334,m,C5: median depth of the spring level below the floor
-slack_floor_excess_min_median_C5_m,0.33999999999999997,m,C5: median excess of the annual-minimum depth over the inland baseline
-slack_floor_retreat_expectation_median_C5_m,0.8804666898655554,m,"C5: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
-slack_floor_residual_min_median_C5_m,-0.13816050428635768,m,C5: median excess less the modelled retreat response
+slack_floor_depth_min_median_C5_m,1.22,m,C5: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C5_m,0.8666666666666667,m,C5: median depth of the spring level below the floor
+slack_floor_excess_min_median_C5_m,0.32999999999999996,m,C5: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C5_m,0.9195357556924602,m,"C5: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C5_m,-0.4949233845340647,m,C5: median excess less the modelled retreat response
 slack_floor_wells_within_reach_C5,5,count,C5: wells nearer the eroding shoreline than L
 ranwell_floor_m_od_site1,9.11,m OD,"site 1: Ranwell's floor, level + depth from the digitised readings (fig4_readings)"
 ranwell_depth_mean_1951_53_site1_m,0.5011272727272729,m,site 1: 1951-53 mean depth below his floor
@@ -286,19 +286,19 @@ forest_floor_felled_vs_canopy_differs,0.0,flag,1 if the felled and canopy residu
 forest_floor_preplant_window,1953-01 to 1960-12,-,the pre-planting window the climate-only hindcast is compared over (config)
 forest_floor_climate_change_since_preplant_mean_median_C4_m,0.06696199848225581,m,"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher); Model B"
 forest_floor_climate_change_since_preplant_min_median_C4_m,-0.0351459658674691,m,C4: the same for the annual minimum; Model B
-forest_floor_climate_change_since_preplant_min_median_C4_analogue_m,0.013552258807264739,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254); Model B"
-forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m,0.05101176312409483,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254); Model B"
-forest_floor_climate_change_since_preplant_min_median_C5_analogue_m,-0.005826485160742689,m,"C3f (key C5, D-348): annual-minimum change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model B"
-forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m,0.036148824233449395,m,"C3f (key C5, D-348): mean-level change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model B"
+forest_floor_climate_change_since_preplant_min_median_C4_analogue_m,0.013554792666580218,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254); Model B"
+forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m,0.05110551891807191,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254); Model B"
+forest_floor_climate_change_since_preplant_min_median_C5_analogue_m,0.013554792668009519,m,"C3f (key C5, D-348): annual-minimum change with its open-dune analogue's coefficients (C3, D-254); n = 5 wells; Model B"
+forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m,0.04671248708070164,m,"C3f (key C5, D-348): mean-level change with its open-dune analogue's coefficients (C3, D-254); n = 5 wells; Model B"
 forest_floor_residual_after_climate_and_retreat_steady_median_C4_m,0.6527490001058899,m,C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term; Model B
 forest_floor_residual_after_climate_and_retreat_modern_median_C4_m,0.6431659403540408,m,C4: the same with the modern-rate retreat sensitivity; Model B
 forest_floor_wells_cluster_coefficients,10,count,forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= 0.05); Model B
 forest_floor_climate_change_since_preplant_mean_median_C4_m_model_a,0.07590199006468223,m,"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher); Model A at 3.7 m"
 forest_floor_climate_change_since_preplant_min_median_C4_m_model_a,-0.004865281843833724,m,C4: the same for the annual minimum; Model A at 3.7 m
-forest_floor_climate_change_since_preplant_min_median_C4_analogue_m_model_a,-0.03100028552300138,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254); Model A at 3.7 m"
-forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m_model_a,0.058988747282238685,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254); Model A at 3.7 m"
-forest_floor_climate_change_since_preplant_min_median_C5_analogue_m_model_a,-0.026333806393303627,m,"C3f (key C5, D-348): annual-minimum change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model A at 3.7 m"
-forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m_model_a,0.05602913601055037,m,"C3f (key C5, D-348): mean-level change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_min_median_C4_analogue_m_model_a,-0.03090917207584498,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254); Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m_model_a,0.05911842021108393,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254); Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_min_median_C5_analogue_m_model_a,-0.0333400917637694,m,"C3f (key C5, D-348): annual-minimum change with its open-dune analogue's coefficients (C3, D-254); n = 5 wells; Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m_model_a,0.056985436384101584,m,"C3f (key C5, D-348): mean-level change with its open-dune analogue's coefficients (C3, D-254); n = 5 wells; Model A at 3.7 m"
 forest_floor_residual_after_climate_and_retreat_steady_median_C4_m_model_a,0.698911590831912,m,C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term; Model A at 3.7 m
 forest_floor_residual_after_climate_and_retreat_modern_median_C4_m_model_a,0.648333375062146,m,C4: the same with the modern-rate retreat sensitivity; Model A at 3.7 m
 forest_floor_wells_cluster_coefficients_model_a,6,count,forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= 0.05); Model A at 3.7 m

@@ -1,19 +1,19 @@
 Parameter,Well,Era,Value,Unit,Note
 ridge_lag_test_n_wells_analysed,,,66.0,wells,"Wells fitted by the Script 23 extended lag model (n >= MIN_MONTHS months, ridge_distance_m <= MAX_RIDGE_DISTANCE_M); Scripts 23 and 24 share this candidate population."
-ridge_lag_spearman_rho_peak_lag_vs_distance,,n=49 significant-peak wells,-0.02829193013030114,,"Spearman rank correlation of peak cross-correlation lag vs ridge distance, over wells with a Bartlett-significant peak (see 23_05_hypothesis_test_summary.txt RESULT)."
-ridge_lag_spearman_p_peak_lag_vs_distance,,n=49 significant-peak wells,0.8469828468831766,,p-value for the Spearman rho above.
-ridge_lag_n_significant_peak_wells,,,49.0,wells,"wells with a Bartlett-significant peak cross-correlation lag, the population of the Spearman test above"
-ridge_lag_mannwhitney_U_C4_vs_C2C3,C4 vs C2+C3,"n_C4=9, n_C2+C3=23 significant-peak wells",172.5,,Mann-Whitney U comparing peak lag at C4 (ridge-adjacent) against pooled C2+C3 (dune-body) significant-peak wells.
-ridge_lag_mannwhitney_p_C4_vs_C2C3,C4 vs C2+C3,"n_C4=9, n_C2+C3=23 significant-peak wells",2.3154997436106242e-05,,p-value for the Mann-Whitney U above (two-sided).
-ridge_lag_mean_peak_lag_C4,C4,,3.6666666666666665,months,"Mean peak-correlation lag, C4 significant-peak wells."
+ridge_lag_spearman_rho_peak_lag_vs_distance,,n=50 significant-peak wells,-0.15803038208290918,,"Spearman rank correlation of peak cross-correlation lag vs ridge distance, over wells with a Bartlett-significant peak (see 23_05_hypothesis_test_summary.txt RESULT)."
+ridge_lag_spearman_p_peak_lag_vs_distance,,n=50 significant-peak wells,0.27304144273368264,,p-value for the Spearman rho above.
+ridge_lag_n_significant_peak_wells,,,50.0,wells,"wells with a Bartlett-significant peak cross-correlation lag, the population of the Spearman test above"
+ridge_lag_mannwhitney_U_C4_vs_C2C3,C4 vs C2+C3,"n_C4=9, n_C2+C3=24 significant-peak wells",192.0,,Mann-Whitney U comparing peak lag at C4 (ridge-adjacent) against pooled C2+C3 (dune-body) significant-peak wells.
+ridge_lag_mannwhitney_p_C4_vs_C2C3,C4 vs C2+C3,"n_C4=9, n_C2+C3=24 significant-peak wells",2.1763187101951087e-06,,p-value for the Mann-Whitney U above (two-sided).
+ridge_lag_mean_peak_lag_C4,C4,,4.0,months,"Mean peak-correlation lag, C4 significant-peak wells."
 ridge_lag_mean_peak_lag_C2C3,C2+C3,,2.0,months,"Mean peak-correlation lag, pooled C2+C3 significant-peak wells."
-ridge_lag_median_b11_lagged_fraction,C1 (Lake Edge),,-0.08223394690510871,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
-ridge_lag_median_b11_lagged_fraction,C2 (Dune),,-0.022228963562267712,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
-ridge_lag_median_b11_lagged_fraction,"C3o (Western Dune, open)",,0.12663008973192647,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
+ridge_lag_median_b11_lagged_fraction,C1 (Lake Edge),,-0.07148219951725186,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
+ridge_lag_median_b11_lagged_fraction,C2 (Dune),,-0.0254645675878268,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
+ridge_lag_median_b11_lagged_fraction,"C3o (Western Dune, open)",,0.1334064225507257,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
 ridge_lag_median_b11_lagged_fraction,C4 (Main Forest),,0.2748811824541264,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
-ridge_lag_median_b11_lagged_fraction,"C3f (Western Dune, forest)",,0.15992924080970336,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
-ridge_lag_mean_b11_C4,C4,,0.7473264085097884,,"Cluster-mean b11 (P(t-1) coefficient), the fitted cluster-level C4 wells."
-ridge_lag_mean_b11_C5,C5,,0.4751533775298089,,"Cluster-mean b11 (P(t-1) coefficient), the fitted cluster-level C3f wells (group 5, key C5; D-348)."
-ridge_lag_corr_P_lag1_vs_h_disp_prev_mean,,,0.22512796646405106,,"Network mean of the per-well Pearson correlation between P(t-1) and the drainage regressor h_disp_prev, both as fitted in the Script 23 extended model design matrix; quantifies the b11/b3 collinearity."
-ridge_lag_corr_P_lag1_vs_h_disp_prev_min,,,-0.11359770566217087,,Minimum across the network of the same per-well correlation.
-ridge_lag_corr_P_lag1_vs_h_disp_prev_max,,,0.5271400022261481,,Maximum across the network of the same per-well correlation.
+ridge_lag_median_b11_lagged_fraction,"C3f (Western Dune, forest)",,0.16548132047068012,,"Cluster-median of b11/(b10+b11), the lagged-rainfall fraction of the Script 23 extended-model recharge response, over the fitted cluster-level wells of the cluster (D-348; not restricted to significant-peak wells)."
+ridge_lag_mean_b11_C4,C4,,0.8109816640087496,,"Cluster-mean b11 (P(t-1) coefficient), the fitted cluster-level C4 wells."
+ridge_lag_mean_b11_C5,C5,,0.5212998095628228,,"Cluster-mean b11 (P(t-1) coefficient), the fitted cluster-level C3f wells (group 5, key C5; D-348)."
+ridge_lag_corr_P_lag1_vs_h_disp_prev_mean,,,0.2331938286681419,,"Network mean of the per-well Pearson correlation between P(t-1) and the drainage regressor h_disp_prev, both as fitted in the Script 23 extended model design matrix; quantifies the b11/b3 collinearity."
+ridge_lag_corr_P_lag1_vs_h_disp_prev_min,,,-0.08861717523642076,,Minimum across the network of the same per-well correlation.
+ridge_lag_corr_P_lag1_vs_h_disp_prev_max,,,0.5418902663237302,,Maximum across the network of the same per-well correlation.

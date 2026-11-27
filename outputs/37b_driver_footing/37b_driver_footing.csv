@@ -1,9 +1,9 @@
 component,label,driver_group,mechanism_type,gain_or_loss,observed_or_modelled,peak_mm,area_mm_ha,volume_m3,n_wells_evaluated,sd15b_crossings_worsen,sd15b_crossings_relieve,sd16_crossings_worsen,sd16_crossings_relieve,equivalent_depth_site_mean_mm,pct_of_coast
-coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-625.6,-80888.5,-271034.8,66.0,0.0,0.0,5.0,0.0,-85.21306294442981,100.0
-slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2676.8,8969.1,66.0,0.0,0.0,0.0,1.0,2.8199104556228605,3.309246679070573
-clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,108.2,4064.5,11093.2,66.0,0.0,0.0,0.0,2.0,4.281801422175402,5.0248181138233505
-broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-2830.7,-7725.8,66.0,0.0,0.0,0.0,0.0,-2.982038451409007,3.4995085828022523
-scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,128.1,606.7,2032.9,66.0,0.0,0.0,0.0,1.0,0.6391361601264156,0.7500448147758952
-scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,modelled,-30.9,-15026.6,-50350.1,66.0,0.0,0.0,1.0,0.0,-15.829971029760337,18.576929971503986
-climate,"Unexplained residual decline (central estimate, applied uniformly by assumption)",Unexplained (residual),assumed uniform,loss,modelled,-175.4,-166469.5,-557792.6,66.0,0.0,0.0,24.0,0.0,-175.36950223860944,205.80119547278045
-scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-14419.9,-48317.2,,,,,,-15.190834869633921,17.82688515672809
+coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-625.6,-80888.5,-284220.0,66.0,0.0,0.0,5.0,0.0,-85.21306294442981,100.0
+slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2606.0,9156.7,66.0,0.0,0.0,0.0,1.0,2.74532525678167,3.2217187857359204
+clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,108.2,3934.4,10967.9,66.0,0.0,0.0,0.0,2.0,4.144745851988412,4.863979428472527
+broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-2752.2,-7672.2,66.0,0.0,0.0,0.0,0.0,-2.899341585462207,3.4024614129326167
+scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,128.1,606.7,2131.8,66.0,0.0,0.0,0.0,1.0,0.6391361601264156,0.7500448147758952
+scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,modelled,-29.8,-14503.7,-50962.1,66.0,0.0,0.0,1.0,0.0,-15.279115090861207,17.930484555901028
+climate,"Unexplained residual decline (central estimate, applied uniformly by assumption)",Unexplained (residual),assumed uniform,loss,modelled,-175.0,-166140.9,-583773.4,66.0,0.0,0.0,24.0,0.0,-175.02333421121938,205.3949572559758
+scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-13897.0,-48830.3,,,,,,-14.63997893073479,17.180439741125127

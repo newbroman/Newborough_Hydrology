@@ -14,8 +14,8 @@
 
 ## Headline result — C3 hydrographs after forest-free monthly-uniform de-trending
 
-**15 of 18 C3 wells** carry a Script 25 dist_coast and
-hydrograph (excluded: 3 wells without coastal-distance metadata —
+**10 of 12 C3 wells** carry a Script 25 dist_coast and
+hydrograph (excluded: 2 wells without coastal-distance metadata —
 typically the forest-zone or heavily perturbed wells dropped from Script 25's
 forest-free fit, e.g. CEH36 and WMC3).
 
@@ -24,8 +24,8 @@ After de-trending against the un-de-trended cluster centroids:
 | Destination | n | % of n_with_drift |
 |---|---|---|
 | **→ C1** | 0 | 0% |
-| **→ C2** | 2 | 13% |
-| **→ C3o** | 13 | 87% |
+| **→ C2** | 0 | 0% |
+| **→ C3o** | 10 | 100% |
 | **→ C4** | 0 | 0% |
 | **→ C3f** | 0 | 0% |
 
@@ -35,9 +35,9 @@ After de-trending against the un-de-trended cluster centroids:
 
 | Source cluster | n (with drift) | Stays in cluster | % retained |
 |---|---|---|---|
-| C2 | 24 | 23 | 96% |
+| C2 | 20 | 20 | 100% |
 | C4 | 2 | 2 | 100% |
-| C3f | 2 | 0 | 0% |
+| C3f | 1 | 0 | 0% |
 
 A high C2 retention is required for the procedure to be valid (C2 wells should
 not be perturbed by a small δ(d) correction). Low C2 retention would indicate
@@ -47,11 +47,11 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 
 | Variant | → C2 | → C3 | Other |
 |---|---|---|---|
-| forest-free, monthly-uniform (HEADLINE) | 2 | 13 | 0 |
-| forest-free, summer-only Jun–Sep | 2 | 12 | 1 |
-| full δ₀ (includes forest) | 2 | 13 | 0 |
-| L = 500 m | 2 | 13 | 0 |
-| L = 1500 m | 2 | 13 | 0 |
+| forest-free, monthly-uniform (HEADLINE) | 0 | 10 | 0 |
+| forest-free, summer-only Jun–Sep | 0 | 9 | 1 |
+| full δ₀ (includes forest) | 0 | 10 | 0 |
+| L = 500 m | 0 | 10 | 0 |
+| L = 1500 m | 0 | 10 | 0 |
 
 ## Excluded wells (no dist_coast_m available)
 
@@ -70,7 +70,7 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 - `ceh40` (C2 (Dune))
 - `ceh41` (C2 (Dune))
 - `ceh42` (C3o (Western Dune, open))
-- `wmc3` (C3o (Western Dune, open))
+- `wmc3` (C3f (Western Dune, forest))
 
 ## Next step
 

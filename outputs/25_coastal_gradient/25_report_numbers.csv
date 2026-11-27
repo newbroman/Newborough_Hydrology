@@ -16,7 +16,7 @@ ForestFree_d0_disagreement_lincap_vs_exp,,2005-2026,9.309062892312529,mm/yr,Abso
 ForestFree_ref_disagreement_lincap_vs_exp,,2005-2026,1.633802923574649,mm/yr,Absolute difference between the two decay forms' rate at the 150 m reference distance on the forest-free panel (delta_ref_mm_yr in 25_01_panel_fit_parameters.csv); the counterpart of ForestFree_d0_disagreement_lincap_vs_exp.
 ForestFree_exponential_zero_crossing,,2005-2026,1494.6946749219587,m,"Distance at which the forest-free exponential fit (delta_0*exp(-x/L)+c) crosses zero, predicting the inland water table to shallow beyond this point. Solved from the committed delta_0, L, c in 25_01_panel_fit_parameters.csv."
 DeltaAIC_lincap_vs_exp_full,,2005-2026,-5.072259014312294,,"exp − lin-cap AIC on the full network spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
-DeltaAIC_lincap_vs_exp_c3_only,,2005-2026,-12.416354320328537,,"exp − lin-cap AIC on the C3-only spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
+DeltaAIC_lincap_vs_exp_c3_only,,2005-2026,-12.593513715406516,,"exp − lin-cap AIC on the C3-only spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
 WindowSweep_c_vs_farfield_observed_r,,,0.5366558986531972,,"Pearson r between the fitted far-field constant c and the observed far-field trend, across 108 usable forest-free windows in 25_12_window_sweep.csv."
 WindowSweep_c_vs_farfield_observed_bias,,,7.031526512871329,mm/yr,Mean of (c - observed far-field trend) across the same 108 windows: c is biased high relative to the observation it is meant to track.
 window_sweep_n_wells_first,,2005-03,61,wells,Wells in the forest-free window-sweep panel at the first (earliest-start) window of 25_12_window_sweep.csv.
@@ -91,12 +91,12 @@ RollingWindow_n_windows,forest_free,18-year windows,13.0,windows,"25_13 rolling-
 RollingWindow_corr_c_climate,forest_free,18-year windows,-0.5928213779136045,r,"25_13 rolling-window sweep, spec forest_free, window length 18 yr, usable windows only (n=13); Pearson r between c and the CWB climate term over the same windows."
 OpenDune_balanced_less_coastal,C1 (Lake Edge),,-10.382096869848361,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
 OpenDune_n_wells,C1 (Lake Edge),,7.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal,C2 (Dune),,-14.260040063456259,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
-OpenDune_n_wells,C2 (Dune),,24.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
+OpenDune_balanced_less_coastal,C2 (Dune),,-14.208123177406113,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
+OpenDune_n_wells,C2 (Dune),,23.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
 OpenDune_balanced_less_coastal,"C3o (Western Dune, open)",,-1.6632829195619223,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
 OpenDune_n_wells,"C3o (Western Dune, open)",,14.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal_mean,,,-8.768473284288847,mm/yr,"unweighted mean across the clusters outside FOREST_CIDS (C1 (Lake Edge), C2 (Dune), C3o (Western Dune, open)) of the balanced observed decline less the modelled coastal gradient."
-OpenDune_balanced_less_coastal_spread,,,12.596757143894337,mm/yr,"max minus min of the same quantity (C1 (Lake Edge), C2 (Dune), C3o (Western Dune, open))."
+OpenDune_balanced_less_coastal_mean,,,-8.751167655605466,mm/yr,"unweighted mean across the clusters outside FOREST_CIDS (C1 (Lake Edge), C2 (Dune), C3o (Western Dune, open)) of the balanced observed decline less the modelled coastal gradient."
+OpenDune_balanced_less_coastal_spread,,,12.544840257844191,mm/yr,"max minus min of the same quantity (C1 (Lake Edge), C2 (Dune), C3o (Western Dune, open))."
 CorrectionDiag_r2_distance_pct,ff_lincap,2005-2026,18.058212112572125,%,"25_14 correction diagnostic, metric summer_min, donor fit ff_lincap, 54 per-well slopes; share of the variance in per-well trend accounted for by the distance profile (r2_distance x 100)."
 CorrectionDiag_resid_sd,ff_lincap,2005-2026,14.890901113302561,mm/yr,"25_14 correction diagnostic, metric summer_min, donor fit ff_lincap, 54 per-well slopes; SD (ddof=1) of per-well trend about the fitted profile (resid_sd_mm_yr)."
 CorrectionDiag_r2_distance_pct,full_lincap_canopy,2005-2026,20.477442247209865,%,"25_14 correction diagnostic, metric summer_min, donor fit full_lincap_canopy, 59 per-well slopes; share of the variance in per-well trend accounted for by the distance profile (r2_distance x 100)."
@@ -533,10 +533,10 @@ breach_coastal_d_beta_3_median,,,-0.07596050577501605,1/month,"25_22: median aft
 breach_coastal_d_floor_median_m,,,1.174546279155535,m,25_22: median after - before implied floor (m below ground; + = deeper)
 breach_coastal_n_beta_3_up,,,2.0,wells,25_22: wells whose beta_3 rose after the split
 breach_coastal_n_drain_fitted,,,10.0,wells,25_22: wells fitted in both periods
-breach_inland_d_beta_3_median,,,-0.17261178104513386,1/month,"25_22: median after - before Model B beta_3, split at 2009-08"
-breach_inland_d_floor_median_m,,,0.6183671160565338,m,25_22: median after - before implied floor (m below ground; + = deeper)
-breach_inland_n_beta_3_up,,,0.0,wells,25_22: wells whose beta_3 rose after the split
-breach_inland_n_drain_fitted,,,6.0,wells,25_22: wells fitted in both periods
+breach_inland_d_beta_3_median,,,-0.15339543556787494,1/month,"25_22: median after - before Model B beta_3, split at 2009-08"
+breach_inland_d_floor_median_m,,,0.7796987720701996,m,25_22: median after - before implied floor (m below ground; + = deeper)
+breach_inland_n_beta_3_up,,,1.0,wells,25_22: wells whose beta_3 rose after the split
+breach_inland_n_drain_fitted,,,9.0,wells,25_22: wells fitted in both periods
 twostep_2009_coastal_n_wells,,,12.0,wells,25_21 two-step test (1.41.0): wells whose 25_21 best single step falls in 2009.
 twostep_2009_coastal_n_tested,,,11.0,wells,"25_21 two-step test (1.41.0): of those, with a candidate second step in 2014-10..2015-04."
 twostep_2009_coastal_n_prefer_drop,,,6.0,wells,25_21 two-step test (1.41.0): second step in the window a drop favoured by AIC and BIC (> 2) with |t_HAC| >= 2.

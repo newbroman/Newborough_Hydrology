@@ -26,32 +26,32 @@ Cluster 1 (C1 (Lake Edge))  2080s:
   Mean shift:                   +0.052 m  (over 15 common window-ends)
 
 Cluster 2 (C2 (Dune))  2050s:
-  Model B β₁ = 3.5102   β₂ = 2.5631   β₃ = 0.1656   identified: True
-  Sustained spring shift:       -0.040 m
+  Model B β₁ = 3.4888   β₂ = 2.5646   β₃ = 0.1684   identified: True
+  Sustained spring shift:       -0.038 m
   Observed window MSL5 mean:    -0.265 m
-  Perturbed window MSL5 mean:   -0.305 m
-  Mean shift:                   -0.041 m  (over 16 common window-ends)
+  Perturbed window MSL5 mean:   -0.304 m
+  Mean shift:                   -0.038 m  (over 16 common window-ends)
 
 Cluster 2 (C2 (Dune))  2080s:
-  Model B β₁ = 3.5102   β₂ = 2.5631   β₃ = 0.1656   identified: True
-  Sustained spring shift:       -0.061 m
+  Model B β₁ = 3.4888   β₂ = 2.5646   β₃ = 0.1684   identified: True
+  Sustained spring shift:       -0.057 m
   Observed window MSL5 mean:    -0.265 m
-  Perturbed window MSL5 mean:   -0.327 m
-  Mean shift:                   -0.063 m  (over 16 common window-ends)
+  Perturbed window MSL5 mean:   -0.324 m
+  Mean shift:                   -0.059 m  (over 16 common window-ends)
 
 Cluster 3 (C3o (Western Dune, open))  2050s:
-  Model B β₁ = 3.1117   β₂ = 1.9412   β₃ = 0.0867   identified: True
+  Model B β₁ = 3.1142   β₂ = 1.9453   β₃ = 0.0866   identified: True
   Sustained spring shift:       -0.135 m
   Observed window MSL5 mean:    -0.517 m
-  Perturbed window MSL5 mean:   -0.654 m
+  Perturbed window MSL5 mean:   -0.655 m
   Mean shift:                   -0.137 m  (over 16 common window-ends)
 
 Cluster 3 (C3o (Western Dune, open))  2080s:
-  Model B β₁ = 3.1117   β₂ = 1.9412   β₃ = 0.0867   identified: True
+  Model B β₁ = 3.1142   β₂ = 1.9453   β₃ = 0.0866   identified: True
   Sustained spring shift:       -0.234 m
   Observed window MSL5 mean:    -0.517 m
-  Perturbed window MSL5 mean:   -0.755 m
-  Mean shift:                   -0.238 m  (over 16 common window-ends)
+  Perturbed window MSL5 mean:   -0.756 m
+  Mean shift:                   -0.239 m  (over 16 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2050s:
   Model B β₁ = 2.4645   β₂ = 2.4887   β₃ = 0.0132   identified: False

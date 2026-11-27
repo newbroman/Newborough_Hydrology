@@ -1,7 +1,7 @@
 Parameter,Well,Era,Value,Unit,Note
 cluster_hydro_window_start,,,2010-01-01,date,first month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_START)
 cluster_hydro_window_end,,,2025-12-01,date,last month of the cluster-mean hydrographs (config.CLUSTER_HYDRO_WINDOW_END)
-silhouette_k5,,k=4,0.27626749908991705,,silhouette at chosen k on the 66-well reference network
+silhouette_k4,,k=4,0.27626749908991705,,silhouette at chosen k on the 66-well reference network
 calinski_harabasz_k5,,k=4,17.482937618482026,,Calinski-Harabasz at chosen k
 merge_distance_k5,,k=4,0.7289045536866876,,Ward merge distance at chosen k
 silhouette_peak_k,,,2.0,,k maximising silhouette (=0.300)
@@ -86,47 +86,47 @@ cluster_n_wells,C1 (Lake Edge),,7.0,wells,members of the canonical cluster (02_c
 cluster_n_wells,C2 (Dune),,26.0,wells,members of the canonical cluster (02_cluster_stats.csv)
 cluster_n_wells,C3 (Western Dune),,24.0,wells,members of the canonical cluster (02_cluster_stats.csv)
 cluster_n_wells,C4 (Main Forest),,9.0,wells,members of the canonical cluster (02_cluster_stats.csv)
-forest_clusters_n_wells,"C4 (Main Forest) + C3f (Western Dune, forest)",,15.0,wells,"wells of the forest groups (config.FOREST_CIDS: C4 and C3f, D-348) of the 66-well reference network, boundary wells included"
+forest_clusters_n_wells,"C4 (Main Forest) + C3f (Western Dune, forest)",,16.0,wells,"wells of the forest groups (config.FOREST_CIDS: C4 and C3f, D-348) of the 66-well reference network, boundary wells included"
 ward_top_merge_distance,,,2.4112070305360507,,"height of the final (top) Ward merge of the reference dendrogram, sqrt(2(1 - r)) correlation distance (02_01_dendrogram.png); the primary binary division"
 group_n_wells,C1 (Lake Edge),,7.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
 group_n_wells_cluster_level,C1 (Lake Edge),,7.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
 group_n_wells,C2 (Dune),,26.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
-group_n_wells_cluster_level,C2 (Dune),,23.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
-group_n_wells,"C3o (Western Dune, open)",,18.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells_cluster_level,C2 (Dune),,22.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
+group_n_wells,"C3o (Western Dune, open)",,17.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
 group_n_wells_cluster_level,"C3o (Western Dune, open)",,12.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
 group_n_wells,C4 (Main Forest),,9.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
 group_n_wells_cluster_level,C4 (Main Forest),,9.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
-group_n_wells,"C3f (Western Dune, forest)",,6.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
+group_n_wells,"C3f (Western Dune, forest)",,7.0,wells,"wells of the cluster-level group (cluster x land cover, D-348 Note), boundary wells included"
 group_n_wells_cluster_level,"C3f (Western Dune, forest)",,5.0,wells,wells the group's cluster-level quantities use: boundary and set-aside wells left out (D-348)
-boundary_n_wells,,,9.0,wells,wells whose consensus margin is below config.BOUNDARY_MARGIN = 0.25 (D-348 (4))
+boundary_n_wells,,,10.0,wells,wells whose consensus margin is below config.BOUNDARY_MARGIN = 0.25 (D-348 (4))
 consensus_placed_n_wells,,,1.0,wells,wells placed by consensus in another cluster than Ward's (D-348 (3)): D9
 boundary_margin,,,0.25,,config.BOUNDARY_MARGIN (D-348 (4))
 consensus_n_boot,,,10000.0,replicates,year-block bootstrap replicates of the consensus (5 seeds x 2000)
 amplitude_min_obs_per_window,,,24.0,count,months a well needs in a window for its p90-p10 amplitude: two annual cycles
 cluster_mean_level_m,C1 (Lake Edge),2010-01 to 2025-12,-0.3944317868141282,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_m,C2 (Dune),2010-01 to 2025-12,-0.533954559122829,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_m,C3 (Western Dune),2010-01 to 2025-12,-0.7758907024695384,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
+cluster_mean_level_m,C2 (Dune),2010-01 to 2025-12,-0.5332536286259081,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
+cluster_mean_level_m,"C3o (Western Dune, open)",2010-01 to 2025-12,-0.7758907024695384,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
 cluster_mean_level_m,C4 (Main Forest),2010-01 to 2025-12,-1.4255318846089213,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_m,C5,2010-01 to 2025-12,-1.3013691470286883,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
-cluster_mean_level_offset_m,C2 minus C1,2010-01 to 2025-12,-0.13952277230870075,m,cluster_mean_level_m of C2 (Dune) minus that of C1 (Lake Edge); negative = C2 deeper
-cluster_mean_level_offset_m,C3 minus C1,2010-01 to 2025-12,-0.3814589156554102,m,cluster_mean_level_m of C3 (Western Dune) minus that of C1 (Lake Edge); negative = C3 deeper
+cluster_mean_level_m,"C3f (Western Dune, forest)",2010-01 to 2025-12,-1.3013691470286883,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 192 months; negative = below ground"
+cluster_mean_level_offset_m,C2 minus C1,2010-01 to 2025-12,-0.13882184181177987,m,cluster_mean_level_m of C2 (Dune) minus that of C1 (Lake Edge); negative = C2 deeper
+cluster_mean_level_offset_m,C3o minus C1,2010-01 to 2025-12,-0.3814589156554102,m,"cluster_mean_level_m of C3o (Western Dune, open) minus that of C1 (Lake Edge); negative = C3o deeper"
 cluster_mean_level_offset_m,C4 minus C1,2010-01 to 2025-12,-1.031100097794793,m,cluster_mean_level_m of C4 (Main Forest) minus that of C1 (Lake Edge); negative = C4 deeper
-cluster_mean_level_offset_m,C5 minus C1,2010-01 to 2025-12,-0.9069373602145601,m,cluster_mean_level_m of C5 minus that of C1 (Lake Edge); negative = C5 deeper
-cluster_mean_level_offset_m,C3 minus C2,2010-01 to 2025-12,-0.24193614334670943,m,cluster_mean_level_m of C3 (Western Dune) minus that of C2 (Dune); negative = C3 deeper
-cluster_mean_level_offset_m,C4 minus C2,2010-01 to 2025-12,-0.8915773254860924,m,cluster_mean_level_m of C4 (Main Forest) minus that of C2 (Dune); negative = C4 deeper
-cluster_mean_level_offset_m,C5 minus C2,2010-01 to 2025-12,-0.7674145879058594,m,cluster_mean_level_m of C5 minus that of C2 (Dune); negative = C5 deeper
-cluster_mean_level_offset_m,C4 minus C3,2010-01 to 2025-12,-0.6496411821393829,m,cluster_mean_level_m of C4 (Main Forest) minus that of C3 (Western Dune); negative = C4 deeper
-cluster_mean_level_offset_m,C5 minus C3,2010-01 to 2025-12,-0.5254784445591499,m,cluster_mean_level_m of C5 minus that of C3 (Western Dune); negative = C5 deeper
-cluster_mean_level_offset_m,C5 minus C4,2010-01 to 2025-12,0.124162737580233,m,cluster_mean_level_m of C5 minus that of C4 (Main Forest); negative = C5 deeper
+cluster_mean_level_offset_m,C3f minus C1,2010-01 to 2025-12,-0.9069373602145601,m,"cluster_mean_level_m of C3f (Western Dune, forest) minus that of C1 (Lake Edge); negative = C3f deeper"
+cluster_mean_level_offset_m,C3o minus C2,2010-01 to 2025-12,-0.2426370738436303,m,"cluster_mean_level_m of C3o (Western Dune, open) minus that of C2 (Dune); negative = C3o deeper"
+cluster_mean_level_offset_m,C4 minus C2,2010-01 to 2025-12,-0.8922782559830132,m,cluster_mean_level_m of C4 (Main Forest) minus that of C2 (Dune); negative = C4 deeper
+cluster_mean_level_offset_m,C3f minus C2,2010-01 to 2025-12,-0.7681155184027803,m,"cluster_mean_level_m of C3f (Western Dune, forest) minus that of C2 (Dune); negative = C3f deeper"
+cluster_mean_level_offset_m,C4 minus C3o,2010-01 to 2025-12,-0.6496411821393829,m,"cluster_mean_level_m of C4 (Main Forest) minus that of C3o (Western Dune, open); negative = C4 deeper"
+cluster_mean_level_offset_m,C3f minus C3o,2010-01 to 2025-12,-0.5254784445591499,m,"cluster_mean_level_m of C3f (Western Dune, forest) minus that of C3o (Western Dune, open); negative = C3f deeper"
+cluster_mean_level_offset_m,C3f minus C4,2010-01 to 2025-12,0.124162737580233,m,"cluster_mean_level_m of C3f (Western Dune, forest) minus that of C4 (Main Forest); negative = C3f deeper"
 post2018_p90_p10_max_min_ratio,C1 (Lake Edge),,1.433763188745604,,"largest / smallest member post-2018 p90-p10 amplitude, n=7 wells (02_08_cluster_amplitude_per_well.csv)"
 post2018_p90_p10_max_min_ratio,C2 (Dune),,1.7490445859872608,,"largest / smallest member post-2018 p90-p10 amplitude, n=26 wells (02_08_cluster_amplitude_per_well.csv)"
-post2018_p90_p10_max_min_ratio,"C3o (Western Dune, open)",,1.9828926905132198,,"largest / smallest member post-2018 p90-p10 amplitude, n=18 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,"C3o (Western Dune, open)",,1.9828926905132198,,"largest / smallest member post-2018 p90-p10 amplitude, n=17 wells (02_08_cluster_amplitude_per_well.csv)"
 post2018_p90_p10_max_min_ratio,C4 (Main Forest),,1.5739514348785875,,"largest / smallest member post-2018 p90-p10 amplitude, n=9 wells (02_08_cluster_amplitude_per_well.csv)"
-post2018_p90_p10_max_min_ratio,"C3f (Western Dune, forest)",,2.043103448275862,,"largest / smallest member post-2018 p90-p10 amplitude, n=6 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,"C3f (Western Dune, forest)",,2.043103448275862,,"largest / smallest member post-2018 p90-p10 amplitude, n=7 wells (02_08_cluster_amplitude_per_well.csv)"
 c1_amp_change_pct,C1 (Lake Edge),,-15.277777777777779,%,"C1 (Lake Edge): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=7 wells (02_09 amplitude_damping_pct)"
 c1_amp_change_climnorm_pct,C1 (Lake Edge),,-11.226851851851862,%,"C1 (Lake Edge): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
-c2_amp_change_pct,C2 (Dune),,2.515090543259571,%,"C2 (Dune): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=23 wells (02_09 amplitude_damping_pct)"
-c2_amp_change_climnorm_pct,C2 (Dune),,8.350100603621705,%,"C2 (Dune): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c2_amp_change_pct,C2 (Dune),,1.830198271479401,%,"C2 (Dune): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=22 wells (02_09 amplitude_damping_pct)"
+c2_amp_change_climnorm_pct,C2 (Dune),,8.08337569903403,%,"C2 (Dune): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
 c3_amp_change_pct,"C3o (Western Dune, open)",,1.9094380796508053,%,"C3o (Western Dune, open): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=12 wells (02_09 amplitude_damping_pct)"
 c3_amp_change_climnorm_pct,"C3o (Western Dune, open)",,2.8368794326240923,%,"C3o (Western Dune, open): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
 c4_amp_change_pct,C4 (Main Forest),,4.736842105263163,%,"C4 (Main Forest): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=9 wells (02_09 amplitude_damping_pct)"

@@ -1,9 +1,9 @@
-Scenario,Delta_vol_mm_per_month
-Scraping (observed),46.9
-Scraping (off-site 100 m),-28.2
-Clearfell (hypothetical),2.9
-Thinning 50% (hypothetical),1.5
-Broadleaf (hypothetical),-2.0
-Climate dry,-13.9
-Climate wet,7.7
-Scraping (off-site 250 m),-12.1
+Scenario,Delta_storage_sustained_mm,anchor_drift_free,anchor_drift_fixed,anchor_did
+Scraping (observed),46.9,,,
+Scraping (off-site 100 m),-27.9,,,
+Clearfell (hypothetical),22.9,22.9,20.4,9.9
+Thinning 50% (hypothetical),11.5,11.5,10.2,4.9
+Broadleaf (hypothetical),-14.1,,,
+Climate dry,-99.4,,,
+Climate wet,54.6,,,
+Scraping (off-site 250 m),-11.7,,,

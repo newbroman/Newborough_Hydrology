@@ -18,7 +18,7 @@ Usage:
     python 19b_scraping_simulator.py
 """
 
-__version__ = "1.4.0"   # Hollingham (2026) - 2026-11-24 (T-210). Forest-well rain is no longer cut by the canopy
+__version__ = "1.5.0"  # 2026-11-27 (D-348): viewer cluster labels name C3o and C3f; forest wells stay groups 4 and 5. Was "1.4.0"  # Hollingham (2026) - 2026-11-24 (T-210). Forest-well rain is no longer cut by the canopy
 #   interception factor: beta_1 was fitted on GROSS rain (D-238), so multiplying by (1 - interception) counted it twice and
 #   drove forest wells metres too dry (ceh13 to -18.6 m, J-9 phase 2b).
 # "1.3.0"   # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B forward run: 03_master_data now
@@ -289,7 +289,7 @@ var W={wells_json},CL={climate_json},MY={mean_year_json},DT={dates_json},PO={pol
 var EMIN={emin},EMAX={emax},NMIN={nmin},NMAX={nmax};
 var SD15b={sd15b},SD16={sd16},SCN={s_coast_n},WCE={w_coast_e};
 var CC={{1:'#1a6faf',2:'#2ca02c',3:'#d62728',4:'#7f77dd',5:'#8B4513'}};
-var CL_L={{1:'C1 Lake',2:'C2 Dune',3:'C3 Western',4:'C4 Forest',5:'C5 Coastal'}};
+var CL_L={{1:'C1 Lake',2:'C2 Dune',3:'C3o Western open',4:'C4 Forest',5:'C3f Western forest'}};
 var MW=0,MH=0,tsCh=null,WSM={{}};
 
 function tc(E,N){{return{{x:(E-EMIN)/(EMAX-EMIN)*MW,y:MH-(N-NMIN)/(NMAX-NMIN)*MH}};}}

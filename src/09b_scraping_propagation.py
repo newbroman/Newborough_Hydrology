@@ -30,7 +30,7 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
+__version__ = "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
 #   bars of 09b_04 (BACI delta-beta_3 of split-window refits through 1/beta_3) are dropped: the scrape is detected
 #   by the paired contrast at CEH36 (09a) and its propagation is not quantified. _compute_scraping_bars,
 #   scrape_bar_n_b3_held_at_bound, the D-333 status column, labels and count key (scenario_n_keys_withdrawn_d333_09b)
@@ -102,7 +102,11 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N,
-                          SCRAPE_PROPAGATION_NEAR_M)
+                          SCRAPE_PROPAGATION_NEAR_M, CLUSTER_LABELS)
+# D-348: the bar groups, keys "C1".."C5" (C5 = C3f, the Western Dune's forest wells), and their axis labels
+_GROUP_KEYS = [f"C{c}" for c in CLUSTER_LABELS]
+_GROUP_TICKS = {"C1": "C1\nLake Edge", "C2": "C2\nDune", "C3": "C3o\nWestern Dune\nopen",
+                "C4": "C4\nMain\nForest", "C5": "C3f\nWestern Dune\nforest"}
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 
@@ -600,9 +604,8 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     """
     from utils.scraping_common import compute_scenario_bars_from_params
 
-    clusters = ["C1", "C2", "C3", "C4", "C5"]
-    cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",
-                      "C4\nMain\nForest", "C5\nCoastal\nForest"]
+    clusters = list(_GROUP_KEYS)
+    cluster_labels = [_GROUP_TICKS.get(c, c) for c in clusters]
 
     # Non-scraping scenarios from the consolidated pipeline params
     base_scenarios, _, _, _ = compute_scenario_bars_from_params()
@@ -714,7 +717,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     wells = pd.concat([wells_clean, wells_ext[new]], axis=1, sort=False)
     wells.columns = wells.columns.str.lower().str.replace(' ', '')
 
-    clusters = ['C1', 'C2', 'C3', 'C4', 'C5']
+    clusters = list(_GROUP_KEYS)
 
     # Cluster Sy (for rendering the empirical scrape head shift on the
     # volumetric axis, and consistency with the monthly figure).
@@ -742,7 +745,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
 
     # Scraping: CEH36 vs CEH18 observed BACI head shift, rendered volumetric
     scraping_shift_mm = 0.0     # head shift (mm)
-    scraping_vol_c5 = 0.0       # volumetric equivalent (mm w.e./month) in C5
+    scraping_vol_c5 = 0.0       # volumetric equivalent (mm w.e./month) in C3f (group 5, key "C5")
     if 'ceh36' in wells.columns and 'ceh18' in wells.columns:
         m36 = _annual_summer_min(wells['ceh36'])
         m18 = _annual_summer_min(wells['ceh18'])
@@ -782,7 +785,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
             if s in summer_data:
                 print(f"   {s} volumetric: "
                       f"C4={summer_data[s].get('C4', 0):+.1f}  "
-                      f"C5={summer_data[s].get('C5', 0):+.1f} mm w.e./month")
+                      f"C3f={summer_data[s].get('C5', 0):+.1f} mm w.e./month")
     else:
         warn(f"{scen_csv.name} not found \u2014forestry bars set to zero")
         for s in ['Clearfell', 'Thinning 50%', 'Broadleaf',
@@ -790,8 +793,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
             summer_data[s] = {c: 0 for c in clusters}
 
     # Figure
-    cluster_labels = ['C1\nLake Edge', 'C2\nDune', 'C3\nWestern',
-                       'C4\nMain\nForest', 'C5\nCoastal\nForest']
+    cluster_labels = [_GROUP_TICKS.get(c, c) for c in clusters]
     colours = {
         'Clearfell': '#8B6914', 'Thinning 50%': '#D2691E',
         'Broadleaf': '#228B22', 'Scraping\n(CEH36-type)': '#DAA520',
@@ -839,7 +841,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     ax.set_xticklabels(cluster_labels, fontsize=11)
     ax.set_ylabel('\u0394 volumetric water table (mm water equiv. / month)', fontsize=12)
     ax.set_title(
-        'Volumetric scenario comparison: forest management, scraping, and climate (k = 5)\n'
+        'Volumetric scenario comparison: forest management, scraping, and climate (five groups)\n'
         'All bars: SSM equilibrium volumetric response  |  scraping = observed BACI \u00d7 Sy',
         fontsize=12, fontweight='bold')
     ax.legend(fontsize=9, loc='upper left', bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
@@ -848,7 +850,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         ax.spines[sp].set_visible(False)
     ax.text(0.02, -0.14,
             f'Scraping: empirical BACI at scraped site (CEH36 vs CEH18, '
-            f'{scraping_shift_mm:+.0f} mm head, rendered volumetric \u00d7 C5 Sy). '
+            f'{scraping_shift_mm:+.0f} mm head, rendered volumetric \u00d7 C3f Sy). '
             f'Benefit is local.  '
             'Forest management & climate: SSM equilibrium volumetric bars from '
             'the monthly figure (09b-04).\n'

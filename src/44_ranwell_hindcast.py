@@ -112,7 +112,7 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 44_report_numbers.csv gains
+__version__ = "1.16.0"  # 2026-11-27 (D-348): the inland slack-floor baseline and the per-forest-group summaries (residuals, pre-planting changes) from cluster-level wells; forest groups from FOREST_CIDS; notes name C3o and C3f, C5 keys kept. Was "1.15.0"  # Hollingham (2026) - 2026-11-23 (J-31). Emit-only: 44_report_numbers.csv gains
 #   ranwell_span_first_month and ranwell_span_last_month, ISO dates (config.RANWELL_HINDCAST_SPAN), so the
 #   documents' "1951–53" are date fields (field_sync 1.3.0). No other output moves.
 # 1.14.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
@@ -583,8 +583,8 @@ def slack_floor_datum(wc, loc, clusters, msl, metrics, ranwell, eroding, cg_L, h
     Depths are m below the slack floor, positive down: the full-record mean, the
     median over hydrological years of Script 26's spring mean (MSL_m_bg, D-189/
     D-207, valid years) and of its annual minimum (MIN_m_bg, min_valid years).
-    The inland baseline is the median of each over the open-dune clusters
-    (SLACK_FLOOR_BASELINE_CLUSTERS) at or beyond the coastal reach L; the excess
+    The inland baseline is the median of each over the open-dune groups' cluster-level wells
+    (SLACK_FLOOR_BASELINE_CLUSTERS: C1, C2, C3o; D-348) at or beyond the coastal reach L; the excess
     is depth minus baseline. The retreat expectation is MODELLED: the 2005–26
     coastal response per metre (Script 20 coastal_h0_per_metre, from the Script 25
     headline fit) times the 1899–2026 frontage-median retreat (Script 40), shaped
@@ -617,7 +617,14 @@ def slack_floor_datum(wc, loc, clusters, msl, metrics, ranwell, eroding, cg_L, h
                          ranwell_site=int(hl[w]) if w in hl.index else np.nan,
                          ranwell_pairing="headline_well_of_site" if w in hl.index else ""))
     df = pd.DataFrame(rows)
-    base_sel = df[df["cluster"].isin(config.SLACK_FLOOR_BASELINE_CLUSTERS) & ~df["within_coastal_reach"]]
+    # D-348: the inland baseline is a summary over the open-dune groups' cluster-level wells (In_Cluster_Level:
+    # the boundary wells and the set-aside WMC3 out); the per-well rows keep every well.
+    from utils.cluster_series import in_cluster_level   # noqa: PLC0415
+    _cs = pd.read_csv(paths.INT_CLUSTER_STATS)
+    _lvl = set(_cs.loc[in_cluster_level(_cs), "Match_ID"].map(_norm))
+    df["in_cluster_level"] = df["well"].isin(_lvl)
+    base_sel = df[df["cluster"].isin(config.SLACK_FLOOR_BASELINE_CLUSTERS) & ~df["within_coastal_reach"]
+                  & df["in_cluster_level"]]
     base = {}
     for stat in ("mean", "spring", "min"):
         v = base_sel[f"depth_{stat}_m"].dropna()
@@ -1396,7 +1403,7 @@ def main() -> int:
                                    retreat_1899_2026, lc)
     sfd = pd.concat([sfd, sfd_sites], ignore_index=True)
     sfd["cluster"] = sfd["cluster"].astype("Int64")   # site rows may carry no cluster; keep the column integer
-    info(f"inland baseline: C{'/'.join(str(c) for c in config.SLACK_FLOOR_BASELINE_CLUSTERS)} at >= L = {cg_L:.0f} m, "
+    info(f"inland baseline: {'/'.join(config.CLUSTER_SHORT.get(c, f'C{c}') for c in config.SLACK_FLOOR_BASELINE_CLUSTERS)} at >= L = {cg_L:.0f} m, "
          f"n {base['min'][2]}: depth below floor mean {base['mean'][0]:.3f}, spring {base['spring'][0]:.3f}, "
          f"annual minimum {base['min'][0]:.3f} m (MAD {base['min'][1]:.3f})")
     info(f"retreat term (MODELLED): {h0_per_metre:.2f} mm/m x {retreat_1899_2026:.0f} m, capped at L; "
@@ -1605,8 +1612,9 @@ def main() -> int:
                         f"{c['row']}: delta + 2 x standard error; a rise larger than this is excluded ({lab})")]
     for stat, lab in (("mean", "full-record mean"), ("spring", "spring level (D-189/D-207)"), ("min", "annual minimum")):
         rn += [(f"slack_floor_baseline_depth_{stat}_m", base[stat][0], "m",
-                f"inland baseline: median depth of the {lab} below the slack floor, C"
-                + "/".join(str(c) for c in config.SLACK_FLOOR_BASELINE_CLUSTERS) + " wells at or beyond L"),
+                f"inland baseline: median depth of the {lab} below the slack floor, "
+                + "/".join(config.CLUSTER_SHORT.get(c, f"C{c}") for c in config.SLACK_FLOOR_BASELINE_CLUSTERS)
+                + " cluster-level wells at or beyond L (D-348)"),
                (f"slack_floor_baseline_depth_{stat}_mad_m", base[stat][1], "m", f"inland baseline ({lab}): median absolute deviation")]
     rn.append(("slack_floor_baseline_n", base["min"][2], "count", "wells in the inland baseline"))
     # 1.11.0: which open-dune wells within the coastal reach stand ELEVATED above the inland baseline -
@@ -1669,15 +1677,20 @@ def main() -> int:
         rr = (inland[col] - inland["ranwell_floor_m_od"]).dropna()
         rn += [(f"ranwell_floor_fit_bias_inland_{name}_m", float(rr.mean()) if len(rr) else np.nan, "m", f"{name} minus Ranwell's floor, mean over the {len(rr)} reading sites beyond L"),
                (f"ranwell_floor_fit_rmse_inland_{name}_m", float(np.sqrt((rr ** 2).mean())) if len(rr) else np.nan, "m", f"{name} against Ranwell's floor, RMSE over the {len(rr)} reading sites beyond L")]
-    for c_ in (4, 5):
-        sub_ = ffe[ffe["cluster"] == c_]
+    # D-348: the per-group summaries below are over each forest group's cluster-level wells (NW11, a
+    # boundary well of C3f, out); 44_10's per-well rows and the felled/canopy design groups keep every well.
+    from utils.cluster_series import in_cluster_level   # noqa: PLC0415
+    _cs_ = pd.read_csv(paths.INT_CLUSTER_STATS)
+    _ffe_l = ffe[ffe["well"].map(_norm).isin(set(_cs_.loc[in_cluster_level(_cs_), "Match_ID"].map(_norm)))]
+    for c_ in config.FOREST_CIDS:   # C4 and C5 (D-348: C5 = C3f)
+        sub_ = _ffe_l[_ffe_l["cluster"] == c_]
         v = sub_["residual_after_retreat_min_m"]
-        rn += [(f"forest_floor_residual_median_C{c_}_m", float(v.median()) if len(v) else np.nan, "m", f"C{c_}: median excess of the annual-minimum depth over the open-dune baseline, less the modelled retreat response"),
-               (f"forest_floor_residual_min_C{c_}_m", float(v.min()) if len(v) else np.nan, "m", f"C{c_}: smallest residual"),
-               (f"forest_floor_residual_max_C{c_}_m", float(v.max()) if len(v) else np.nan, "m", f"C{c_}: largest residual"),
-               (f"forest_floor_n_C{c_}", len(v), "count", f"C{c_} wells in 44_10"),
+        rn += [(f"forest_floor_residual_median_C{c_}_m", float(v.median()) if len(v) else np.nan, "m", f"{config.CLUSTER_SHORT.get(c_, f'C{c_}')}: median excess of the annual-minimum depth over the open-dune baseline, less the modelled retreat response"),
+               (f"forest_floor_residual_min_C{c_}_m", float(v.min()) if len(v) else np.nan, "m", f"{config.CLUSTER_SHORT.get(c_, f'C{c_}')}: smallest residual"),
+               (f"forest_floor_residual_max_C{c_}_m", float(v.max()) if len(v) else np.nan, "m", f"{config.CLUSTER_SHORT.get(c_, f'C{c_}')}: largest residual"),
+               (f"forest_floor_n_C{c_}", len(v), "count", f"{config.CLUSTER_SHORT.get(c_, f'C{c_}')} wells in 44_10"),
                (f"forest_floor_residual_over_modelled_drawdown_median_C{c_}", float(sub_["residual_over_modelled_drawdown"].median()) if len(v) else np.nan, "-",
-                f"C{c_}: median residual over the MODELLED canopy drawdown at the wells (Script 20 dd_mm)")]
+                f"{config.CLUSTER_SHORT.get(c_, f'C{c_}')}: median residual over the MODELLED canopy drawdown at the wells (Script 20 dd_mm)")]
     for g, sub_ in ffe.groupby("group"):
         v = sub_["residual_after_retreat_min_m"]
         rn += [(f"forest_floor_residual_median_{g}_m", float(v.median()), "m", f"{g}: median residual after retreat over {len(v)} forest wells"),
@@ -1696,8 +1709,8 @@ def main() -> int:
                ("forest_floor_felled_vs_canopy_differs", float(mw.pvalue < config.FOREST_FLOOR_GROUP_TEST_P), "flag",
                 f"1 if the felled and canopy residuals differ at p < {config.FOREST_FLOOR_GROUP_TEST_P} (0: they do not)")]
     if "climate_change_since_preplant_min_m" in ffe.columns:
-        c4 = ffe[ffe["cluster"] == 4]
-        c5 = ffe[ffe["cluster"] == 5]
+        c4 = _ffe_l[_ffe_l["cluster"] == 4]             # D-348: cluster-level wells
+        c5 = _ffe_l[_ffe_l["cluster"] == 5]
         rn.append(("forest_floor_preplant_window", f"{config.PREPLANT_WINDOW[0]} to {config.PREPLANT_WINDOW[1]}", "-", "the pre-planting window the climate-only hindcast is compared over (config)"))
         # 1.13.0 (D-332): Model B (03_16 own coefficients or centroids, each at its implied datum) under
         # the existing keys; Model A (master store, 03_03 centroids, the 3.7 m floor) as <key>_model_a
@@ -1710,9 +1723,9 @@ def main() -> int:
                    (f"forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m{sfx}", float(c4[f"climate_change_since_preplant_mean_analogue_m{sfx}"].median()), "m",
                     f"C4: the mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[4]}, D-254); {lab}"),
                    (f"forest_floor_climate_change_since_preplant_min_median_C5_analogue_m{sfx}", float(c5[f"climate_change_since_preplant_min_analogue_m{sfx}"].median()) if len(c5) else np.nan, "m",
-                    f"C5: annual-minimum change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells; {lab}"),
+                    f"C3f (key C5, D-348): annual-minimum change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells; {lab}"),
                    (f"forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m{sfx}", float(c5[f"climate_change_since_preplant_mean_analogue_m{sfx}"].median()) if len(c5) else np.nan, "m",
-                    f"C5: mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells; {lab}"),
+                    f"C3f (key C5, D-348): mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells; {lab}"),
                    (f"forest_floor_residual_after_climate_and_retreat_steady_median_C4_m{sfx}", float(c4[f"residual_after_climate_and_retreat_steady_min_m{sfx}"].median()), "m", f"C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term; {lab}"),
                    (f"forest_floor_residual_after_climate_and_retreat_modern_median_C4_m{sfx}", float(c4[f"residual_after_climate_and_retreat_modern_min_m{sfx}"].median()), "m", f"C4: the same with the modern-rate retreat sensitivity; {lab}"),
                    (f"forest_floor_wells_cluster_coefficients{sfx}", int((ffe[f"preplant_coef_basis{sfx}"] != "own").sum()), "count", f"forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= {config.PREPLANT_BETA3_P_MAX}); {lab}")]

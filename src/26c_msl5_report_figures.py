@@ -51,7 +51,7 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.8.2"  # Hollingham (2026) — 2026-11-26 (D-347): the C3 marker is keyed by its new label, "C3 (Western Dune)".
+__version__ = "1.9.0"  # 2026-11-27 (D-348): cluster markers keyed by group id through CLUSTER_LABELS, so the C3o and C3f labels keep their markers. Was "1.8.2"  # Hollingham (2026) — 2026-11-26 (D-347): the C3 marker is keyed by its new label, "C3 (Western Dune)".
 # 1.8.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.8.0  # Hollingham (2026) — 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). Without
 #   surveyed slack floors the community levels are not set against the record. Panel (b) returns to the cluster
@@ -122,13 +122,9 @@ CLUSTERS = [config.CLUSTER_LABELS[k] for k in sorted(config.CLUSTER_LABELS)
 SHORT = [lbl.split(" ")[0] for lbl in CLUSTERS]
 CC = {config.CLUSTER_LABELS[k]: config.CLUSTER_COLOURS[k] for k in config.CLUSTER_LABELS
       if k in config.CLUSTER_COLOURS}
-MK = {
-    "C1 (Lake Edge)":         "o",
-    "C2 (Dune)":              "^",
-    "C3 (Western Dune)":      "s",      # D-347: was Western Residual
-    "C4 (Main Forest)":       "D",
-    "C5 (Coastal Forest)":    "P",
-}
+# D-348: keyed by group id, then by the live label (C3o, C3f), so a relabel cannot drop a marker
+MK = {config.CLUSTER_LABELS[k]: m for k, m in {1: "o", 2: "^", 3: "s", 4: "D", 5: "P"}.items()
+      if k in config.CLUSTER_LABELS}
 
 COL_MSL = "#185FA5"   # ΔMSL5 bar colour
 COL_SUM = "#D85A30"   # Δsummer-min bar colour

@@ -70,7 +70,7 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+__version__ = "1.17.0"  # 2026-11-27 (D-348): comments and docstring name group 5 C3f (was C5 Coastal Forest); no code change. Was "1.16.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
 #   load_clearfell_observed_step() and clearfell_return_fraction(): the scenarios' anchor (the 10a step, its
 #   HAC interval, by season) and the flux sensitivity calibrated on it. Additive.
 # 1.15.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). Docstrings only, no code change:
@@ -207,7 +207,7 @@ FOREST_CONTROL_WELLS = [
 ]
 
 COASTAL_CONTROL_WELLS = [
-    'ceh19', 'ceh17',  # C5 (Coastal Forest — lower β₂, distinct from C4)
+    'ceh19', 'ceh17',  # C3f (Western Dune, forest; was C5 Coastal Forest) — lower β₂, distinct from C4
 ]
 
 CLIMATE_CONTROL_WELLS = [
@@ -1710,7 +1710,7 @@ TIER_COLOURS = {
     'Impact':        '#D73027',
     'Edge':          '#F46D43',
     'Forest Ctrl':   '#4DAC26',
-    'Coastal Ctrl':  '#8B6914',  # brown — C5 Coastal Forest
+    'Coastal Ctrl':  '#8B6914',  # brown — C3f (Western Dune, forest)
     'Climate Ctrl':  '#4575B4',
     # Colour-blind-safe purple (Dark2), well separated from the two blues and
     # the green above; the far-field tier plots beside all five.

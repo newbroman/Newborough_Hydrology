@@ -22,8 +22,9 @@ The fits are produced at three increasingly stringent specifications to
 test the forest-cover confound:
 
     [1] Full network        — all clusters, clearfell-zone wells dropped
-    [2] Forest-free network — C1 + C2 + C3 only (drops C4 + C5 entirely)
-    [3] C3 only             — single non-forested cluster, c held to the
+    [2] Forest-free network — open ground only (D-348: C1 + C2 + C3o; drops C4 + C3f)
+    [3] C3 only             — single non-forested group (D-348: group 3, C3o, cluster-level
+                              wells only), c held to the
                               network value because C3 contains no well
                               at d → 0 and a 3-parameter fit on this
                               restricted distance range is under-identified
@@ -149,7 +150,7 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.41.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the before/after-step fits keep the
+__version__ = "1.42.0"  # 2026-11-27 (D-348): cluster partition rows (25_03 and the record-length table) and the C3-only fit from cluster-level wells (boundary and set-aside reference wells out); per-well panels keep every well; C5 rows annotated as C3f. Was "1.41.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the before/after-step fits keep the
 #   whole record (start=None); their subject is the 2009 step. Nothing else changes.
 # 1.41.0  # Hollingham (2026) - 2026-11-25 (later; Martin, Paper C). (1) THE RIDGE BUFFER ("We do have a
 #   ridge outline - it's the 20 m contour. Use 200 m from the 20 m contour"): ridge_distances() takes the bedrock ridge as
@@ -926,7 +927,7 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     # degraded answer, not an equivalent one.
     if "in_forest" not in locs.columns:
         warn("01_locations.csv carries no in_forest column (Script 01 predates "
-             "v1.12.0); falling back to the C4/C5 cluster proxy for canopy.")
+             "v1.12.0); falling back to the C4/C3f group proxy for canopy.")
         _cols = ["well", "E", "N"]
     else:
         _cols = ["well", "E", "N", "in_forest"]
@@ -972,6 +973,7 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     long = apply_scrape_treatment(long)
     if restrict_cluster is not None:
         long = long[long["cluster"] == restrict_cluster]
+        long = long[~long["well"].isin(_off_cluster_level())]   # D-348: a group fit uses cluster-level wells
         if restrict_cluster == 3:
             long = long[~long["well"].isin(CLEARFELL_ZONE_IN_C3)]
     else:
@@ -1669,6 +1671,15 @@ def compute_per_well_slopes(long: pd.DataFrame,
 DECOMPOSITION_BASIS_COLUMN = "observed_balanced_annual_mean_mm_yr"
 
 
+def _off_cluster_level() -> set:
+    """D-348: reference wells left out of cluster-level quantities (In_Cluster_Level false in 03_master_data:
+    the boundary wells and the set-aside WMC3), lower case. Extended wells, which Script 02 does not classify,
+    are not in it and stay as before."""
+    from utils.cluster_series import in_cluster_level
+    m = pd.read_csv(paths.INT_MASTER_DATA)
+    return set(m.loc[~in_cluster_level(m), "Name_Original"].astype(str).str.strip().str.lower())
+
+
 def balanced_annual_mean_slope(annual: pd.DataFrame, year_col: str,
                                wells: set) -> float:
     """Slope of the annual cross-well MEAN of the per-well seasonal metric,
@@ -1732,8 +1743,9 @@ def cluster_partition(per_well: pd.DataFrame,
         s14[cnum] = float(r["Slope_m_per_yr"])
 
     rows = []
+    _off = _off_cluster_level()                     # D-348: cluster rows from cluster-level wells
     for cn, lbl in CLUSTER_LABELS.items():
-        sub = per_well[per_well["cluster"] == cn]
+        sub = per_well[(per_well["cluster"] == cn) & ~per_well["well"].isin(_off)]
         if sub.empty:
             continue
         wells = set(sub["well"])
@@ -1821,8 +1833,9 @@ def record_length_composition(per_well: pd.DataFrame,
     side is empty.
     """
     rows = []
+    _off = _off_cluster_level()                     # D-348: cluster rows from cluster-level wells
     for cn, lbl in CLUSTER_LABELS.items():
-        sub = per_well[per_well["cluster"] == cn]
+        sub = per_well[(per_well["cluster"] == cn) & ~per_well["well"].isin(_off)]
         if sub.empty:
             continue
         slopes = sub["slope_m_yr"].values * 1000.0
@@ -3726,7 +3739,7 @@ def build_report_numbers(fits: dict,
                                 f"conditional on the fitted decay parameters. "
                                 f"Land cover, not cluster membership — the two "
                                 f"disagree at six wells")})
-    # C5 attribution
+    # C5 attribution (D-348: key C5 = group 5, C3f)
     c5 = partition[partition["cluster_id"] == 5]
     if not c5.empty:
         r = c5.iloc[0]
@@ -3751,7 +3764,7 @@ def build_report_numbers(fits: dict,
                       "Well": "C5", "Era": "2005-2026",
                       "Value": float(r["observed_balanced_annual_mean_mm_yr"]),
                       "Unit": "mm/yr",
-                      "Note": ("C5 (Coastal Forest) observed_balanced_annual_"
+                      "Note": ("C5 = C3f (Western Dune, forest; D-348) observed_balanced_annual_"
                                "mean_mm_yr — the current decomposition basis "
                                "(25_03_cluster_partition.csv). Superseded a "
                                "pre-D-196 basis of about -16.15 mm/yr under "
@@ -3761,7 +3774,7 @@ def build_report_numbers(fits: dict,
                       "Well": "C5", "Era": "2005-2026",
                       "Value": float(r["observed_per_well_mean_mm_yr"]),
                       "Unit": "mm/yr",
-                      "Note": ("C5 (Coastal Forest) observed_per_well_mean_"
+                      "Note": ("C5 = C3f (Western Dune, forest; D-348) observed_per_well_mean_"
                                "mm_yr, retained as a context column beside "
                                "the balanced-annual basis and the "
                                "Script-14 centroid rate (not the "

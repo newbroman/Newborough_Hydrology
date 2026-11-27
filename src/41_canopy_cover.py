@@ -150,11 +150,11 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.16.0
+__version__ : 2.17.0
 """
 from __future__ import annotations
 
-__version__ = "2.16.0"  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (D-263; spec
+__version__ = "2.17.0"  # 2026-11-27 (D-348): the forest-well canopy test labels name C3f (group 5; per well, every group-4 and group-5 well); canopy_c5 / mw_p_c4_vs_c5 keys kept. Was "2.16.0"  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (D-263; spec
 #   NRG_spec_canopy_at_wells_2026-10-15, signed off by Martin 06:38: 30 m, pre-felling test, rule fixed before the run).
 #   Phase 5 reads the texture index in a CANOPY_WELL_BUFFER_M disc around each C4/C5 well (marker pixels masked, the
 #   compartment gates), and tests beta_2 against canopy and elevation by partial correlation (41_06, 41_07, 41_08,
@@ -355,7 +355,7 @@ from utils.config import (                                   # noqa: E402
     CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M, CANOPY_REPORT_VIEWPOINT,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
     LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO, CLEARFELL_ERA_SPLIT,
-    PLANTATION_AREA_HA, FOREST_CIDS,
+    PLANTATION_AREA_HA, FOREST_CIDS, CLUSTER_SHORT,
     CANOPY_WELL_BUFFER_M, CANOPY_WELL_BUFFER_SENS_M, WELL_CANOPY_TEST_P, WELL_CANOPY_COLLINEAR_R,
 )
 from utils.console_utils import banner, phase, step, info, warn, saved, track  # noqa: E402
@@ -1126,7 +1126,7 @@ def _canopy_at_wells(paths, cache, ref_stats, rasterise, regions) -> list:
     def add(k, v, unit, note):
         rn.append({"Parameter": k, "Well": "", "Era": era, "Value": v, "Unit": unit, "Note": note})
     add("well_canopy_n_wells", float(t0["n_wells"]), "wells",
-        f"forest wells (C4, C5) with a pre-felling canopy value at {CANOPY_WELL_BUFFER_M:g} m, of {t0['n_forest_wells']}")
+        f"forest wells (C4, C3f) with a pre-felling canopy value at {CANOPY_WELL_BUFFER_M:g} m, of {t0['n_forest_wells']}")
     for k, unit in [("r_beta2_canopy", "r"), ("p_beta2_canopy", "p"), ("r_canopy_elevation", "r"),
                     ("partial_r_beta2_canopy_given_elev", "r"), ("partial_p_beta2_canopy_given_elev", "p"),
                     ("partial_r_beta2_elev_given_canopy", "r"), ("partial_p_beta2_elev_given_canopy", "p"),
@@ -1142,13 +1142,13 @@ def _canopy_at_wells(paths, cache, ref_stats, rasterise, regions) -> list:
 
     if t0["n_wells"] >= 5:
         fig, ax = plt.subplots(figsize=(7.5, 5.5))
-        mk = {4: "D", 5: "P"}
+        mk = {4: "D", 5: "P"}   # FOREST_CIDS: C4, C3f (D-348)
         sc = None
         for cid, g in prim.groupby("Cluster_ID"):
             sc = ax.scatter(g["dem"], g["beta_2_atmospheric_draw"], c=g["canopy_pre"], cmap="viridis",
                             vmin=float(prim["canopy_pre"].min()), vmax=float(prim["canopy_pre"].max()),
                             marker=mk.get(int(cid), "o"), s=70, edgecolor="k", lw=0.5,
-                            label=f"C{int(cid)}")
+                            label=CLUSTER_SHORT.get(int(cid), f"C{int(cid)}"))   # D-348: C3f
         for _, r_ in prim.iterrows():
             ax.annotate(r_["well"], (r_["dem"], r_["beta_2_atmospheric_draw"]), fontsize=7,
                         xytext=(4, 3), textcoords="offset points")
@@ -1159,7 +1159,8 @@ def _canopy_at_wells(paths, cache, ref_stats, rasterise, regions) -> list:
         ax.set_title(f"Forest wells: β₂ against elevation, coloured by canopy texture — {t0['verdict']}")
         from matplotlib.lines import Line2D
         ax.legend(handles=[Line2D([0], [0], marker=mk[c], color="w", markerfacecolor="0.6", markeredgecolor="k",
-                                  markersize=8, label=f"C{c}") for c in (4, 5)], fontsize=8, loc="upper left")
+                                  markersize=8, label=CLUSTER_SHORT.get(c, f"C{c}")) for c in FOREST_CIDS],
+                  fontsize=8, loc="upper left")
         render_figure(fig, OUT_41_WELL_CANOPY_FIG)
         saved(OUT_41_WELL_CANOPY_FIG.name)
     return rn

@@ -5,7 +5,7 @@ Water Table Fluctuation (WTF) Method — Cluster-Level Specific Yield Estimation
 Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
 
 Produces cluster-level WTF S_a estimates (Approaches A and B) for all clusters
-in the live partition. Forest clusters (FOREST_CIDS from config — C4 and C5)
+in the live partition. Forest groups (FOREST_CIDS from config — C4 and C3f, D-348)
 additionally receive an interception-corrected variant following Freeman (2008),
 applied to Approach B only. The corrected forest values populate Table 3c of
 the manuscript and feed the WTF-S_a volumetric water balance (Table 3d,
@@ -30,7 +30,7 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.12.0"  # 2026-11-27 (D-348): text and notes name the forest groups C4 and C3f; the cluster series are Script 03's cluster-level centroids, no code change. Was "1.11.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.10.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin 2026-11-12: the drainage correction
@@ -154,7 +154,7 @@ PET_MAX_WINTER  = 0.025                 # m/month — exclude months above this
 CLUSTER_IDS     = sorted(_CFG_CLUSTER_LABELS.keys())  # [1, 2, 3, 4, 5]
 CLUSTER_LABELS  = {f"C{i}": _CFG_CLUSTER_LABELS[i]  for i in CLUSTER_IDS}
 CLUSTER_COLOURS = {f"C{i}": _CFG_CLUSTER_COLOURS[i] for i in CLUSTER_IDS}
-FOREST_KEYS     = [f"C{i}" for i in FOREST_CIDS]  # ["C4", "C5"]
+FOREST_KEYS     = [f"C{i}" for i in FOREST_CIDS]  # ["C4", "C5"]; D-348: key C5 = C3f (Western Dune, forest)
 
 # Assumed Sy for comparison (literature defaults for coastal sand). C1's lower
 # value reflects the lake-buffered cluster's higher fines content; the other
@@ -884,7 +884,7 @@ def export_csv(a_results, b_results, c_results, out_path):
 def write_report_numbers(table, out_path, excluded_datum=None):
     """T-96: the estimator comparisons report9 SS4.2.4 quotes, one row per
     cluster from the uncorrected rows of the S_a table (the rapid-event
-    estimator is interception-corrected internally at C4/C5, as in Table 8).
+    estimator is interception-corrected internally at C4/C3f, as in Table 8).
     Stored unrounded (D-035)."""
     rpt = ReportNumbers()
     base = table[~table["Corrected"].astype(bool)]
@@ -901,7 +901,7 @@ def write_report_numbers(table, out_path, excluded_datum=None):
         vals = r[est_cols].astype(float)
         rpt.add("sy_estimator_range", float(vals.max() - vals.min()), unit="", well=lab,
                 note="max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median "
-                     "(uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)")
+                     "(uncorrected run; the rapid-event estimate is interception-corrected at C4/C3f)")
     rpt.add("sy_ols_to_event_ratio_mean", float(ratios.mean()), unit="",
             note=f"mean of sy_ols_to_event_ratio over the n={len(ratios)} clusters (uncorrected run)")
     rpt.add("sy_ols_to_event_ratio_n_above_1", int((ratios > 1).sum()), unit="clusters",
@@ -1054,7 +1054,7 @@ def write_summary(a_results, b_results, c_results, out_path):
         "  and does NOT propagate downstream (Approach B per-well S_a remains the",
         "  pipeline-consumed canonical). It is data-limited at the forest",
         "  clusters (small n) and reported there with n and CI shown.",
-        "- Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as",
+        "- Forest groups (C4 Main Forest, C3f Western Dune forest) are reported as",
         "  both uncorrected and interception-corrected (Freeman 2008) variants.",
         f"  The corrected variant applies R_effective = (1 − {FOREST_INTERCEPTION:g})·P − PET. PET",
         "  is not reduced because Thornthwaite PET is an energy-based atmospheric",

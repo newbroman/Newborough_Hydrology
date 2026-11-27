@@ -41,7 +41,7 @@ Limitations:
 
 from __future__ import annotations
 
-__version__ = "3.0.0"  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). On demand only
+__version__ = "3.1.0"  # 2026-11-27 (D-348): the memo names C3f (key C5) and C3o; the hard-coded steepest-decline sentence is marked as a k = 5 statement to check. Was "3.0.0"  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). On demand only
 #   (run_analysis 2.29.0, `--step 14b`); withdrawn from the report. The 1.2.1 cluster bootstrap is restored, unchanged,
 #   so the step that stays registered still runs: 2.0.0 (D-294, per-well crossing counts) read
 #   14_per_well_extremes.csv, which Script 14 1.14.0 no longer writes, and is retired with it. Its outputs
@@ -220,7 +220,7 @@ def main():
     clusters_sorted = sorted(boot_traces.keys())
     x_proj = np.arange(2005, 2061)
 
-    # 2 rows × 3 cols, filled row-major: C1/C2/C3 on top, C4/C5 on the bottom.
+    # 2 rows × 3 cols, filled row-major: C1/C2/C3o on top, C4/C3f on the bottom (D-348; keys C1..C5).
     # The sixth cell (bottom-right) is reserved for a shared legend.
     fig, axgrid = plt.subplots(2, 3, figsize=(15, 9), sharey=True,
                                facecolor="white")
@@ -340,15 +340,15 @@ def main():
             p95=int(out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_95'].iloc[0])
                 if not out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_95'].isna().any() else "—",
         ),
-        "- C5 has the steepest decline and crosses SD15b and SD16 within the observed-data window or close to it. Existing report prose handles C5's anomalous decline separately (§5.7.2).",
-        "- C3 and C4 have non-significant trends (Script 14) — their bootstrap CIs are correspondingly wide.",
+        "- C3f (key C5; D-348) has the steepest decline and crosses SD15b and SD16 within the observed-data window or close to it. Existing report prose handles C3f's anomalous decline separately (§5.7.2). (Stated under k = 5 for C5; check against 14_summer_trend_stats.csv.)",
+        "- C3o and C4 have non-significant trends (Script 14) — their bootstrap CIs are correspondingly wide.",
         "",
         "## Caveats",
         "",
         "- Linear extrapolation. The bootstrap captures sampling uncertainty in slope and intercept; it does NOT capture model-form uncertainty (the assumption that the linear trend extrapolates cleanly into a regime where summer-min approaches a drainage-controlled basement or where climate trajectory diverges from observed). Consider this an upper-bound horizon, not a calibrated projection.",
         "- The cluster-centroid summer-min averages over wells with different ground elevations within each cluster, so the threshold (\"depth below ground\") is an effective threshold against the centroid, not against any specific well.",
         "- Year-resampling bootstrap preserves the ordering of the trend signal but does not preserve year-to-year autocorrelation. For trends with strong autocorrelation this can produce a slightly narrower CI than a block bootstrap would. Inspection of `14_annual_extremes.csv` summer-min residuals does not show strong autocorrelation; a block bootstrap is unlikely to materially widen the CIs.",
-        "- C5's exceptional decline (§4.8.1) reflects a coastal-retreat gradient mechanism (Script 25) plus other candidates discussed in §5.7.2 — extrapolating it linearly may understate (if the gradient retreats further inland) or overstate (if coastal retreat itself slows) the C5 crossing year.",
+        "- C3f's exceptional decline (§4.8.1) reflects a coastal-retreat gradient mechanism (Script 25) plus other candidates discussed in §5.7.2 — extrapolating it linearly may understate (if the gradient retreats further inland) or overstate (if coastal retreat itself slows) the C3f crossing year.",
         "",
         "## Cross-references",
         "",

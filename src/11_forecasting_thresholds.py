@@ -96,12 +96,13 @@ Cluster scope (k=5 partition):
     targeted small-n / unreliable groups; under the current partition those
     were cleaned out at the partition level, so EXCLUDED_CLUSTERS is empty.
     Block columns are produced by 03_state_space_model.py via BLOCK_MAP:
-    Lake_Edge (C1), Eastern_Block (C2), Western_Block (C3), Forest (C4),
-    Coastal_Forest (C5).
+    Lake_Edge (C1), Eastern_Block (C2), Western_Block (C3o), Forest (C4),
+    Coastal_Forest (C3f). D-348: the five are cluster-level GROUPS; the column name
+    Coastal_Forest is Script 03's alias of group 5, C3f (Western Dune, forest).
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B thresholds: 03_03 now
+__version__ = "1.6.0"  # 2026-11-27 (D-348): block text names group 3 C3o and the Coastal_Forest block (group 5) C3f; no code change. Was "1.5.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B thresholds: 03_03 now
 #   carries Model B (free intercept alpha), so Section 3 runs pflood_lambda, the single-step P_flood_old and the
 #   printed/LaTeX equations at each cluster's implied datum z = DRAINAGE_DATUM - alpha/beta_3 (03_03 implied_datum_m),
 #   where Model B is exactly Model A; z replaces D in every formula. A cluster whose z is not below ground is left out
@@ -276,8 +277,8 @@ CLUSTER_LABELS_STR: dict[str, str] = {
 
 # Macro-block columns expected in the regional-averages CSV. Under the k=5
 # Option-A partition Script 03 writes one block alias per cluster (BLOCK_MAP):
-#     C1 → Lake_Edge,  C2 → Eastern_Block,  C3 → Western_Block,
-#     C4 → Forest,     C5 → Coastal_Forest.
+#     C1 → Lake_Edge,  C2 → Eastern_Block,  C3o → Western_Block,
+#     C4 → Forest,     C3f → Coastal_Forest  (D-348: group 5 = C3f; the column name is Script 03's).
 # All five participate in Section 2 forecasting. Wells from clusters whose
 # block column is missing at runtime are silently skipped (handled by the
 # `if block in df.columns` filter).
@@ -524,8 +525,8 @@ def run_peak_forecasting(df: pd.DataFrame) -> None:
     """
     print(sep("SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = a_P\u00b7P_winter + a_h\u00b7h_min + c)"))
     print("  OLS with intercept | Hydrological year: Oct 1 - Sep 30")
-    print("  Blocks (one per cluster, k=5 partition): Lake_Edge (C1), "
-          "Eastern_Block (C2), Western_Block (C3), Forest (C4), Coastal_Forest (C5).\n")
+    print("  Blocks (one per cluster-level group, D-348): Lake_Edge (C1), "
+          "Eastern_Block (C2), Western_Block (C3o), Forest (C4), Coastal_Forest (C3f).\n")
 
     df = df.copy()
     df.index = pd.to_datetime(df.index)

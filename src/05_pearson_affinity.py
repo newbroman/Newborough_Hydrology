@@ -8,7 +8,7 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.9.0"  # 2026-11-27 (D-348): tested against the four cluster centroids from cluster-level wells; ids reported as groups by land cover. Was "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.7.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
@@ -77,7 +77,13 @@ from utils.console_utils import (
 from utils.render_utils import render_figure
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
-EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
+# 1.9.0 (D-348): the affinity tests the HYDROGEOLOGICAL partition, so it correlates each well with the four
+# cluster centroids (config.HYDRO_CLUSTER_LABELS), built from cluster-level wells. C3o and C3f share the Western
+# Dune's timing by construction; testing against both would flag every Western Dune well as fuzzy between its own
+# two land-cover halves. Assigned / best-match / secondary are then reported as GROUP ids (cluster x land cover).
+from utils.config import HYDRO_CLUSTER_LABELS as _HYDRO_LABELS
+from utils.cluster_series import in_cluster_level, group_of, land_cover_lookup
+EXPECTED_CLUSTERS = sorted(_HYDRO_LABELS.keys())
 apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 plt.rcParams.update({'axes.labelsize': 11, 'axes.titlesize': 13, 'xtick.labelsize': 9, 'ytick.labelsize': 9, 'legend.fontsize': 9})
 
@@ -134,7 +140,9 @@ def main():
     wells_matrix = load_matrix(INT_WELLS_CLEAN)
     cluster_df = pd.read_csv(INT_CLUSTER_STATS)
     cluster_df["Match_ID"] = cluster_df["Match_ID"].apply(normalize_well_name)
-    cluster_df["Cluster"]  = pd.to_numeric(cluster_df["Cluster"],errors="coerce").astype("Int64")
+    cluster_df["Group"]    = pd.to_numeric(cluster_df["Cluster"],errors="coerce").astype("Int64")
+    _hc = "Hydro_Cluster" if "Hydro_Cluster" in cluster_df.columns else "Cluster"
+    cluster_df["Cluster"]  = pd.to_numeric(cluster_df[_hc],errors="coerce").astype("Int64")   # D-348: the cluster
     cluster_df = cluster_df.dropna(subset=["Match_ID","Cluster"])
     reference_ids = set(cluster_df["Match_ID"].tolist())
     wells_matrix = wells_matrix.loc[
@@ -144,7 +152,9 @@ def main():
     loc_df["Match_ID"] = loc_df["Match_ID"].apply(normalize_well_name)
 
     z_wells   = zscore_rows(wells_matrix)
-    centroids = build_centroids(z_wells, cluster_df)
+    centroids = build_centroids(z_wells, cluster_df[in_cluster_level(cluster_df)])   # D-348: cluster-level wells
+    _lc = land_cover_lookup()
+    _grp = lambda w, h: (pd.NA if pd.isna(h) else group_of(int(h), _lc.get(str(w).lower(), "open")))
     corr_rows = []
     for wid, row in z_wells.iterrows():
         rec = {"Well_Normalised": wid}
@@ -163,8 +173,10 @@ def main():
         sec = corr_df.loc[wid].dropna()
         sec_c = int(str(sec.sort_values(ascending=False).index[1]).split("_")[1]) if len(sec)>=2 else np.nan
         audit_rows.append({"Well_Normalised":wid,
-            "Assigned_Cluster": int(assigned) if not pd.isna(assigned) else pd.NA,
-            "Best_Match_Cluster":best_c,"Secondary_Cluster":sec_c,
+            "Assigned_Cluster": _grp(wid, assigned),
+            "Best_Match_Cluster":_grp(wid, best_c),"Secondary_Cluster":_grp(wid, sec_c),
+            "Assigned_Hydro_Cluster": int(assigned) if not pd.isna(assigned) else pd.NA,
+            "Best_Match_Hydro_Cluster": best_c,
             "Assigned_r":ar,"Best_Match_r":br,"Delta_Assigned_vs_NextBest":delta,
             "Class":cl,"MCA_Count_r_gt_0_90":int((corr_df.loc[wid]>PEARSON_MCA_THRESH).sum())})
 
@@ -218,7 +230,7 @@ def main():
         for i,col in enumerate(plot_df.columns):
             cid = int(col.replace("C","")) if col.replace("C","").isdigit() else None
             ax.bar(x+(i-(n_bars-1)/2)*width, plot_df[col].values, width=width,
-                   label=CLUSTER_LABELS.get(cid,col), color=CLUSTER_COLOURS.get(cid,"#808080"),
+                   label=_HYDRO_LABELS.get(cid,col), color=CLUSTER_COLOURS.get(cid,"#808080"),
                    edgecolor="black", linewidth=0.6)
         ax.set_xticks(x); ax.set_xticklabels([w.upper() for w in available])
         ax.set_ylabel("Pearson Correlation (r)")
@@ -316,7 +328,7 @@ def main():
             Line2D([0],[0],marker="*",color="w",markerfacecolor="grey",markeredgecolor="black",markersize=11,linestyle="None",label="Spy (marker coloured by assigned cluster; number = Pearson best match)"),
         ]
         cl1 = ax.legend(handles=status_handles,title="Status / Confidence",loc="upper left",frameon=True); ax.add_artist(cl1)
-        cluster_handles = [Line2D([0],[0],marker="o",color="w",markerfacecolor=CLUSTER_COLOURS[c],markeredgecolor="black",markersize=8,label=CLUSTER_LABELS.get(c,f"C{c}")) for c in EXPECTED_CLUSTERS]
+        cluster_handles = [Line2D([0],[0],marker="o",color="w",markerfacecolor=CLUSTER_COLOURS[c],markeredgecolor="black",markersize=8,label=_HYDRO_LABELS.get(c,f"C{c}")) for c in EXPECTED_CLUSTERS]
         cl2 = ax.legend(handles=cluster_handles,title="Assigned cluster",loc="lower right",frameon=True); ax.add_artist(cl2)
 
         if mca_handles:

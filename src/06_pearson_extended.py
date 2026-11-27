@@ -9,7 +9,7 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-11-26 (D-347): affinity is read from config.RECORD_FIT_START (January 2010), the partition's own window.
+__version__ = "1.8.0"  # 2026-11-27 (D-348): tested against the four cluster centroids from cluster-level wells; ids written as groups by land cover. Was "1.7.0"  # Hollingham (2026) — 2026-11-26 (D-347): affinity is read from config.RECORD_FIT_START (January 2010), the partition's own window.
 # 1.6.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
@@ -123,7 +123,11 @@ LOCATION_PATH = INT_LOCATIONS
 OUT_BAR = OUT_06_AFFINITY_CHART
 OUT_MAP = OUT_06_INTEGRATION_MAP
 
-EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
+# 1.8.0 (D-348): tested against the four cluster centroids (config.HYDRO_CLUSTER_LABELS) from cluster-level reference
+# wells, as Script 05; ids written as GROUP ids by each well's land cover (Original, Best_Match, Secondary).
+from utils.config import HYDRO_CLUSTER_LABELS as _HYDRO_LABELS
+from utils.cluster_series import in_cluster_level, group_of, land_cover_lookup
+EXPECTED_CLUSTERS = sorted(_HYDRO_LABELS.keys())
 DELTA_THRESH = PEARSON_DELTA_THRESH   # config.py is the one home (2026-09-09)
 MCA_THRESH   = PEARSON_MCA_THRESH
 
@@ -200,7 +204,7 @@ def create_affinity_bar_plot(audit_df: pd.DataFrame) -> None:
             x + (i - (n_bars - 1) / 2) * width,
             plot_df[col].values,
             width=width,
-            label=CLUSTER_LABELS.get(cid, col),
+            label=_HYDRO_LABELS.get(cid, col),
             color=CLUSTER_COLOURS.get(cid, "#808080"),
             edgecolor="black",
             linewidth=0.6,
@@ -250,7 +254,11 @@ def main():
     ref_clusters['Match_ID'] = ref_clusters['Match_ID'].apply(normalize_well_name)
     loc_df['Match_ID'] = loc_df['Match_ID'].apply(normalize_well_name)
 
-    well_to_cluster = ref_clusters.set_index('Match_ID')['Cluster'].to_dict()
+    _hc = 'Hydro_Cluster' if 'Hydro_Cluster' in ref_clusters.columns else 'Cluster'   # D-348: the cluster
+    well_to_cluster = ref_clusters.set_index('Match_ID')[_hc].to_dict()
+    _lvl = set(ref_clusters.loc[in_cluster_level(ref_clusters), 'Match_ID'])
+    _lc = land_cover_lookup()
+    _grp = lambda w, h: (np.nan if pd.isna(h) else group_of(int(h), _lc.get(str(w).lower(), "open")))
 
     # 2. Standardisation & Template Building
     all_wells = pd.concat([ref_wells, ext_wells]).apply(pd.to_numeric, errors='coerce')
@@ -259,7 +267,7 @@ def main():
     z_ref = z_all.loc[ref_wells.index]
     centroids = {}
     for c in EXPECTED_CLUSTERS:
-        members = [w for w, assigned in well_to_cluster.items() if assigned == c and w in z_ref.index]
+        members = [w for w, assigned in well_to_cluster.items() if assigned == c and w in z_ref.index and w in _lvl]
         centroids[c] = z_ref.loc[members].mean(axis=0, skipna=True) if members else pd.Series(np.nan, index=z_ref.columns)
     
     centroid_df = pd.DataFrame(centroids)
@@ -298,7 +306,9 @@ def main():
 
         rec = {
             "Well_Normalised": well_id, "Network": "Reference" if is_ref else "Extended",
-            "Original_Cluster": assigned_c, "Best_Match_Cluster": best_c, "Secondary_Cluster": runner_up_c,
+            "Original_Cluster": _grp(well_id, assigned_c), "Best_Match_Cluster": _grp(well_id, best_c),
+            "Secondary_Cluster": _grp(well_id, runner_up_c),
+            "Original_Hydro_Cluster": assigned_c, "Best_Match_Hydro_Cluster": best_c,
             "Best_r": round(best_r, 4), "Delta": round(delta, 4), "Status": status, "MCA_Flag": mca_count >= 3
         }
         rec.update({f"r_C{k}": round(v, 4) for k, v in corrs.items()})
@@ -306,7 +316,7 @@ def main():
 
     audit_columns = [
         'Well_Normalised', 'Network', 'Original_Cluster', 'Best_Match_Cluster',
-        'Secondary_Cluster', 'Best_r', 'Delta', 'Status', 'MCA_Flag'
+        'Secondary_Cluster', 'Original_Hydro_Cluster', 'Best_Match_Hydro_Cluster', 'Best_r', 'Delta', 'Status', 'MCA_Flag'
     ] + [f'r_C{k}' for k in EXPECTED_CLUSTERS]
     audit_df = pd.DataFrame(audit_rows, columns=audit_columns)
     audit_df.to_csv(INT_PEAR_AUDIT_SITEWIDE, index=False)
@@ -472,7 +482,7 @@ def main():
     from utils.config import CLUSTER_MARKERS
     handles_clusters = [
         Line2D([0], [0], marker=CLUSTER_MARKERS.get(c, 'o'), color='w',
-               label=CLUSTER_LABELS.get(c, f"C{c}"),
+               label=_HYDRO_LABELS.get(c, f"C{c}"),
                markerfacecolor='grey', markeredgecolor='black', markersize=10)
         for c in EXPECTED_CLUSTERS
     ]

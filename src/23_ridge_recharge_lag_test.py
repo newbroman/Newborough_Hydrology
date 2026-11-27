@@ -108,7 +108,7 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.7.0"  # 2026-11-27 (D-348): the C4 vs C2+C3o peak-lag test, cluster-mean and cluster-median b11 keys and the cluster-mean ratio bars from cluster-level wells; per-well fits, maps and the network Spearman test keep every well; C5 notes read C3f. Was "1.6.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.5.0"  # Hollingham (2026) — 2026-09-29. T-96: 23_report_numbers.csv also carries
@@ -491,8 +491,9 @@ def plot_betas_by_cluster(fits_df, output_path):
 
     # Bar chart of b11/(b10+b11) ratio by cluster — fraction of response that is lagged
     ratios = []
+    _fl = fits_df[fits_df['In_Cluster_Level'].astype(bool)] if 'In_Cluster_Level' in fits_df else fits_df
     for cid in clusters_present:
-        sub = fits_df[fits_df['Cluster'] == cid]
+        sub = _fl[_fl['Cluster'] == cid]   # D-348: the cluster-mean ratio over cluster-level wells
         if (sub['beta_10'] + sub['beta_11']).abs().sum() > 0:
             # Use cluster-mean ratio
             total = sub['beta_10'].mean() + sub['beta_11'].mean()
@@ -629,8 +630,12 @@ def write_test_summary(ccf_df, fits_df, trend_stats, output_path, rpt=None, coll
                 note="wells with a Bartlett-significant peak cross-correlation lag, the "
                      "population of the Spearman test above")
 
-        c4 = sig[sig['Cluster'] == 4]['peak_lag']
-        c23 = sig[sig['Cluster'].isin([2, 3])]['peak_lag']
+        # D-348: the cluster test and cluster means below use cluster-level wells only
+        _sig_l = sig[sig['In_Cluster_Level'].astype(bool)] if 'In_Cluster_Level' in sig else sig
+        _fits_l = (fits_df[fits_df['In_Cluster_Level'].astype(bool)]
+                   if 'In_Cluster_Level' in fits_df else fits_df)
+        c4 = _sig_l[_sig_l['Cluster'] == 4]['peak_lag']
+        c23 = _sig_l[_sig_l['Cluster'].isin([2, 3])]['peak_lag']   # C2 + C3o (group 3, D-348)
         if len(c4) > 0 and len(c23) > 0:
             u_stat, u_p = scipy_stats.mannwhitneyu(c4, c23, alternative='two-sided')
             rpt.add("ridge_lag_mannwhitney_U_C4_vs_C2C3",
@@ -651,25 +656,26 @@ def write_test_summary(ccf_df, fits_df, trend_stats, output_path, rpt=None, coll
                     well="C2+C3",
                     note="Mean peak-correlation lag, pooled C2+C3 significant-peak wells.")
 
-        frac = fits_df['beta_11'] / (fits_df['beta_10'] + fits_df['beta_11'])
-        for cid in sorted(fits_df['Cluster'].dropna().unique()):
-            cluster_frac = frac[fits_df['Cluster'] == cid]
+        frac = _fits_l['beta_11'] / (_fits_l['beta_10'] + _fits_l['beta_11'])
+        for cid in sorted(_fits_l['Cluster'].dropna().unique()):
+            cluster_frac = frac[_fits_l['Cluster'] == cid]
             label = CLUSTER_LABELS.get(int(cid), f'C{int(cid)}')
             rpt.add("ridge_lag_median_b11_lagged_fraction", float(cluster_frac.median()),
                     unit="", well=label,
                     note="Cluster-median of b11/(b10+b11), the lagged-rainfall "
                          "fraction of the Script 23 extended-model recharge "
-                         "response, over all fitted wells in the cluster "
-                         "(not restricted to significant-peak wells).")
+                         "response, over the fitted cluster-level wells of the cluster "
+                         "(D-348; not restricted to significant-peak wells).")
 
-        c4_mean_b11 = fits_df[fits_df['Cluster'] == 4]['beta_11'].mean()
-        c5_mean_b11 = fits_df[fits_df['Cluster'] == 5]['beta_11'].mean()
+        c4_mean_b11 = _fits_l[_fits_l['Cluster'] == 4]['beta_11'].mean()
+        c5_mean_b11 = _fits_l[_fits_l['Cluster'] == 5]['beta_11'].mean()   # D-348: key C5 = C3f
         rpt.add("ridge_lag_mean_b11_C4", float(c4_mean_b11), unit="",
                 well="C4",
-                note="Cluster-mean b11 (P(t-1) coefficient), all fitted C4 wells.")
+                note="Cluster-mean b11 (P(t-1) coefficient), the fitted cluster-level C4 wells.")
         rpt.add("ridge_lag_mean_b11_C5", float(c5_mean_b11), unit="",
                 well="C5",
-                note="Cluster-mean b11 (P(t-1) coefficient), all fitted C5 wells.")
+                note="Cluster-mean b11 (P(t-1) coefficient), the fitted cluster-level C3f wells "
+                     "(group 5, key C5; D-348).")
 
         if collinearity_corrs:
             corrs = pd.Series(collinearity_corrs).dropna()
@@ -701,6 +707,9 @@ def main():
 
     cluster_df['_norm'] = cluster_df['Match_ID'].apply(normalize_well_name)
     cluster_lookup = dict(zip(cluster_df['_norm'], cluster_df['Cluster']))
+    # D-348: the wells cluster-level summaries use (In_Cluster_Level; boundary and set-aside wells out)
+    from utils.cluster_series import in_cluster_level
+    lvl_set = set(cluster_df.loc[in_cluster_level(cluster_df), '_norm'])
 
     locations['_norm'] = locations['Name'].apply(normalize_well_name)
     coords_lookup = {r['_norm']: (r['E'], r['N']) for _, r in locations.iterrows()}
@@ -744,6 +753,7 @@ def main():
             'Well':            well_col,
             'Well_Normalized': norm,
             'Cluster':         cluster_lookup.get(norm, np.nan),
+            'In_Cluster_Level': norm in lvl_set,                # D-348
             'Easting':         coords[0],
             'Northing':        coords[1],
             'ridge_distance_m': d_ridge,
@@ -784,6 +794,7 @@ def main():
         ccf_rows.append({
             'Well_Normalized':   norm,
             'Cluster':           cluster_lookup.get(norm, np.nan),
+            'In_Cluster_Level':  norm in lvl_set,               # D-348
             'Easting':           coords[0],
             'Northing':          coords[1],
             'ridge_distance_m':  d_ridge,

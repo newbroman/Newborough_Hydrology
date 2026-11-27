@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.1.0"  # 2026-11-27 (D-348): the E17 cluster bases, cluster table and per-cluster verdict tests, and the per-cluster e-fold medians from cluster-level wells (site-wide counts keep every well); cluster loop over CLUSTER_LABELS, not range(1, 6). Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 import argparse
 import importlib.util
@@ -962,8 +962,9 @@ def elevation_datum_summary(t: pd.DataFrame) -> pd.DataFrame:
             "ranwell_n": int(len(rw)), "ranwell_nse_median": float(rw["nse"].median()) if len(rw) else np.nan,
             "split_n": int(len(sp)), "split_nse_median": float(sp["nse"].median()) if len(sp) else np.nan,
         })
-        for c in range(1, 6):
-            pc = pos[pos["cluster"] == c]
+        _pos_l = _lvl_rows(pos) if len(pos) else pos    # D-348: cluster medians over cluster-level wells
+        for c in sorted(CLUSTER_LABELS):
+            pc = _pos_l[_pos_l["cluster"] == c]
             out[-1][f"efold_median_C{c}_months"] = float(pc["efold_months"].median()) if len(pc) else np.nan
     return pd.DataFrame(out)
 
@@ -1103,13 +1104,23 @@ def run_e16(lev, lev_cols, cl, master):
 #   B  the median over member wells of Model B's zero-drainage level as an elevation (48_04, base_depth_B_m).
 # The drier epochs (CCW 1989-96, Ranwell 1951-53) then test the primary candidate against the depth datum, cluster by
 # cluster, by the rule fixed before the run (e17_verdict). C4 has no drier-epoch wells and is reported as untested.
+def _lvl_rows(df: pd.DataFrame, col: str = "well") -> pd.DataFrame:
+    """D-348: the rows of a per-well table a cluster-level quantity uses - every well but the reference wells
+    Script 02 holds out of cluster level (In_Cluster_Level false: the boundary wells and the set-aside WMC3)."""
+    from utils.cluster_series import in_cluster_level
+    md = pd.read_csv(INT_MASTER_DATA)
+    off = set(md.loc[~in_cluster_level(md), "Name_Original"].map(normalize_well_name))
+    return df[~df[col].astype(str).map(normalize_well_name).isin(off)]
+
+
 def _e17_cluster_of(master) -> dict:
-    return {r["_n"]: int(r["Cluster"]) for _, r in master.iterrows()}
+    return {r["_n"]: int(r["Cluster"]) for _, r in _lvl_rows(master, "_n").iterrows()}   # D-348: cluster level
 
 
 def e17_bases(t16: pd.DataFrame, master) -> pd.DataFrame:
     grounds = _e16_grounds()
     cof = _e17_cluster_of(master)
+    t16 = _lvl_rows(t16)                               # D-348: each cluster's base from its cluster-level wells
     sp = t16[t16["test"].isin(["split_fwd", "split_rev"]) & (t16["datum_kind"] == "elevation") & t16["nse"].notna()]
     med = sp.groupby(["cluster", "z0_m_aod"])["nse"].median()
 
@@ -1143,6 +1154,7 @@ def _e17_key(df: pd.DataFrame) -> pd.Series:
 
 def e17_cluster_table(t: pd.DataFrame) -> pd.DataFrame:
     """Per cluster and candidate: the drier-epoch medians, and the primary candidate's pass/fail against the depth datum."""
+    t = _lvl_rows(t)                                   # D-348: cluster medians over cluster-level wells
     t = t.assign(key=_e17_key(t))
     rows = []
     for c in sorted(CLUSTER_LABELS):
@@ -1167,12 +1179,13 @@ def e17_cluster_table(t: pd.DataFrame) -> pd.DataFrame:
 
 def e17_verdict(t: pd.DataFrame) -> dict:
     """The rule fixed before the run (D-287). For the primary candidate, a cluster with drier-epoch wells passes if,
-    on every drier-epoch test it has (CCW for C2, C3, C5; Ranwell headline pairings for C1, C3), every well scored at
+    on every drier-epoch test it has (CCW for C2, C3, C5 - D-348: C3o, C3f; Ranwell headline pairings for C1, C3), every well scored at
     the depth datum is still scored, the median NSE is at least as high as at the depth datum, and (CCW) the median
     |bias| is no larger. Supported: every testable cluster passes and no more wells site-wide have beta_3 <= 0.
     Not supported: more than half the testable clusters fail. Not resolved: otherwise."""
     prim = E17_PRIMARY_CANDIDATE
-    t = t.assign(key=_e17_key(t))
+    t_all = t
+    t = _lvl_rows(t).assign(key=_e17_key(_lvl_rows(t)))   # D-348: the per-cluster tests over cluster-level wells
     per = {}
     for c in sorted(CLUSTER_LABELS):
         checks = []
@@ -1190,7 +1203,7 @@ def e17_verdict(t: pd.DataFrame) -> dict:
             checks.append((test, bool(ok)))
         if checks:
             per[c] = {"tests": checks, "pass": all(ok for _t, ok in checks)}
-    fit = t[(t["test"] == "fit") & t["beta_3"].notna()]
+    fit = t_all[(t_all["test"] == "fit") & t_all["beta_3"].notna()]   # site-wide count: every well, as before
     nonpos = {k: int((fit.loc[fit["datum_kind"] == k, "beta_3"] <= 0).sum()) for k in ("depth", prim)}
     ident = nonpos[prim] <= nonpos["depth"]
     n_fail = sum(1 for v in per.values() if not v["pass"])

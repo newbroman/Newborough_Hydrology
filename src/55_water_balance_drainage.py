@@ -70,7 +70,7 @@ Run directly:  python3 src/55_water_balance_drainage.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-11-24 (T-215; Martin: "approve both tests"). Stage K tests the C3
+__version__ = "1.6.0"  # 2026-11-27 (D-348): every per-cluster summary (Stages A, B, E, F, J, K and their figures) over cluster-level wells; CLUSTERS from CLUSTER_LABELS; Script 17's rows mapped to groups by label (C3f no longer read as C3); plot labels C3o and C3f. Was "1.5.0"  # Hollingham (2026) - 2026-11-24 (T-215; Martin: "approve both tests"). Stage K tests the C3
 #   surplus (S_a * beta_1 > 1) for lateral inflow against an S_a overestimate. (a) Spatial: inflow per unit area is
 #   T * laplacian(h), so inflow predicts the surplus is largest where the kriged mean head (01b) is concave up; the
 #   Spearman of S_a*beta_1 on the curvature across C3 wells. (b) Dry summers: inflow keeps arriving when rain stops, so
@@ -102,6 +102,7 @@ __version__ = "1.5.0"  # Hollingham (2026) - 2026-11-24 (T-215; Martin: "approve
 #   (Martin, 2026-11-05); the per-well mean is emitted alongside, because that is a rendering choice.
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -127,7 +128,7 @@ from utils.config import (                                    # noqa: E402
     WB_WINTER_MONTHS, WB_SUMMER_MONTHS, WB_HINGE_GRID_PCT, WB_HINGE_GRID_N, WB_BIC_MARGIN,
     WB_MIN_MONTHS, WB_MIN_WINTER_MONTHS, WB_MIN_WELLS_PER_MONTH, WB_INTERCEPTION_SCAN,
     WB_DRY_RAIN_QUANTILE, WB_RISE_MARGIN_M, WB_DRY_WINTER_MONTHS, WINTER_RECESSION_MONTHS,
-    FOREST_INTERCEPTION, FOREST_CIDS, CLUSTER_LABELS, MODEL_AB_SPLIT_DATE,
+    FOREST_INTERCEPTION, FOREST_CIDS, CLUSTER_LABELS, CLUSTER_SHORT, MODEL_AB_SPLIT_DATE,
     MODEL_AB_MIN_TEST_MONTHS, WB_INFLOW_LAPLACE_STEP_M,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
@@ -139,7 +140,8 @@ from utils.console_utils import (                             # noqa: E402
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 
-CLUSTERS = (1, 2, 3, 4, 5)
+CLUSTERS = tuple(sorted(CLUSTER_LABELS))   # D-348: the five cluster-level groups (5 = C3f)
+_SHORT = CLUSTER_SHORT                     # display only (C3o, C3f)
 
 
 # ── least squares, BIC and the two law forms ──────────────────────────────────────────────────────
@@ -263,11 +265,30 @@ def all_frames(wells, cl, sy, interception=None) -> dict:
     return out
 
 
+_OFF_LVL: set | None = None
+
+
+def _lvl(df: pd.DataFrame) -> pd.DataFrame:
+    """D-348: the rows of a per-well frame a cluster-level quantity uses - every well but those Script 02 holds out
+    of cluster level (In_Cluster_Level false in 02_cluster_stats: the boundary wells and the set-aside WMC3)."""
+    global _OFF_LVL
+    col = next((c for c in ("Well", "well") if c in df.columns), None)
+    if col is None:
+        return df
+    if _OFF_LVL is None:
+        from utils.cluster_series import in_cluster_level
+        from utils.paths import INT_CLUSTER_STATS
+        cs = pd.read_csv(INT_CLUSTER_STATS)
+        _OFF_LVL = set(cs.loc[~in_cluster_level(cs), "Match_ID"].astype(str).map(normalize_well_name))
+    return df[~df[col].astype(str).map(normalize_well_name).isin(_OFF_LVL)]
+
+
 def _cluster_stats(df: pd.DataFrame, cols, by="Cluster") -> pd.DataFrame:
     """Per-well median AND mean per cluster. The median is what is registered and quoted — it is the
     statistic of the modelab_drainage_share_*_median_* fields this step sits beside (Martin,
-    2026-11-05); the mean rides along because choosing between them is a rendering decision."""
-    g = df.groupby(by)
+    2026-11-05); the mean rides along because choosing between them is a rendering decision.
+    D-348: over the cluster-level wells only."""
+    g = _lvl(df).groupby(by)
     out = pd.DataFrame({"n_wells": g.size()})
     for c in cols:
         out[f"{c}_median"] = g[c].median()
@@ -281,8 +302,9 @@ def stage_a(wells, cl, sy) -> pd.DataFrame:
     regression would call the storage coefficient if drainage were ignored — and its intercept is the
     drainage at a steady level. Both are read, neither is used downstream."""
     rows = []
+    syl = _lvl(sy)                                    # D-348: the cluster mean over cluster-level wells
     for k in CLUSTERS:
-        g = sy[sy["Cluster"] == k]
+        g = syl[syl["Cluster"] == k]
         if g.empty:
             continue
         h = wells[[c for c in g["col"]]]
@@ -334,14 +356,15 @@ def stage_b(frames: dict, sy: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame,
     cols = ["Sy", "k_line", "r2_line", "k_hinge", "h0_depth_below_ground_m", "r2_hinge",
             "k_selected", "r2_selected", "D_surface_selected"]
     by = _cluster_stats(per, cols)
-    wins = per.groupby("Cluster")["threshold_beats_line"].sum()
+    _pl = _lvl(per)                                   # D-348: cluster summaries over cluster-level wells
+    wins = _pl.groupby("Cluster")["threshold_beats_line"].sum()
     by["n_threshold_beats_line"] = by["Cluster"].map(wins).astype(int)
     by["Cluster_Label"] = by["Cluster"].map(CLUSTER_LABELS)
     by["bic_margin"] = WB_BIC_MARGIN
     # D-311: the scatter of D_surface WITHIN each cluster, reported beside the median because at C4
     # it exceeds the mean (CV 1.46 over 9 wells, 2026-11-05) - the contrast between C4 and the rest
     # is real, but C4 has no characteristic rate and the median must never be quoted as if it had.
-    spread = per.groupby("Cluster")["D_surface_selected"].agg(
+    spread = _pl.groupby("Cluster")["D_surface_selected"].agg(
         lambda v: float(v.std() / abs(v.mean())) if len(v) > 1 and v.mean() else np.nan)
     by["D_surface_selected_cv"] = by["Cluster"].map(spread)
     # D-311, Martin 2026-11-05 ("Yes, a range"): C4 is reported as a RANGE, never a bare median.
@@ -350,7 +373,7 @@ def stage_b(frames: dict, sy: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame,
     # independently flagged by Script 07 (beta_3 <= 0), so its drainage is unidentifiable rather
     # than mis-fitted here. The quartiles are emitted for every cluster so all five can be quoted
     # the same way.
-    gds = per.groupby("Cluster")["D_surface_selected"]
+    gds = _pl.groupby("Cluster")["D_surface_selected"]
     for lab, fn in (("p25", lambda v: v.quantile(0.25)), ("p75", lambda v: v.quantile(0.75)),
                     ("min", "min"), ("max", "max")):
         by[f"D_surface_selected_{lab}"] = by["Cluster"].map(gds.agg(fn))
@@ -530,7 +553,16 @@ def stage_e(wells, cl, sy, dper: pd.DataFrame) -> pd.DataFrame:
     # Script 17's cluster Sy instead of Script 18's per-well Sy (D3: a sensitivity, never the headline)
     if OUT_17_SY_TABLE.is_file():
         s17 = pd.read_csv(OUT_17_SY_TABLE)
-        s17["k"] = s17["Cluster"].astype(str).str.extract(r"^C(\d)").astype(float)
+        # D-348: a row's group from its label (CLUSTER_LABELS: "C3o (...)" is 3, "C3f (...)" is 5), else the
+        # pre-D-348 "C<n> (" form; a bare ^C(\d) read C3f as 3.
+        def _k17(lab):
+            lab = str(lab)
+            for cid, cl_lab in CLUSTER_LABELS.items():
+                if lab.startswith(cl_lab):
+                    return float(cid)
+            m_ = re.match(r"^C(\d) ", lab)
+            return float(m_.group(1)) if m_ else np.nan
+        s17["k"] = s17["Cluster"].map(_k17)
         for k in CLUSTERS:
             g = s17[(s17["k"] == k) & (s17["Corrected"] == (k in FOREST_CIDS))]
             if g.empty:
@@ -539,7 +571,7 @@ def stage_e(wells, cl, sy, dper: pd.DataFrame) -> pd.DataFrame:
                 continue
             s_cluster = float(g["Sy_event_median"].iloc[0])
             ks = []
-            for r in sy[sy["Cluster"] == k].itertuples():
+            for r in _lvl(sy)[_lvl(sy)["Cluster"] == k].itertuples():   # D-348: cluster-level wells
                 df = well_frame(wells, r.col, cl, k, s_cluster)
                 if df is None:
                     continue
@@ -571,7 +603,7 @@ def stage_f(wells, cl, sy) -> pd.DataFrame:
     fracs = np.round(np.arange(start, stop + stepv / 2, stepv), 6)
     rows = []
     for k in FOREST_CIDS:
-        g = sy[sy["Cluster"] == k]
+        g = _lvl(sy)[_lvl(sy)["Cluster"] == k]        # D-348: the per-well median ratio over cluster-level wells
         for f in fracs:
             tot_loss, tot_pet, ks = [], [], []
             for r in g.itertuples():
@@ -845,9 +877,10 @@ def stage_j(dper: pd.DataFrame):
     j["share_B_samebasis"] = j["recharge_fraction_B"] * j["share_B_watertable"]
     j["gap"] = j["share_wb"] - j["share_B_samebasis"]
     j = j.sort_values(["Cluster", "Well"]).reset_index(drop=True)
-    by = (j.groupby("Cluster")[["share_wb", "share_B_samebasis", "recharge_fraction_B", "gap"]]
+    _jl = _lvl(j)                                     # D-348: cluster medians over cluster-level wells
+    by = (_jl.groupby("Cluster")[["share_wb", "share_B_samebasis", "recharge_fraction_B", "gap"]]
           .median().add_suffix("_median").reset_index())
-    by["n_wells"] = j.groupby("Cluster").size().values
+    by["n_wells"] = _jl.groupby("Cluster").size().values
     ok = j[["share_wb", "share_B_samebasis"]].dropna()
     rho = spearmanr(ok["share_wb"], ok["share_B_samebasis"]) if len(ok) > 3 else (np.nan, np.nan)
     return j, by, (float(rho[0]), float(rho[1]), int(len(ok)))
@@ -886,9 +919,10 @@ def stage_k(jper: pd.DataFrame | None, frames: dict, sy: pd.DataFrame, dry: set)
                              dry_summer_resid_mm=float(ds["D_residual"].mean() * 1000) if len(ds) else np.nan,
                              p_eff_mean_mm=float(df["P_eff"].mean() * 1000)))
     per = pd.DataFrame(rows).sort_values(["Cluster", "Well"]).reset_index(drop=True)
-    c3 = per[per["Cluster"] == 3].dropna(subset=["recharge_fraction_B", "head_curvature_per_km"])
+    _pk = _lvl(per)                                   # D-348: the C3o test and medians over cluster-level wells
+    c3 = _pk[_pk["Cluster"] == 3].dropna(subset=["recharge_fraction_B", "head_curvature_per_km"])
     rho = spearmanr(c3["recharge_fraction_B"], c3["head_curvature_per_km"]) if len(c3) > 3 else (np.nan, np.nan)
-    med = per.groupby("Cluster")[["recharge_fraction_B", "head_curvature_per_km", "dry_summer_resid_mm",
+    med = _pk.groupby("Cluster")[["recharge_fraction_B", "head_curvature_per_km", "dry_summer_resid_mm",
                                   "p_eff_mean_mm"]].median()
     c3m = med.loc[3] if 3 in med.index else None
     need = (float(c3m["recharge_fraction_B"]) - 1) * float(c3m["p_eff_mean_mm"]) if c3m is not None else np.nan
@@ -970,8 +1004,9 @@ def plot_surplus(wells, cl, sy, a: pd.DataFrame) -> None:
     plt = _plt()
     fig, axes = plt.subplots(1, len(a), figsize=(3.1 * len(a), 3.0), dpi=160, sharey=True)
     axes = np.atleast_1d(axes)
+    syl = _lvl(sy)                                    # D-348: as Stage A
     for ax, r in zip(axes, a.itertuples()):
-        g = sy[sy["Cluster"] == r.Cluster]
+        g = syl[syl["Cluster"] == r.Cluster]
         dh = wells[[c for c in g["col"]]].diff()
         md = dh.mean(axis=1).where(dh.notna().sum(axis=1) >= WB_MIN_WELLS_PER_MONTH)
         P = cl["P_m"].reindex(md.index)
@@ -982,7 +1017,7 @@ def plot_surplus(wells, cl, sy, a: pd.DataFrame) -> None:
         ax.plot(xs, r.drainage_at_steady_level_m + r.apparent_Sy * xs, color="#b2182b", lw=1.2)
         ax.axhline(0, color="0.7", lw=0.5)
         ax.axvline(0, color="0.7", lw=0.5)
-        ax.set_title(f"C{r.Cluster}  $S_a$ = {r.apparent_Sy:.3f}", fontsize=9)
+        ax.set_title(f"{_SHORT.get(int(r.Cluster), f'C{r.Cluster}')}  $S_a$ = {r.apparent_Sy:.3f}", fontsize=9)
         ax.set_xlabel("mean Δh (m)")
     axes[0].set_ylabel("P$_{eff}$ − PET (m/month)")
     fig.tight_layout()
@@ -1002,7 +1037,7 @@ def plot_law(per: pd.DataFrame) -> None:
         adopted, rejected = g[g["threshold_beats_line"]], g[~g["threshold_beats_line"]]
         c = f"C{k - 1}" if k <= 10 else None
         ax.scatter(adopted["h0_depth_below_ground_m"], adopted["k_hinge"],
-                   s=20, lw=0, color=c, label=f"C{k}")
+                   s=20, lw=0, color=c, label=_SHORT.get(k, f"C{k}"))
         ax.scatter(rejected["h0_depth_below_ground_m"], rejected["k_hinge"],
                    s=20, facecolors="none", edgecolors=c, linewidths=0.7)
     ax.set_xlabel("h₀ (m below ground)")
@@ -1012,7 +1047,7 @@ def plot_law(per: pd.DataFrame) -> None:
               title_fontsize=6)
     ax = axes[1]
     w = per.groupby("Cluster")["threshold_beats_line"].agg(["sum", "size"])
-    ax.bar([f"C{k}" for k in w.index], w["sum"] / w["size"], color="#2166ac")
+    ax.bar([_SHORT.get(int(k), f"C{k}") for k in w.index], w["sum"] / w["size"], color="#2166ac")
     # 1.1.0: this was a two-line ROTATED label, and tight_layout does not rescue it - the final
     # letter ran off the top of the canvas (measured 2026-11-05: dark pixels in row 0). The
     # condition moves to the title, where it has the width to sit on one line.
@@ -1029,7 +1064,7 @@ def plot_et(dper: pd.DataFrame) -> None:
     fig, ax = plt.subplots(figsize=(5.2, 3.4), dpi=160)
     for k in CLUSTERS:
         g = dper[dper["Cluster"] == k]
-        ax.scatter(g["et_pet_year"], g["et_pet_summer"], s=18, lw=0, label=f"C{k}")
+        ax.scatter(g["et_pet_year"], g["et_pet_summer"], s=18, lw=0, label=_SHORT.get(k, f"C{k}"))
     lim = [0.3, 1.2]
     ax.plot(lim, lim, color="0.7", lw=0.6)
     ax.axhline(1, color="0.85", lw=0.5)
@@ -1061,8 +1096,9 @@ def plot_share(dper: pd.DataFrame, dby: pd.DataFrame, share_med: float) -> None:
     x = np.arange(len(ks))
     bars = [float(v) for v in dby["drainage_share_median"]]
     ax.bar(x, bars, width=0.56, color="#2166ac", zorder=2, label="published (Script 18 $S_a$)")
+    _dl = _lvl(dper)                                  # D-348: the bracket over cluster-level wells, as the bars
     for i, k in enumerate(ks):
-        g = dper[dper["Cluster"] == k]
+        g = _dl[_dl["Cluster"] == k]
         lo, hi = g["drainage_share_sy_lo"].median(), g["drainage_share_sy_hi"].median()
         if not (np.isfinite(lo) and np.isfinite(hi)):
             continue
@@ -1072,7 +1108,7 @@ def plot_share(dper: pd.DataFrame, dby: pd.DataFrame, share_med: float) -> None:
     ax.axhline(share_med, color="0.25", lw=1.0, ls="--", zorder=4,
                label=f"network median {share_med:.3f}")
     ax.set_xticks(x)
-    ax.set_xticklabels([f"C{k}" for k in ks])
+    ax.set_xticklabels([_SHORT.get(k, f"C{k}") for k in ks])
     ax.set_ylabel("drainage share of the annual loss")
     ax.set_ylim(0, 1)
     ax.legend(fontsize=7, frameon=False, loc="upper right")

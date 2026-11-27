@@ -23,11 +23,11 @@ Purpose:
       2. Ridge-derived lateral input — subsurface flow from the metamorphic
          bedrock ridge to the north, arriving down-gradient in winter.
          RIDGE-PROXIMAL: concentrated at C4 Main Forest and forest-margin
-         wells nearest the ridge; weak/absent at ridge-distant C5 and open dune.
+         wells nearest the ridge; weak/absent at ridge-distant C3f (was C5) and open dune.
 
       3. Canopy-interception over-estimation — the config.FOREST_INTERCEPTION
          correction at the forested clusters over-states actual interception
-         in heavy-rainfall (winter) months. FOREST-CONFINED: both C4 AND C5.
+         in heavy-rainfall (winter) months. FOREST-CONFINED: both C4 AND C3f (was C5).
 
     Discrimination is on the cluster-stratified winter-minus-summer contrast
     plus a within-forest ridge-distance gradient. Reported neutrally — the
@@ -55,7 +55,7 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.5.1"  # Hollingham (2026) - 2026-11-25. The bump dee90029 (2026-11-07, D-155) missed: the blanket
+__version__ = "1.6.0"  # 2026-11-27 (D-348): per-cluster climatology and winter-minus-summer contrasts from cluster-level wells; forest groups from FOREST_CIDS; interpretation text names C3o and C3f. Was "1.5.1"  # Hollingham (2026) - 2026-11-25. The bump dee90029 (2026-11-07, D-155) missed: the blanket
 #   warnings.simplefilter("ignore") around the replacement KML read became two named filters (pyogrio driver chatter, the
 #   sequential-read notice), so any other warning is heard. Surfaced by ledger_lint once the clone was unshallowed.
 # 1.5.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_METEOROLOGICAL_MONTHS, pairing with the WINTER_METEOROLOGICAL_MONTHS import added in batch one.
@@ -284,6 +284,9 @@ def main():
     master = pd.read_csv(INT_MASTER_DATA)
     master["_norm"] = master["Name_Original"].apply(normalize_well_name)
     cluster_of = dict(zip(master["_norm"], master["Cluster"]))
+    # D-348: the per-cluster climatology and contrast use cluster-level wells; the per-well CSV keeps all
+    from utils.cluster_series import in_cluster_level
+    lvl_of = dict(zip(master["_norm"], in_cluster_level(master)))
     east_of = dict(zip(master["_norm"], master["Easting"]))
     north_of = dict(zip(master["_norm"], master["Northing"]))
 
@@ -328,7 +331,8 @@ def main():
         d_forest = signed_forest_edge_distance(e, n, forest_geom) \
             if np.isfinite(e) and np.isfinite(n) else np.nan
 
-        clim_store[cid].append((well, clim, n_per_month, contrast))
+        if lvl_of.get(norm, True):                      # D-348: cluster-level wells only
+            clim_store[cid].append((well, clim, n_per_month, contrast))
         per_well_rows.append({
             "well_id":                   well,
             "cluster_id":                cid,
@@ -504,7 +508,7 @@ def write_interpretation(contrast_df, per_well, have_forest,
     lines.append("")
 
     open_dune_peak = [cid for cid in (2, 3) if is_peak(cid)]
-    forest_peak = [cid for cid in (4, 5) if is_peak(cid)]
+    forest_peak = [cid for cid in FOREST_CIDS if is_peak(cid)]   # C4, C3f (D-348)
 
     lines.append("Reading against the three candidate mechanisms:")
     lines.append("")
@@ -512,10 +516,10 @@ def write_interpretation(contrast_df, per_well, have_forest,
     if open_dune_peak and 5 in cd.index and not is_peak(5):
         lines.append("  (1) CANOPY-INTERCEPTION OVER-ESTIMATION — not supported as the")
         lines.append("      primary driver. The most significant winter contrast sits in")
-        lines.append("      an OPEN-DUNE cluster (C3, away from canopy), while C5 (Coastal")
-        lines.append("      Forest — forested but ridge-distant) shows NO winter peak.")
+        lines.append("      an OPEN-DUNE group (C3o, away from canopy), while C3f (Western")
+        lines.append("      Dune forest — forested but ridge-distant) shows NO winter peak.")
         lines.append("      Interception over-estimation predicts the opposite (both")
-        lines.append("      forest clusters peak, open dune does not). Evidence runs")
+        lines.append("      forest groups peak, open dune does not). Evidence runs")
         lines.append(f"      against it; no data-driven case to revise "
                      f"F = {FOREST_INTERCEPTION:g}.")
     elif forest_peak and not open_dune_peak:

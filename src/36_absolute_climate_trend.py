@@ -49,7 +49,7 @@ Method (spec signed off 2026-07-05):
      by identical slopes across two nominally different windows.
   8. Exclusions: lake gauge only (LAKE_GAUGE_KEYS). CEH13/CEH14 included.
   9. C5 acceptance gate (relaxed R3): console warn unless C5 primary mean < 0
-     AND C5 ≤ C2 mean. δ₀ = −29 mm/yr is the coastal-edge gradient; C5 is a
+     AND C5 ≤ C2 mean. D-348: C5 is now group 5, C3f; the gate is kept there and relabelled. δ₀ = −29 mm/yr is the coastal-edge gradient; C5 is a
      cluster mean set back from the edge, so clearly-negative suffices.
 
 Pipeline-integrated in the driver-validation phase of run_analysis.py, before
@@ -92,7 +92,7 @@ from utils.console_utils import banner, phase, step, info, note, result, saved, 
 from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers  # T-91
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.8.0"  # 2026-11-27 (D-348): the C5 acceptance gate kept on group 5 and relabelled C3f; the gate and the cluster mean/median/n keys over cluster-level wells; the map keeps every well. Was "1.7.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the number of wells the primary-window climate-removed trend map carries; new row
 #   n_wells_mapped_<PRIMARY_PERIOD> (all wells with a primary-window trend, including any without a cluster
 #   id, which the per-cluster _n rows omit). Emit-only; the per-well CSV, maps and text are unchanged.
@@ -674,6 +674,9 @@ def main() -> int:
 
     phase(1, "Load inputs")
     levels, loc, master, climate = load_inputs()
+    # D-348: cluster means (the C3f gate and the cluster-mean keys) use the cluster-level wells only
+    from utils.cluster_series import in_cluster_level
+    _lvl_keys = set(master.loc[in_cluster_level(master), "key"])
     yr = spring_year_table(levels)
     cwb = spring_cwb_series(climate)
     info(f"spring-year table: {yr.shape[1]} wells × {yr.shape[0]} years "
@@ -724,6 +727,8 @@ def main() -> int:
         result(f"{plabel} median absolute trend", f"{med:+.2f} mm/yr")
 
         # ── C5 acceptance gate (relaxed R3, 2026-07-05) ─────────────────────
+        # D-348: kept on group 5, now C3f (the Western Dune's forest wells, the former C5 plus
+        # NW11), over its cluster-level wells; relabelled, not re-derived.
         # C5 Coastal must be clearly negative (genuine drying). The original
         # The "C5 ≈ δ₀" gate was too strict: δ₀ (25_01_panel_fit_parameters.csv) is the
         # coastal-EDGE gradient; C5 is a cluster mean set back from the edge.
@@ -731,25 +736,26 @@ def main() -> int:
         # among the most-negative clusters, not mid-pack). If either fails,
         # the coverage filter has not resolved the artefact.
         if plabel == PRIMARY_PERIOD:
-            c5_rows = df[df["Cluster"] == 5]
-            c2_rows = df[df["Cluster"] == 2]
+            _dl = df[df["key"].isin(_lvl_keys)]                 # D-348: cluster-level wells
+            c5_rows = _dl[_dl["Cluster"] == 5]
+            c2_rows = _dl[_dl["Cluster"] == 2]
             if not c5_rows.empty:
                 c5_mean = float(c5_rows["slope_mm_yr"].mean())
                 c2_mean = float(c2_rows["slope_mm_yr"].mean()) if not c2_rows.empty else 0.0
-                result("C5 mean slope (gate a — must be < 0)", f"{c5_mean:+.2f} mm/yr")
+                result("C3f mean slope (gate a — must be < 0)", f"{c5_mean:+.2f} mm/yr")
                 result("C2 mean slope (gate b reference)", f"{c2_mean:+.2f} mm/yr")
                 gate_a = c5_mean < 0
                 gate_b = c5_mean <= c2_mean
                 if gate_a and gate_b:
-                    step(f"C5 gate PASSED: C5 {c5_mean:+.2f} < 0 and ≤ C2 {c2_mean:+.2f} mm/yr")
+                    step(f"C3f gate PASSED: C3f {c5_mean:+.2f} < 0 and ≤ C2 {c2_mean:+.2f} mm/yr")
                 else:
                     failures = []
                     if not gate_a:
-                        failures.append(f"C5 mean = {c5_mean:+.2f} mm/yr (must be < 0)")
+                        failures.append(f"C3f mean = {c5_mean:+.2f} mm/yr (must be < 0)")
                     if not gate_b:
-                        failures.append(f"C5 {c5_mean:+.2f} > C2 {c2_mean:+.2f} mm/yr (C5 must be ≤ C2)")
+                        failures.append(f"C3f {c5_mean:+.2f} > C2 {c2_mean:+.2f} mm/yr (C3f must be ≤ C2)")
                     warn(
-                        "C5 GATE FAILED: " + "; ".join(failures) + ". "
+                        "C3f GATE FAILED: " + "; ".join(failures) + ". "
                         "Coverage filter has not resolved the artefact. "
                         "Do NOT use this figure in the report or public summary."
                     )
@@ -861,10 +867,11 @@ def main() -> int:
     prim = all_results.get(PRIMARY_PERIOD, pd.DataFrame())
     if not prim.empty:
         _era = f"{PERIODS[PRIMARY_PERIOD][0]}-{PERIODS[PRIMARY_PERIOD][1]}"
-        for cid, g in prim.dropna(subset=["Cluster"]).groupby("Cluster"):
+        _prim_l = prim[prim["key"].isin(_lvl_keys)]          # D-348: cluster means over cluster-level wells
+        for cid, g in _prim_l.dropna(subset=["Cluster"]).groupby("Cluster"):
             lab = config.CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
             _note = (f"climate-removed secular trend (joint h ~ CWB + t fit), "
-                     f"wells mapped in the primary window, n={len(g)}")
+                     f"cluster-level wells mapped in the primary window, n={len(g)}")
             rpt.add("abs_climate_trend_cluster_mean", float(g["slope_mm_yr"].mean()),
                     unit="mm/yr", well=lab, era=_era, note="mean of per-well " + _note)
             rpt.add("abs_climate_trend_cluster_median", float(g["slope_mm_yr"].median()),

@@ -20,7 +20,7 @@ WHAT WENT WRONG WITHOUT IT
 
       ceh1 (C3), ceh5 (C1), ceh6 (C1), ceh10 (C2), ceh11 (C1), ceh24 (C2)
 
-  and not one of the six is in C4 or C5. The counterfactual is therefore OPEN
+  and not one of the six is in C4 or C3f. The counterfactual is therefore OPEN
   DUNE. The clearfell headline is estimated against the Forest control tier
   (ceh2, ceh32, ceh33, ceh34, nw10 — all C4), i.e. against UNFELLED FOREST. The
   difference between those two counterfactuals is the canopy, which is the whole
@@ -34,7 +34,7 @@ WHAT WENT WRONG WITHOUT IT
 
 WHY NOT SIMPLY USE FOREST DONORS
 
-  Because there are not enough. All fourteen C4/C5 wells in the network are
+  Because there are not enough. All fourteen C4/C3f wells in the network (k = 5 count) are
   already committed to the design: four in Edge (treated), five in Forest
   control, two in Coastal control. Three are uncommitted — ceh13, ceh14 and nw9
   — against a floor of three donors, and nw9 is one of the western coastal
@@ -102,7 +102,7 @@ Hollingham (2026), §4.6.7. D-050; report9 §4.6.7; Script 10f.
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-28. T-91: emit three more in-memory
+__version__ = "1.3.0"  # 2026-11-27 (D-348): comments and docstring name group 5 C3f (was C5 Coastal Forest); no code change. Was "1.2.0"  # Hollingham (2026) — 2026-09-28. T-91: emit three more in-memory
 #   quantities to 10n_report_numbers.csv -- per-zone gross_step_m (Sub-script 10j contrast,
 #   e.g. Forest Ctrl "+53.1 mm"), the Impact-Forest_Ctrl DiD 95% CI bounds (ci_lo_m/
 #   ci_hi_m), and the post-scrape-only pre-trend slope -- so the Methods Supplement's

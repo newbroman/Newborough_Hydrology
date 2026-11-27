@@ -77,7 +77,7 @@ is retired by D-200 (T-88): the raw WMC3 step is within the record's noise.
 ====================================================================================
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
+__version__ = "1.13.0"  # 2026-11-27 (D-348): the forest half-life band names C3f fast and C4 slow, the scrape curve C3o; β3 from Script 03's cluster-level centroids. Was "1.12.0"  # Hollingham (2026) — 2026-11-23 (J-33, Martin: "option 2"). The single coastal event is
 #   MEASURED (coastal_utils.load_measured_event_retreat: Script 40's 2019-20 winter median), not config's
 #   6 m exemplar. 09f_01's column coastal_6m_storm_head_mm is renamed coastal_storm_head_mm.
 # 1.11.0  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
@@ -285,7 +285,7 @@ def _load_forest_beta3_range():
     approach-to-equilibrium half-life t½ = ln2/β₃ (months).
 
     Returns (b3_fast, b3_slow, thalf_fast_mo, thalf_slow_mo) spanning the forest
-    clusters C4/C5 (the clusters the clearfell/broadleaf drivers act on). Live
+    groups C4/C3f (FOREST_CIDS, D-348; the groups the clearfell/broadleaf drivers act on). Live
     from the committed mechanistic table; falls back to the documented default
     β₃ on a first-pass run before Script 03 has executed.
     """
@@ -466,7 +466,7 @@ def _plot_timescale(ax, forest_h0_mm, clearfell_measured_mm,
     Three timescale logics, three curve shapes:
       • Forest canopy operations (clearfell / thinning), β₃-governed RELAXATION
         on the FOREST clusters: 1 − e^(−β₃·t), a saturating exponential drawn as
-        a BAND spanning the forest half-life range (C5 fast ↔ C4 slow); both edges
+        a BAND spanning the forest half-life range (C3f fast ↔ C4 slow); both edges
         labelled with their t½. The OBSERVED clearfell BACI step is plotted at its
         elapsed time as the fraction of the 150 mm equilibrium it represents — the
         validation anchor (the record sits where the timescale predicts, so the
@@ -502,17 +502,17 @@ def _plot_timescale(ax, forest_h0_mm, clearfell_measured_mm,
     ax.text(14.8, 103, "100% = equilibrium (relaxations) / 5-yr chronic (coastal)",
             fontsize=7, color="0.4", style="italic", ha="right")
 
-    # Forest canopy-operations band (clearfell / thinning) — C5 fast ↔ C4 slow.
+    # Forest canopy-operations band (clearfell / thinning) — C3f fast ↔ C4 slow (D-348: C3f was C5).
     ax.fill_between(t, f_slow, f_fast, color="#1b5e2a", alpha=0.16, zorder=2,
                     label="Forest ops (clearfell/thinning) relaxation band")
     ax.plot(t, f_fast, color="#1b5e2a", lw=1.6, zorder=3,
-            label=f"  fast edge: C5 t\u00bd = {thalf_forest_fast_mo:.0f} mo")
+            label=f"  fast edge: C3f t\u00bd = {thalf_forest_fast_mo:.0f} mo")
     ax.plot(t, f_slow, color="#1b5e2a", lw=1.6, ls="--", zorder=3,
             label=f"  slow edge: C4 t\u00bd = {thalf_forest_slow_mo:.0f} mo")
 
     # Scrape / storm-retreat event — one C3 relaxation curve (coincide in %).
     ax.plot(t, c3_relax, color="#c1272d", lw=2.0, zorder=4,
-            label=f"Scrape / storm event (C3 t\u00bd = {thalf_c3_mo:.0f} mo)")
+            label=f"Scrape / storm event (C3o t\u00bd = {thalf_c3_mo:.0f} mo)")
 
     # Coastal chronic accumulation — linear.
     ax.plot(t, coast_lin, color="#7d5ba6", lw=2.4, ls=":", zorder=4,
@@ -592,7 +592,7 @@ def main():
     info(f"coast-edge \u03b4\u2080 = {coast_d0:.1f} mm/yr (CI {coast_lo:.1f}, {coast_hi:.1f}), L = {coast_L:.0f} m")
     info(f"coastal {_EVENT_M:.1f} m event edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
     info(f"WMC3 raw 2015 step = {wmc3_step:.1f} \u00b1 {wmc3_se:.1f} mm at {wmc3_dist:.0f} m (not resolved)")
-    info(f"forest t\u00bd (C4\u2013C5) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3 t\u00bd = {thalf_c3:.0f} mo")
+    info(f"forest t\u00bd (C4\u2013C3f) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3o t\u00bd = {thalf_c3:.0f} mo")
 
     phase(2, "Plotting reach + timescale figure (stacked)")
     fig, (axA, axB) = plt.subplots(2, 1, figsize=(9.4, 12.2), dpi=300)

@@ -74,7 +74,7 @@ Method
        residual wobble -> static geometry / delta_0 not detectable here.
 
 Clearfell (Dec 2017) is deliberately NOT excluded from the window. The felled
-compartment is in the western forest (C4/C5); forest perturbations propagate
+compartment is in the western forest (C4/C3f); forest perturbations propagate
 south-westward toward Caernarfon Bay, not into this open-dune line (site
 geography, fixed convention) — so the transect is not materially in the
 clearfell's reach. This is a geographic argument specific to this line, not a
@@ -127,7 +127,7 @@ from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 from utils.render_utils import render_figure
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-22. EMITS the decomposition
+__version__ = "1.8.0"  # 2026-11-27 (D-348): note and docstring name the forest groups C4/C3f. Was "1.7.0"  # Hollingham (2026) — 2026-09-22. EMITS the decomposition
 #   the documents quote beside the trend and had no committed source for: the
 #   AR(1)-corrected absolute slope of each anchor over the window
 #   (transect_coast_abs_slope_mm_yr, transect_inland_abs_slope_mm_yr) and the
@@ -681,7 +681,7 @@ def main() -> int:
     lines.append("  - CEH40 and CEH41 both carry the Feb-2013 eastern-scrape offset; "
                  "used for profile shape only, never in the coast-inland metric.")
     lines.append("  - Clearfell (Dec 2017) is deliberately not excluded from the window: "
-                 "the felled compartment is in the western forest (C4/C5), and forest "
+                 "the felled compartment is in the western forest (C4/C3f), and forest "
                  "perturbations propagate south-westward toward Caernarfon Bay, not into "
                  "this open-dune line (site-geography convention) — a geographic "
                  "argument specific to this transect, not a general one.")

@@ -52,7 +52,7 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal L_E and β coefficients per cluster
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Every fit is Model B: an intercept α in
+__version__ = "1.12.0"  # 2026-11-27 (D-348): cluster centroids from cluster-level wells (boundary and set-aside out). Was "1.11.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Every fit is Model B: an intercept α in
 #   the grid-search OLS (fit_at_inv_LE) and in the 1/L_E = 0 baseline (fit_ssm(intercept=True)), with β₃ bounded below at
 #   config.MODEL_B_BETA3_MIN as model_utils does; α is carried into the iterative simulation (Δh += α) and the loss
 #   partition (drainage = β₃·mean h_disp_prev − α = β₃·mean(h_prev + implied_datum_m)). The headline report numbers
@@ -363,6 +363,9 @@ def build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand
     Returns dict: {cluster_id (int): (centroid_series, mean_upstand)}
     """
     print("Building cluster centroids...")
+    # D-348: each group's cluster-level members only (boundary and set-aside wells out)
+    from utils.cluster_series import in_cluster_level
+    cluster_stats = cluster_stats[in_cluster_level(cluster_stats)]
     cluster_ids = sorted(
         pd.to_numeric(cluster_stats["Cluster"], errors="coerce")
         .dropna().astype(int).unique()
@@ -1042,7 +1045,7 @@ def main():
     rn.save(OUT_15_REPORT_NUMBERS)
     saved(f"{OUT_15_REPORT_NUMBERS.name}")
 
-    # Inverse-attenuation-length profile for all clusters (C1-C5 under the k = 5 partition)
+    # Inverse-attenuation-length profile for all clusters (the five groups C1, C2, C3o, C4, C3f; D-348)
     profile_all = pd.concat(
         {f"C{cid}": prof for cid, prof in profiles.items()},
         names=["Cluster"]

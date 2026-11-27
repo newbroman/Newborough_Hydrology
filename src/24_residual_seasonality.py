@@ -53,7 +53,7 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.6.0"  # 2026-11-27 (D-348): per-cluster seasonal statistics, the summer-minus-winter tests, the amplitude keys, the C3o split and the panels' bold cluster means from cluster-level wells; per-well table and figures keep every well. Was "1.5.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.4.1"  # Hollingham (2026) — 2026-10-08. Comment only: the Paper 1 SI
@@ -126,10 +126,10 @@ MAX_RIDGE_DISTANCE_M = RIDGE_MAX_DISTANCE_M   # config.py
 # T-14 D5 (S.16), 2026-08-28. Renamed from C3_SPLIT_DISTANCE_M. The intra-C3
 # check is KEPT — it is a diagnostic, not a partition — and the name now says
 # what it measures: distance from the ridge, within C3, not a split of C3.
-C3_INTRA_RIDGE_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjacent
-                              # subset of the old C3 has been split out as C5
-                              # (Coastal Forest); this constant retains a within-
-                              # cluster diagnostic on the new C3 (Western Residual).
+C3_INTRA_RIDGE_DISTANCE_M = 1000.0  # legacy: under the k = 5 partition the forest-adjacent
+                              # subset of the old C3 was split out as C5; under D-348
+                              # those wells are C3f (group 5), and this constant retains
+                              # a within-group diagnostic on C3o (group 3).
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
@@ -260,7 +260,10 @@ def plot_climatology_panels(resids_dict, meta_df, output_path):
             well_climatologies[well] = s.groupby(s.index.month).mean().reindex(range(1, 13))
 
         clim_df = pd.DataFrame(well_climatologies)
-        cluster_mean = clim_df.mean(axis=1)
+        # D-348: the bold cluster mean over cluster-level wells; the faint per-well lines keep every well
+        _lv = [w for w in clim_df.columns
+               if 'In_Cluster_Level' not in meta_df or bool(meta_df.loc[w, 'In_Cluster_Level'])]
+        cluster_mean = clim_df[_lv].mean(axis=1)
 
         months = np.arange(1, 13)
         # Per-well overlays (faint)
@@ -272,7 +275,7 @@ def plot_climatology_panels(resids_dict, meta_df, output_path):
                 color=CLUSTER_COLOURS.get(int(cid), 'black'),
                 lw=2.6, marker='o', markersize=6, markeredgecolor='black',
                 markeredgewidth=0.6, zorder=3,
-                label=f"Cluster mean (n={len(well_climatologies)})")
+                label=f"Cluster mean (n={len(_lv)})")
         ax.axhline(0, color='black', lw=0.8, ls='--', alpha=0.6, zorder=2)
         # Shade JJA and DJF
         ax.axvspan(5.5, 8.5, color='red',  alpha=0.06, zorder=0)
@@ -473,6 +476,12 @@ def write_summary(clim_df, output_path, rpt=None):
     lines.append(f"  Ridge reference: E={RIDGE_E:.0f}, N={RIDGE_N:.0f}")
     lines.append(f"  C3 split distance: {C3_INTRA_RIDGE_DISTANCE_M:.0f} m")
     lines.append("")
+    # D-348: every cluster statistic and test below is over the cluster-level wells (In_Cluster_Level;
+    # boundary and set-aside wells out). The per-well table and figures keep every well.
+    if 'In_Cluster_Level' in clim_df:
+        clim_df = clim_df[clim_df['In_Cluster_Level'].astype(bool)]
+    lines.append(f"  Cluster statistics over the {len(clim_df)} cluster-level wells (D-348)")
+    lines.append("")
 
     # Summer-winter, amplitude, phase by cluster
     lines.append("-" * 78)
@@ -497,13 +506,13 @@ def write_summary(clim_df, output_path, rpt=None):
         rpt.add("residual_seasonal_amplitude_cluster_mean_min",
                 raw_amp_by_cluster.min(), unit="m",
                 well=str(amp_min_cluster),
-                note="Minimum across the 5 clusters of the per-cluster mean seasonal "
+                note="Minimum across the 5 cluster-level groups of the per-cluster mean seasonal "
                      "amplitude of SSM residuals (24_05_diagnostic_summary.txt "
                      "PER-CLUSTER SEASONAL STATISTICS table).")
         rpt.add("residual_seasonal_amplitude_cluster_mean_max",
                 raw_amp_by_cluster.max(), unit="m",
                 well=str(amp_max_cluster),
-                note="Maximum across the 5 clusters of the per-cluster mean seasonal "
+                note="Maximum across the 5 cluster-level groups of the per-cluster mean seasonal "
                      "amplitude of SSM residuals (24_05_diagnostic_summary.txt "
                      "PER-CLUSTER SEASONAL STATISTICS table).")
 
@@ -551,7 +560,7 @@ def write_summary(clim_df, output_path, rpt=None):
         adj = c3[c3['ridge_distance_m'] < C3_INTRA_RIDGE_DISTANCE_M]
         far = c3[c3['ridge_distance_m'] >= C3_INTRA_RIDGE_DISTANCE_M]
         lines.append("-" * 78)
-        lines.append(f"  C3 SPLIT BY DISTANCE (< vs >= {C3_INTRA_RIDGE_DISTANCE_M:.0f} m from ridge)")
+        lines.append(f"  C3o SPLIT BY DISTANCE (< vs >= {C3_INTRA_RIDGE_DISTANCE_M:.0f} m from ridge)")
         lines.append("-" * 78)
         lines.append(f"  Forest-adjacent (n={len(adj)}): "
                      f"amplitude = {adj['amplitude'].mean():.4f}  "
@@ -672,6 +681,8 @@ def main():
 
     cluster_df['_norm'] = cluster_df['Match_ID'].apply(normalize_well_name)
     cluster_lookup = dict(zip(cluster_df['_norm'], cluster_df['Cluster']))
+    from utils.cluster_series import in_cluster_level   # D-348
+    lvl_set = set(cluster_df.loc[in_cluster_level(cluster_df), '_norm'])
 
     locations['_norm'] = locations['Name'].apply(normalize_well_name)
     coords_lookup = {r['_norm']: (r['E'], r['N']) for _, r in locations.iterrows()}
@@ -730,6 +741,7 @@ def main():
             'Well':             well_col,
             'Well_Normalized':  norm,
             'Cluster':          cluster_lookup.get(norm, np.nan),
+            'In_Cluster_Level': norm in lvl_set,                # D-348
             'Easting':          coords[0],
             'Northing':         coords[1],
             'ridge_distance_m': d_ridge,

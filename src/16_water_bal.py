@@ -79,7 +79,7 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the water balance is computed from
+__version__ = "1.21.0"  # 2026-11-27 (D-348): comments name the forest groups C4 and C3f; the balance reads Script 03's cluster-level centroids, no code change. Was "1.20.0"  # Hollingham (2026) — 2026-11-26 (D-347): the water balance is computed from
 #   config.RECORD_FIT_START (January 2010), the window of the coefficients it uses.
 # 1.19.1  # Hollingham (2026) — 2026-11-24. The site-wide P and PET are the mean over COMPLETE calendar
 #   years (site_annual_means, Script 00's definition: 891 mm), not mean monthly x 12 over every reporting month, which the
@@ -226,7 +226,7 @@ make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 # FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
-# FOREST_CIDS imported from config.py — forested clusters (4, 5).
+# FOREST_CIDS imported from config.py — the forest groups (4, 5): C4 and C3f (D-348).
 
 # Recession analysis seasons (calendar months)
 WINTER_MONTHS = list(WINTER_RECESSION_MONTHS)   # Nov-Feb; March excluded
@@ -985,7 +985,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         legend_elements.append(Line2D([0], [0], color="black", lw=1.1,
                                       label=f"Model A boundary across the\nadmissible datum ({d0:g}–{d1:g} m)"))
     ax2.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(0.785, 0.5), fontsize=8.5,
-               framealpha=0.9)   # 1.12.0: clear of the C5 loss bar
+               framealpha=0.9)   # 1.12.0: clear of the C5 (D-348: C3f) loss bar
 
     ax2.set_xticks(x)
     ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
@@ -1078,7 +1078,7 @@ def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=
            note=f"Model A at DRAINAGE_DATUM: largest per-cluster residual as a share of total losses ({worst_a[0]})")
     # 1.12.0 (D-283): the partition as quoted. Model B's drainage share of the modelled loss is the
     # headline; the range spans Model A, Model B, the depth-dependent model and the recession ratio.
-    # 1.15.0: volumes split GROSS rainfall; interception (FOREST_INTERCEPTION of P at C4, C5) is part of the evaporation.
+    # 1.15.0: volumes split GROSS rainfall; interception (FOREST_INTERCEPTION of P at C4, C3f) is part of the evaporation.
     recession = recession or {}
     for cid in sorted(summary.keys()):
         s = summary[cid]

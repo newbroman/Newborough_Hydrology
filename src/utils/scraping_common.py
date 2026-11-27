@@ -31,7 +31,7 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+__version__ = "1.15.0"  # 2026-11-27 (D-348): cluster keys from CLUSTER_LABELS (five groups); forest by FOREST_CIDS; scenario_cluster_sy matches a key to its group label so C3 no longer matches C3f; load_cluster_params' Sy median and mean depth from cluster-level wells. Was "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
 #   compute_scenario_bars(): Clearfell and Thinning 50% return a share of the interception
 #   (clearfell_common.clearfell_return_fraction, calibrated on the observed BACI step) instead of a beta_2
 #   multiplier; arguments clearfell_frac / thinning_frac replace clearfell_b2_mult / thinning_b2_mult.
@@ -89,6 +89,8 @@ from scipy import stats as _stats
 # analysis working from this module could see them.
 from utils.config import (
     SUMMER_MINIMUM_MONTHS,
+    CLUSTER_LABELS as _CLUSTER_LABELS,
+    FOREST_CIDS as _FOREST_CIDS,
     CLEARFELL_DATE_ISO as _CLEARFELL_DATE_ISO,
     SCRAPING_DATE_0_ISO as _SCRAPING_DATE_0_ISO,
     SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
@@ -386,7 +388,9 @@ def load_cluster_params():
         method, written by Script 18 — D-038)
       - h_disp = the cluster's Model B implied datum (03_03 implied_datum_m,
         DRAINAGE_DATUM − α/β₃; D-332) + its wells' mean depth (Script 01)
-      - forest flag (clusters 4 and 5)
+      - forest flag (groups in FOREST_CIDS: C4 and C3f, D-348)
+
+    D-348: the cluster Sy median and mean depth use the group's cluster-level wells only (In_Cluster_Level).
 
     Model B is exactly Model A at the implied datum, so β₃·h_disp here is
     Model B's drainage term (β₃·(D + h) − α).
@@ -402,13 +406,18 @@ def load_cluster_params():
     from utils.config import DRAINAGE_DATUM
 
     coeff = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-    sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
-    sy_by_cluster = sy_df.groupby("Cluster")["Sy_median"].median()
-
+    from utils.cluster_series import in_cluster_level
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     wells.columns = wells.columns.str.lower().str.replace(" ", "")
     master = pd.read_csv(INT_MASTER_DATA)
     master["match"] = master["Name_Original"].str.lower().str.replace(" ", "")
+    master = master[in_cluster_level(master)]   # D-348: cluster-level wells only
+
+    sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
+    _grp = dict(zip(master["match"], master["Cluster"].astype(int)))
+    sy_df["_group"] = sy_df["Well"].astype(str).str.lower().str.replace(" ", "").map(_grp)
+    sy_by_cluster = sy_df.dropna(subset=["_group"]).groupby("_group")["Sy_median"].median()
+    sy_by_cluster.index = sy_by_cluster.index.astype(int)
 
     params = {}
     for _, row in coeff.iterrows():
@@ -431,7 +440,7 @@ def load_cluster_params():
             "implied_datum_m": z_b,
             "Sy": float(sy_by_cluster.get(cl, 0.25)),
             "h_disp": h_disp,
-            "forest": cl in (4, 5),
+            "forest": cl in _FOREST_CIDS,
         }
 
     return params
@@ -516,7 +525,7 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
     if thinning_frac is None:
         thinning_frac = clearfell_frac / 2.0
 
-    clusters = ["C1", "C2", "C3", "C4", "C5"]
+    clusters = [f"C{c}" for c in _CLUSTER_LABELS]   # D-348: the five groups (C5 = C3f)
     scenarios = {}
 
     def _flux(b1, b2, P_eff, PET, b3, h_disp):
@@ -625,11 +634,12 @@ def compute_scenario_bars_from_params():
 
 SCENARIO_SUMMER_MONTHS = SUMMER_MINIMUM_MONTHS
 SY_SCENARIO_FALLBACK = 0.20
+_GROUP_KEYS = tuple(f"C{c}" for c in _CLUSTER_LABELS)   # D-348: "C1".."C5", C5 = C3f (Western Dune, forest)
 AMP_FACTOR_FALLBACK = 0.85
 
 
 def summer_amplification_factors(regional_avg,
-                                 clusters=("C1", "C2", "C3", "C4", "C5"),
+                                 clusters=_GROUP_KEYS,
                                  summer_months=SCENARIO_SUMMER_MONTHS,
                                  years=range(2006, 2026),
                                  fallback=AMP_FACTOR_FALLBACK):
@@ -675,13 +685,14 @@ def summer_amplification_factors(regional_avg,
 
 
 def scenario_cluster_sy(sy_table,
-                        clusters=("C1", "C2", "C3", "C4", "C5"),
+                        clusters=_GROUP_KEYS,
                         fallback=SY_SCENARIO_FALLBACK):
     """Per-cluster specific yield for scenario conversion.
 
     Reads ``Sy_event_median`` from the WTF table (``17_wtf_01_sy_estimates.csv``).
-    For the forested clusters C4 and C5 the interception-corrected variant is
-    preferred where present; the base variant is used otherwise. Clusters with
+    For the forest groups (FOREST_CIDS: C4 and C3f) the interception-corrected variant is
+    preferred where present; a key "C{n}" matches the row labelled CLUSTER_LABELS[n] (D-348: the C5 key is the
+    row "C3f (Western Dune, forest)"), or a row labelled "C{n} (..." written before D-348; the base variant is used otherwise. Clusters with
     no usable row are omitted; callers should resolve them with
     ``.get(c, fallback)``.
 
@@ -699,13 +710,16 @@ def scenario_cluster_sy(sy_table,
     if sy_table is None:
         return sy
     label_col = sy_table["Cluster"].astype(str)
+    _forest_keys = {f"C{k}" for k in _FOREST_CIDS}
     for c in clusters:
-        corr_mask = (label_col.str.startswith(c) &
+        _lab = _CLUSTER_LABELS.get(int(c[1:]), c) if c[1:].isdigit() else c
+        _is_c = label_col.str.startswith(_lab) | label_col.str.startswith(c + " ")   # D-348: C3 must not match C3f
+        corr_mask = (_is_c &
                      label_col.str.contains("corrected", case=False, na=False))
-        base_mask = (label_col.str.startswith(c) &
+        base_mask = (_is_c &
                      ~label_col.str.contains("corrected", case=False, na=False))
         row = (sy_table[corr_mask]
-               if c in ("C4", "C5") and corr_mask.any()
+               if c in _forest_keys and corr_mask.any()
                else sy_table[base_mask])
         if not row.empty and pd.notna(row["Sy_event_median"].iloc[0]):
             sy[c] = float(row["Sy_event_median"].iloc[0])
@@ -725,7 +739,7 @@ def flux_to_summer_min_mm(flux_mm_per_month, sy, amp_factor):
 
 
 def scenario_summer_min_bars(flux_bars, sy_by_cluster, amp_factors,
-                             scenarios, clusters=("C1", "C2", "C3", "C4", "C5"),
+                             scenarios, clusters=_GROUP_KEYS,
                              sy_fallback=SY_SCENARIO_FALLBACK,
                              amp_fallback=AMP_FACTOR_FALLBACK):
     """Per-scenario, per-cluster ``Delta_summer_min_mm`` from a monthly flux table.

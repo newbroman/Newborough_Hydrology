@@ -20,7 +20,7 @@ ridge masking, and KML overlays. Right-side vertical colourbar matches the
 report's other spatial figures (plot_metric_map convention).
 
 Well labels annotated for all 5-tier BACI network wells (Impact, Edge,
-C4 Forest Ctrl, C5 Coastal Ctrl) from clearfell_common.
+C4 Forest Ctrl, C3f Coastal Ctrl) from clearfell_common.
 
 Depth convention: negative = shallower (water table rose); positive = deeper.
 
@@ -73,7 +73,7 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "1.9.0"  # 2026-11-27 (D-348): comments and docstring name group 5 C3f (was C5 Coastal Forest); no code change. Was "1.8.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "1.7.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).

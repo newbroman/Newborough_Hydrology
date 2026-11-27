@@ -53,7 +53,7 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-11-25 (D-332, D-342; Martin: "SI re run script 22"). The
+__version__ = "1.8.0"  # 2026-11-27 (D-348): the cluster-mean residual-inference centroids from cluster-level wells (boundary and set-aside out), as Script 03 builds them. Was "1.7.0"  # Hollingham (2026) — 2026-11-25 (D-332, D-342; Martin: "SI re run script 22"). The
 #   residual-inference battery (22_05 per well, 22_06 per cluster centroid) fitted the FIXED-floor form (no
 #   intercept), which stopped being the headline at D-332: it now fits the fitted-floor form, the headline of Table 1,
 #   with the intercept in the design (const) and beta_3 bounded below at MODEL_B_BETA3_MIN as fit_ssm(intercept=True)
@@ -460,6 +460,8 @@ def cluster_mean_residual_inference(wells, climate, cluster_df):
     well_col = {normalize_well_name(c): c for c in wells.columns}
 
     rows = []
+    from utils.cluster_series import in_cluster_level
+    cluster_df = cluster_df[in_cluster_level(cluster_df)]   # D-348: centroids from cluster-level wells, as Script 03
     cids = sorted(pd.to_numeric(cluster_df["Cluster"], errors="coerce")
                   .dropna().astype(int).unique())
     for cid in cids:

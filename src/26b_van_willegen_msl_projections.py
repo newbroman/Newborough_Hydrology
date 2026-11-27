@@ -117,7 +117,7 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "2.4.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+__version__ = "2.5.0"  # 2026-11-27 (D-348): per-cluster per-well MSL5 means and medians (Model B and A) from cluster-level wells; SITE rows over every identified well. Was "2.4.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
 #   03_03 / 03_master_data / 03_15's unsuffixed coefficient columns and Model A in *_model_a; the Model A centroid
 #   set (coeffs_a) and compute_perwell_msl5_summary_model_a() now read *_model_a, so the _model_a sensitivity stays
 #   Model A. Model B still comes from 03_16 *_B; no Model B result changes.
@@ -503,6 +503,13 @@ def render_projection_figure(
     saved(f"{out_path.name}")
 
 # ── v1.1.0 per-well aggregation pathway ──────────────────────────────────────
+def _cluster_level_names() -> set:
+    """D-348: the wells that enter cluster means, normalised (lower case, no spaces)."""
+    from utils.cluster_series import in_cluster_level
+    md = pd.read_csv(paths.INT_MASTER_DATA)
+    return set(md.loc[in_cluster_level(md), "Name_Original"].astype(str).str.strip().str.lower().str.replace(" ", ""))
+
+
 def compute_perwell_msl5_summary(
     monthly_P_m: np.ndarray,
     monthly_PET_m: np.ndarray,
@@ -521,7 +528,8 @@ def compute_perwell_msl5_summary(
     3. Per well: mean over config.MSL_SPRING_MONTHS of
        sustained_monthly_response(β₃, climate_forcing_change_12(...)) — pure
        climate, no canopy interception (the van Willegen convention).
-    4. Cluster mean and median; a SITE row weighted by identified wells.
+    4. Cluster mean and median over the cluster-level wells (D-348: In_Cluster_Level, boundary and
+       set-aside wells out); a SITE row over every identified well, as before.
     """
     mb = pd.read_csv(model_b_csv_path)
     mb = mb[(mb["level"] == "well") & mb["beta_1_B"].notna() & mb["beta_3_B"].notna()]
@@ -529,6 +537,7 @@ def compute_perwell_msl5_summary(
         warn("compute_perwell_msl5_summary: no wells with Model B coefficients")
         return pd.DataFrame()
 
+    _lvl = _cluster_level_names()
     records = []
     print(f"  Per-well ΔMSL5 (Model B, sustained): {len(mb)} wells across "
           f"{mb['Cluster'].nunique()} clusters")
@@ -543,11 +552,11 @@ def compute_perwell_msl5_summary(
                 dF12 = climate_forcing_change_12(w["beta_1_B"], w["beta_2_B"],
                                                  monthly_P_m, monthly_PET_m, sP, sPET)
                 shift = float(np.mean(sustained_monthly_response(w["beta_3_B"], dF12)[SPRING_IDX]))
-            per_well.append((int(w["Cluster"]), shift))
+            per_well.append((int(w["Cluster"]), shift, str(w["well"]).strip().lower().replace(" ", "") in _lvl))
 
         total, site_sum = 0, 0.0
         for cid in sorted(config.CLUSTER_LABELS.keys()):
-            vals = [v for c, v in per_well if c == cid]
+            vals = [v for c, v, lv in per_well if c == cid and lv]   # D-348: cluster-level wells
             if not vals:
                 continue
             ok_vals = [v for v in vals if np.isfinite(v)]
@@ -560,10 +569,10 @@ def compute_perwell_msl5_summary(
                 "n_wells": len(ok_vals), "n_withheld_not_identified": len(vals) - len(ok_vals),
                 "model": "B", "aggregation": "perwell",
             })
-            if ok_vals:
-                total += len(ok_vals); site_sum += mean_ * len(ok_vals)
             print(f"    {scen_key}  C{cid}: n={len(ok_vals):2d} (+{len(vals) - len(ok_vals)} withheld)  "
                   f"ΔMSL5 = {mean_:+.4f} m")
+        _all = [v for _c, v, _lv in per_well if np.isfinite(v)]   # D-348: SITE over every identified well
+        total, site_sum = len(_all), float(np.sum(_all))
         if total:
             records.append({
                 "cluster_id": None, "cluster_label": "SITE", "scenario": scen_key,
@@ -585,6 +594,7 @@ def compute_perwell_msl5_summary_model_a(monthly_P_m, monthly_PET_m, out_csv_pat
     spring response as compute_perwell_msl5_summary. Validation target for Script 19's
     Model A ΔMSL5 rows."""
     md = pd.read_csv(paths.INT_MASTER_DATA)
+    _lvl = _cluster_level_names()
     mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
     mb = mb[mb["level"] == "well"].set_index("well")
     ws = pd.read_csv(paths.OUT_03_PER_WELL_WINDOW_SENS)
@@ -606,10 +616,10 @@ def compute_perwell_msl5_summary_model_a(monthly_P_m, monthly_PET_m, out_csv_pat
                 dF12 = climate_forcing_change_12(w["beta_1_recharge_model_a"], w["beta_2_atmospheric_draw_model_a"],
                                                  monthly_P_m, monthly_PET_m, sP, sPET)
                 shift = float(np.mean(sustained_monthly_response(w["beta_3_drainage_model_a"], dF12)[SPRING_IDX]))
-            per_well.append((int(w["Cluster"]), shift))
+            per_well.append((int(w["Cluster"]), shift, str(w["Name_Original"]).strip().lower().replace(" ", "") in _lvl))
         total, site_sum = 0, 0.0
         for cid in sorted(config.CLUSTER_LABELS.keys()):
-            vals = [v for c, v in per_well if c == cid]
+            vals = [v for c, v, lv in per_well if c == cid and lv]   # D-348: cluster-level wells
             if not vals:
                 continue
             ok_vals = [v for v in vals if np.isfinite(v)]
@@ -619,10 +629,10 @@ def compute_perwell_msl5_summary_model_a(monthly_P_m, monthly_PET_m, out_csv_pat
                             "msl5_shift_sustained_median_m": float(np.median(ok_vals)) if ok_vals else np.nan,
                             "n_wells": len(ok_vals), "n_withheld_not_identified": len(vals) - len(ok_vals),
                             "model": "A", "aggregation": "perwell"})
-            if ok_vals:
-                total += len(ok_vals); site_sum += mean_ * len(ok_vals)
             print(f"    Model A {scen_key}  C{cid}: n={len(ok_vals):2d} (+{len(vals) - len(ok_vals)} withheld)  "
                   f"ΔMSL5 = {mean_:+.4f} m")
+        _all = [v for _c, v, _lv in per_well if np.isfinite(v)]   # D-348: SITE over every identified well
+        total, site_sum = len(_all), float(np.sum(_all))
         if total:
             records.append({"cluster_id": None, "cluster_label": "SITE", "scenario": scen_key,
                             "msl5_shift_sustained_mean_m": site_sum / total,

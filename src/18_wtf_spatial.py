@@ -30,10 +30,13 @@ Notes:
       legitimate where it RANKS wells; it is wrong wherever an absolute
       duration is asserted. It is emitted here as a diagnostic only: it is not
       mapped, and it is not offered in 18_report_numbers.csv.
-    - Forest clusters (C4 Main Forest, C5 Coastal Forest) receive interception
-      correction: R_eff = (1 - FOREST_INTERCEPTION)*P - PET (config.py).
+    - Forest groups (C4 Main Forest, C3f Western Dune forest; FOREST_CIDS) receive interception
+      correction per well: R_eff = (1 - FOREST_INTERCEPTION)*P - PET (config.py).
       Interception fraction measured at
-      C5 and applied across both forested clusters.
+      C3f (the former C5) and applied across both forest groups.
+    - D-348: per-well estimates and maps keep every well; the cluster summaries of per-well values
+      (cluster means and medians, t½ ranges, the synthesis figure's cluster means) use only the
+      cluster-level wells (In_Cluster_Level in 02_cluster_stats; boundary and set-aside wells out).
     - Under the k=5 partition all clusters are analytically usable; the old
       EXCLUDE_CLUSTERS list (tidal / lake) is empty.
     - 18_wtf_07_sy_spatial_trends.csv carries two independent diagnostics.
@@ -54,7 +57,7 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-11-26 (D-347): WTF S_a events are read from config.RECORD_FIT_START (January 2010).
+__version__ = "1.24.0"  # 2026-11-27 (D-348): cluster summaries of per-well values (t½ ranges and Table 6 summary, cluster-mean Sy, synthesis-figure cluster means) from cluster-level wells; per-well maps and tables keep every well; text names C3f. Was "1.23.0"  # Hollingham (2026) — 2026-11-26 (D-347): WTF S_a events are read from config.RECORD_FIT_START (January 2010).
 # 1.22.0  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
@@ -220,6 +223,14 @@ MIN_WINDOW_EVENTS   = 5          # qualifying events needed in a window for a wi
 
 apply_house_style()  # T-178: render_utils.MPL_DEFAULTS, then this script's own departures
 plt.rcParams.update({'font.sans-serif': ['Arial', 'DejaVu Sans'], 'axes.labelsize': 11, 'axes.titlesize': 11, 'xtick.labelsize': 9, 'ytick.labelsize': 9})
+
+
+def _cluster_level(df: pd.DataFrame, col: str = "Well") -> pd.DataFrame:
+    """D-348: the rows of a per-well frame whose well enters cluster-level summaries (In_Cluster_Level)."""
+    from utils.cluster_series import in_cluster_level
+    cs = pd.read_csv(INT_CLUSTER_STATS)
+    keep = set(cs.loc[in_cluster_level(cs), "Match_ID"].astype(str).str.lower().str.strip().str.replace(" ", ""))
+    return df[df[col].astype(str).str.lower().str.strip().str.replace(" ", "").isin(keep)]
 
 
 def load_well_data(out_root):
@@ -553,7 +564,7 @@ def plot_spatial_map(well_results, out_path):
         map_df      = map_df,
         value_col   = "WTF_Sy_median",
         title       = (f"WTF apparent storage coefficient $S_a$ (event median) — Newborough Warren 2005–{_END_YEAR}\n"
-                       f"Forest cluster values (C4, C5) corrected for {FOREST_INTERCEPTION:.0%} canopy interception "
+                       f"Forest group values (C4, C3f) corrected for {FOREST_INTERCEPTION:.0%} canopy interception "
                        "(Freeman, 2008); spatial canopy variability means "
                        "Forest estimates are approximate"),
         output_path = out_path,
@@ -655,7 +666,7 @@ def plot_contour_map(well_results, out_path):
         f"Interpolated WTF Apparent Storage Coefficient ($S_a$) Surface — Newborough Warren 2005–{_END_YEAR}\n"
         "Linear griddata interpolation of event-based median S_a per well  |  "
         "Greyscale hillshade DEM + KML overlays\n"
-        "Forest cluster values (C4, C5) interception-corrected (Freeman, 2008) — "
+        "Forest group values (C4, C3f) interception-corrected (Freeman, 2008) — "
         "interpolation in Forest zone is approximate",
         fontsize=9, fontweight="bold", pad=10)
 
@@ -908,7 +919,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         f'Newborough Warren 2005–{_END_YEAR}  |  Linear griddata interpolation  |  '
         'Greyscale hillshade DEM + KML overlays\n'
         'Filled markers = reference wells; open markers = extended wells  |  '
-        'Forest clusters (C4, C5) interception-corrected (Freeman, 2008)',
+        'Forest groups (C4, C3f) interception-corrected (Freeman, 2008)',
         fontsize=9, fontweight='bold', pad=10)
 
     ax.tick_params(labelsize=8)
@@ -1326,7 +1337,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     print(f"  {n_matched} wells with t½ + ΔNSE + S_a for synthesis scatter")
 
     # ── Compute cluster means ─────────────────────────────────────────────────
-    cmeans = merged.groupby("Cluster").agg(
+    cmeans = _cluster_level(merged).groupby("Cluster").agg(   # D-348: cluster-level wells
         hl_mean=("half_life_months", "mean"),
         dNSE_mean=("dNSE", "mean"),
         Sy_mean=("Sy_median", "mean"),
@@ -1393,7 +1404,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     annotations = {
         1: ("shallow pan\n(lake boundary)",    0.12, -0.08),
         4: ("deep sponge\n(impeded drainage)", -0.06,  0.06),
-        5: ("coastal forest\n(deeper sand)",    0.08, -0.06),
+        5: ("C3f western dune forest\n(deeper sand)",    0.08, -0.06),
     }
     for cid, (text, dx_frac, dy_frac) in annotations.items():
         cm = cmeans[cmeans["Cluster"] == cid]
@@ -1571,7 +1582,7 @@ def main(supplementary=True):
         # count over the NON-EXCLUDED wells (the same exclusions the per-well
         # table applies). Full precision — the config renders dp (D-035).
         valid_sdi = sdi_df[~sdi_df["Excluded"]]
-        hl_summary = (valid_sdi.groupby("Cluster")["half_life_months"]
+        hl_summary = (_cluster_level(valid_sdi).groupby("Cluster")["half_life_months"]   # D-348
                       .agg(t_half_min="min", t_half_median="median",
                            t_half_max="max", n_wells="count")
                       .reset_index())
@@ -1621,19 +1632,19 @@ def main(supplementary=True):
 
         # Per-cluster t½ min/max
         rb3_ok = rb3_df[~rb3_df["Excluded"]]
-        for cid, grp in rb3_ok.groupby("Cluster"):
+        for cid, grp in _cluster_level(rb3_ok).groupby("Cluster"):   # D-348: cluster-level wells
             hl  = pd.to_numeric(grp["half_life_months"],   errors="coerce").dropna()
             rb3 = pd.to_numeric(grp["recip_beta3_months"], errors="coerce").dropna()
             n   = len(hl)
             if n:
                 rpt.add(f"C{int(cid)}_halflife_min", float(hl.min()), unit="months",
-                        note=f"min t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
+                        note=f"min t½, C{int(cid)}, cluster-level reference wells, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_halflife_max", float(hl.max()), unit="months",
-                        note=f"max t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
+                        note=f"max t½, C{int(cid)}, cluster-level reference wells, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_halflife_mean", float(hl.mean()), unit="months",
-                        note=f"mean t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
+                        note=f"mean t½, C{int(cid)}, cluster-level reference wells, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_recip_b3_mean", float(rb3.mean()), unit="months",
-                        note=f"mean 1/β₃, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
+                        note=f"mean 1/β₃, C{int(cid)}, cluster-level reference wells, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
 
         # The other basis, where the documents quote it (T-84). The window
         # values are what the report sets against the full record to show the
@@ -1705,11 +1716,11 @@ def main(supplementary=True):
                          f"18_wtf_01_well_sy_estimates.csv")
 
         # 1.18.0 (emit-first, report9): per-cluster mean of the per-well Sy_median
-        for _cid, _g in well_results.groupby("Cluster"):
+        for _cid, _g in _cluster_level(well_results).groupby("Cluster"):   # D-348: cluster-level wells
             _sy = _g["Sy_median"].dropna()
             rpt.add(f"well_sy_cluster_mean_c{int(_cid)}", float(_sy.mean()), unit="",
                     well=CLUSTER_LABELS.get(int(_cid), f"C{int(_cid)}"),
-                    note=f"mean of the per-well WTF Sy_median over the {len(_sy)} reference wells of "
+                    note=f"mean of the per-well WTF Sy_median over the {len(_sy)} cluster-level reference wells of "
                          f"C{int(_cid)} in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)")
 
         n_saved = rpt.save(OUT_18_REPORT_NUMBERS)

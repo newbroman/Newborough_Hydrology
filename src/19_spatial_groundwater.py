@@ -26,7 +26,7 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
+__version__ = "2.39.0"  # 2026-11-27 (D-348): cluster means and medians of per-well responses (scenario rows, MSL5 rows, interception bounds, cluster heads, the C3f clearfell spread) from cluster-level wells, SITE rows over every well; loops over CLUSTER_LABELS; viewer and notes name C3o and C3f. Was "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
 #   all the interception returned at the felled well, Model B, draw unchanged (the f = 1 end of the flux sensitivity),
 #   replacing the interception-form diagnostic 2.37.0 removed, which carried the withdrawn Edge-tier multiplier.
 # 2.37.0  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The clearfell and thinning
@@ -440,6 +440,7 @@ from utils.config import (
     SUMMER_DRY_CLIMATE_MONTHS,
     WINTER_WET_CLIMATE_MONTHS,
     CLUSTER_LABELS,
+    CLUSTER_SHORT,                       # D-348: C1, C2, C3o, C4, C3f
     CLUSTER_COLOURS,
     FOREST_CIDS,
     UKCP18_SCENARIOS,
@@ -1052,6 +1053,10 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
                        "without it (D-046)")
     wt = loc[["id", "E", "N", "in_forest"]].copy()
     wt = wt.merge(cl[["id", "Cluster"]], on="id", how="left")
+    # D-348: the wells a cluster-level quantity (a cluster mean or median of per-well responses) uses -
+    # In_Cluster_Level in 02_cluster_stats (boundary and set-aside wells out). Per-well rows keep every well.
+    from utils.cluster_series import in_cluster_level
+    wt["_lvl"] = wt["id"].isin(set(cl.loc[in_cluster_level(cl), "id"]))
     # 2.35.0 (D-332, phase 2b): b1-b3 are MODEL A (they feed only well_A, the _model_a sets, and the
     # fitted-well flags); Script 03 1.31.0 moved Model A to the *_model_a columns.
     wt = wt.merge(
@@ -1116,7 +1121,8 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
     wt = wt.reset_index(drop=True)
     print(f"  Well table: {len(wt)} wells")
     print(f"  beta available: {wt['b1'].notna().sum()} wells")
-    print(f"  Forest wells (C4+C5): {wt['Cluster'].isin(FOREST_CIDS).sum()}")
+    print(f"  Forest wells (C4+C3f): {wt['Cluster'].isin(FOREST_CIDS).sum()}")
+    print(f"  Cluster-level wells (D-348): {int(wt['_lvl'].sum())} of {len(wt)}")
     print(f"  P_bar  = {P_bar*1000:.2f} mm/mo   PET_bar = {PET_bar*1000:.2f} mm/mo")
     return wt, climate_stats
 
@@ -1371,8 +1377,8 @@ def serialise_climate(wt, climate_stats):
         P, PET = climate_stats[sea_key]
         h_col = h_col_map[sea_key]
         cluster_heads = {}
-        for cl_int in [1, 2, 3, 4, 5]:
-            sub = wt[wt["Cluster"] == cl_int][h_col].dropna()
+        for cl_int in sorted(CLUSTER_LABELS):   # D-348: the five groups
+            sub = wt[(wt["Cluster"] == cl_int) & wt["_lvl"]][h_col].dropna()   # D-348
             cluster_heads[cl_int] = _r(sub.mean(), 4) if len(sub) else 0.0
         out[sea_key] = {"P": _r(P,7), "PET": _r(PET,7), "cluster_heads": cluster_heads}
     # Monthly climatology (mm/month) for baseline display table
@@ -1602,10 +1608,10 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc on" id="btn_baseline"    onclick="loadSc('baseline')">Baseline (2005&#8211;2026)</button>
   <button class="sc"    id="btn_ukcp18_2050s" onclick="loadSc('ukcp18_2050s')">UKCP18 2050s (RCP8.5)</button>
   <button class="sc"    id="btn_ukcp18_2080s" onclick="loadSc('ukcp18_2080s')">UKCP18 2080s (RCP8.5)</button>
-  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (flux sensitivity, C5)</button>
+  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (flux sensitivity, C3f)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
   <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%, at most half)</button>
-  <div class="sc-note">Clearfell: the measured result is the step at the felled well, {clearfell_step_text}. The preset is its flux sensitivity: {clearfell_f_pct}% of the canopy&#8217;s interception returned as recharge (the share that reproduces that step), at C5 wells only; C4 and the other forest wells are left unchanged, C4&#8217;s drainage coefficient not being identified. Thinning returns at most half.</div>
+  <div class="sc-note">Clearfell: the measured result is the step at the felled well, {clearfell_step_text}. The preset is its flux sensitivity: {clearfell_f_pct}% of the canopy&#8217;s interception returned as recharge (the share that reproduces that step), at C3f wells only; C4 and the other forest wells are left unchanged, C4&#8217;s drainage coefficient not being identified. Thinning returns at most half.</div>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -1632,13 +1638,13 @@ footer a:hover{{text-decoration:underline;}}
     <span class="sv" id="vI_c4">24%</span></div>
   <div class="hr"></div>
 
-  <div class="ch">C5 Coastal Forest</div>
+  <div class="ch">C3f Western Dune forest</div>
   <div class="srow"><label>Interception</label>
     <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI_c5" oninput="onSl()">
     <span class="sv" id="vI_c5">24%</span></div>
   <div class="hr"></div>
 
-  <div class="ch">Forest &#946;&#8322; scaling (C4 + C5)</div>
+  <div class="ch">Forest &#946;&#8322; scaling (C4 + C3f)</div>
   <div class="srow"><label>Winter &#946;&#8322;</label>
     <input type="range" min="0.5" max="2" step="0.01" value="1" id="sB2_w" oninput="onSl()">
     <span class="sv" id="vB2_w">1.00&#215;</span></div>
@@ -1646,7 +1652,7 @@ footer a:hover{{text-decoration:underline;}}
     <input type="range" min="0.5" max="2" step="0.01" value="1" id="sB2_s" oninput="onSl()">
     <span class="sv" id="vB2_s">1.00&#215;</span></div>
   <div style="font-size:10px;color:var(--text-light);line-height:1.4;margin-top:3px;">
-    Atmospheric draw scaling for forest clusters. Applied identically to C4 and C5. Seasonal split captures deciduous phenology under broadleaf conversion (winter&nbsp;{broadleaf_b2_winter:.3f}&#215;, summer&nbsp;{broadleaf_b2_summer:.3f}&#215;).</div>
+    Atmospheric draw scaling for the forest groups. Applied identically to C4 and C3f. Seasonal split captures deciduous phenology under broadleaf conversion (winter&nbsp;{broadleaf_b2_winter:.3f}&#215;, summer&nbsp;{broadleaf_b2_summer:.3f}&#215;).</div>
   <div class="hr"></div>
 
   <div class="ch">Specific yield (storage)</div>
@@ -1654,7 +1660,7 @@ footer a:hover{{text-decoration:underline;}}
     <input type="range" min="0" max="1" step="1" value="0" id="sSyMode" oninput="onSl()">
     <span class="sv" id="vSyMode">Fetter</span></div>
   <div style="font-size:10px;color:var(--text-light);line-height:1.4;margin-top:3px;">
-    <strong>Fetter</strong> (lower bound): C1&nbsp;8%, C2&#8211;C5&nbsp;12% &#8212;
+    <strong>Fetter</strong> (lower bound): C1&nbsp;8%, C2, C3o, C4, C3f&nbsp;12% &#8212;
     conservative literature values from Fetter (2001).<br>
     <strong>WTF</strong> (upper bound): per-well WTF medians (scripts 17/18),
     clamped to the cluster floor. Monthly WTF overestimates Sy through
@@ -1754,9 +1760,9 @@ footer a:hover{{text-decoration:underline;}}
       and is independent of the season tab.
       <strong>Canopy interception is not applied to this row</strong>; the
       other rows above (&#916;&#160;head, storage shift, P&#8337;&#8337;,
-      PET draw) do apply it for the forest clusters (C4, C5) under their
+      PET draw) do apply it for the forest groups (C4, C3f) under their
       seasonal P/PET multipliers, so the two formulations sit side-by-side
-      and may disagree slightly for C4 and C5 under climate-change presets.
+      and may disagree slightly for C4 and C3f under climate-change presets.
       MSL5 is in any case a vegetation predictor primarily relevant to the
       open dune-slack clusters C1&#8211;C3.
     </div>
@@ -1782,7 +1788,7 @@ footer a:hover{{text-decoration:underline;}}
   Interception: Corsican pine 24% (Freeman 2008); broadleaf 15% annual mean (Komatsu et al. 2011).
   Broadleaf &#946;&#8322;: seasonally varying (winter 0.87&#215;, summer 1.09&#215;) from Script&nbsp;21 deciduous phenology profile.
   K&nbsp;=&nbsp;6&nbsp;m/day (Betson et al. 2002). Sy: WTF medians (scripts 17/18);
-  floors C1&nbsp;=&nbsp;6%, C2&#8211;C5&nbsp;=&nbsp;12%.
+  floors C1&nbsp;=&nbsp;6%, C2, C3o, C4, C3f&nbsp;=&nbsp;12%.
   <a href="https://newbroman.github.io/Newborough_Hydrology/">Newborough Hydrology project site</a>
   &middot; Hollingham (2026) &#8212; <em>Journal of Hydrology: Regional Studies</em>.
 </footer>
@@ -1828,8 +1834,8 @@ var SCEN={{
   thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:{thinning_si_c5}, sB2_w:1, sB2_s:1}},
 }};
 var WARN={{
-  clearfell:    'Clearfell. Measured: the control-differenced step at the felled well (WMC3 against the Forest controls), {clearfell_step_text}; at the scale of the 4.2 ha compartment. This preset is its flux sensitivity: {clearfell_f_pct}% (range {clearfell_f_range}) of the canopy\u2019s interception returned as recharge, at C5 wells only \u2014 C4 and the other forest wells are left unchanged, C4\u2019s drainage coefficient not being identified. The form spreads the gain over the year; the measured step is in October\u2013March only. Open-dune end state, a bound (each forest cluster on its open-dune counterpart\u2019s coefficients, cluster basis): {end_state_text}.',
-  thinning:     'Thinning (50%): at most half the clearfell\u2019s return ({thinning_f_pct}% of the interception), C5 wells only \u2014 an upper bound, since the remaining trees take up part of the water released.',
+  clearfell:    'Clearfell. Measured: the control-differenced step at the felled well (WMC3 against the Forest controls), {clearfell_step_text}; at the scale of the 4.2 ha compartment. This preset is its flux sensitivity: {clearfell_f_pct}% (range {clearfell_f_range}) of the canopy\u2019s interception returned as recharge, at C3f wells only \u2014 C4 and the other forest wells are left unchanged, C4\u2019s drainage coefficient not being identified. The form spreads the gain over the year; the measured step is in October\u2013March only. Open-dune end state, a bound (each forest cluster on its open-dune counterpart\u2019s coefficients, cluster basis): {end_state_text}.',
+  thinning:     'Thinning (50%): at most half the clearfell\u2019s return ({thinning_f_pct}% of the interception), C3f wells only \u2014 an upper bound, since the remaining trees take up part of the water released.',
   broadleaf:    'Broadleaf conversion (seasonally-varying \u03b2\u2082: winter {broadleaf_b2_winter}\u00d7, summer {broadleaf_b2_summer}\u00d7; no interception recharge gain, as for the clearfell, D-239). The seasonal \u03b2\u2082 profile captures the first-order deciduous phenology effect (reduced winter ET, elevated summer ET). Second-order dynamical propagation of winter recharge surplus into summer minima is not resolved in this steady-state framework (see Section 5.4.4).',
   ukcp18_2050s: 'UKCP18 2050s central estimate, RCP8.5, Wales. Winter +10% P / +5% PET, summer \u221215% P / +20% PET. Steady-state equilibrium response to seasonally-perturbed forcing only; within-year dynamical propagation is not resolved.',
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
@@ -2350,7 +2356,7 @@ function renderMetrics(){{
   var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
   var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
   var mShift=mSy*mDH*1000;
-  // Forest (C4+C5)
+  // Forest (C4+C3f)
   var fW=WELLS.filter(function(w){{return w.cl===4||w.cl===5;}});
   var fDH=fW.length>0?(fW.reduce(function(s,w){{var d=w._dh;return d!=null?s+d:s;}},0)/fW.filter(function(w){{return w._dh!=null;}}).length||0):0;
   var fSy=fW.length?fW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/fW.length:0.12;
@@ -2361,7 +2367,7 @@ function renderMetrics(){{
     if(DH[c]==null){{html+=mg(CL_LABS[c],mc('\u0394h','withheld','','#777'));continue;}}
     html+=mg(CL_LABS[c],mc('\u0394h',fmtD(dh),'m',dc(dh))+mc('Sy',(sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(sh),'mm',dc(dh)));
   }}
-  html+=mg(DH[4]==null?'Forest (C5; C4 withheld)':'Forest (C4+C5)',mc('\u0394h',fmtD(fDH),'m',dc(fDH))+mc('Sy',(fSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(fShift),'mm',dc(fDH)));
+  html+=mg(DH[4]==null?'Forest (C3f; C4 withheld)':'Forest (C4+C3f)',mc('\u0394h',fmtD(fDH),'m',dc(fDH))+mc('Sy',(fSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(fShift),'mm',dc(fDH)));
   document.getElementById('mrow').innerHTML=html;
 }}
 
@@ -2562,14 +2568,14 @@ def _end_state_text(climate_stats):
     P12 = np.asarray(climate_stats["monthly_P_m_arr"], dtype=float)
     PET12 = np.asarray(climate_stats["monthly_PET_m_arr"], dtype=float)
     es = open_dune_end_state(P12, PET12)
-    return "; ".join(f"C{c} as C{ref}: {es[(c, 'B')]:+.2f} m"
-                     for c, ref in END_STATE_OPEN_DUNE_COUNTERPART.items())
+    return "; ".join(f"{CLUSTER_SHORT.get(c, f'C{c}')} as {CLUSTER_SHORT.get(ref, f'C{ref}')}: {es[(c, 'B')]:+.2f} m"
+                     for c, ref in END_STATE_OPEN_DUNE_COUNTERPART.items())   # D-348: C3f as C3o
 
 
 def open_dune_end_state(P12, PET12):
     """2.31.0 (T-97, D-239; Martin 2026-10-04): the clearfell's open-dune end state on a cluster
     basis. Each felled forest cluster takes its open-dune counterpart's centroid coefficients
-    (config.END_STATE_OPEN_DUNE_COUNTERPART: C4 -> C2, C5 -> C3), and the change in the
+    (config.END_STATE_OPEN_DUNE_COUNTERPART: C4 -> C2, C3f (key 5) -> C3o (key 3), D-348), and the change in the
     equilibrium level under the mean climatology is returned per (cluster, form):
 
         Model A:  h_eq = (b1·P - b2·PET) / b3            (03_03 *_model_a, full-record centroids)
@@ -2622,7 +2628,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
       mean(Sy_i) x mean(dh_i). The viewer computes the latter. The mean of the
       products is each well's own storage change averaged across the cluster,
       which is the quantity meant; the product of the means only coincides with
-      it when Sy and dh are uncorrelated across wells, and at C4/C5 they are not.
+      it when Sy and dh are uncorrelated across wells, and at C4/C3f they are not.
 
       one Sy, named.  `sy` is the per-well WTF median from
       18_wtf_01_well_sy_estimates.csv (written by Script 18, not 17 — the
@@ -2662,7 +2668,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             return None
         cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
         if forestry and sl.get("c5_only") and cl_ != 5:
-            return None                                 # 2.37.0 (T-209, D-333): not quantified off C5
+            return None                                 # 2.37.0 (T-209, D-333): not quantified off C5 (C3f)
         sP12, sPET12 = _expand_seasonal_to_monthly(sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
         if forestry:
             # 2.31.0 (T-97, D-239): a management change scales the canopy's draw (sB2) on forest wells, and
@@ -2732,8 +2738,8 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
                 "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
             })
-        for cl_int in [1, 2, 3, 4, 5]:
-            sub = frame[frame["Cluster"] == cl_int]
+        for cl_int in sorted(CLUSTER_LABELS):   # D-348: the five groups
+            sub = frame[(frame["Cluster"] == cl_int) & frame["_lvl"]]   # D-348: cluster-level wells
             dh_mean = sub["_dh"].mean() if len(sub) else np.nan
             dh_med = sub["_dh"].median() if len(sub) else np.nan
             if (sc_name, sea, cl_int) == ("ukcp18_2080s", "summer", 2) and pd.notna(dh_mean):
@@ -2783,8 +2789,8 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
                 "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
             })
-        for cl_int in [1, 2, 3, 4, 5]:
-            sub = frame[frame["Cluster"] == cl_int]
+        for cl_int in sorted(CLUSTER_LABELS):   # D-348: the five groups
+            sub = frame[(frame["Cluster"] == cl_int) & frame["_lvl"]]   # D-348: cluster-level wells
             dh_mean = sub["_dh"].mean() if len(sub) else np.nan
             if (sc_name, sea, cl_int) == ("ukcp18_2080s", "summer", 2) and pd.notna(dh_mean):
                 rpt.add(f"scenario_dh_mean_{sc_name}_{sea}_C{cl_int}_ddp", float(dh_mean),
@@ -2821,8 +2827,8 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                     "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
                     "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
                 })
-            for cl_int in [1, 2, 3, 4, 5]:
-                sub = wt_tmp[(wt_tmp["Cluster"] == cl_int)
+            for cl_int in sorted(CLUSTER_LABELS):   # D-348: the five groups
+                sub = wt_tmp[(wt_tmp["Cluster"] == cl_int) & wt_tmp["_lvl"]   # D-348: cluster-level wells
                              & wt_tmp["_dh"].notna()]
                 dh_mean = sub["_dh"].mean() if len(sub) else np.nan
                 dh_med  = sub["_dh"].median() if len(sub) else np.nan
@@ -2875,16 +2881,20 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         sP_arr, sPET_arr = _expand_seasonal_to_monthly(
             sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
         spring_idx = [m - 1 for m in MSL_SPRING_MONTHS]
-        shifts = {}
+        _lvl_ids = set(wt.loc[wt["_lvl"], "id"])          # D-348
+        shifts, _site = {}, []
         for _, r in _mbw.iterrows():
             B = well_B.get(r["id"])
             if B is None:
                 continue
             ss = sustained_monthly_response(B[2], climate_forcing_change_12(
                 B[0], B[1], P12, PET12, sP_arr, sPET_arr))
-            shifts.setdefault(int(r["Cluster"]), []).append(float(np.mean(ss[spring_idx])))
+            _v = float(np.mean(ss[spring_idx]))
+            _site.append(_v)
+            if r["id"] in _lvl_ids:                         # D-348: cluster rows from cluster-level wells
+                shifts.setdefault(int(r["Cluster"]), []).append(_v)
         tot, acc = 0, 0.0
-        for cl_int in [1, 2, 3, 4, 5]:
+        for cl_int in sorted(CLUSTER_LABELS):   # D-348: the five groups
             v = shifts.get(cl_int, [])
             m_ = float(np.mean(v)) if v else np.nan
             rows.append({"scenario": sc_name, "season": "msl5",
@@ -2892,24 +2902,26 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                          "n_wells": len(v),
                          "dh_mean_m": round(m_, 4) if v else np.nan,
                          "dh_median_m": round(float(np.median(v)), 4) if v else np.nan})
-            if v:
-                tot += len(v); acc += m_ * len(v)
+        tot, acc = len(_site), float(np.sum(_site))       # D-348: SITE over every well, as before
         if tot:
             rows.append({"scenario": sc_name, "season": "msl5",
                          "response": "level_sustained_model_b", "cluster": "SITE",
                          "n_wells": tot, "dh_mean_m": round(acc / tot, 4),
                          "dh_median_m": np.nan})
         # D-224: the same ΔMSL5 rows on Model A (reference wells, comparison window)
-        shifts_A = {}
+        shifts_A, _site_A = {}, []
         for _, r in wt[wt["b1"].notna()].iterrows():
             A_ = well_A.get(r["id"])
             if A_ is None or well_B.get(r["id"]) is None:     # D-224: like-for-like with Model B
                 continue
             ss = sustained_monthly_response(A_[2], climate_forcing_change_12(
                 A_[0], A_[1], P12, PET12, sP_arr, sPET_arr))
-            shifts_A.setdefault(int(r["Cluster"]), []).append(float(np.mean(ss[spring_idx])))
+            _v = float(np.mean(ss[spring_idx]))
+            _site_A.append(_v)
+            if r["_lvl"]:                                   # D-348: cluster rows from cluster-level wells
+                shifts_A.setdefault(int(r["Cluster"]), []).append(_v)
         tot, acc = 0, 0.0
-        for cl_int in [1, 2, 3, 4, 5]:
+        for cl_int in sorted(CLUSTER_LABELS):   # D-348: the five groups
             v = shifts_A.get(cl_int, [])
             m_ = float(np.mean(v)) if v else np.nan
             rows_A.append({"scenario": sc_name, "season": "msl5",
@@ -2917,8 +2929,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                            "n_wells": len(v),
                            "dh_mean_m": m_ if v else np.nan,
                            "dh_median_m": float(np.median(v)) if v else np.nan})
-            if v:
-                tot += len(v); acc += m_ * len(v)
+        tot, acc = len(_site_A), float(np.sum(_site_A))   # D-348: SITE over every well, as before
         if tot:
             rows_A.append({"scenario": sc_name, "season": "msl5",
                            "response": "level_sustained_model_a", "cluster": "SITE",
@@ -2947,11 +2958,11 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         for _sea in SEASONS:
             for form, sink in (("B", rows), ("A", rows_A)):
                 if form == "A" and _sl_bl.get("c5_only"):
-                    continue                            # 2.37.0 (T-209): the clearfell bound on Model B, C5 only
+                    continue                            # 2.37.0 (T-209): the clearfell bound on Model B, C5 (C3f) only
                 _dh = wt.apply(lambda r: _well_level(r, _sl_bl, h_col_map[_sea], _sea, form=form, forestry=True), axis=1)
                 _fr = wt.assign(_dh=_dh)
                 for cl_int in FOREST_CIDS:
-                    _sub = _fr[(_fr["Cluster"] == cl_int) & _fr["_dh"].notna()]
+                    _sub = _fr[(_fr["Cluster"] == cl_int) & _fr["_lvl"] & _fr["_dh"].notna()]   # D-348
                     if not len(_sub):
                         continue
                     _m = float(_sub["_dh"].mean())
@@ -2984,12 +2995,14 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
 
     pw = pd.DataFrame(perwell)
     # 2.38.0 (T-209): the spread of the C5 wells' own clearfell responses, which report9 quotes beside the mean
+    # D-348: the spread beside the cluster mean, so over the same cluster-level C3f wells (key C5)
     _c5 = pw[(pw["scenario"] == "clearfell") & (pw["season"] == "annual") & (pw["cluster"] == "C5")
-             & (pw["response"] == "level_sustained_model_b")]["dh_m"].dropna()
+             & (pw["response"] == "level_sustained_model_b")
+             & pw["well"].isin(set(wt.loc[wt["_lvl"], "id"]))]["dh_m"].dropna()
     if len(_c5):
         for _stat, _v in (("min", _c5.min()), ("max", _c5.max())):
             rpt.add(f"scenario_clearfell_C5_dh_{_stat}_m", float(_v), unit="m", well="C5",
-                    era="clearfell annual", note=f"{_stat} over the {len(_c5)} C5 wells of the sustained annual "
+                    era="clearfell annual", note=f"{_stat} over the {len(_c5)} cluster-level C3f wells (key C5) of the sustained annual "
                     "level response, Model B (the spread beside the cluster mean)")
     pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
     print(f"  Per-well scenario CSV: {OUT_19_SCENARIO_PERWELL.name} ({len(pw)} rows)")
@@ -3031,7 +3044,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             worst_mm = 0.0
             worst_label = ""
             for view_scen, canon_scen in scen_pairs:
-                for cid in [1, 2, 3, 4, 5]:
+                for cid in sorted(CLUSTER_LABELS):   # D-348: the five groups
                     view_val = out[(out["scenario"] == view_scen)
                                    & (out["season"] == "msl5")
                                    & (out["cluster"] == f"C{cid}")]["dh_mean_m"]
@@ -3075,7 +3088,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         canon_a = canon_a[canon_a["cluster_label"].str.startswith("C", na=False)]
         worst_a, worst_a_lab = 0.0, ""
         for view_scen, canon_scen in (("ukcp18_2050s", "2050s"), ("ukcp18_2080s", "2080s")):
-            for cid in [1, 2, 3, 4, 5]:
+            for cid in sorted(CLUSTER_LABELS):   # D-348: the five groups
                 v_ = out_A[(out_A["scenario"] == view_scen) & (out_A["season"] == "msl5")
                            & (out_A["cluster"] == f"C{cid}")]["dh_mean_m"]
                 c_ = canon_a[(canon_a["scenario"] == canon_scen)
@@ -3099,7 +3112,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                      f"(HAC 95% CI {_lo:+.3f} to {_hi:+.3f} m); not mapped (10a)")
     rpt.add("scenario_clearfell_return_fraction", CLEARFELL_FRAC["f"], unit="-", well=CLEARFELL_FRAC["cluster"],
             note=f"flux sensitivity f (range {CLEARFELL_FRAC['f_lo']:.3f}-{CLEARFELL_FRAC['f_hi']:.3f}): the share of the "
-                 "interception returned as recharge in the clearfell rows (C5 wells only); thinning returns f/2")
+                 "interception returned as recharge in the clearfell rows (C3f wells only, key C5); thinning returns f/2")
     n_rpt = rpt.save(OUT_19_REPORT_NUMBERS)  # T-91
     print(f"  Saved → {OUT_19_REPORT_NUMBERS.name} ({n_rpt} report numbers)")
     return out

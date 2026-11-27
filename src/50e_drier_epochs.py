@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the E13 fits (_e13_run, e13_break) keep
+__version__ = "1.1.0"  # 2026-11-27 (D-348): E13 member-mean centroids and the E11 open-ground coefficient medians from cluster-level wells; FOREST_FORCING_CLUSTERS (4, 5) = C4, C3f per well, unchanged. Was "1.0.1"  # Hollingham (2026) — 2026-11-26 (D-347 (5)): the E13 fits (_e13_run, e13_break) keep
 #   the whole record (start=None); their subject is the 2006-08 excess. Nothing else changes.
 # 1.0.0  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
@@ -193,7 +193,7 @@ def _season_contrast(resid: pd.Series) -> float:
 
 
 def forest_forcing(lev, lev_cols, cl, master, df_full):
-    """E10 (D-260): every C4/C5 reference well under four forcings, both forms; F0 identity-checked against the
+    """E10 (D-260): every C4/C5 (D-348: C4/C3f) reference well under four forcings, both forms; F0 identity-checked against the
     full-record fits of the record-length experiment (df_full)."""
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
     fell = pd.Timestamp(CLEARFELL_DATE_ISO)
@@ -517,7 +517,8 @@ def ranwell_epoch_context(cl, lev, lev_cols, need: dict) -> tuple[pd.DataFrame, 
     md = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     md["_n"] = md["Name_Original"].astype(str).apply(normalize_well_name)
     md["d"] = md["_n"].map(dist)
-    op = md[~md["Cluster"].isin(FOREST_FORCING_CLUSTERS) & (md["d"] > 0)]
+    from utils.cluster_series import in_cluster_level   # D-348: a summary over cluster-level open-ground wells
+    op = md[~md["Cluster"].isin(FOREST_FORCING_CLUSTERS) & (md["d"] > 0) & in_cluster_level(md)]
     near, far = op[op["d"] <= lam], op[op["d"] > lam]
     kf = tuple(float(far[c].median() / near[c].median())
                for c in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"))
@@ -634,7 +635,9 @@ def _e13_inputs(cl: pd.DataFrame, master: pd.DataFrame):
                    pd.read_csv(INT_WELLS_EXTENDED, index_col=0, parse_dates=True)], axis=1)
     W.columns = [normalize_well_name(x) for x in W.columns]
     md = master.set_index("_n")
-    cent = {int(k): W[[w for w in md.index[md["Cluster"] == k] if w in W]].mean(axis=1)
+    from utils.cluster_series import in_cluster_level   # D-348: centroids from cluster-level members
+    _lv = in_cluster_level(md)
+    cent = {int(k): W[[w for w in md.index[(md["Cluster"] == k) & _lv] if w in W]].mean(axis=1)
             for k in sorted(md["Cluster"].unique())}
     ccw = pd.DataFrame()
     if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():

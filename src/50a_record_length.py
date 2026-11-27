@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.1.0"  # 2026-11-27 (D-348): the per-cluster summary groups over cluster-level wells (boundary and set-aside out); the all-wells group unchanged. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Script 50 (50_record_length.py) as it was at 1.30.0, carried over whole by J-15: its docstring, then its
@@ -622,6 +622,13 @@ def stable_lengths(dev: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
 
 def groups(df: pd.DataFrame):
     yield "all", df
+    # D-348: the per-cluster groups are summaries over cluster-level wells (In_Cluster_Level false - the
+    # boundary wells and the set-aside WMC3 - out); "all" keeps every well.
+    from utils.cluster_series import in_cluster_level
+    md = pd.read_csv(INT_MASTER_DATA)
+    off = set(md.loc[~in_cluster_level(md), "Name_Original"].map(normalize_well_name))
+    _wc = "well" if "well" in df.columns else "Name_Original"
+    df = df[~df[_wc].astype(str).map(normalize_well_name).isin(off)]
     for c, g in df.groupby("cluster"):
         if int(c) > 0:
             yield f"C{int(c)}", g

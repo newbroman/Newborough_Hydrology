@@ -53,7 +53,7 @@ from scipy.spatial.distance import squareform, pdist
 from sklearn.metrics import adjusted_rand_score, cohen_kappa_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS
+from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS
 from utils import pipeline_params as pp
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -72,7 +72,7 @@ from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
 
-__version__ = "1.4.3"  # 2026-11-27: the correlation distances are sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+__version__ = "1.5.0"  # 2026-11-27 (D-348): forest groups from FOREST_CIDS (C4, C3f); figure title states the live k, not k=5. Was "1.4.3"  # 2026-11-27: the correlation distances are sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
 #   ignore (RuntimeWarning) is removed, with its now-unused `import warnings`: no pipeline
 #   module silences its warnings (T-81, D-155). Probed with the filter off
 #   against the committed CSVs, this module raised no warning; outputs unchanged.
@@ -105,10 +105,9 @@ OUTDIR = DIR_31
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 BETA_COLS = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
-# Forest clusters derived from the canonical labels, so the set tracks the partition
-# instead of being a {4, 5} literal.
-FOREST_CLUSTERS = {cid for cid, lbl in CLUSTER_LABELS.items()
-                   if "forest" in str(lbl).lower()}
+# Forest groups from config.FOREST_CIDS (D-348: C4 and C3f), the one definition every
+# consumer shares; it was derived from the labels, which gave the same set.
+FOREST_CLUSTERS = set(FOREST_CIDS)
 
 
 # ===========================================================================
@@ -446,7 +445,7 @@ def make_panel(master, mag, ari_df, summary_df, fr):
         ax.text(v + 0.01, b.get_y() + b.get_height() / 2, f"{v:.2f}",
                 va="center", fontsize=8)
 
-    fig.suptitle("Cluster validation panel -- k=5 partition vs independent evidence",
+    fig.suptitle(f"Cluster validation panel -- k={K_CANONICAL} partition (five groups, D-348) vs independent evidence",
                  fontsize=14, y=0.99)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
     path = OUT_31_PANEL_FIG

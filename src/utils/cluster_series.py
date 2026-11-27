@@ -101,3 +101,30 @@ def cluster_level_members(membership: pd.DataFrame, cid: int, name_col: str = "N
     """D-348: the wells of group `cid` that a cluster-level quantity uses (In_Cluster_Level), by `name_col`."""
     g = pd.to_numeric(membership[cluster_col], errors="coerce") == int(cid)
     return membership.loc[g & in_cluster_level(membership), name_col].astype(str).tolist()
+
+
+def group_of(hydro_cluster: int, land_cover: str) -> int:
+    """D-348: the cluster-level group of a well, from its hydrogeological cluster and land cover. The Western Dune's
+    forest wells are group C3f; every other well's group is its cluster's id (config.GROUP_HYDRO_CLUSTER)."""
+    from utils.config import GROUP_HYDRO_CLUSTER
+    h = int(hydro_cluster)
+    if land_cover == "forest":
+        forest_groups = [g for g, c in GROUP_HYDRO_CLUSTER.items() if c == h and g != h]
+        if forest_groups:
+            return forest_groups[0]
+    return h
+
+
+def land_cover_lookup() -> dict[str, str]:
+    """D-348 (5): each well's fixed land cover, open / forest by 01_locations.in_forest, set aside for
+    config.LANDCOVER_SET_ASIDE_WELLS; keyed by the lower-cased normalized well name."""
+    from utils.config import LANDCOVER_SET_ASIDE_WELLS
+    from utils.paths import INT_LOCATIONS
+    from utils.data_utils import normalize_well_name
+    loc = pd.read_csv(INT_LOCATIONS)
+    aside = {w.lower() for w in LANDCOVER_SET_ASIDE_WELLS}
+    out = {}
+    for name, f in zip(loc["Name"].astype(str), loc["in_forest"].astype(bool)):
+        k = normalize_well_name(name).lower()
+        out[k] = "set aside" if k in aside else ("forest" if f else "open")
+    return out

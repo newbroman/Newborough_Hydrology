@@ -5,7 +5,7 @@
 Produces climate trajectory projection figures for Newborough Warren.
 
 Reads observed data from 03_regional_averages.csv, fits OLS linear
-regressions to annual summer minima for all five clusters (C1–C5),
+regressions to annual summer minima for all five cluster-level groups (C1, C2, C3o, C4, C3f; D-348),
 and plots observed winter maxima against ecohydrological flooding
 thresholds (Curreli et al. 2013).
 
@@ -22,8 +22,8 @@ Outputs:
 
 Reviewer-facing method summary:
     - Summer panel: observed annual summer minima with OLS trend and 95% CI
-      for all five clusters (C1 Lake Edge, C2 Dune, C3 Western Residual,
-      C4 Main Forest, C5 Coastal Forest).
+      for all five groups (C1 Lake Edge, C2 Dune, C3o Western Dune open,
+      C4 Main Forest, C3f Western Dune forest; D-348, keys C1..C5).
     - Winter panel: observed annual winter maxima only (no projection), with
       threshold exceedance frequencies shown in an annotation box.
     - Winter trend statistics (observed-period OLS slope, R2, p-value) are
@@ -34,7 +34,7 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347; Martin: "switch from summer minima to MSL").
+__version__ = "1.16.0"  # 2026-11-27 (D-348): fixed-effects centroids from cluster-level wells (boundary and set-aside out); TRAJECTORY_CLUSTERS from CLUSTER_LABELS; text names C3o and C3f. Was "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347; Martin: "switch from summer minima to MSL").
 #   14_spring_trend_stats.csv gains the trend on the one record window, from config.RECORD_FIT_START's year (2010):
 #   fit_start, n_years_fit, Slope_m_per_yr_fit, R2_fit, p_value_fit, and spring_trend_fit_* report numbers. The
 #   full-record and from-2011 columns, and every summer/winter output, are unchanged.
@@ -173,7 +173,7 @@ from utils.config import (
     EXTREMES_ROBUSTNESS_START,
 )
 from utils.render_utils import render_figure
-from utils.cluster_series import fixed_effect_centroids
+from utils.cluster_series import fixed_effect_centroids, in_cluster_level
 from utils.config import RECORD_FIT_START as _RECORD_FIT_START       # D-347
 _FIT_START_YEAR = pd.Timestamp(_RECORD_FIT_START).year
 
@@ -227,9 +227,9 @@ CLUSTER_LABELS:  dict[str, str] = {f"C{cid}": v for cid, v in _CFG_LABELS.items(
 CLUSTER_MARKERS: dict[str, str] = {f"C{cid}": v for cid, v in _CFG_MARKERS.items()}
 
 # Clusters that get fitted trajectory trends in the summer/winter figures.
-# All five clusters under the k=5 partition. C4 and C5 (forested) are
+# All five cluster-level groups (D-348; key C5 = C3f). C4 and C3f (forested) are
 # included for completeness — future management may alter their canopy.
-TRAJECTORY_CLUSTERS: tuple[str, ...] = ("C1", "C2", "C3", "C4", "C5")
+TRAJECTORY_CLUSTERS: tuple[str, ...] = tuple(f"C{cid}" for cid in _CFG_LABELS)
 
 
 def _read_series(src) -> pd.DataFrame:
@@ -244,7 +244,8 @@ def build_fixed_effect_centroids() -> pd.DataFrame:
     each cluster's reference wells as h(w,t) = a_w + g_t; the series is
     g_t + mean(a_w), so a well joining or leaving does not move it."""
     wells = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True).sort_index()
-    return fixed_effect_centroids(wells, pd.read_csv(INT_CLUSTER_STATS))
+    cs = pd.read_csv(INT_CLUSTER_STATS)
+    return fixed_effect_centroids(wells, cs[in_cluster_level(cs)])   # D-348: cluster-level wells only
 
 
 def _robust_fit(series: pd.Series, start: int | None = None) -> dict:
@@ -483,7 +484,7 @@ def render_winter_figure(
             color=colour, va="center", zorder=5,
         )
 
-        # C5 has a significant winter declining trend (p=0.035) — show it
+        # C5 (D-348: C3f) had a significant winter declining trend (p=0.035) — shown when p < 0.05
         if c == "C5":
             from scipy import stats as _st
             w_slope, w_int, w_r, w_p, _ = _st.linregress(yobs, vobs)
@@ -664,7 +665,7 @@ def render_stacked_figure(
             color=colour, va="center", zorder=5,
         )
 
-        # C5 has a significant winter declining trend (p=0.035) — show it
+        # C5 (D-348: C3f) had a significant winter declining trend (p=0.035) — shown when p < 0.05
         if c == "C5":
             from scipy import stats as _st
             w_slope, w_int, w_r, w_p, _ = _st.linregress(yobs, vobs)
@@ -918,8 +919,8 @@ def main() -> None:
                 "(14_annual_extremes.csv)")
     rn.add("summer_order_forest_deepest_n_years",
            int((_sm[_forest].max(axis=1) < _sm[_open].min(axis=1)).sum()), unit="years", era=_span,
-           note=f"of those years, the years in which both forest clusters ({', '.join(_forest)}) lie deeper "
-                f"than every open-dune cluster ({', '.join(_open)})")
+           note=f"of those years, the years in which both forest groups ({', '.join(_forest)}) lie deeper "
+                f"than every open-dune group ({', '.join(_open)})")
     rn.add("summer_order_c1_or_c2_shallowest_n_years",
            int(_sm.idxmax(axis=1).isin(["C1", "C2"]).sum()), unit="years", era=_span,
            note="of those years, the years in which the shallowest cluster summer minimum is C1 or C2")

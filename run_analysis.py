@@ -202,7 +202,7 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.33.1"  # 2026-11-27 (D-347 run): a provenance record whose script no longer exists in src/ is dropped when the file is rewritten (50_record_length.py, split into 50a-e by J-15, was carried forward and went stale when its inputs moved). Was "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
+__version__ = "2.33.2"  # 2026-11-27 (D-348): step text and the default-k prompt say k = 4 (pipeline_params). Was "2.33.1"  # 2026-11-27 (D-347 run): a provenance record whose script no longer exists in src/ is dropped when the file is rewritten (50_record_length.py, split into 50a-e by J-15, was carried forward and went stale when its inputs moved). Was "2.33.0"  # Hollingham (2026) - 2026-11-24 (D-340 draft, Martin: "build it"). A --step run takes its
 #   pass token from NRG_RUN_SCOPE_ID when tools/run_scope.py sets it, so a scoped run of several steps is one pass.
 # 2.32.0  # Hollingham (2026) - 2026-11-24 (Fable review). After each successful step, record the code
 #   that ran (tools/code_signature.py -> outputs/pipeline_code_signatures.json); output_lag 1.2.0 judges by it.
@@ -576,7 +576,7 @@ PHASE_15 = [
 ]
 PHASE_16 = [
     Step("24b_residual_climatology.py",         "Cluster-stratified residual climatology (supplementary diagnostic)",   "X", "optin"),
-    Step("31_cluster_validation.py",            "Independent k=5 partition validation (supplementary diagnostic)",      "X", "optin"),
+    Step("31_cluster_validation.py",            "Independent k=4 partition validation (supplementary diagnostic; D-348)",      "X", "optin"),
     Step("31b_separation_vs_recoverability.py", "Cluster separation vs recoverability (supplementary diagnostic)",      "X", "optin"),
     Step("34_window_sensitivity.py",            "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",       "A"),
     Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "A"),
@@ -2192,7 +2192,7 @@ def interactive_menu() -> None:
                         os.environ["NRG_N_CLUSTERS"] = str(kc_n)
                         say_info(f"Clustering target set to k={kc_n} for this run")
                     except ValueError:
-                        say_warn("Not a valid integer >= 2 — using default k=5")
+                        say_warn("Not a valid integer >= 2 — using the default k (pipeline_params.REQUESTED_N_CLUSTERS, 4 under D-348)")
                 _optin_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "optin"]
                 _optin_scripts = ", ".join(rs.script for rs in _ALL_STEPS if rs.exec == "optin")
                 supp = input(

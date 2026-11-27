@@ -78,7 +78,7 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.10.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
+__version__ = "2.11.0"  # 2026-11-27 (D-348): the centroids and the C4 exclusion sensitivity from cluster-level members (In_Cluster_Level), as Script 03 1.34.0 builds them. Was "2.10.0"  # Hollingham (2026) — 2026-11-24 (T-178, D-317). The house style: render_utils.apply_house_style()
 #   replaces this script's inline rcParams dict, so MPL_DEFAULTS (fonts, T-176's hinting pins) reaches its figures;
 #   only the keys where it departs from the house are set after it. Figures move on the next run.
 # "2.9.0"  # Hollingham (2026) - 2026-11-18 (J-16). The canonical fits reproduce Script 03 again. Since
@@ -320,7 +320,8 @@ def main():
     s03._DRY.update({c: dry_bounds(c) for c in wells_clean.columns})
     wells_filled, _ = s03.fill_dry_members(cluster_df, wells_clean, climate,
                                            well_col_lookup, locs_clean)
-    centroids = s03.build_cluster_centroids(cluster_df, wells_filled,
+    from utils.cluster_series import in_cluster_level   # D-348: Script 03 1.34.0 builds them from these
+    centroids = s03.build_cluster_centroids(cluster_df[in_cluster_level(cluster_df)], wells_filled,
                                             well_col_lookup)
     info(f"Built {len(centroids)} cluster centroids.")
 
@@ -470,8 +471,8 @@ def main():
     # indistinguishable from zero over the full record), which is what makes
     # the same two wells the right sensitivity here.
     phase(5, "C4 centroid exclusion sensitivity (reported, not adopted)")
-    c4_members = [str(r["Match_ID"]) for _, r in cluster_df.iterrows()
-                  if pd.to_numeric(r["Cluster"], errors="coerce") == C4_ID]
+    from utils.cluster_series import cluster_level_members   # D-348: the centroid's cluster-level members
+    c4_members = cluster_level_members(cluster_df, C4_ID, name_col="Match_ID")
     excl = {_norm(w) for w in MSL5_EXCLUDED_WELLS.keys()}
     bases = [
         ("all_members", [], c4_members),
@@ -524,7 +525,7 @@ def main():
     # strings, which are written verbatim into 30_c4_report_numbers.csv — so
     # the exact superlative D-011 retired, "C4 VIF ... network minimum", went
     # on being PUBLISHED by the pipeline for twelve days, one directory from
-    # the CSV that disproves it (C5 is lower at 1.075 against C4's 1.095).
+    # the CSV that disproves it (C5, now C3f, was lower at 1.075 against C4's 1.095).
     # Found by T-18a, 2026-08-28: check_claims reads documents, not the Note
     # column of outputs.
     #

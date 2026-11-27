@@ -27,7 +27,7 @@ Decision:
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+__version__ = "1.4.0"  # 2026-11-27 (D-348): centroid labels from CLUSTER_LABELS; the C5 row displays as C3f; the C3 test is on group 3 (C3o). Was "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - c3_n_total, c3_n_testable,
 #   c3_n_moves_to_c2_forest_free, written to 28_report_numbers.csv so the
 #   Methods Supplement S.19.1 sentence binds to a citation row.
@@ -70,7 +70,10 @@ def main():
     OUT_MEMO = paths.OUT_28_DETREND_MEMO
     OUT_FIG  = paths.OUT_28_DETREND_PANEL
 
-    CENT_LABELS = ["C1", "C2", "C3", "C4", "C5"]
+    from utils.config import CLUSTER_LABELS, CLUSTER_SHORT   # noqa: E402  (D-348)
+    # D-348: the five group centroids of 03_regional_averages, keys C1..C5 (C3 = C3o, C5 = C3f)
+    CENT_LABELS = [f"C{k}" for k in sorted(CLUSTER_LABELS)]
+    _SHOW = {f"C{k}": v for k, v in CLUSTER_SHORT.items()}   # display names
 
 
     # ── Helpers ────────────────────────────────────────────────────────────────
@@ -282,7 +285,7 @@ def main():
     from utils.report_numbers_utils import ReportNumbers
     rpt = ReportNumbers()
     rpt.add("c3_n_total", c3["n_total"], unit="wells", well="C3",
-            note="Full D-196 C3 cluster membership (02_07_cluster_membership_k5.csv).")
+            note="Full group-3 membership (C3o, the Western Dune's open wells; 02_cluster_stats.csv, D-348).")
     rpt.add("c3_n_testable", c3["n_with_drift"], unit="wells", well="C3",
             note="C3 wells with both Script 25 dist_coast_m and a fitted hydrograph "
                  "drift (model_delta_mm_yr not null) - the 'testable' set quoted in "
@@ -304,6 +307,7 @@ def main():
     print()
     print("─── Sanity checks (proportion staying in original cluster) ──────")
     for lab, ck in [("C2", c2), ("C4", c4), ("C5", c5)]:
+        lab = _SHOW.get(lab, lab)                    # D-348: C5 displays as C3f
         if ck["n_with_drift"]:
             pct = ck["stays_in_self"] / ck["n_with_drift"] * 100
             print(f"  {lab}: stays in {lab} = {ck['stays_in_self']}/{ck['n_with_drift']} ({pct:.0f}%)  "
@@ -374,7 +378,7 @@ After de-trending against the un-de-trended cluster centroids:
     for lab in CENT_LABELS:
         n = c3["moves"].get(lab, 0)
         pct = n / c3["n_with_drift"] * 100 if c3["n_with_drift"] else 0
-        memo += f"| **→ {lab}** | {n} | {pct:.0f}% |\n"
+        memo += f"| **→ {_SHOW.get(lab, lab)}** | {n} | {pct:.0f}% |\n"
 
     memo += f"""
 **Verdict.** {decision_text(c3['moves_to_C2'], c3['n_with_drift'])}
@@ -385,7 +389,7 @@ After de-trending against the un-de-trended cluster centroids:
 |---|---|---|---|
 | C2 | {c2['n_with_drift']} | {c2['stays_in_self']} | {(c2['stays_in_self']/c2['n_with_drift']*100) if c2['n_with_drift'] else 0:.0f}% |
 | C4 | {c4['n_with_drift']} | {c4['stays_in_self']} | {(c4['stays_in_self']/c4['n_with_drift']*100) if c4['n_with_drift'] else 0:.0f}% |
-| C5 | {c5['n_with_drift']} | {c5['stays_in_self']} | {(c5['stays_in_self']/c5['n_with_drift']*100) if c5['n_with_drift'] else 0:.0f}% |
+| C3f | {c5['n_with_drift']} | {c5['stays_in_self']} | {(c5['stays_in_self']/c5['n_with_drift']*100) if c5['n_with_drift'] else 0:.0f}% |
 
 A high C2 retention is required for the procedure to be valid (C2 wells should
 not be perturbed by a small δ(d) correction). Low C2 retention would indicate

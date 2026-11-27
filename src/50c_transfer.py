@@ -8,7 +8,7 @@ utils/reclen_common.py.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
+__version__ = "1.1.0"  # 2026-11-27 (D-348): E12b placement centroids from cluster-level members (every well still placed); diagram names C3o and C3f. Was "1.0.0"  # Hollingham (2026) - 2026-11-24 (J-15, T-208). Split from Script 50 1.30.0.
 
 import argparse
 import importlib.util
@@ -849,7 +849,11 @@ def place_wells(lev, lev_cols, master, length: int, side: str = "all") -> pd.Dat
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
     md = master.set_index("_n")
     cols = {k: lev_cols[k] for k in md.index if k in lev_cols}
-    members = {int(c): [cols[k] for k in md.index[md["Cluster"] == c] if k in cols]
+    # D-348: the centroids are built from each group's cluster-level members (boundary and set-aside wells out);
+    # every well is still placed against them.
+    from utils.cluster_series import in_cluster_level
+    _lv = in_cluster_level(md)
+    members = {int(c): [cols[k] for k in md.index[(md["Cluster"] == c) & _lv] if k in cols]
                for c in sorted(md["Cluster"].dropna().unique())}
     rows = []
     for k, col in cols.items():
@@ -1018,7 +1022,7 @@ def plot_decision_tree() -> None:
     def arrow(x0, y0, x1, y1, color=MUTED):
         ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
                     arrowprops=dict(arrowstyle="-|>", color=color, lw=0.8, shrinkA=0, shrinkB=0))
-    box(50, 93, 30, 6, "A well's record\n(clusters C1–C3 and C5)", weight="bold")
+    box(50, 93, 30, 6, "A well's record\n(groups C1, C2, C3o and C3f)", weight="bold")
     box(87, 93, 18, 6, "C4 Main Forest:\nstop", fc="#fdecea", ec=NO, color=NO, weight="bold")
     ax.text(87, 87.5, "drainage not identified;\nforecast fails (Section 5.2)", ha="center", va="top", fontsize=6.5, color=NO)
     arrow(66, 93, 76.5, 93, NO)

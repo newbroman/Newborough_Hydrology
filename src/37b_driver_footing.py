@@ -89,7 +89,7 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.11.0"  # 2026-11-27 (D-348): forest Sy weights count each forest group's cluster-level wells (C4, C3f); text names C3o and C3f; the open-dune residual reads Script 25's cluster-level partition. Was "1.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.10.0  # Hollingham (2026) - 2026-10-07. The residual row is named for what the
 #   decomposition now shows. Script 25 1.33.0 averages the capped coastal profile over each
 #   cluster's wells, so the open-dune residuals are C1 -10.4, C2 -14.6, C3 -0.5 mm/yr: the
@@ -399,20 +399,22 @@ def load_cluster_sy() -> dict:
 
 def representative_sy(cluster_sy: dict, roster: pd.DataFrame) -> dict:
     """Per-driver representative Sy (Sign-off #2): coast/scrape -> C3;
-    forest (clearfell/broadleaf) -> well-count-weighted mean of C4/C5,
-    weights read live from the well roster (never hardcoded 9/5)."""
+    forest (clearfell/broadleaf) -> well-count-weighted mean of C4/C3f (key 5),
+    weights read live from the well roster (never hardcoded 9/5). D-348: the weights count
+    each group's cluster-level wells, the wells its cluster Sy is taken over."""
     sy_coast = cluster_sy.get(3, np.nan)
-    n4 = int((roster["Cluster"] == 4).sum())
-    n5 = int((roster["Cluster"] == 5).sum())
+    _lv = roster[roster["In_Cluster_Level"]] if "In_Cluster_Level" in roster else roster
+    n4 = int((_lv["Cluster"] == 4).sum())
+    n5 = int((_lv["Cluster"] == 5).sum())
     sy4 = cluster_sy.get(4, np.nan)
     sy5 = cluster_sy.get(5, np.nan)
     if (n4 + n5) > 0:
         sy_forest = (n4 * sy4 + n5 * sy5) / (n4 + n5)
     else:
         sy_forest = float(np.nanmean([sy4, sy5]))
-    info(f"representative Sy: coast/scrape (C3) = {sy_coast:.3f}; "
-         f"forest (C4 n={n4} + C5 n={n5}, weighted) = {sy_forest:.3f}; "
-         f"climate (C3, per sign-off) = {sy_coast:.3f}")
+    info(f"representative Sy: coast/scrape (C3o) = {sy_coast:.3f}; "
+         f"forest (C4 n={n4} + C3f n={n5}, weighted) = {sy_forest:.3f}; "
+         f"climate (C3o, per sign-off) = {sy_coast:.3f}")
     return dict(coast=sy_coast, scrape=sy_coast, forest=sy_forest, climate=sy_coast)
 
 
@@ -427,7 +429,9 @@ def load_well_roster() -> pd.DataFrame:
     df = pd.read_csv(INT_MASTER_DATA)
     df = df.rename(columns={"Name_Original": "key", "Easting": "E", "Northing": "N"})
     df["key"] = df["key"].astype(str).str.strip().str.lower()
-    return df[["key", "E", "N", "Cluster"]].copy()
+    from utils.cluster_series import in_cluster_level   # D-348
+    df["In_Cluster_Level"] = in_cluster_level(df)
+    return df[["key", "E", "N", "Cluster", "In_Cluster_Level"]].copy()
 
 
 def compute_summer_baseline_m(well_keys: list) -> dict:
@@ -845,9 +849,9 @@ def write_results(df: pd.DataFrame, delta0, L_coast, clearfell_step_mm,
         f"  scrape on-site (CEH36 Pure_Scraping, observed): {scrape_onsite_mm:.1f} mm",
         f"  scrape off-site (modelled cone at the WMC3 distance): {scrape_offsite_mm:+.1f} mm",
         f"  drain-cone / forest λ (20_report_numbers): {lam:.1f} m",
-        f"  representative Sy: coast/scrape (C3) = {sy['coast']:.3f}; forest (C4/C5 weighted) = {sy['forest']:.3f}",
+        f"  representative Sy: coast/scrape (C3o) = {sy['coast']:.3f}; forest (C4/C3f weighted) = {sy['forest']:.3f}",
         f"  horizon: {int(_H_START)}\u2192{int(_H_END)} ({HORIZON_YEARS:.0f} yr)",
-        f"  well roster: {n_wells_roster} reference-network wells (canonical C1-C5 partition)",
+        f"  well roster: {n_wells_roster} reference-network wells (five cluster-level groups, D-348)",
         "",
         "COMPARISON TABLE",
         "-" * 74,

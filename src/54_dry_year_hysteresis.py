@@ -3,7 +3,7 @@
 54_dry_year_hysteresis.py — does a dry year prime the warren? The 2006-08 excess as hysteresis (E15)
 
 QUESTION
-  The water table of 2006-08 stood above the free-running climate model at C2-C5, and no forcing-side
+  The water table of 2006-08 stood above the free-running climate model at C2-C5 (k = 5; D-348 groups C2, C3o, C4, C3f), and no forcing-side
   cause tested so far accounts for it: a second store (E8), a dated change (E8b), a high-water
   threshold (E8c), long rain events (E8d), other evaporation estimates and a beta_1 break (E13).
   Wetter and more drawn-out winters later (2015/16, 2020/21) left no such lump. What still separates
@@ -44,7 +44,7 @@ Run directly:  python3 src/54_dry_year_hysteresis.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.1.1"  # 2026-11-26 (D-347 (5)): the residual fit keeps the full record, as E13 (Script 50e) does. Was "1.1.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The response model is Model B (fit_ssm
+__version__ = "1.2.0"  # 2026-11-27 (D-348): the member-mean centroids from cluster-level wells (boundary and set-aside out). Was "1.1.1"  # 2026-11-26 (D-347 (5)): the residual fit keeps the full record, as E13 (Script 50e) does. Was "1.1.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The response model is Model B (fit_ssm
 #   intercept=True, beta_3 bounded below, free run with its alpha): every e15_* key and 54_03/54_04/54_05 column keeps its
 #   name and now carries Model B. Model A (no intercept) runs beside it through the same rule: e15_*_model_a keys, rows
 #   with form="model_a" in 54_03/54_04, columns C*_model_a in 54_05. The E13 check reads Script 50's own per-form
@@ -127,9 +127,11 @@ def residuals(cl: pd.DataFrame, intercept: bool = True) -> tuple[pd.DataFrame, d
     md = pd.read_csv(INT_MASTER_DATA)
     md["_n"] = md["Name_Original"].astype(str).apply(normalize_well_name)
     md = md.set_index("_n")
+    from utils.cluster_series import in_cluster_level   # D-348: centroids from cluster-level members
+    _lv = in_cluster_level(md)
     out, fits = {}, {}
     for k in sorted(md["Cluster"].unique()):
-        h = W[[w for w in md.index[md["Cluster"] == k] if w in W]].mean(axis=1).loc[:clim.index[-1]]
+        h = W[[w for w in md.index[(md["Cluster"] == k) & _lv] if w in W]].mean(axis=1).loc[:clim.index[-1]]
         f = fit_ssm(h, clim, intercept=intercept, start=None)   # 1.1.1 (D-347 (5)): E13's full record
         s = pd.Series(simulate_ssm(h.dropna().mean(), clim["P_m"].values, clim["PET"].values,
                                    f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"],

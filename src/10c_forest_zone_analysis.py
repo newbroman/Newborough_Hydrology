@@ -4,22 +4,26 @@
 ====================================================================================
 Purpose:
     Investigates the spatial structure of SSM coefficients (β₁, β₂, β₃) within
-    the forest zone (C4 Main Forest + C5 Coastal Forest), testing whether the
-    C4/C5 partition reflects a genuine substrate/topographic transition or is
+    the forest zone (C4 Main Forest + C3f, the Western Dune's forest wells), testing whether the
+    C4/C3f partition reflects a genuine substrate/topographic transition or is
     arbitrary within a continuous gradient.
+
+    D-348 (2026-11-27): C3f is group 5 (the former cluster C5's five wells plus NW11). The comparison is per
+    well and uses every group-4 and group-5 well, boundary wells included (WMC3, set aside, is in neither).
+    The CSV columns keep their C5_* names: C5 means C3f (config.CLUSTER_LABELS).
 
     Four questions are addressed:
 
     1. Which spatial variable (elevation, distance from ridge crest, distance
        from coast) best predicts within-forest coefficient variation?
 
-    2. Do C4 and C5 form two distinct groups or a continuum in β₁–β₂ space?
+    2. Do C4 and C3f form two distinct groups or a continuum in β₁–β₂ space?
        Where do clearfell treatment wells sit in this space?
 
     3. Are NW10 (broadleaf, high β₁) and CEH14 (ridge flank, high β₂)
        positional outliers driven by ridge proximity rather than canopy type?
 
-    4. Does the C4/C5 boundary correspond to a physical substrate transition
+    4. Does the C4/C3f boundary correspond to a physical substrate transition
        (elevation contour, distance from ridge) or is it an arbitrary cut
        within a continuous gradient?
 
@@ -37,15 +41,15 @@ Ridge reference point (shared with Scripts 23, 24):
 Outputs:
     OUT_10C_CORRELATION_TABLE  — Pearson correlations, regression R² values and
                                  the leave-one-out (predicted) R²
-    OUT_10C_CLUSTER_SUMMARY    — C4 vs C5 summary statistics and t-test results
+    OUT_10C_CLUSTER_SUMMARY    — C4 vs C3f summary statistics and t-test results
     OUT_10C_B1_B2_SCATTER      — β₁ vs β₂ scatter coloured by cluster
     OUT_10C_B2_ELEV_REGRESSION — β₂ vs elevation regression with R² annotation
-    OUT_10C_BOUNDARY_MAP       — Spatial map of C4/C5 wells with elevation context
+    OUT_10C_BOUNDARY_MAP       — Spatial map of C4/C3f wells with elevation context
     OUT_10C_SUMMARY            — Plain-text interpretive summary
 ====================================================================================
 """
 
-__version__ = "1.3.1"  # Hollingham (2026) - 2026-10-01. The C4/C5 boundary map no longer asks for
+__version__ = "1.4.0"  # 2026-11-27 (D-348): C4 vs C5 becomes C4 vs C3f (group 5, every group-4 and group-5 well, NW11 included); titles, notes and summary text relabelled; C5_* column names kept (C5 = C3f). Was "1.3.1"  # Hollingham (2026) - 2026-10-01. The C4/C5 boundary map no longer asks for
 #     streams.kml (include_streams=True dropped): surface routing is kept only on figures that
 #     compare directly with groundwater flow (D-215; map_utils 1.10.0). Figure only.
 # 1.3.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
@@ -117,7 +121,7 @@ def write_report_numbers(forest, c4):
     _n4 = int((forest["Cluster_ID"] == 4).sum())
     _n5 = int((forest["Cluster_ID"] == 5).sum())
     rpt.add("forest_zone_n_wells", int(len(forest)), unit="wells",
-            note=f"wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 {_n4} + C5 {_n5})")
+            note=f"wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 {_n4} + C3f {_n5})")
     _r, _ = scipy_stats.pearsonr(forest["E"], forest["beta_1_recharge"])
     rpt.add("R2_easting_only", float(_r) ** 2, unit="", well="beta_1_recharge",
             note=(f"R2 of beta_1 on easting alone over the forest-zone wells (Pearson r squared, "
@@ -268,7 +272,7 @@ def compute_correlations(forest):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def compute_cluster_summary(c4, c5):
-    """Summary statistics and t-tests for C4 vs C5."""
+    """Summary statistics and t-tests for C4 vs C3f (columns C5_*: C5 = C3f, D-348)."""
 
     metrics = [
         ("dem", "Elevation_m"),
@@ -313,7 +317,7 @@ def plot_b1_b2_scatter(forest, clearfell, c3_boundary):
         c3_boundary["beta_2_atmospheric_draw"],
         c=CLUSTER_COLOURS[3], marker=CLUSTER_MARKERS[3],
         s=40, alpha=0.4, edgecolors="k", linewidths=0.3,
-        label="C3 (boundary wells)", zorder=2,
+        label="C3o (forest-adjacent wells)", zorder=2,   # D-348: group 3
     )
 
     # Clearfell wells
@@ -411,7 +415,7 @@ def plot_b2_elevation_regression(forest):
 
 
 def plot_boundary_map(forest, coeff):
-    """Spatial map of forest wells showing C4/C5 boundary (Question 4)."""
+    """Spatial map of forest wells showing the C4/C3f boundary (Question 4)."""
 
     fig, ax = plt.subplots(figsize=(8, 8))
 
@@ -460,7 +464,7 @@ def plot_boundary_map(forest, coeff):
 
     ax.set_xlabel("Easting (m)", fontsize=10)
     ax.set_ylabel("Northing (m)", fontsize=10)
-    ax.set_title("Forest zone wells — C4/C5 spatial separation\n(marker size ∝ β₂)", fontsize=11)
+    ax.set_title("Forest zone wells — C4/C3f spatial separation\n(marker size ∝ β₂)", fontsize=11)
     ax.legend(loc="upper left", fontsize=9, framealpha=0.9)
     ax.set_aspect("equal")
 
@@ -516,14 +520,14 @@ def write_summary(forest, c4, c5, corr_df, reg_df, summary_df,
     lines.append("-" * 40)
     b2_row = summary_df[summary_df["Metric"] == "β₂_atm_draw"].iloc[0]
     lines.append(f"   C4 β₂ = {b2_row['C4_mean']:.3f} ± {b2_row['C4_sd']:.3f}")
-    lines.append(f"   C5 β₂ = {b2_row['C5_mean']:.3f} ± {b2_row['C5_sd']:.3f}")
+    lines.append(f"   C3f β₂ = {b2_row['C5_mean']:.3f} ± {b2_row['C5_sd']:.3f}")
     lines.append(f"   t-test p = {b2_row['p_value']:.4f} — two distinct groups.")
     b1_row = summary_df[summary_df["Metric"] == "β₁_recharge"].iloc[0]
     lines.append(f"   β₁ t-test p = {b1_row['p_value']:.4f} — ranges overlap (not distinguishing).")
     if len(clearfell) > 0:
         cf = clearfell.iloc[0]
         lines.append(f"   WMC3 (clearfell): β₁ = {cf['beta_1_recharge']:.3f}, "
-                     f"β₂ = {cf['beta_2_atmospheric_draw']:.3f} — sits between C4 and C5.")
+                     f"β₂ = {cf['beta_2_atmospheric_draw']:.3f} — sits between C4 and C3f.")
     lines.append("")
 
     # Q3
@@ -545,16 +549,16 @@ def write_summary(forest, c4, c5, corr_df, reg_df, summary_df,
     lines.append("")
 
     # Q4
-    lines.append("4. C4/C5 BOUNDARY")
+    lines.append("4. C4/C3f BOUNDARY")
     lines.append("-" * 40)
     lines.append(f"   C4 elevation: {c4['dem'].min():.1f}–{c4['dem'].max():.1f} m "
                  f"(n = {len(c4)})")
-    lines.append(f"   C5 elevation: {c5['dem'].min():.1f}–{c5['dem'].max():.1f} m "
+    lines.append(f"   C3f elevation: {c5['dem'].min():.1f}–{c5['dem'].max():.1f} m "
                  f"(n = {len(c5)})")
     gap = c4["dem"].min() - c5["dem"].max()
     lines.append(f"   Elevation gap: {gap:.1f} m (zero overlap).")
     lines.append(f"   C4 Northing: {c4['N'].min():.0f}–{c4['N'].max():.0f}")
-    lines.append(f"   C5 Northing: {c5['N'].min():.0f}–{c5['N'].max():.0f}")
+    lines.append(f"   C3f Northing: {c5['N'].min():.0f}–{c5['N'].max():.0f}")
     lines.append("   Conclusion: boundary reflects a real topographic/substrate")
     lines.append("   transition (dune ridge → coastal plain), not an arbitrary cut.")
 
@@ -586,7 +590,7 @@ def main():
 
     # Load
     coeff, forest, c4, c5, clearfell, c3_boundary, pear_forest = load_data()
-    print(f"  Forest wells: {len(forest)} (C4 = {len(c4)}, C5 = {len(c5)})")
+    print(f"  Forest wells: {len(forest)} (C4 = {len(c4)}, C3f = {len(c5)})")
     print(f"  Clearfell wells in dataset: {len(clearfell)}")
     print(f"  C3 boundary wells: {len(c3_boundary)}")
 

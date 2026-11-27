@@ -105,7 +105,7 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.36.1"  # Hollingham (2026) — 2026-11-26 (D-347): C3's label is "C3 (Western Dune)".
+__version__ = "1.37.0"  # 2026-11-27 (D-348): cluster MSL5, MAX5 and rolling-minimum trajectories, the MSL5-MIN5 cluster pairs and the metric-diagnostic rollup from cluster-level wells (boundary and set-aside reference wells out); EWI open-dune scope by FOREST_CIDS with WMC3 set aside; Method B labels from CLUSTER_LABELS. Was "1.36.1"  # Hollingham (2026) — 2026-11-26 (D-347): C3's label is "C3 (Western Dune)".
 # 1.36.0  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
 #   questions"). The full EWI standard error (EWI_se_m_full, ewi_se_mm_full) carries the alpha-beta_3 covariance,
 #   cov = corr_alpha_beta_3 * se_alpha * se_beta_3 (reference wells: Script 03 1.32.0's corr_alpha_beta_3; extended wells:
@@ -614,8 +614,8 @@ def attach_cluster_ids(per_well: pd.DataFrame,
                             `Match_ID`). This is the same source Script 03
                             inherits into 03_master_data.csv, so cluster IDs
                             match every downstream script on the project's
-                            canonical 1→C1 Lake Edge ... 5→C5 Coastal Forest
-                            ordering.
+                            canonical 1→C1 Lake Edge ... 5→C3f ordering (D-348: five
+                            cluster-level groups; group 5 = C3f, Western Dune forest).
       * Extended network  → 06_pear_membership_audit_sitewide.csv
                             (column `Best_Match_Cluster`; the consumer-of-
                             record. The Pearson audit also keys against
@@ -672,6 +672,16 @@ def attach_cluster_ids(per_well: pd.DataFrame,
     return df.drop(columns=["cluster_id_ref", "cluster_id_ext", "Network"])
 
 
+def _cluster_level_rows(df: pd.DataFrame, col: str = "well") -> pd.DataFrame:
+    """D-348: the rows a cluster-level quantity uses - every well except the reference wells Script 02 holds out
+    of cluster level (In_Cluster_Level false: the boundary wells and the set-aside WMC3). Extended wells, which
+    Script 02 does not classify, stay as before. Per-well outputs keep every row."""
+    from utils.cluster_series import in_cluster_level
+    cs = pd.read_csv(paths.INT_CLUSTER_STATS)
+    off = set(cs.loc[~in_cluster_level(cs), "Match_ID"].astype(str).str.strip().str.lower().str.replace(" ", ""))
+    return df[~df[col].astype(str).str.strip().str.lower().str.replace(" ", "").isin(off)]
+
+
 # ── Pass 3c: Curreli annual-minimum series (D-190) ───────────────────────────
 def rolling_min(annual: pd.DataFrame, windows: tuple[int, ...]) -> pd.DataFrame:
     """Rolling mean of the annual minimum per well, one block per window length.
@@ -714,7 +724,7 @@ def _fe_by_group(df: pd.DataFrame, keys: list, value: str) -> pd.Series:
 def cluster_min_trajectory(per_well_min_with_cluster: pd.DataFrame) -> pd.DataFrame:
     """Cluster rolling annual minimum per (cluster, window_years, end). MINw_m_bg_mean is the
     fixed-effects value (D-202); MINw_m_bg_plain_mean the plain mean of the wells reporting."""
-    d = per_well_min_with_cluster.dropna(subset=["cluster_id"])
+    d = _cluster_level_rows(per_well_min_with_cluster.dropna(subset=["cluster_id"]))   # D-348
     g = d.groupby(["cluster_id", "window_years", "window_end_year"])
     out = g.agg(
         cluster_label=("cluster_label", "first"),
@@ -794,7 +804,7 @@ def msl5_vs_min5(annual: pd.DataFrame, per_well_msl5: pd.DataFrame,
     }
     rows = []
     if len(j):
-        jc = j.dropna(subset=["cluster_id"]).copy()
+        jc = _cluster_level_rows(j.dropna(subset=["cluster_id"])).copy()   # D-348: cluster-level wells
         jc["cluster_id"] = jc["cluster_id"].astype(int)
         common_end = int(jc.groupby("cluster_id")["window_end_year"].max().min())
         latest = jc[jc["window_end_year"] == common_end]
@@ -813,6 +823,7 @@ def msl5_vs_min5(annual: pd.DataFrame, per_well_msl5: pd.DataFrame,
 
 
 def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
+    per_well_with_cluster = _cluster_level_rows(per_well_with_cluster)   # D-348: cluster-level wells
     g = per_well_with_cluster.dropna(subset=["cluster_id"]).groupby(
         ["cluster_id", "window_end_year"]
     )
@@ -844,7 +855,7 @@ def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
 #
 # The two methods give *different* numbers (sometimes by >0.3 m) because they
 # describe different network compositions:
-#   - Method A: extended cluster, ~25 wells in C5
+#   - Method A: extended cluster, ~25 wells in C5 (k = 5 count; D-348: group 5 = C3f)
 #   - Method B: reference cluster, ~5 wells in C5
 #
 # Both are valid; they answer different questions. Method A is the headline
@@ -881,13 +892,9 @@ def cluster_centroid_trajectory(
         reg["month"] >= MSL_HYDRO_YEAR_START_MONTH
     ).astype(int)
 
-    block_map = {
-        1: ("Lake_Edge",      "C1 (Lake Edge)"),
-        2: ("Eastern_Block",  "C2 (Dune)"),
-        3: ("Western_Block",  "C3 (Western Dune)"),        # D-347: was Western Residual
-        4: ("Forest",         "C4 (Main Forest)"),
-        5: ("Coastal_Forest", "C5 (Coastal Forest)"),
-    }
+    _cols = {1: "Lake_Edge", 2: "Eastern_Block", 3: "Western_Block", 4: "Forest", 5: "Coastal_Forest"}
+    # D-348: labels from config.CLUSTER_LABELS (C3o, C3f); the column names are Script 03's BLOCK_MAP aliases
+    block_map = {cid: (_cols[cid], config.CLUSTER_LABELS[cid]) for cid in config.CLUSTER_LABELS if cid in _cols}
 
     out_rows = []
     for cid, (col, label) in block_map.items():
@@ -1631,9 +1638,14 @@ def compute_ewi_msl5_comparison(ewi: pd.DataFrame,
 
     # Open-dune scope: EWI-predicted MSL5 is calibrated and reported as an
     # open-dune metric (C1–C3), mirroring MSL5's own open-dune framing (§4.8.4).
-    # C4/C5 forest wells are predicted but flagged out-of-scope — the coefficients
+    # C4/C3f forest wells are predicted but flagged out-of-scope — the coefficients
     # are least constrained there (§4.9.2) and predictions degrade badly.
-    comp["open_dune_scope"] = comp["cluster_id"].isin([1, 2, 3])
+    # D-348: open = the groups outside FOREST_CIDS (C1, C2, C3o), as [1, 2, 3] was; the set-aside
+    # WMC3 (2017 clearfell, in no land-cover group) is out of the open-dune scope.
+    comp["open_dune_scope"] = (comp["cluster_id"].notna()
+                               & ~comp["cluster_id"].isin(config.FOREST_CIDS)
+                               & ~comp["well"].astype(str).str.strip().str.lower()
+                                   .isin(set(config.LANDCOVER_SET_ASIDE_WELLS)))
 
     cal = comp[(comp["open_dune_scope"])].dropna(subset=["EWI_m_bg", "MSL5_m_bg"])
     if len(cal) < 3:
@@ -2138,6 +2150,7 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
     out = []
     for scope in ("reference", "all"):
         sub = diag if scope == "all" else diag[diag["network"] == "reference"]
+        sub = _cluster_level_rows(sub)                  # D-348: the rollup over cluster-level wells
         for cid, g in sub.groupby("cluster_id", dropna=True):
             gs = g.dropna(subset=["spring_sd_mm"])
             out.append(dict(
@@ -2346,7 +2359,7 @@ def emit_supplementary_table_s7_1(ewi: pd.DataFrame, comp: pd.DataFrame,
     network (C1–C3, reference and extended). Of the 64 open-dune wells carrying
     an index, 62 also carry an observed MSL5 and set the calibration; the other
     two lack a valid five-year spring window and are reconstructed only. The 20
-    C4/C5 forest wells are reconstructed but held out of scope — their
+    C4/C3f forest wells are reconstructed but held out of scope — their
     coefficients are the least constrained on the site and the estimate is too
     coarse to place a well across a Curreli threshold. All 84 appear in the
     table, because the scoping is only visible if the out-of-scope wells are
@@ -2446,7 +2459,7 @@ def emit_supplementary_table_s7_1(ewi: pd.DataFrame, comp: pd.DataFrame,
         f"{n_cal} in-scope wells carrying an observed five-year mean spring "
         f"level. A further {n_rec} open-dune well(s) carry an index but no "
         f"valid five-year spring window and are reconstructed only; the "
-        f"{n_out} C4/C5 forest wells are reconstructed but held out of scope, "
+        f"{n_out} C4/C3f forest wells (and the set-aside clearfell well) are reconstructed but held out of scope, "
         f"their coefficients being the least constrained on the site. Status "
         f"reads: '{STATUS_CALIBRATION}', an in-scope well that entered the fit; "
         f"'{STATUS_RECONSTRUCTED}', in scope but with no observed spring level; "
@@ -2992,7 +3005,7 @@ def main() -> int:
             })
             forest = comp[~comp["open_dune_scope"]].dropna(subset=["residual_mm"])
             if len(forest):
-                info(f"  out-of-scope forest (C4/C5): n={len(forest)}, "
+                info(f"  out-of-scope forest (C4/C3f, and the set-aside WMC3): n={len(forest)}, "
                      f"RMSE {np.sqrt((forest['residual_mm']**2).mean()):.0f} mm "
                      f"(predicted but flagged unreliable)")
                 # T-91: committed trace for report §4.8.4 / Methods Supplement

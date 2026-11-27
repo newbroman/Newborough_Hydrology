@@ -16,7 +16,7 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). Emit-only: 01_report_numbers.csv gains the
+__version__ = "1.31.0"  # 2026-11-27 (D-348): the record-coverage strip iterates over CLUSTER_LABELS (the five groups), not range(1, 6); no value change. Was "1.30.0"  # Hollingham (2026) - 2026-11-23 (J-31 follow-up). Emit-only: 01_report_numbers.csv gains the
 #   intervention and era dates as ISO rows - scraping_month, rescraping_month (SCRAPING_DATE_ISO, _2_ISO),
 #   scraping_era_last_month (the month before CLEARFELL_DATE_ISO), clearfell_era_split (CLEARFELL_ERA_SPLIT),
 #   clearfell_early_era_last_month (the month before it) - and cwb_detrend_start / _end (DETREND_START / _END).
@@ -773,7 +773,7 @@ def _render_coverage_figure(wells_scope, states):
                 else pd.NaT)
 
     rows = []   # (kind, key, cluster, label)
-    for cl in range(1, 6):
+    for cl in sorted(CLUSTER_LABELS):   # D-348: the five groups
         refs = sorted([colmap[w] for w in ref_cluster
                        if ref_cluster[w] == cl and w in colmap], key=first)
         for col in refs:

@@ -87,7 +87,7 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
+__version__ = "1.16.0"  # 2026-11-27 (D-348): cluster member-mean summer-minimum series and the fallback cluster beta means from cluster-level wells; forest groups from FOREST_CIDS (levels stay at C3f, group 5, where beta_3 is identified); figure groups and text name C3o and C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
 #   sensitivity", thinning "at most half"). The clearfell is rebuilt on the observed BACI step: its headline is the
 #   10a step at the felled well by season (clearfell_anchor_step_m*), drawn on the C4 hydrograph as a benchmark and
 #   not carried to C4 (beta_3 not identified); its flux sensitivity returns a share f of the interception
@@ -184,7 +184,7 @@ from utils.paths import (
 from utils.config import (
     THINNING_FRACTION,
     SUMMER_MINIMUM_MONTHS, WINTER_RECHARGE_MONTHS, BROADLEAF_B2_MONTHLY_MULT,
-    CLUSTER_LABELS,
+    CLUSTER_LABELS, FOREST_CIDS,
     BW_MODE, FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
     REFERENCE_CUTOFF_DATE, CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS, SD15b,
     SD16, SD16_REC,
@@ -335,13 +335,21 @@ def get_maod(w, df, dates, well_names, elev):
     return g.values[0] + raw
 
 
+def _cluster_level_master(master):
+    """D-348: the master rows a cluster-level quantity uses (In_Cluster_Level; boundary and set-aside out)."""
+    from utils.cluster_series import in_cluster_level
+    return master[in_cluster_level(master)]
+
+
 def cluster_summer_mins(cl, master, df, dates, well_names, elev,
                         pre_post="all"):
     """
     Return array of annual summer minimum depths below ground for a cluster.
     pre_post: 'all', 'pre' (before FELLING_DATE), 'post' (after).
+    D-348: the cluster's member-mean series over its cluster-level wells.
     """
-    wells = master[master["Cluster"] == cl]["well"].tolist()
+    _m = _cluster_level_master(master)
+    wells = _m[_m["Cluster"] == cl]["well"].tolist()
     well_depths = []
     for w in wells:
         maod_s = get_maod(w, df, dates, well_names, elev)
@@ -374,7 +382,7 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
 
 def build_scenarios(master, climate, cluster="C4", frac=None):
     """Build scenario monthly head perturbations for a forest cluster (C4 by
-    default — the hydrograph figure; C5 for the report numbers).
+    default — the hydrograph figure; C5 = C3f, D-348, for the report numbers).
 
     Reads β coefficients from pipeline_scenario_params.csv (single source
     of truth) with fallback to 03_master_data.csv for backward compatibility.
@@ -382,6 +390,7 @@ def build_scenarios(master, climate, cluster="C4", frac=None):
     only stores summer means).
     """
     cid = int(cluster[1])
+    master = _cluster_level_master(master)   # D-348: the fallback cluster mean over cluster-level wells
     # ── β coefficients: prefer pipeline params ────────────────────────────
     try:
         from utils.pipeline_params import load_params
@@ -434,7 +443,7 @@ def build_scenarios(master, climate, cluster="C4", frac=None):
 def emit_scenario_report_numbers(master, climate, hydro_separations=None):
     """
     The scenario numbers the report quotes (§4.13.2, the abstract, Conclusion 7),
-    with a committed source at last: for each scenario × forest cluster (C4, C5)
+    with a committed source at last: for each scenario × forest group (C4, C3f = key C5)
     × season, the mean monthly head perturbation (m, positive = shallower) and
     its water-equivalent (mm/month = head × Sy × 1000, the cluster's
     pipeline-params Sy). Seasons: annual (all twelve months), winter
@@ -478,7 +487,7 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
              "Broadleaf conversion": "broadleaf"}
     print("  Scenario head shifts and water-equivalents (mean monthly, m / mm w.e. per month):")
     we = {}   # (cluster, scenario key, season) -> mm, for the C5:C4 broadleaf ratio (T-96)
-    for cluster in ("C4", "C5"):
+    for cluster in [f"C{c}" for c in FOREST_CIDS]:   # C4 and C5 (D-348: C5 = C3f, where beta_3 is identified)
         sy = float(params["clusters"][cluster]["Sy"])
         label = CLUSTER_LABELS.get(int(cluster[1]), cluster)
         rpt.add("scenario_sy_used", sy, unit="-", well=label,
@@ -674,7 +683,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         f"Oct-Mar {_fmt_step(CF_STEP['winter'][0])}, Jun-Sep {_fmt_step(CF_STEP['summer'][0])}, drawn on the observed C4 cycle. It is\n"
         "measured at the scale of the 4.2 ha compartment; thinning is at most half of it.\n"
         "No scenario is carried to a C4 level: its drainage coefficient is not identified\n"
-        "(broadleaf and the flux sensitivities are given at C5).\n"
+        "(broadleaf and the flux sensitivities are given at C3f).\n"
         "C1 and C2 unaffected by any forest management scenario.",
         xy=(0.02, 0.03), xycoords="axes fraction", fontsize=7.0,
         color="dimgrey",
@@ -909,7 +918,8 @@ def _wells_summer_mins(well_list, df, dates, well_names, elev,
 
 def _cluster_summer_mins_21(cl, df, dates, well_names, elev,
                              master, start=None, end=None):
-    wells = master[master["Cluster"] == cl]["well"].tolist()
+    _m = _cluster_level_master(master)   # D-348: cluster-level wells
+    wells = _m[_m["Cluster"] == cl]["well"].tolist()
     return _wells_summer_mins(wells, df, dates, well_names, elev,
                                master, start, end)
 
@@ -917,8 +927,8 @@ def _cluster_summer_mins_21(cl, df, dates, well_names, elev,
 def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     """
     Five-group three-phase violin/strip plot of observed annual summer
-    minimum depths. Groups in spatial order: C1, C2, C3, C5, C4.
-    C4 and C5 are both forested (Corsican pine); C4 is plotted last
+    minimum depths. Groups in spatial order: C1, C2, C3o, C3f, C4 (D-348).
+    C4 and C3f are both forested (Corsican pine); C4 is plotted last
     as it is typically the deepest. Three phases: pre-scrape (2005–14),
     scraping era (2015–17), post-felling (2018+). Pure observational —
     no modelling.
@@ -938,11 +948,11 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
          CONFIG_CLUSTER_COLOURS[2],
          lambda s, e: _cluster_summer_mins_21(2, df, dates, well_names,
                                                elev, master, s, e)),
-        ("C3\nWarren\ninterior",
+        ("C3o\nWestern Dune\nopen",
          CONFIG_CLUSTER_COLOURS[3],
          lambda s, e: _cluster_summer_mins_21(3, df, dates, well_names,
                                                elev, master, s, e)),
-        ("C5\nCoastal\nforest",
+        ("C3f\nWestern Dune\nforest",
          CONFIG_CLUSTER_COLOURS[5],
          lambda s, e: _cluster_summer_mins_21(5, df, dates, well_names,
                                                elev, master, s, e)),
@@ -1049,11 +1059,11 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
                 fontweight="bold", color=base_col,
                 multialignment="center")
 
-    # Forest cluster bracket — C5 + C4 together
+    # Forest group bracket — C3f + C4 together
     ax.annotate("", xy=(7.84, 3.18), xytext=(5.36, 3.18),
                 arrowprops=dict(arrowstyle="|-|", color="#555555",
                                 lw=1.5, mutation_scale=4))
-    ax.text(6.60, 3.23, "Forest clusters (Corsican pine canopy)",
+    ax.text(6.60, 3.23, "Forest groups (Corsican pine canopy)",
             ha="center", fontsize=7.5, color="#555555", style="italic")
 
     # Phase labels — below C3 bracket, under each group
@@ -1933,9 +1943,10 @@ def plot_scenario_comparison(master, climate, dpi=300):
     from utils.scraping_common import compute_scenario_bars_from_params
     scenario_values, _, _, _ = compute_scenario_bars_from_params()
 
-    clusters = ["C1", "C2", "C3", "C4", "C5"]
-    cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",
-                      "C4\nMain\nForest", "C5\nCoastal\nForest"]
+    clusters = [f"C{c}" for c in CLUSTER_LABELS]   # D-348: the five groups, key C5 = C3f
+    _ticks = {"C1": "C1\nLake Edge", "C2": "C2\nDune", "C3": "C3o\nWestern Dune\nopen",
+              "C4": "C4\nMain\nForest", "C5": "C3f\nWestern Dune\nforest"}
+    cluster_labels = [_ticks.get(c, c) for c in clusters]
 
     colour_map = {
         "Clearfell": "#8B4513", "Thinning 50%": "#D2691E",

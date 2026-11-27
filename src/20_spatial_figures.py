@@ -103,12 +103,12 @@ Dependencies
 References
 ----------
   Betson et al. (2002) — hydraulic conductivity K (config.DRAWDOWN_K_MDAY)
-  Freeman (2008) — canopy interception for the C4/C5 forest clusters
+  Freeman (2008) — canopy interception for the C4/C3f forest groups
                    (config.FOREST_INTERCEPTION, applied to config.FOREST_CIDS)
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
+__version__ = "1.68.0"  # 2026-11-27 (D-348): comments and docstrings name C3f and C3o; no code change. Was "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
 #   inferred CEH36 cut depth divides by CEH36's own Sy (0.366) instead of the C3 median (0.298): 0.43 -> 0.35 m. CEH36's
 #   own S_a x beta_1 is 0.89, so the C3 surplus (T-215) gives no reason to lower it. New key scrape_sy_ceh36; the C3
 #   median stays for lambda. Moves one published number (scrape_inferred_cut_depth_m).
@@ -804,7 +804,7 @@ def build_well_table(data):
     # interception twice. Per INTERCEPTION_TREATMENT.md, interception is a
     # PARTITION of the atmospheric energy budget, not a term additive to it:
     # because Script 03 fits the SSM on gross rainfall and above-canopy
-    # Thornthwaite PET, the interception loss at C4/C5 is ALREADY carried
+    # Thornthwaite PET, the interception loss at C4/C3f is ALREADY carried
     # inside the fitted β₂·PET̄. Applying (1 − FOREST_INTERCEPTION) to P̄ as
     # well inserted a spurious +β₁·FOREST_INTERCEPTION·P̄ at the forest
     # clusters — larger than the entire forest-versus-open contrast the
@@ -3082,7 +3082,7 @@ def plot_coastal_net_effect(wt, features, dpi=300):
 
     The figure's purpose is to show the SPATIAL PARTITION: a narrow
     erosion-dominated band along the dune-toe margin (where the confounded
-    C5 / western-C3 wells sit), flanked by SLR-dominated rise at the immediate
+    C3f / C3o western dune wells sit), flanked by SLR-dominated rise at the immediate
     shore and near-neutral conditions inland. It motivates — and does not
     undermine — the BACI easting × time correction (see §5).
 

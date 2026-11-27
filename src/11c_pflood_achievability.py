@@ -5,7 +5,7 @@ P_flood-based scrape-target identification.
 Routed from the 2026-05-29 main-report editorial review (gap C in the
 post-review priorities list). Main report §7 Conclusion 6 reads:
 
-    "Priority targets are the C1/C2/C3 transitional wells where the
+    "Priority targets are the C1/C2/C3o transitional wells where the
      aquifer base is stable and P_flood thresholds remain achievable
      (rainfall multiplier m_P < 1.5)."
 
@@ -38,7 +38,7 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.8.1"  # Hollingham (2026) — 2026-11-26 (D-347): the figure text names C3 Western Dune.
+__version__ = "1.9.0"  # 2026-11-27 (D-348): open/forest zone tallies from FOREST_CIDS (open = C1, C2, C3o; forest = C4, C3f) with the set-aside well left out, no KeyError on a missing group; memo text names C3o and C3f. Was "1.8.1"  # Hollingham (2026) — 2026-11-26 (D-347): the figure text names C3 Western Dune.
 # 1.8.0  # Hollingham (2026) - 2026-10-06. T-96: emits the summer-minimum depth range
 #   (depth_bg min / max) of the wells in each category, which report10 quotes for the Unreachable wells. Emit-only.
 # 1.7.0  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The class edges are now
@@ -93,6 +93,7 @@ def main():
         SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
         SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
         MP_ACHIEVABLE_MAX, MP_MARGINAL_MAX,
+        CLUSTER_LABELS, CLUSTER_SHORT, FOREST_CIDS, LANDCOVER_SET_ASIDE_WELLS,
     )
     from utils.render_utils import render_figure
     from utils.report_numbers_utils import ReportNumbers
@@ -156,6 +157,14 @@ def main():
     print("─── Totals ──────────────────────────────────────────────────────")
     total_counts = df["category"].value_counts().reindex(["Achievable", "Marginal", "Unreachable"], fill_value=0)
     print(total_counts.to_string())
+    # D-348: the open (groups 1-3) and forest (FOREST_CIDS: C4, C3f) zone tallies of the memo. A set-aside
+    # well (WMC3, the 2017 clearfell) is in no land-cover group, so it is left out of both; the per-cluster
+    # table above keeps every well.
+    _zone_df = df[~df["well"].astype(str).str.strip().str.lower().isin(set(LANDCOVER_SET_ASIDE_WELLS))]
+    zone_counts = pd.crosstab(_zone_df["cluster"], _zone_df["category"]).reindex(
+        index=sorted(CLUSTER_LABELS), columns=["Achievable", "Marginal", "Unreachable"], fill_value=0)
+    _OPEN = [c for c in sorted(CLUSTER_LABELS) if c not in FOREST_CIDS]
+    _FOREST = [c for c in sorted(CLUSTER_LABELS) if c in FOREST_CIDS]
 
     # Save the augmented per-well CSV
     df_out = df[["well", "E", "N", "cluster", "network", "depth_bg",
@@ -302,7 +311,7 @@ def main():
         row = counts.loc[cl]
         total = row.sum()
         memo_lines.append(
-            f"| C{cl} | {row.get('Achievable', 0)} | {row.get('Marginal', 0)} | {row.get('Unreachable', 0)} | {total} |"
+            f"| {CLUSTER_SHORT.get(int(cl), f'C{cl}')} | {row.get('Achievable', 0)} | {row.get('Marginal', 0)} | {row.get('Unreachable', 0)} | {total} |"
         )
     total = counts.sum().sum()
     memo_lines.append(
@@ -313,21 +322,21 @@ def main():
         "",
         "## Reading",
         "",
-        f"- **Open dune zone (C1, C2, C3): {counts.loc[[1,2,3], 'Achievable'].sum()} of {counts.loc[[1,2,3]].sum().sum()} wells achievable**, "
-        f"with the remaining {counts.loc[[1,2,3], 'Marginal'].sum()} marginal — none unreachable. "
+        f"- **Open dune zone (C1, C2, C3o): {zone_counts.loc[_OPEN, 'Achievable'].sum()} of {zone_counts.loc[_OPEN].sum().sum()} wells achievable**, "
+        f"with the remaining {zone_counts.loc[_OPEN, 'Marginal'].sum()} marginal — none unreachable. "
         "This is the operational domain Conclusion 6 identifies for scrape targeting.",
-        f"- **Forest zone (C4, C5): {counts.loc[[4,5], 'Achievable'].sum()} of {counts.loc[[4,5]].sum().sum()} wells achievable**, "
-        f"with {counts.loc[[4,5], 'Marginal'].sum()} marginal and {counts.loc[[4,5], 'Unreachable'].sum()} unreachable. "
+        f"- **Forest zone (C4, C3f): {zone_counts.loc[_FOREST, 'Achievable'].sum()} of {zone_counts.loc[_FOREST].sum().sum()} wells achievable**, "
+        f"with {zone_counts.loc[_FOREST, 'Marginal'].sum()} marginal and {zone_counts.loc[_FOREST, 'Unreachable'].sum()} unreachable. "
         f"Most forest wells require more than mildly-wet winters; "
-        f"the unreachable wells split {counts.loc[5, 'Unreachable']} in C5 Coastal Forest and "
-        f"{counts.loc[4, 'Unreachable']} in C4 Main Forest.",
+        f"the unreachable wells split {zone_counts.loc[5, 'Unreachable']} in C3f (Western Dune, forest) and "
+        f"{zone_counts.loc[4, 'Unreachable']} in C4 Main Forest.",
         "",
-        "The cluster pattern reflects the underlying mechanism. The open dune clusters",
-        "(C1 Lake Edge, C2 Dune, C3 Western Dune) sit on the shallow-substrate or",
+        "The cluster pattern reflects the underlying mechanism. The open dune groups",
+        "(C1 Lake Edge, C2 Dune, C3o Western Dune, open) sit on the shallow-substrate or",
         "deep-sponge aquifer parcels where summer minima respond to winter recharge",
-        "with high efficiency (β₁ in the 2.5–4.6 range). The forest clusters (C4 Main",
-        "Forest, C5 Coastal Forest) carry canopy interception losses and lower β₁",
-        "(1.32–2.55), and C5 additionally carries the coastal-retreat gradient (Section",
+        "with high efficiency (β₁ in the 2.5–4.6 range). The forest groups (C4 Main",
+        "Forest, C3f Western Dune forest) carry canopy interception losses and lower β₁",
+        "(1.32–2.55), and C3f additionally carries the coastal-retreat gradient (Section",
         "4.8.1), pushing its summer-minimum baseline progressively further below the",
         "Curreli thresholds and increasing the rainfall multiplier required to recover.",
         "",
@@ -349,22 +358,22 @@ def main():
         return items[0] if len(items) == 1 else (", ".join(items[:-1]) + " and " + items[-1])
     _parts = []
     if _c5_wells:
-        _parts.append(f"{len(_c5_wells)} in C5 Coastal Forest ({_join(_c5_wells)})")
+        _parts.append(f"{len(_c5_wells)} in C3f (Western Dune, forest) ({_join(_c5_wells)})")
     if _c4_wells:
         _parts.append(f"{len(_c4_wells)} in C4 Main Forest ({_join(_c4_wells)})")
     _unr_split = " and ".join(_parts) if _parts else "none"
 
     memo_lines += [
         "> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 6. Of "
-        + f"{counts.loc[[1,2,3], 'Achievable'].sum()} wells across the open-dune clusters C1, C2 and C3, "
-        + f"all but {counts.loc[[1,2,3], 'Marginal'].sum()} are in the achievable category (m_P < 1.5); none are unreachable. "
-        + f"By contrast, of the {counts.loc[[4,5]].sum().sum()} forest-zone wells in C4 and C5, only {counts.loc[[4,5], 'Achievable'].sum()} sit in the achievable band and "
-        + f"{counts.loc[[4,5], 'Unreachable'].sum()} are in the unreachable band (m_P ≥ 2.5): {_unr_split}. The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = "
-        + f"{counts.loc[[1,2,3], 'Marginal'].sum()}) define the upper edge of the operational envelope under current climate.*",
+        + f"{zone_counts.loc[_OPEN, 'Achievable'].sum()} wells across the open-dune groups C1, C2 and C3o, "
+        + f"all but {zone_counts.loc[_OPEN, 'Marginal'].sum()} are in the achievable category (m_P < 1.5); none are unreachable. "
+        + f"By contrast, of the {zone_counts.loc[_FOREST].sum().sum()} forest-zone wells in C4 and C3f, only {zone_counts.loc[_FOREST, 'Achievable'].sum()} sit in the achievable band and "
+        + f"{zone_counts.loc[_FOREST, 'Unreachable'].sum()} are in the unreachable band (m_P ≥ 2.5): {_unr_split}. The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = "
+        + f"{zone_counts.loc[_OPEN, 'Marginal'].sum()}) define the upper edge of the operational envelope under current climate.*",
         "",
         "## Suggested figure caption",
         "",
-        "> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3 dominated by achievable; forest C4/C5 dominated by marginal-to-unreachable) operationalises Conclusion 6's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*",
+        "> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3o dominated by achievable; forest C4/C3f dominated by marginal-to-unreachable) operationalises Conclusion 6's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*",
         "",
         "## Caveats",
         "",

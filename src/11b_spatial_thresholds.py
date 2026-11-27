@@ -76,7 +76,7 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B thresholds: 03_03 and
+__version__ = "1.26.0"  # 2026-11-27 (D-348): the per-cluster P_flood summary (11b_06: medians, m_P) from cluster-level wells (boundary and set-aside out); Coastal_Forest block commented as C3f. Was "1.25.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B thresholds: 03_03 and
 #   03_master_data carry Model B (free intercept alpha), so every per-well and per-cluster P_flood runs pflood_lambda at
 #   the implied datum z = DRAINAGE_DATUM - alpha/beta_3 (implied_datum_m, per well from 03_master_data, per cluster from
 #   03_03), where Model B is exactly Model A. A well (or fallback cluster) whose z is not below ground is left out of the
@@ -1353,7 +1353,14 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     # the config renders dp/thousands.
     _pfs = pd.read_csv(OUT_11_PFLOOD_SUMMARY)
     _pclim = {int(str(c)[1:]): p for c, p in zip(_pfs["Cluster"], _pfs["P_clim_mm"])}
-    _pf_summary = (pf.groupby("cluster")["pflood_mm"]
+    # D-348: a cluster-level summary - the boundary and set-aside wells (In_Cluster_Level false in
+    # 03_master_data) are left out; extended wells, which Script 02 does not classify, stay as before.
+    from utils.cluster_series import in_cluster_level
+    _md = pd.read_csv(INT_MASTER_DATA)
+    _off = set(_md.loc[~in_cluster_level(_md), "Name_Original"].astype(str).str.strip().str.lower()
+               .str.replace(" ", ""))
+    _pf_lvl = pf[~pf["well"].astype(str).str.strip().str.lower().str.replace(" ", "").isin(_off)]
+    _pf_summary = (_pf_lvl.groupby("cluster")["pflood_mm"]
                    .agg(n="count", pflood_min="min", pflood_max="max",
                         pflood_median="median")
                    .reset_index())
@@ -2054,7 +2061,7 @@ def _build_forecaster_data_bundle() -> dict:
 
     Cluster scope (k=5 partition):
       All five clusters are included. The old k=6 partition had two
-      small-n groups (old C5 Coastal n=1, old C6 Lake n=1) that were
+      small-n groups (old k=6 C5 Coastal n=1, old C6 Lake n=1) that were
       dropped at the partition step; they do not correspond to any
       current cluster ID.
 
@@ -2131,7 +2138,7 @@ def _build_forecaster_data_bundle() -> dict:
         "Eastern_Block":  ["C2"],
         "Western_Block":  ["C3"],
         "Forest":         ["C4"],
-        "Coastal_Forest": ["C5"],
+        "Coastal_Forest": ["C5"],   # D-348: group 5, C3f (Western Dune, forest); Script 03's block name
     }
     # CSV "Block" column matches the dict key directly under k=5.
     csv_block_names = {block: block for block in block_clusters}

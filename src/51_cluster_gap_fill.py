@@ -78,7 +78,7 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.4.1"  # 2026-11-27: Ward on sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
+__version__ = "1.5.0"  # 2026-11-27 (D-348): the reference centroids the extended wells are matched to, and the cluster-median donor series, from cluster-level members; every well keeps its membership and is still filled. Was "1.4.1"  # 2026-11-27: Ward on sqrt(2(1 - r)), as Script 02 1.21.0. Was "1.4.0"  # Hollingham (2026) - 2026-11-24 (Paper 1 review). Figure 51_07 panel (c) names the wells in its
 #   cells (Martin: "might be better to put the well names in the table cells"); the grey still carries the count.
 # "1.3.0"  # Hollingham (2026) - 2026-11-24 (T-220, D-334). Figure 51_07 panel (a) draws the Model B
 #   SSM run and no longer the Model A fixed-floor column; Model A stays in the CSV and report numbers as reference.
@@ -266,13 +266,29 @@ def windows() -> dict:
     return {"early": early, "late": late}
 
 
+_LVL_CACHE: set | None = None
+
+
+def _off_cluster_level() -> set:
+    """D-348: the reference wells (normalised) held out of cluster series - In_Cluster_Level false in
+    02_cluster_stats (the boundary wells and the set-aside WMC3). Extended wells are not in it."""
+    global _LVL_CACHE
+    if _LVL_CACHE is None:
+        from utils.cluster_series import in_cluster_level
+        cs = pd.read_csv(paths.INT_CLUSTER_STATS)
+        _LVL_CACHE = set(cs.loc[~in_cluster_level(cs), "Match_ID"].map(normalize_well_name))
+    return _LVL_CACHE
+
+
 def membership(W, ref_cols, ext_cols, aud, hide=None) -> dict:
     """Reference wells: the committed partition. Extended wells: best Pearson match to the reference
     centroids over the months NOT hidden (so the hidden window never informs the donor choice)."""
     mem = {w: int(aud.loc[w, "Original_Cluster"]) for w in ref_cols
            if w in aud.index and pd.notna(aud.loc[w, "Original_Cluster"])}
     vis = W if hide is None else W.drop(index=W.index.intersection(hide))
-    cents = {c: vis[[w for w, k in mem.items() if k == c]].mean(axis=1) for c in sorted(set(mem.values()))}
+    off = _off_cluster_level()                         # D-348: the centroids from cluster-level members
+    cents = {c: vis[[w for w, k in mem.items() if k == c and w not in off]].mean(axis=1)
+             for c in sorted(set(mem.values()))}
     for w in ext_cols:
         s = vis[w]
         rs = {c: s.corr(cv) for c, cv in cents.items() if (s.notna() & cv.notna()).sum() >= DONOR_MIN_OVERLAP_MONTHS}
@@ -323,7 +339,9 @@ def _pick(cands: pd.DataFrame, rule: str, twins: str, mem: dict, t: str):
 def _cluster_median(W, t, mem, exclude=()):
     if t not in mem:
         return None
-    mates = [w for w, k in mem.items() if k == mem[t] and w != t and w not in exclude and w in W.columns]
+    off = _off_cluster_level()                         # D-348: the cluster median over cluster-level mates
+    mates = [w for w, k in mem.items() if k == mem[t] and w != t and w not in exclude and w in W.columns
+             and w not in off]
     if len(mates) < GAPFILL_MIN_CLUSTER_MEMBERS:
         return None
     m = W[mates]

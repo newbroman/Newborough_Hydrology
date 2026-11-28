@@ -19,21 +19,21 @@ residual_rank_pos_2,CEH4,,0.011680968513154116,m/month,2. largest positive α
 residual_rank_neg_2,CEH27,,-0.009519660667822394,m/month,2. most negative α
 residual_rank_pos_3,NW6,,0.010301976651020173,m/month,3. largest positive α
 residual_rank_neg_3,T41B,,-0.009406382164037885,m/month,3. most negative α
-residual_cluster_median,C1 (Lake Edge),,-0.0030284487070626476,m/month,median α over the cluster's 7 wells
-residual_cluster_mean,C1 (Lake Edge),,-0.004062020218540927,m/month,mean α over the cluster's 7 wells
-residual_cluster_median,C2 (Dune),,-0.006151869819536623,m/month,median α over the cluster's 26 wells
-residual_cluster_mean,C2 (Dune),,-0.004460018290198472,m/month,mean α over the cluster's 26 wells
-residual_cluster_median,"C3o (Western Dune, open)",,-0.0026341147420572697,m/month,median α over the cluster's 17 wells
-residual_cluster_mean,"C3o (Western Dune, open)",,-0.00017262610127733707,m/month,mean α over the cluster's 17 wells
-residual_cluster_median,C4 (Main Forest),,-0.005476996052137154,m/month,median α over the cluster's 8 wells
-residual_cluster_mean,C4 (Main Forest),,-0.005352965003710231,m/month,mean α over the cluster's 8 wells
-residual_cluster_median,"C3f (Western Dune, forest)",,0.00014658040825690777,m/month,median α over the cluster's 7 wells
-residual_cluster_mean,"C3f (Western Dune, forest)",,0.0003255000779394846,m/month,mean α over the cluster's 7 wells
+residual_cluster_median,C1 (Lake Edge),,-0.0030284487070626476,m/month,median α over the group's 7 cluster-level wells (D-348)
+residual_cluster_mean,C1 (Lake Edge),,-0.004062020218540927,m/month,mean α over the group's 7 cluster-level wells (D-348)
+residual_cluster_median,C2 (Dune),,-0.006151869819536623,m/month,median α over the group's 22 cluster-level wells (D-348)
+residual_cluster_mean,C2 (Dune),,-0.004218008125147951,m/month,mean α over the group's 22 cluster-level wells (D-348)
+residual_cluster_median,"C3o (Western Dune, open)",,-0.0007566531980102431,m/month,median α over the group's 12 cluster-level wells (D-348)
+residual_cluster_mean,"C3o (Western Dune, open)",,0.0005027489631840831,m/month,mean α over the group's 12 cluster-level wells (D-348)
+residual_cluster_median,C4 (Main Forest),,-0.005476996052137154,m/month,median α over the group's 8 cluster-level wells (D-348)
+residual_cluster_mean,C4 (Main Forest),,-0.005352965003710231,m/month,mean α over the group's 8 cluster-level wells (D-348)
+residual_cluster_median,"C3f (Western Dune, forest)",,0.002767511363152342,m/month,median α over the group's 5 cluster-level wells (D-348)
+residual_cluster_mean,"C3f (Western Dune, forest)",,0.002578677913694086,m/month,mean α over the group's 5 cluster-level wells (D-348)
 residual_vs_wb16_gap,C1 (Lake Edge),,0.0038640202185409272,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,C2 (Dune),,0.005784018290198471,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,"C3o (Western Dune, open)",,0.0010696261012773372,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,C2 (Dune),,0.00554200812514795,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,"C3o (Western Dune, open)",,0.00039425103681591694,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
 residual_vs_wb16_gap,C4 (Main Forest),,0.006456965003710231,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
-residual_vs_wb16_gap,"C3f (Western Dune, forest)",,0.0005275000779394846,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
+residual_vs_wb16_gap,"C3f (Western Dune, forest)",,0.0027806779136940857,m/month,"|cluster-mean residual field α − Script 16 Residual_B_m_month| (Model B, D-332)"
 residual_vs_wb16_gap_max,C4 (Main Forest),,0.006456965003710231,m/month,largest cluster disagreement between the residual field and Script 16
 residual_spearman_abs_easting_rho,,,0.08640734265734265,,"Spearman ρ, |α| against E, n=65"
 residual_spearman_abs_easting_p,,,0.49372076758614436,,p for the row above

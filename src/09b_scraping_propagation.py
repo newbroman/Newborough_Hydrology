@@ -30,7 +30,7 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.17.0"  # 2026-11-27 (D-349 (1), B2, B3): the pre-scrape era is laid out on D-347's window (PRE_SCRAPE_START = RECORD_FIT_START, Jan 2010 to the Apr 2015 scrape; fits start=None) and its key's era says so (was "record start"); every 09b_04/09b_05 bar a sustained level change as stored water (scraping_common 1.16.0), columns renamed Delta_storage_sustained_mm; the scrape bar in the C3 (C3o) column with C3o's Sy (was C3f's column and Sy); Clearfell / Thinning carry the anchor range; the equilibration baseline from 2010. Was "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
+__version__ = "1.18.0"  # 2026-11-28 (review stage 2, Martin: "do both and report"): three centroid groups beside the four - C3o (open uphill), C3+CEH31 without edge wells, C4 (forest uphill) without edge wells; the existing rows and keys unchanged. Was "1.17.0"  # 2026-11-27 (D-349 (1), B2, B3): the pre-scrape era is laid out on D-347's window (PRE_SCRAPE_START = RECORD_FIT_START, Jan 2010 to the Apr 2015 scrape; fits start=None) and its key's era says so (was "record start"); every 09b_04/09b_05 bar a sustained level change as stored water (scraping_common 1.16.0), columns renamed Delta_storage_sustained_mm; the scrape bar in the C3 (C3o) column with C3o's Sy (was C3f's column and Sy); Clearfell / Thinning carry the anchor range; the equilibration baseline from 2010. Was "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
 #   bars of 09b_04 (BACI delta-beta_3 of split-window refits through 1/beta_3) are dropped: the scrape is detected
 #   by the paired contrast at CEH36 (09a) and its propagation is not quantified. _compute_scraping_bars,
 #   scrape_bar_n_b3_held_at_bound, the D-333 status column, labels and count key (scenario_n_keys_withdrawn_d333_09b)
@@ -350,6 +350,20 @@ def main():
         "All uphill":
             uphill,
     }
+    # 1.18.0 (2026-11-28, review stage 2; Martin: "do both and report, but I think it's ok to keep the edge wells").
+    # The group above built as clusters 3 and 5 is, under D-348, C3o plus C3f: CEH31 and WMC3 are forest wells, so
+    # its "non-forest" name no longer describes it. Kept unchanged (fields bind its key); three groups beside it:
+    # the uphill wells of OPEN land cover (D-348 (5)), and the two land-cover groups without their edge wells
+    # (D-349 (8)). None of the open uphill wells is an edge well.
+    from utils.cluster_series import land_cover_lookup, is_edge     # noqa: PLC0415
+    _lc = land_cover_lookup()
+    _open = uphill["well"].map(lambda w: _lc.get(normalize_well_name(str(w)).lower()) == "open")
+    _edge = uphill["well"].map(is_edge)
+    centroid_groups["C3o (open uphill)"] = uphill[_open]
+    centroid_groups["C3+CEH31 without edge wells"] = uphill[uphill["cluster"].isin([3, 5]) & ~_edge]
+    centroid_groups["C4 (forest uphill) without edge wells"] = uphill[(uphill["cluster"] == 4) & ~_edge]
+    for _g, _d in list(centroid_groups.items())[1:]:
+        print(f"   {_g}: {len(_d)} wells ({', '.join(_d['well'].str.upper())})")
 
     centroid_rows = []
     for group_name, group_df in centroid_groups.items():

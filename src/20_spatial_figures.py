@@ -108,7 +108,7 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.69.0"  # 2026-11-27 (D-349 A8): the C3o Sy behind lambda, D and the drain-cone maps from the group's cluster-level wells (_c3_sy(), one helper for the seven reads; was every well whose Sy-table Cluster was 3). Was "1.68.0"  # 2026-11-27 (D-348): comments and docstrings name C3f and C3o; no code change. Was "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
+__version__ = "1.70.0"  # 2026-11-28 (D-348, review stage 2): residual_cluster_median/_mean and the Script 16 gap over each group's cluster-level wells (In_Cluster_Level). Was "1.69.0"  # 2026-11-27 (D-349 A8): the C3o Sy behind lambda, D and the drain-cone maps from the group's cluster-level wells (_c3_sy(), one helper for the seven reads; was every well whose Sy-table Cluster was 3). Was "1.68.0"  # 2026-11-27 (D-348): comments and docstrings name C3f and C3o; no code change. Was "1.67.0"  # Hollingham (2026) - 2026-11-24 (J-16 §4.5, Martin: "0.35 would seem about right"). The
 #   inferred CEH36 cut depth divides by CEH36's own Sy (0.366) instead of the C3 median (0.298): 0.43 -> 0.35 m. CEH36's
 #   own S_a x beta_1 is 0.89, so the C3 surplus (T-215) gives no reason to lower it. New key scrape_sy_ceh36; the C3
 #   median stays for lambda. Moves one published number (scrape_inferred_cut_depth_m).
@@ -1235,13 +1235,20 @@ def plot_residual_ssm(wt, features, dpi=300):
         rrpt.add(f"residual_rank_neg_{_k + 1}", float(_n["residual_wb"]), unit="m/month",
                  well=str(_n[_wcol]).upper(), note=f"{_k + 1}. most negative α")
     if "Cluster" in _resid.columns:
-        for _cid, _grp in _resid.groupby("Cluster"):
+        # 1.70.0 (D-348, stage 2 of the 2026-11-27 review): a group's median and mean are over its CLUSTER-LEVEL
+        # wells (In_Cluster_Level in 03_master_data.csv); boundary and edge wells stay on the map and in the
+        # per-well CSV. Was every well carrying the group number (C3f over 7 wells: +0.0001).
+        from utils.cluster_series import in_cluster_level       # noqa: PLC0415
+        _md_cl = pd.read_csv(INT_MASTER_DATA)
+        _cl_names = set(_md_cl.loc[in_cluster_level(_md_cl), "Name_Original"].astype(str).str.upper())
+        _resid_cl = _resid[_resid[_wcol].astype(str).str.upper().isin(_cl_names)]
+        for _cid, _grp in _resid_cl.groupby("Cluster"):
             rrpt.add("residual_cluster_median", float(_grp["residual_wb"].median()),
                      unit="m/month", well=CLUSTER_LABELS.get(int(_cid), str(_cid)),
-                     note=f"median α over the cluster's {len(_grp)} wells")
+                     note=f"median α over the group's {len(_grp)} cluster-level wells (D-348)")
             rrpt.add("residual_cluster_mean", float(_grp["residual_wb"].mean()),
                      unit="m/month", well=CLUSTER_LABELS.get(int(_cid), str(_cid)),
-                     note=f"mean α over the cluster's {len(_grp)} wells")
+                     note=f"mean α over the group's {len(_grp)} cluster-level wells (D-348)")
         # T-91: agreement with Script 16's independent water balance, cluster by
         # cluster — |cluster-mean α − Script 16 Residual_m_month| — which report9
         # §4.9.6 and report10 §5.2.1 quote as "agrees to within N mm/month".
@@ -1250,7 +1257,7 @@ def plot_residual_ssm(wt, features, dpi=300):
             _w16 = pd.read_csv(OUT_16_TABLE)
             _rc16 = "Residual_B_m_month" if "Residual_B_m_month" in _w16.columns else "Residual_m_month"
             _wb16 = _w16[["Cluster", _rc16]]
-            _cm = _resid.groupby("Cluster")["residual_wb"].mean()
+            _cm = _resid_cl.groupby("Cluster")["residual_wb"].mean()   # 1.70.0: cluster-level wells
             _gap = {int(c): abs(float(_cm[c]) - float(r)) for c, r in
                     zip(_wb16["Cluster"], _wb16[_rc16]) if c in _cm.index and pd.notna(r)}
             for _c, _g in _gap.items():

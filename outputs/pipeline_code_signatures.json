@@ -141,7 +141,7 @@
    }
   },
   "09a_paired_baci.py": {
-   "recorded": "2026-11-27T21:50:31Z",
+   "recorded": "2026-11-28T07:56:28Z",
    "sig": "aa293704e05bd7e2",
    "utils": {
     "utils/config.py": "2168b961579f0f9d",
@@ -154,10 +154,11 @@
    }
   },
   "09b_scraping_propagation.py": {
-   "recorded": "2026-11-27T21:50:31Z",
-   "sig": "d852759ad609dda3",
+   "recorded": "2026-11-28T07:56:28Z",
+   "sig": "65e7954d3831c998",
    "utils": {
     "utils/clearfell_common.py": "145c92a75bcc6bc6",
+    "utils/cluster_series.py": "62753e5ed90ccd73",
     "utils/config.py": "3ab2b62c3c018246",
     "utils/console_utils.py": "2cc1cbf79808083c",
     "utils/data_utils.py": "abf6466eab534cf2",
@@ -169,7 +170,7 @@
    }
   },
   "09c_summer_minima.py": {
-   "recorded": "2026-11-27T21:50:31Z",
+   "recorded": "2026-11-28T07:56:28Z",
    "sig": "e2b6b328a7dce68c",
    "utils": {
     "utils/clearfell_common.py": "708747a3e869128e",
@@ -181,7 +182,7 @@
    }
   },
   "09d_scenario_comparison.py": {
-   "recorded": "2026-11-27T21:50:31Z",
+   "recorded": "2026-11-28T07:56:28Z",
    "sig": "9dba65387ee1c3d7",
    "utils": {
     "utils/clearfell_common.py": "4e80a01f332f2998",
@@ -197,7 +198,7 @@
    }
   },
   "09e_robustness.py": {
-   "recorded": "2026-11-27T21:50:31Z",
+   "recorded": "2026-11-28T07:56:28Z",
    "sig": "5b0a38fa74a5e7d8",
    "utils": {
     "utils/config.py": "1f74845899956a3f",
@@ -208,7 +209,7 @@
    }
   },
   "09f_management_effects.py": {
-   "recorded": "2026-11-27T22:04:03Z",
+   "recorded": "2026-11-28T07:56:03Z",
    "sig": "e79e8936be179dfe",
    "utils": {
     "utils/coastal_utils.py": "16aeaad33a7fd509",
@@ -223,7 +224,7 @@
    }
   },
   "09g_mechanism_diagrams.py": {
-   "recorded": "2026-11-27T22:04:04Z",
+   "recorded": "2026-11-28T07:56:08Z",
    "sig": "7d84338892502878",
    "utils": {
     "utils/console_utils.py": "c46afb132b492082",
@@ -544,10 +545,11 @@
    }
   },
   "20_spatial_figures.py": {
-   "recorded": "2026-11-27T21:57:48Z",
-   "sig": "c5395966df4974e1",
+   "recorded": "2026-11-28T07:53:37Z",
+   "sig": "92e3d9135ed89f49",
    "utils": {
     "utils/clearfell_common.py": "37b939062bf2400f",
+    "utils/cluster_series.py": "8533e8b31421be65",
     "utils/coastal_utils.py": "16aeaad33a7fd509",
     "utils/config.py": "19ed28e665cd0887",
     "utils/console_utils.py": "3992178ae2d89c4d",
@@ -764,9 +766,10 @@
    }
   },
   "32_differential_movement.py": {
-   "recorded": "2026-11-27T22:01:06Z",
-   "sig": "495e2027d1f5e0b6",
+   "recorded": "2026-11-28T07:54:19Z",
+   "sig": "e746229ea3572264",
    "utils": {
+    "utils/cluster_series.py": "8533e8b31421be65",
     "utils/config.py": "4a8ccf2921fe0a76",
     "utils/console_utils.py": "94a7331582595003",
     "utils/map_utils.py": "da53367b87e2632b",
@@ -840,7 +843,7 @@
    }
   },
   "37b_driver_footing.py": {
-   "recorded": "2026-11-27T22:03:11Z",
+   "recorded": "2026-11-28T07:55:58Z",
    "sig": "7deb18ead0d51b70",
    "utils": {
     "utils/cluster_series.py": "8533e8b31421be65",
@@ -1158,7 +1161,7 @@
    }
   },
   "run_09_scraping.py": {
-   "recorded": "2026-11-27T21:50:31Z",
+   "recorded": "2026-11-28T07:56:28Z",
    "sig": "6f348ee1900c82fc",
    "utils": {
     "utils/console_utils.py": "2cc1cbf79808083c"

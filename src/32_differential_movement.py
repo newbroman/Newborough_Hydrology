@@ -100,7 +100,7 @@ from utils.map_utils import (load_dem_hillshade, add_kml_features, add_en_axes, 
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr, track
 from utils.render_utils import render_figure
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-28. The surface is the house piecewise-linear
+__version__ = "1.10.0"  # 2026-11-28 (D-348, review stage 2): the per-cluster summary rows are over each group's cluster-level wells (In_Cluster_Level); the network row and the map keep every well. Was "1.9.0"  # Hollingham (2026) — 2026-09-28. The surface is the house piecewise-linear
 #   one (map_utils.interpolate_surface), replacing the inline power-2 IDW and its 450 m
 #   nearest-well mask: leave-one-well-out skill 0.67 against 0.58 on the 2011-2025 slopes
 #   (tools/interp_loo.py, D-206; Martin, proofread). Display only; no CSV moves.
@@ -196,6 +196,9 @@ OUT_FIG = {"2011_2025": paths.OUT_32_FIG_PRIMARY, "2005_2025": paths.OUT_32_FIG_
 # =================================================================================
 # Data
 # =================================================================================
+_CL_KEYS: set = set()   # 1.10.0 (D-348): wells that enter cluster-level quantities, filled by load_inputs()
+
+
 def load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load cleaned levels, locations and per-well cluster ids."""
     levels = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
@@ -209,6 +212,8 @@ def load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     master = pd.read_csv(paths.INT_MASTER_DATA)
     master["key"] = master["Name_Original"].astype(str).str.lower().str.strip()
+    from utils.cluster_series import in_cluster_level          # 1.10.0 (D-348)
+    _CL_KEYS.update(master.loc[in_cluster_level(master), "key"])
     return levels, loc, master
 
 
@@ -568,7 +573,10 @@ def main() -> int:
         if "Cluster_b" in d.columns:
             d["Cluster"] = d["Cluster"].fillna(d["Cluster_b"])
         d["cid"] = d["Cluster"].fillna(0).astype(int)
-        for cid, g in d.groupby("cid"):
+        # 1.10.0 (D-348): a group's row is over its CLUSTER-LEVEL wells (In_Cluster_Level); boundary and edge
+        # wells stay on the map, in the per-well CSV and in the network row. Unclustered wells stay cluster 0.
+        _cl = d["key"].isin(_CL_KEYS) | (d["cid"] == 0)
+        for cid, g in d[_cl].groupby("cid"):
             g = g.dropna(subset=["slope_mm_yr"])
             if g.empty:
                 continue

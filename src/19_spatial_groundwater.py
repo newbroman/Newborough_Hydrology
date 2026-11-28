@@ -26,7 +26,7 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.40.0"  # 2026-11-27 (D-349 A15, B3, B11): the return fraction calibrated on WMC3's own fit and named in its row; the clearfell anchor range (drift free / drift fixed / drift-free DiD) emitted with the C3f clearfell and thinning means under each member (_anchor_<member> keys); the open-dune end state of a cluster whose Model B beta_3 is not identified (C4) kept but labelled a bound on an unidentified beta_3 in its response, notes, viewer text and a _beta3_identified flag row. Was "2.39.0"  # 2026-11-27 (D-348): cluster means and medians of per-well responses (scenario rows, MSL5 rows, interception bounds, cluster heads, the C3f clearfell spread) from cluster-level wells, SITE rows over every well; loops over CLUSTER_LABELS; viewer and notes name C3o and C3f. Was "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
+__version__ = "2.41.0"  # 2026-11-28 (Martin: the canopy return divides by (1 - F): a beta_1 fitted under canopy on gross rain is the open-ground beta_1 times (1 - F), so a change of interception from I0 to Is moves recharge by beta_1 P sP (I0 - Is)/(1 - I0); the forecaster's forcing12 follows model_utils 1.17.0). Was "2.40.0"  # 2026-11-27 (D-349 A15, B3, B11): the return fraction calibrated on WMC3's own fit and named in its row; the clearfell anchor range (drift free / drift fixed / drift-free DiD) emitted with the C3f clearfell and thinning means under each member (_anchor_<member> keys); the open-dune end state of a cluster whose Model B beta_3 is not identified (C4) kept but labelled a bound on an unidentified beta_3 in its response, notes, viewer text and a _beta3_identified flag row. Was "2.39.0"  # 2026-11-27 (D-348): cluster means and medians of per-well responses (scenario rows, MSL5 rows, interception bounds, cluster heads, the C3f clearfell spread) from cluster-level wells, SITE rows over every well; loops over CLUSTER_LABELS; viewer and notes name C3o and C3f. Was "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
 #   all the interception returned at the felled well, Model B, draw unchanged (the f = 1 end of the flux sensitivity),
 #   replacing the interception-form diagnostic 2.37.0 removed, which carried the withdrawn Edge-tier multiplier.
 # 2.37.0  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The clearfell and thinning
@@ -1885,7 +1885,8 @@ function forcing12(set,ex,I0,Isc,forest){{
   for(var i=0;i<12;i++){{
     var bm=forest?ex.sB2[i]:1;
     // D-238: the rainfall change passes through beta_1 unreduced; a change of canopy adds sP*(I0-Isc)
-    f[i]=set[0]*P[i]*((ex.sP[i]-1)+ex.sP[i]*(I0-Isc))-set[1]*PET[i]*(bm*ex.sPET[i]-1);
+    // 2.41.0 (Martin 2026-11-28): beta_1 fitted under canopy is the open value times (1 - I0), so the canopy term is /(1 - I0)
+    f[i]=set[0]*P[i]*((ex.sP[i]-1)+ex.sP[i]*(I0-Isc)/(1-I0))-set[1]*PET[i]*(bm*ex.sPET[i]-1);
   }}
   return f;
 }}

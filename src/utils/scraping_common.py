@@ -31,7 +31,7 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.16.0"  # 2026-11-27 (D-349 B2, B3, A8): compute_scenario_bars() returns the SUSTAINED change in stored water (the summer forcing change, recurring each summer, carried to its periodic steady state on the group's beta_3 and averaged over the summer months, x Sy; mm w.e.), not a one-month flux, and NaN at a group whose beta_3 is not identified (beta3_identified_groups, D-333); compute_scenario_bar_range() carries Clearfell / Thinning over the clearfell anchor range; flux_to_summer_min_mm() takes that storage (NaN-safe); load_cluster_params' mean depth over RECORD_FIT_START onward. Was "1.15.0"  # 2026-11-27 (D-348): cluster keys from CLUSTER_LABELS (five groups); forest by FOREST_CIDS; scenario_cluster_sy matches a key to its group label so C3 no longer matches C3f; load_cluster_params' Sy median and mean depth from cluster-level wells. Was "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+__version__ = "1.17.1"  # 2026-11-28: the forest scenario rainfall is throughfall, raw_P (1 - s_i), so a climate change is not scaled by 1/(1 - F) (1.17.0 scaled it: C3f climate dry -60.5 -> -72.8, wrong). Was "1.17.0"  # 2026-11-28 (Martin: the canopy return divides by (1 - F): a beta_1 fitted under canopy on gross rain is the open-ground beta_1 times (1 - F), so a change of interception from I0 to Is moves recharge by beta_1 P sP (I0 - Is)/(1 - I0)). Was "1.16.0"  # 2026-11-27 (D-349 B2, B3, A8): compute_scenario_bars() returns the SUSTAINED change in stored water (the summer forcing change, recurring each summer, carried to its periodic steady state on the group's beta_3 and averaged over the summer months, x Sy; mm w.e.), not a one-month flux, and NaN at a group whose beta_3 is not identified (beta3_identified_groups, D-333); compute_scenario_bar_range() carries Clearfell / Thinning over the clearfell anchor range; flux_to_summer_min_mm() takes that storage (NaN-safe); load_cluster_params' mean depth over RECORD_FIT_START onward. Was "1.15.0"  # 2026-11-27 (D-348): cluster keys from CLUSTER_LABELS (five groups); forest by FOREST_CIDS; scenario_cluster_sy matches a key to its group label so C3 no longer matches C3f; load_cluster_params' Sy median and mean depth from cluster-level wells. Was "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
 #   compute_scenario_bars(): Clearfell and Thinning 50% return a share of the interception
 #   (clearfell_common.clearfell_return_fraction, calibrated on the observed BACI step) instead of a beta_2
 #   multiplier; arguments clearfell_frac / thinning_frac replace clearfell_b2_mult / thinning_b2_mult.
@@ -587,8 +587,11 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
                 continue
 
             # Baseline flux
+            # 1.17.0 (Martin 2026-11-28): a forest group's beta_1 is fitted on gross rain, so it is the open-ground
+            # beta_1 times (1 - F); applied to throughfall it is divided by (1 - F) (the baseline is then b1 * P).
+            b1_eff = cp["b1"] / (1 - FOREST_INTERCEPTION) if is_forest else cp["b1"]
             P_base = summer_P * (1 - FOREST_INTERCEPTION) if is_forest else summer_P
-            flux_base = _flux(cp["b1"], cp["b2"], P_base, summer_PET,
+            flux_base = _flux(b1_eff, cp["b2"], P_base, summer_PET,
                               cp["b3"], cp["h_disp"])
 
             # Scenario flux
@@ -597,14 +600,16 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
             raw_P = summer_P * config["sP"]
             if is_forest:
                 s_i = FOREST_INTERCEPTION if config["sI"] is None else config["sI"]
-                P_scen = (summer_P * config["sP"] * (1 - s_i) if config["sP"] == 1.0   # forestry: as before, to the bit
-                          else P_base + (raw_P - summer_P) + raw_P * (FOREST_INTERCEPTION - s_i))
+                # 1.17.1: the scenario's throughfall, on the same basis as P_base, so that with b1_eff a rainfall
+                # change moves recharge by b1 * dP (D-238, unreduced through the gross-fitted beta_1) and a change of
+                # canopy by b1 * raw_P * (F - s_i) / (1 - F). (1.17.0 kept the old mixed form and scaled dP as well.)
+                P_scen = raw_P * (1 - s_i)
             else:
                 P_scen = raw_P
 
             b2_scen = cp["b2"] * config["sB2"]
             PET_scen = summer_PET * config["sPET"]
-            flux_scen = _flux(cp["b1"], b2_scen, P_scen, PET_scen,
+            flux_scen = _flux(b1_eff, b2_scen, P_scen, PET_scen,
                               cp["b3"], cp["h_disp"])
 
             # 1.16.0 (D-349 B2): the sustained level of the forcing change, as stored water

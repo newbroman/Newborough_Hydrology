@@ -87,7 +87,7 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.17.0"  # 2026-11-27 (D-349 A15, A17, B2, B3): the phase distributions start at RECORD_FIT_START on the fixed-effects group series (cluster_series.fixed_effect_series, D-202), phases named by date (no "post-felling" for groups with no felled well); the clearfell f calibrated on WMC3's own fit and named (Well = WMC3); the anchor range (drift free / drift fixed / drift-free DiD) carried through the C3f flux-sensitivity rows (era "anchor_<member>") and emitted (clearfell_anchor_step_m_anchor_*, clearfell_return_fraction_anchor_*); 21_forestry_05/06 bars a sustained storage change (scraping_common 1.16.0), column Delta_storage_sustained_mm; BETA3_UNIDENTIFIED_CLUSTERS from Script 48's rule; C4/C2 context DEMs from cluster-level wells, cycles from 2010. Was "1.16.0"  # 2026-11-27 (D-348): cluster member-mean summer-minimum series and the fallback cluster beta means from cluster-level wells; forest groups from FOREST_CIDS (levels stay at C3f, group 5, where beta_3 is identified); figure groups and text name C3o and C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
+__version__ = "1.18.0"  # 2026-11-28 (Martin: the canopy return divides by (1 - F): a beta_1 fitted under canopy on gross rain is the open-ground beta_1 times (1 - F), so a change of interception from I0 to Is moves recharge by beta_1 P sP (I0 - Is)/(1 - I0)). Was "1.17.0"  # 2026-11-27 (D-349 A15, A17, B2, B3): the phase distributions start at RECORD_FIT_START on the fixed-effects group series (cluster_series.fixed_effect_series, D-202), phases named by date (no "post-felling" for groups with no felled well); the clearfell f calibrated on WMC3's own fit and named (Well = WMC3); the anchor range (drift free / drift fixed / drift-free DiD) carried through the C3f flux-sensitivity rows (era "anchor_<member>") and emitted (clearfell_anchor_step_m_anchor_*, clearfell_return_fraction_anchor_*); 21_forestry_05/06 bars a sustained storage change (scraping_common 1.16.0), column Delta_storage_sustained_mm; BETA3_UNIDENTIFIED_CLUSTERS from Script 48's rule; C4/C2 context DEMs from cluster-level wells, cycles from 2010. Was "1.16.0"  # 2026-11-27 (D-348): cluster member-mean summer-minimum series and the fallback cluster beta means from cluster-level wells; forest groups from FOREST_CIDS (levels stay at C3f, group 5, where beta_3 is identified); figure groups and text name C3o and C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
 #   sensitivity", thinning "at most half"). The clearfell is rebuilt on the observed BACI step: its headline is the
 #   10a step at the felled well by season (clearfell_anchor_step_m*), drawn on the C4 hydrograph as a benchmark and
 #   not carried to C4 (beta_3 not identified); its flux sensitivity returns a share f of the interception
@@ -404,6 +404,9 @@ def build_scenarios(master, climate, cluster="C4", frac=None):
     monthly_P   = clim.groupby(clim.index.month)["P_m"].mean().values
     monthly_PET = clim.groupby(clim.index.month)["PET"].mean().values
 
+    # 1.18.0 (Martin 2026-11-28): the forest group's beta_1 is fitted on gross rain, so it is the open-ground beta_1
+    # times (1 - F); applied to throughfall below it is divided by (1 - F), so the canopy's return is b1 P F share/(1 - F).
+    b1_tf = b1 / (1 - FOREST_INTERCEPTION)   # the throughfall-basis beta_1; b1 itself is returned unchanged
     # P_eff under the pine; broadleaf keeps it (no interception recharge, D-239)
     P_base = monthly_P * (1 - FOREST_INTERCEPTION)
     b2_flat = np.full(12, b2)
@@ -424,11 +427,11 @@ def build_scenarios(master, climate, cluster="C4", frac=None):
     # Clearfell flux sensitivity: a share f of the interception returned as recharge, draw unchanged; thinning half.
     if cluster not in BETA3_UNIDENTIFIED_CLUSTERS:
         scenario_shifts["Broadleaf conversion"] = _level(monthly_perturbation(
-            b1, b2, b2_bl, P_base, P_base, monthly_PET))
+            b1_tf, b2, b2_bl, P_base, P_base, monthly_PET))
         f = CF_FRAC["f"] if frac is None else float(frac)
         for name, share in (("Full clearfell", f), ("50% thinning", f / 2.0)):
             P_s = monthly_P * (1 - FOREST_INTERCEPTION * (1 - share))
-            scenario_shifts[name] = _level(monthly_perturbation(b1, b2, b2_flat, P_base, P_s, monthly_PET))
+            scenario_shifts[name] = _level(monthly_perturbation(b1_tf, b2, b2_flat, P_base, P_s, monthly_PET))
 
     return scenario_shifts, monthly_P, monthly_PET, b1, b2, b3
 

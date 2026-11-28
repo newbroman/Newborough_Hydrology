@@ -139,8 +139,8 @@
    "step": "23/69  WTF spatial analysis and Sy mapping"
   },
   "19_spatial_groundwater.py": {
-   "last_run": "2026-11-27T21:56:18",
-   "seconds": 5.1,
+   "last_run": "2026-11-28T14:56:06",
+   "seconds": 15.5,
    "status": "ok",
    "step": "24/69  Spatial groundwater analysis"
   },
@@ -151,8 +151,8 @@
    "step": "25/69  Spatial paper figures"
   },
   "21_forestry_scenarios.py": {
-   "last_run": "2026-11-27T21:57:54",
-   "seconds": 5.4,
+   "last_run": "2026-11-28T16:12:23",
+   "seconds": 6.4,
    "status": "ok",
    "step": "26/69  Forestry scenarios and management figures"
   },
@@ -193,14 +193,14 @@
    "step": "31/69  Van Willegen (2025) 5-year MSL aggregation"
   },
   "26b_van_willegen_msl_projections.py": {
-   "last_run": "2026-11-27T21:59:40",
-   "seconds": 2.4,
+   "last_run": "2026-11-28T14:56:24",
+   "seconds": 3.7,
    "status": "ok",
    "step": "32/69  UKCP18 MSL5 climate projections (Tool B)"
   },
   "26c_msl5_report_figures.py": {
-   "last_run": "2026-11-27T21:59:42",
-   "seconds": 1.7,
+   "last_run": "2026-11-28T14:56:30",
+   "seconds": 2.6,
    "status": "ok",
    "step": "33/69  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
   },
@@ -355,32 +355,32 @@
    "step": "60/64  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
   },
   "50a_record_length.py": {
-   "last_run": "2026-11-27T22:06:28",
-   "seconds": 70.4,
+   "last_run": "2026-11-28T14:58:14",
+   "seconds": 100.3,
    "status": "ok",
    "step": "61/69  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
   },
   "50b_datum_bases.py": {
-   "last_run": "2026-11-27T22:19:26",
-   "seconds": 777.5,
+   "last_run": "2026-11-28T15:15:51",
+   "seconds": 1053.2,
    "status": "ok",
    "step": "62/69  Which datum and drainage base the record supports (D-225, D-229, D-286, D-287): Model A refitted at every datum of Script 03's sweep against the CCW and Ranwell hindcasts, the split test and the UKCP18 projection; one base in elevation (E16) and a base per cluster (E17). Opt-in diagnostic"
   },
   "50c_transfer.py": {
-   "last_run": "2026-11-27T22:19:51",
-   "seconds": 24.8,
+   "last_run": "2026-11-28T15:16:27",
+   "seconds": 32.9,
    "status": "ok",
    "step": "63/69  Transfer between wells (T-173, D-268, D-282, D-290): a neighbour's coefficients at a well and the transfer rule, per well or per cluster on both hindcasts (E12), placing a new well from a short record (E12b), and a modern-record calibration at CCW 1989\u201396 (E18); Paper M's decision tree. Opt-in diagnostic"
   },
   "50d_two_stores.py": {
-   "last_run": "2026-11-27T22:59:41",
-   "seconds": 2389.3,
+   "last_run": "2026-11-28T16:09:54",
+   "seconds": 3203.4,
    "status": "ok",
    "step": "64/69  Two stores and non-climatic change (D-231 to D-236, D-255): two drainage time scales per cluster (E8), a non-climatic change and surface flow (E8b/c), rain event structure (E8d), the felling north of NW9 (E8e), the 2014/15 shore clearance (E8f) and the pre-canopy store (E8g). Opt-in diagnostic"
   },
   "50e_drier_epochs.py": {
-   "last_run": "2026-11-27T23:00:22",
-   "seconds": 41.2,
+   "last_run": "2026-11-28T16:10:51",
+   "seconds": 53.6,
    "status": "ok",
    "step": "65/69  Drier epochs and forcing (D-260, D-261, D-273, D-274, D-292): the forest's forcing (E10), what Ranwell's 1951\u201353 readings need (E11), other evaporation estimates and a recharge break (E13/E13b), and whether the film's correction transfers (E19). Opt-in diagnostic"
   },
@@ -409,8 +409,8 @@
    "step": "69/69  The water-balance residual analysis: a fourth reading of the loss split (spec NRG_spec_water_balance_diagnostic_2026-11-04). Rainfall less PET with the storage change taken as the water table through Script 18's FIXED per-well Sy, so the remainder is drainage; that residual regressed on head as a line and as a threshold; the winter law used to back ET out of every month and read the drainage share of the annual loss - the Paper M \u00a77.1 basis - with a Sy bracket from a winter joint fit that borrows no Sy at all. Two-pass: reads Scripts 18, 48 and 39. Opt-in diagnostic"
   },
   "run_09_scraping.py": {
-   "last_run": "2026-11-28T09:39:05",
-   "seconds": 17.2,
+   "last_run": "2026-11-28T16:12:13",
+   "seconds": 16.3,
    "status": "ok",
    "step": "10/69  Scraping analysis suite (09a\u201309e)"
   },
@@ -421,5 +421,5 @@
    "step": "11/69  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-11-28T10:50:17"
+ "updated": "2026-11-28T16:12:23"
 }

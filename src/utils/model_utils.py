@@ -76,7 +76,7 @@ def _from(obj, t0):
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.16.0"  # 2026-11-27 (D-349 (1)): no default window - every fit_ssm / fit_ssm_censored / fit_ssm_intercept call states start=; start=None is passed on every inner path (the censored fit's OLS calls, the Model B bound refit); extra regressors are cut with the series. Was "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347: one record window). fit_ssm and fit_ssm_censored
+__version__ = "1.17.0"  # 2026-11-28 (Martin: the canopy return divides by (1 - F): a beta_1 fitted under canopy on gross rain is the open-ground beta_1 times (1 - F), so a change of interception from I0 to Is moves recharge by beta_1 P sP (I0 - Is)/(1 - I0)). Was "1.16.0"  # 2026-11-27 (D-349 (1)): no default window - every fit_ssm / fit_ssm_censored / fit_ssm_intercept call states start=; start=None is passed on every inner path (the censored fit's OLS calls, the Model B bound refit); extra regressors are cut with the series. Was "1.15.0"  # Hollingham (2026) — 2026-11-26 (D-347: one record window). fit_ssm and fit_ssm_censored
 #   start at config.RECORD_FIT_START (January 2010) unless told otherwise: `start=None` fits the whole series, for the
 #   analyses whose subject is 2005-09 (D-347 (5): the coastal step tests), and any ISO date fits from there. A window
 #   (`window=`, months ending at the last reading) inside the record is unchanged; a pre-built frame is cut the same way.
@@ -1538,7 +1538,9 @@ def climate_forcing_change_12(b1, b2, P12, PET12, sP12, sPET12, interception=0.0
     i0 = float(interception)
     i_s = i0 if interception_scen is None else float(interception_scen)
     m2 = np.ones(12) if b2_mult12 is None else np.asarray(b2_mult12, dtype=float)
-    return (float(b1) * P12 * ((sP12 - 1.0) + sP12 * (i0 - i_s))
+    # 1.17.0 (Martin 2026-11-28): b1 is fitted on gross rain under the canopy, so it is the open-ground beta_1 times
+    # (1 - i0); a change of canopy from i0 to i_s moves recharge by b1 P sP (i0 - i_s) / (1 - i0). i0 = 0: unchanged.
+    return (float(b1) * P12 * ((sP12 - 1.0) + sP12 * (i0 - i_s) / (1.0 - i0))
             - float(b2) * PET12 * (m2 * sPET12 - 1.0))
 
 

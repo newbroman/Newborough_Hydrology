@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-28T09:39:12",
+ "generated": "2026-11-28T10:50:17",
  "orchestrator": "2.34.0",
  "steps": {
   "00_climate_summary.py": {
@@ -987,9 +987,10 @@
     "outputs/26d_spring_summer_gap/26d_long_record.csv": "9abbff6ca53a5042ecee1f535968f4e520c1da5393960f831f91104a3c344ac8",
     "outputs/26d_spring_summer_gap/26d_per_well.csv": "9c365f38ca91d82990d22c606932e18031ee0c86476594d94467448b02b1b26b",
     "outputs/26d_spring_summer_gap/26d_report_numbers.csv": "8a05d61f8ce933aedbcd67436368b76727a0ba7d2cffadc3e10cabc5932adc10",
-    "outputs/26d_spring_summer_gap/26d_results.txt": "7bb3b876133797fbc3a746439e4da0aa5b7104c209960ca804c6539b15c92f22",
+    "outputs/26d_spring_summer_gap/26d_results.txt": "89b38004b3d4003af9997de3feea790d79f29bbc4ab0a6d8efd2e6e5d7e49d7f",
     "outputs/26d_spring_summer_gap/26d_robustness.csv": "3da01d0839df36e43df957ff140b24711e216aebcd6cd15634c16665531a818a",
-    "outputs/26d_spring_summer_gap/26d_spring_summer_gap.png": "2631f3db924e34219f239e9b3bed204b100e7c03bdc07fafbede16a2c8b882e5"
+    "outputs/26d_spring_summer_gap/26d_spring_summer_gap.png": "2631f3db924e34219f239e9b3bed204b100e7c03bdc07fafbede16a2c8b882e5",
+    "outputs/26d_spring_summer_gap/26d_table.csv": "05405397e7d4bd6ec3409a46dfced9aca3761d15b70b04aee34ec70f6216d7b4"
    },
    "fallbacks": [],
    "inputs": {
@@ -999,9 +1000,9 @@
     "outputs/26_van_willegen_msl/26_msl_annual_per_well.csv": "b66e8c4d4d210c68c49c0aff0ebe1090a33f4ae719034d815a1e2c7f138c59dc"
    },
    "inputs_unresolved": [],
-   "seconds": 3.0,
-   "started": "2026-11-28T09:39:09",
-   "version": "1.1.0"
+   "seconds": 3.6,
+   "started": "2026-11-28T10:50:13",
+   "version": "1.2.0"
   },
   "28_c3_detrend_check.py": {
    "emitted": {

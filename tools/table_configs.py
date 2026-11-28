@@ -1624,23 +1624,25 @@ TABLES = [
         ],
     },
     {
-        # 2026-11-25 (D-343): Paper 1 §4.11. Fixed-effects centroid series (Script 14 1.8.0, D-202); full record and
-        # from config.EXTREMES_ROBUSTNESS_START (2011). Slopes in mm/yr (Slope_m_per_yr x 1000).
+        # 2026-11-28 (Martin: "use June -sept as the minima", "shouldnt it be the post 2010 record?"): Paper 1 §4.11 v1_116.
+        # Script 26d (was Script 14's April-September minimum over 2005-2026): per-well OLS medians over 2010-2025 and
+        # without the lowest and highest spring years (2012, 2024), groups on cluster-level wells, network last.
         "id": "paper1/Table7",
         "doc": "docs/papers/paper_1/Paper1_v*.odt",
         "table_name": "Table7",
-        "caption": "Paper 1 - trend in the annual summer minimum by cluster (Script 14)",
-        "sources": {"st": "outputs/14_climate_projections/14_summer_trend_stats.csv"},
-        "rows": {"source": "st"},
-        "header": ["Cluster", "n", "Full record", "R²", "p", "From 2011", "p"],
+        "caption": "Paper 1 - spring level, summer minimum and gap since 2010, by group (Script 26d)",
+        "sources": {"t": "outputs/26d_spring_summer_gap/26d_table.csv"},
+        "rows": {"source": "t"},
+        "header": ["Group", "Wells", "Spring", "Summer min.", "Gap", "Spring", "Summer min.", "Gap"],
         "columns": [
-            {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
-            {"col": "n_years", "fmt": "int"},
-            {"col": "Slope_m_per_yr", "fmt": "fixed", "dp": 1, "scale": 1000},
-            {"col": "R2", "fmt": "fixed", "dp": 3},
-            {"col": "p_value", "fmt": "pvalue", "dp": 3},
-            {"col": "Slope_m_per_yr_robust", "fmt": "fixed", "dp": 1, "scale": 1000, "sign": True},
-            {"col": "p_value_robust", "fmt": "pvalue", "dp": 2},
+            {"col": "label", "fmt": "text", "re": [r"^(C\d[of]?) \(([^)]+)\)$", r"\1 \2"]},
+            {"col": "n_wells", "fmt": "int"},
+            {"col": "spring_mm_yr", "fmt": "fixed", "dp": 1, "sign": True},
+            {"col": "summer_min_mm_yr", "fmt": "fixed", "dp": 1, "sign": True},
+            {"col": "gap_mm_yr", "fmt": "fixed", "dp": 1, "sign": True},
+            {"col": "spring_mm_yr_without", "fmt": "fixed", "dp": 1, "sign": True},
+            {"col": "summer_min_mm_yr_without", "fmt": "fixed", "dp": 1, "sign": True},
+            {"col": "gap_mm_yr_without", "fmt": "fixed", "dp": 1, "sign": True},
         ],
     },
     {

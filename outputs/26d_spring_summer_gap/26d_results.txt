@@ -1,4 +1,4 @@
-Script 26d v1.1.0: spring level against summer minimum (D-347 (4) Note)
+Script 26d v1.2.0: spring level against summer minimum (D-347 (4) Note)
 
 Window 2010-2025; panel: both valid in >= 14 years.
   group  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  gap_theil_sen_median_mm_yr  n_gap_widening  n_gap_widening_p05  sign_test_p  gap_mean_median_m  n_spring_falling  n_spring_falling_p05  n_summer_min_falling  n_summer_min_falling_p05

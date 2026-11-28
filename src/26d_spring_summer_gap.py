@@ -34,7 +34,7 @@ Outputs (outputs/26d_spring_summer_gap/):
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-11-28 (Martin: "shouldnt it be the post 2010 record?"): the robustness tests (all years; without the lowest spring; without the lowest and highest; from y0+3) for every group on its cluster-level wells, and counts of falling and significantly falling wells; network rows and keys unchanged. Was "1.0.0"  # 2026-11-27 (D-347 (4) Note; Martin 2026-11-27 "include the numbers, add a pipeline step"). First issue.
+__version__ = "1.2.0"  # 2026-11-28: 26d_table.csv, Paper 1 Table 7 (each group over 2010-2025 and without its lowest and highest spring years). Was "1.1.0"  # 2026-11-28 (Martin: "shouldnt it be the post 2010 record?"): the robustness tests (all years; without the lowest spring; without the lowest and highest; from y0+3) for every group on its cluster-level wells, and counts of falling and significantly falling wells; network rows and keys unchanged. Was "1.0.0"  # 2026-11-27 (D-347 (4) Note; Martin 2026-11-27 "include the numbers, add a pipeline step"). First issue.
 SCRIPT_ID = "26d"
 VERSION = __version__
 
@@ -247,6 +247,22 @@ def main() -> int:
                           "n_summer_min_falling", "n_summer_min_falling_p05"]]
     R.to_csv(paths.OUT_26D_ROBUSTNESS, index=False)
     saved(paths.OUT_26D_ROBUSTNESS)
+    # 1.2.0 (Paper 1 Table 7, Martin 2026-11-28): one row per group, the whole window beside the window without its
+    # lowest and highest spring years; the groups first (cluster-level wells), the network last.
+    _T = []
+    for tag in [config.CLUSTER_SHORT[g] for g in sorted(config.CLUSTER_SHORT)] + ["network"]:
+        _a = R[(R["group"] == tag) & (R["key"] == "all")].iloc[0]
+        _b = R[(R["group"] == tag) & (R["key"] == "without_lowest_highest")].iloc[0]
+        _gid = next((g for g, t in config.CLUSTER_SHORT.items() if t == tag), None)
+        _T.append({"group": tag, "label": config.CLUSTER_LABELS[_gid] if _gid else "Network",
+                   "n_wells": int(_a["n_wells"]),
+                   "spring_mm_yr": _a["spring_median_mm_yr"], "summer_min_mm_yr": _a["summer_min_median_mm_yr"],
+                   "gap_mm_yr": _a["gap_median_mm_yr"],
+                   "spring_mm_yr_without": _b["spring_median_mm_yr"],
+                   "summer_min_mm_yr_without": _b["summer_min_median_mm_yr"], "gap_mm_yr_without": _b["gap_median_mm_yr"],
+                   "without_years": f"{lo_year};{hi_year}"})
+    pd.DataFrame(_T).to_csv(paths.OUT_26D_TABLE, index=False)
+    saved(paths.OUT_26D_TABLE)
     for r in R.itertuples(index=False):
         sfx = "" if r.group == "network" else f" · {r.group}"
         if r.group == "network":

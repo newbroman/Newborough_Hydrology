@@ -205,8 +205,8 @@
    "step": "33/69  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
   },
   "26d_spring_summer_gap.py": {
-   "last_run": "2026-11-27T21:59:44",
-   "seconds": 2.0,
+   "last_run": "2026-11-28T09:39:12",
+   "seconds": 3.0,
    "status": "ok",
    "step": "34/69  Spring level against the summer minimum that follows it, from 2010 (D-347 (4))"
   },
@@ -409,8 +409,8 @@
    "step": "69/69  The water-balance residual analysis: a fourth reading of the loss split (spec NRG_spec_water_balance_diagnostic_2026-11-04). Rainfall less PET with the storage change taken as the water table through Script 18's FIXED per-well Sy, so the remainder is drainage; that residual regressed on head as a line and as a threshold; the winter law used to back ET out of every month and read the drainage share of the annual loss - the Paper M \u00a77.1 basis - with a Sy bracket from a winter joint fit that borrows no Sy at all. Two-pass: reads Scripts 18, 48 and 39. Opt-in diagnostic"
   },
   "run_09_scraping.py": {
-   "last_run": "2026-11-28T07:56:28",
-   "seconds": 17.0,
+   "last_run": "2026-11-28T09:39:05",
+   "seconds": 17.2,
    "status": "ok",
    "step": "10/69  Scraping analysis suite (09a\u201309e)"
   },
@@ -421,5 +421,5 @@
    "step": "11/69  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-11-28T07:56:28"
+ "updated": "2026-11-28T09:39:12"
 }

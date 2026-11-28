@@ -34,7 +34,7 @@ Outputs (outputs/26d_spring_summer_gap/):
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # 2026-11-27 (D-347 (4) Note; Martin 2026-11-27 "include the numbers, add a pipeline step"). First issue.
+__version__ = "1.1.0"  # 2026-11-28 (Martin: "shouldnt it be the post 2010 record?"): the robustness tests (all years; without the lowest spring; without the lowest and highest; from y0+3) for every group on its cluster-level wells, and counts of falling and significantly falling wells; network rows and keys unchanged. Was "1.0.0"  # 2026-11-27 (D-347 (4) Note; Martin 2026-11-27 "include the numbers, add a pipeline step"). First issue.
 SCRIPT_ID = "26d"
 VERSION = __version__
 
@@ -105,7 +105,12 @@ def summarise(w: pd.DataFrame, label: str) -> dict:
             "gap_theil_sen_median_mm_yr": float(w["gap_theil_sen_mm_yr"].median()) if n else np.nan,
             "n_gap_widening": k, "n_gap_widening_p05": int(((w["gap_mm_yr"] > 0) & (w["gap_p"] < 0.05)).sum()),
             "sign_test_p": _sign_p(k, n),
-            "gap_mean_median_m": float(w["gap_mean_m"].median()) if n else np.nan}
+            "gap_mean_median_m": float(w["gap_mean_m"].median()) if n else np.nan,
+            # 1.1.0 (Martin 2026-11-28): how many wells fall, and how many of those falls are significant
+            "n_spring_falling": int((w["spring_mm_yr"] < 0).sum()) if n else 0,
+            "n_spring_falling_p05": int(((w["spring_mm_yr"] < 0) & (w["spring_p"] < 0.05)).sum()) if n else 0,
+            "n_summer_min_falling": int((w["summer_min_mm_yr"] < 0).sum()) if n else 0,
+            "n_summer_min_falling_p05": int(((w["summer_min_mm_yr"] < 0) & (w["summer_min_p"] < 0.05)).sum()) if n else 0}
 
 
 def summer_minima(fill_dry: bool) -> tuple[pd.DataFrame, int]:
@@ -225,22 +230,36 @@ def main() -> int:
              (f"without {lo_year}", [y for y in years if y != lo_year]),
              (f"without {lo_year} and {hi_year}", [y for y in years if y not in (lo_year, hi_year)]),
              (f"from {y0 + 3}", [y for y in years if y >= y0 + 3])]
+    # 1.1.0 (Martin 2026-11-28, "shouldnt it be the post 2010 record?"): the same tests for every group, on its
+    # cluster-level wells, so Table 7 can carry them; the network rows and their keys are unchanged.
+    keys = ("all", "without_lowest", "without_lowest_highest", "from_plus3")
+    panels = [("network", set(w["well"]))] + [
+        (config.CLUSTER_SHORT[gid], set(w.loc[(w["group_id"] == gid) & w["cluster_level"], "well"]))
+        for gid in sorted(config.CLUSTER_SHORT)]
     rob = []
-    for label, ys in tests:
-        sub = annual[annual["well"].isin(w["well"])]
-        ww = per_well_slopes(sub, ys, 3)
-        s = summarise(ww, "network"); s["test"] = label; s["years"] = f"{min(ys)}-{max(ys)} ({len(ys)})"
-        rob.append(s)
-    R = pd.DataFrame(rob)[["test", "years", "n_wells", "spring_median_mm_yr", "summer_min_median_mm_yr",
-                          "gap_median_mm_yr", "n_gap_widening", "sign_test_p"]]
+    for tag, wells in panels:
+        for key, (label, ys) in zip(keys, tests):
+            ww = per_well_slopes(annual[annual["well"].isin(wells)], ys, 3)
+            s = summarise(ww, tag); s["key"] = key; s["test"] = label; s["years"] = f"{min(ys)}-{max(ys)} ({len(ys)})"
+            rob.append(s)
+    R = pd.DataFrame(rob)[["group", "key", "test", "years", "n_wells", "spring_median_mm_yr", "summer_min_median_mm_yr",
+                          "gap_median_mm_yr", "n_gap_widening", "sign_test_p", "n_spring_falling", "n_spring_falling_p05",
+                          "n_summer_min_falling", "n_summer_min_falling_p05"]]
     R.to_csv(paths.OUT_26D_ROBUSTNESS, index=False)
     saved(paths.OUT_26D_ROBUSTNESS)
-    for key, r in zip(("all", "without_lowest", "without_lowest_highest", "from_plus3"), R.itertuples(index=False)):
-        result(r.test, f"gap {r.gap_median_mm_yr:+.1f} mm/yr; widening {int(r.n_gap_widening)}/{int(r.n_wells)} (p = {r.sign_test_p:.2g})")
+    for r in R.itertuples(index=False):
+        sfx = "" if r.group == "network" else f" · {r.group}"
+        if r.group == "network":
+            result(r.test, f"gap {r.gap_median_mm_yr:+.1f} mm/yr; widening {int(r.n_gap_widening)}/{int(r.n_wells)} "
+                           f"(p = {r.sign_test_p:.2g}); summer minimum {r.summer_min_median_mm_yr:+.1f}, falling at "
+                           f"{int(r.n_summer_min_falling)} ({int(r.n_summer_min_falling_p05)} with p < 0.05)")
         for col, unit in (("spring_median_mm_yr", "mm/yr"), ("summer_min_median_mm_yr", "mm/yr"),
-                          ("gap_median_mm_yr", "mm/yr"), ("n_gap_widening", "wells"), ("n_wells", "wells"), ("sign_test_p", "")):
-            rpt.add(f"gap_robust_{key}_{col}", getattr(r, col), unit=unit, note=f"network panel, {r.test} ({r.years}): {col}")
-    lines += ["", "Robustness (network panel, per-well OLS):", R.round(4).to_string(index=False)]
+                          ("gap_median_mm_yr", "mm/yr"), ("n_gap_widening", "wells"), ("n_wells", "wells"), ("sign_test_p", ""),
+                          ("n_spring_falling", "wells"), ("n_spring_falling_p05", "wells"),
+                          ("n_summer_min_falling", "wells"), ("n_summer_min_falling_p05", "wells")):
+            rpt.add(f"gap_robust_{r.key}_{col}{sfx}", getattr(r, col), unit=unit,
+                    note=f"{r.group} panel{'' if r.group == 'network' else ' (cluster-level wells)'}, {r.test} ({r.years}): {col}")
+    lines += ["", "Robustness (network and group panels, per-well OLS):", R.round(4).to_string(index=False)]
 
     phase(5, "Dry summers as bounds (sensitivity)")
     sdry, n_filled = summer_minima(fill_dry=True)

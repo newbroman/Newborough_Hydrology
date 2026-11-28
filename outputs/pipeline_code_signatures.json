@@ -141,7 +141,7 @@
    }
   },
   "09a_paired_baci.py": {
-   "recorded": "2026-11-28T07:56:28Z",
+   "recorded": "2026-11-28T09:39:05Z",
    "sig": "aa293704e05bd7e2",
    "utils": {
     "utils/config.py": "2168b961579f0f9d",
@@ -154,8 +154,8 @@
    }
   },
   "09b_scraping_propagation.py": {
-   "recorded": "2026-11-28T07:56:28Z",
-   "sig": "65e7954d3831c998",
+   "recorded": "2026-11-28T09:39:05Z",
+   "sig": "c87e97e8afdab66f",
    "utils": {
     "utils/clearfell_common.py": "145c92a75bcc6bc6",
     "utils/cluster_series.py": "62753e5ed90ccd73",
@@ -170,7 +170,7 @@
    }
   },
   "09c_summer_minima.py": {
-   "recorded": "2026-11-28T07:56:28Z",
+   "recorded": "2026-11-28T09:39:05Z",
    "sig": "e2b6b328a7dce68c",
    "utils": {
     "utils/clearfell_common.py": "708747a3e869128e",
@@ -182,7 +182,7 @@
    }
   },
   "09d_scenario_comparison.py": {
-   "recorded": "2026-11-28T07:56:28Z",
+   "recorded": "2026-11-28T09:39:05Z",
    "sig": "9dba65387ee1c3d7",
    "utils": {
     "utils/clearfell_common.py": "4e80a01f332f2998",
@@ -198,7 +198,7 @@
    }
   },
   "09e_robustness.py": {
-   "recorded": "2026-11-28T07:56:28Z",
+   "recorded": "2026-11-28T09:39:05Z",
    "sig": "5b0a38fa74a5e7d8",
    "utils": {
     "utils/config.py": "1f74845899956a3f",
@@ -691,8 +691,8 @@
    }
   },
   "26d_spring_summer_gap.py": {
-   "recorded": "2026-11-27T21:59:44Z",
-   "sig": "b11f909a74f65e2f",
+   "recorded": "2026-11-28T09:39:12Z",
+   "sig": "270a4b40b79833d1",
    "utils": {
     "utils/cluster_series.py": "8533e8b31421be65",
     "utils/config.py": "f3342c20ed1ef282",
@@ -1161,7 +1161,7 @@
    }
   },
   "run_09_scraping.py": {
-   "recorded": "2026-11-28T07:56:28Z",
+   "recorded": "2026-11-28T09:39:05Z",
    "sig": "6f348ee1900c82fc",
    "utils": {
     "utils/console_utils.py": "2cc1cbf79808083c"

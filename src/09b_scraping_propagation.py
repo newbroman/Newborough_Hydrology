@@ -30,7 +30,7 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.18.0"  # 2026-11-28 (review stage 2, Martin: "do both and report"): three centroid groups beside the four - C3o (open uphill), C3+CEH31 without edge wells, C4 (forest uphill) without edge wells; the existing rows and keys unchanged. Was "1.17.0"  # 2026-11-27 (D-349 (1), B2, B3): the pre-scrape era is laid out on D-347's window (PRE_SCRAPE_START = RECORD_FIT_START, Jan 2010 to the Apr 2015 scrape; fits start=None) and its key's era says so (was "record start"); every 09b_04/09b_05 bar a sustained level change as stored water (scraping_common 1.16.0), columns renamed Delta_storage_sustained_mm; the scrape bar in the C3 (C3o) column with C3o's Sy (was C3f's column and Sy); Clearfell / Thinning carry the anchor range; the equilibration baseline from 2010. Was "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
+__version__ = "1.19.0"  # 2026-11-28 (D-350): every centroid row carries the era SEs of beta_3 and an approximate BACI SE and z for both models (control SE from its per-well changes); Model A is the primary estimator for this short-era comparison, the percentages are kept only so bound fields still resolve. Was "1.18.0"  # 2026-11-28 (review stage 2, Martin: "do both and report"): three centroid groups beside the four - C3o (open uphill), C3+CEH31 without edge wells, C4 (forest uphill) without edge wells; the existing rows and keys unchanged. Was "1.17.0"  # 2026-11-27 (D-349 (1), B2, B3): the pre-scrape era is laid out on D-347's window (PRE_SCRAPE_START = RECORD_FIT_START, Jan 2010 to the Apr 2015 scrape; fits start=None) and its key's era says so (was "record start"); every 09b_04/09b_05 bar a sustained level change as stored water (scraping_common 1.16.0), columns renamed Delta_storage_sustained_mm; the scrape bar in the C3 (C3o) column with C3o's Sy (was C3f's column and Sy); Clearfell / Thinning carry the anchor range; the equilibration baseline from 2010. Was "1.16.0"  # 2026-11-27 (D-348): bar groups and axis labels from CLUSTER_LABELS (C3o, C3f); C5 Sy and bar text read C3f. Was "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
 #   bars of 09b_04 (BACI delta-beta_3 of split-window refits through 1/beta_3) are dropped: the scrape is detected
 #   by the paired contrast at CEH36 (09a) and its propagation is not quantified. _compute_scraping_bars,
 #   scrape_bar_n_b3_held_at_bound, the D-333 status column, labels and count key (scenario_n_keys_withdrawn_d333_09b)
@@ -309,6 +309,10 @@ def main():
     ctrl_db3 = ctrl["raw_db3"].mean()
     ctrl_dalpha = ctrl["raw_dalpha"].mean()
     ctrl_db3_a = ctrl["raw_db3_model_a"].mean()
+    # 1.19.0 (D-350): the control correction's own error, the standard error of the mean of the per-well changes
+    _n_ctrl = max(int(ctrl["raw_db3"].notna().sum()), 1)
+    ctrl_db3_se = float(ctrl["raw_db3"].std(ddof=1) / np.sqrt(_n_ctrl))
+    ctrl_db3_a_se = float(ctrl["raw_db3_model_a"].std(ddof=1) / np.sqrt(max(int(ctrl["raw_db3_model_a"].notna().sum()), 1)))
 
     print(f"   Control centroid raw shifts (n={len(ctrl)} wells):")
     print(f"     \u0394\u03b2\u2081 = {ctrl_db1:+.3f}")
@@ -419,7 +423,21 @@ def main():
                 "post_b3_model_a": _b3a(post_a),
                 "baci_db3_model_a": db3_a,
                 "baci_db3_pct_model_a": pct_b3_a,
+                # 1.19.0 (D-350): every shift with its error. Era SEs from the centroid fits, the control's as the
+                # SE of the mean of its per-well changes, combined in quadrature (covariance ignored: approximate).
+                "se_pre_b3":   pre.get("se_beta_3", np.nan),
+                "se_post_b3":  post.get("se_beta_3", np.nan),
+                "baci_db3_se": float(np.sqrt(pre.get("se_beta_3", np.nan) ** 2 + post.get("se_beta_3", np.nan) ** 2
+                                             + ctrl_db3_se ** 2)),
+                "se_pre_b3_model_a":  pre_a.get("se_beta_3", np.nan) if pre_a else np.nan,
+                "se_post_b3_model_a": post_a.get("se_beta_3", np.nan) if post_a else np.nan,
+                "baci_db3_se_model_a": (float(np.sqrt(pre_a["se_beta_3"] ** 2 + post_a["se_beta_3"] ** 2
+                                                      + ctrl_db3_a_se ** 2)) if pre_a and post_a else np.nan),
             })
+            _r = centroid_rows[-1]
+            _r["baci_db3_z"] = db3 / _r["baci_db3_se"] if _r["baci_db3_se"] > 0 else np.nan
+            _r["baci_db3_z_model_a"] = (db3_a / _r["baci_db3_se_model_a"]
+                                        if _r["baci_db3_se_model_a"] > 0 else np.nan)
 
             print(f"   {group_name} ({len(group_df)} wells):")
             print(f"     BACI \u0394\u03b2\u2081={db1:+.3f}  "

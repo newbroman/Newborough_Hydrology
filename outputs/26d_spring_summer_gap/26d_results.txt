@@ -1,13 +1,13 @@
-Script 26d v1.0.0: spring level against summer minimum (D-347 (4) Note)
+Script 26d v1.1.0: spring level against summer minimum (D-347 (4) Note)
 
 Window 2010-2025; panel: both valid in >= 14 years.
-  group  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  gap_theil_sen_median_mm_yr  n_gap_widening  n_gap_widening_p05  sign_test_p  gap_mean_median_m
-network       49              15.2857                  -0.9853           15.2601                     12.1283              49                   2       0.0000             0.6983
-     C1        6              12.5760                  -8.2259           20.7365                     13.3333               6                   2       0.0312             0.7039
-     C2       17              16.0073                  -0.6324           15.0119                      7.6667              17                   0       0.0000             0.7226
-    C3o        7              13.8214                  -0.6080           14.2647                     11.4286               7                   0       0.0156             0.6153
-     C4        6              28.7857                  15.0220           12.6375                     11.4444               6                   0       0.0312             0.5874
-    C3f        4               6.6612                  -2.1948            8.8688                      9.5171               4                   0       0.1250             0.4513
+  group  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  gap_theil_sen_median_mm_yr  n_gap_widening  n_gap_widening_p05  sign_test_p  gap_mean_median_m  n_spring_falling  n_spring_falling_p05  n_summer_min_falling  n_summer_min_falling_p05
+network       49              15.2857                  -0.9853           15.2601                     12.1283              49                   2       0.0000             0.6983                 2                     0                    29                         0
+     C1        6              12.5760                  -8.2259           20.7365                     13.3333               6                   2       0.0312             0.7039                 0                     0                     6                         0
+     C2       17              16.0073                  -0.6324           15.0119                      7.6667              17                   0       0.0000             0.7226                 0                     0                     9                         0
+    C3o        7              13.8214                  -0.6080           14.2647                     11.4286               7                   0       0.0156             0.6153                 0                     0                     5                         0
+     C4        6              28.7857                  15.0220           12.6375                     11.4444               6                   0       0.0312             0.5874                 0                     0                     1                         0
+    C3f        4               6.6612                  -2.1948            8.8688                      9.5171               4                   0       0.1250             0.4513                 0                     0                     4                         0
 
 Year by year: lowest spring 2012, highest 2024; r(gap, spring) = 0.74
  hydro_year  n_wells  spring_median_m  summer_min_median_m  gap_median_m
@@ -28,12 +28,32 @@ Year by year: lowest spring 2012, highest 2024; r(gap, spring) = 0.74
        2024       48            0.008               -0.870         0.832
        2025       47           -0.530               -1.210         0.750
 
-Robustness (network panel, per-well OLS):
-                 test          years  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  n_gap_widening  sign_test_p
-            all years 2010-2025 (16)       49              15.2857                  -0.9853           15.2601              49       0.0000
-         without 2012 2010-2025 (15)       49               1.3978                  -2.4438            4.0880              40       0.0000
-without 2012 and 2024 2010-2025 (14)       49              -8.1795                  -9.3857            1.1218              28       0.3916
-            from 2013 2013-2025 (13)       49              -4.3773                  -5.2747            0.1648              25       1.0000
+Robustness (network and group panels, per-well OLS):
+  group                    key                  test          years  n_wells  spring_median_mm_yr  summer_min_median_mm_yr  gap_median_mm_yr  n_gap_widening  sign_test_p  n_spring_falling  n_spring_falling_p05  n_summer_min_falling  n_summer_min_falling_p05
+network                    all             all years 2010-2025 (16)       49              15.2857                  -0.9853           15.2601              49       0.0000                 2                     0                    29                         0
+network         without_lowest          without 2012 2010-2025 (15)       49               1.3978                  -2.4438            4.0880              40       0.0000                22                     0                    34                         1
+network without_lowest_highest without 2012 and 2024 2010-2025 (14)       49              -8.1795                  -9.3857            1.1218              28       0.3916                38                     0                    45                         2
+network             from_plus3             from 2013 2013-2025 (13)       49              -4.3773                  -5.2747            0.1648              25       1.0000                42                     0                    42                         0
+     C1                    all             all years 2010-2025 (16)        6              12.5760                  -8.2259           20.7365               6       0.0312                 0                     0                     6                         0
+     C1         without_lowest          without 2012 2010-2025 (15)        6               7.4518                  -3.8826           10.5403               6       0.0312                 1                     0                     6                         0
+     C1 without_lowest_highest without 2012 and 2024 2010-2025 (14)        6               0.0881                  -6.2979            6.3842               6       0.0312                 3                     0                     6                         0
+     C1             from_plus3             from 2013 2013-2025 (13)        6              -0.9158                  -8.6813            8.2051               5       0.2188                 3                     0                     6                         0
+     C2                    all             all years 2010-2025 (16)       17              16.0073                  -0.6324           15.0119              17       0.0000                 0                     0                     9                         0
+     C2         without_lowest          without 2012 2010-2025 (15)       17               2.4155                  -0.4945            0.6233              10       0.6291                 8                     0                    10                         0
+     C2 without_lowest_highest without 2012 and 2024 2010-2025 (14)       17              -5.0334                  -6.5278           -0.9629               6       0.3323                15                     0                    13                         0
+     C2             from_plus3             from 2013 2013-2025 (13)       17              -4.3223                  -1.5934           -1.5568               7       0.6291                17                     0                    13                         0
+    C3o                    all             all years 2010-2025 (16)        7              13.8214                  -0.6080           14.2647               7       0.0156                 0                     0                     5                         0
+    C3o         without_lowest          without 2012 2010-2025 (15)        7              -1.7606                  -3.3762            5.6982               6       0.1250                 4                     0                     5                         0
+    C3o without_lowest_highest without 2012 and 2024 2010-2025 (14)        7             -13.9740                 -10.0242            1.6097               4       1.0000                 7                     0                     7                         0
+    C3o             from_plus3             from 2013 2013-2025 (13)        7              -9.8352                  -2.7273           -5.3613               1       0.1250                 7                     0                     5                         0
+     C4                    all             all years 2010-2025 (16)        6              28.7857                  15.0220           12.6375               6       0.0312                 0                     0                     1                         0
+     C4         without_lowest          without 2012 2010-2025 (15)        6               5.1378                  -2.6441            4.6942               6       0.0312                 1                     0                     4                         0
+     C4 without_lowest_highest without 2012 and 2024 2010-2025 (14)        6              -3.0446                  -7.5008            2.8290               5       0.2188                 4                     0                     6                         0
+     C4             from_plus3             from 2013 2013-2025 (13)        6              -1.9872                  -4.5604            3.1859               5       0.2188                 4                     0                     6                         0
+    C3f                    all             all years 2010-2025 (16)        4               6.6612                  -2.1948            8.8688               4       0.1250                 0                     0                     4                         0
+    C3f         without_lowest          without 2012 2010-2025 (15)        4              -3.2971                  -6.4890            2.9954               4       0.1250                 4                     0                     4                         0
+    C3f without_lowest_highest without 2012 and 2024 2010-2025 (14)        4             -12.9113                 -12.8689            0.1546               2       1.0000                 4                     0                     4                         0
+    C3f             from_plus3             from 2013 2013-2025 (13)        4              -9.5696                  -9.4231            0.3480               2       1.0000                 4                     0                     4                         0
 
 Dry summers as bounds: 108 dry months filled; 27 wells with a dry summer month from 2010; 53 wells, gap +14.9 mm/yr, widening 53/53
 

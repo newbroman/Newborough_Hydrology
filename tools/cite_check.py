@@ -1036,7 +1036,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/22_model_b_fits.csv", "Well", ["alpha", "ar1_phi", "R2"]),
     ("outputs/23_ridge_lag_fits.csv", "Well", ["alpha", "beta_10", "beta_11", "peak_lag", "phi_resid"]),
     ("outputs/06_pear_membership_audit_sitewide.csv", "Well_Normalised",
-     ["Best_r", "Delta", "r_C1", "r_C2", "r_C3", "r_C4", "r_C5"]),
+     ["Best_r", "Delta", "r_C1", "r_C2", "r_C3", "r_C4"]),   # 2026-11-28 (D-348): r_C5 gone, four clusters
     ("outputs/03_master_data.csv", "Name_Original",
      ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "Model_R2"]),
     ("outputs/14_climate_projections/14_annual_extremes.csv", ("Cluster", "HydroYear", "Season"), ["Value_m"]),
